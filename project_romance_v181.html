@@ -804,6 +804,7 @@ header{background:rgba(235,225,205,.98);border-bottom:1px solid rgba(80,65,40,.2
 <script src="src/data/events.js"></script>
 <script src="src/data/generals.js"></script>
 <script src="src/data/cities.js"></script>
+<script src="src/data/factions.js"></script>
 <script>
 
 // ═══════════════════════════════════════
@@ -1181,32 +1182,11 @@ function getBarracksDiscount(city){
   return [1.0, 0.90, 0.80, 0.70][lv] || 1.0;
 }
 
-// ── FACTIONS ──
-const FAC={
-  wei:{name:'魏',full:'曹魏',ruler:'曹操',color:'#1a5f8a',cls:'wei'},
-  shu:{name:'蜀',full:'蜀汉',ruler:'刘备',color:'#1a7a3a',cls:'shu'},
-  wu: {name:'吴',full:'孙吴',ruler:'孙权',color:'#a82a1a',cls:'wu'},
-  nanman:{name:'蛮',full:'南蛮',ruler:'孟获',color:'#8b6914',cls:'nanman'},
-};
-// ★ v144: 动态势力列表（替代硬编码['wei','shu','wu']，为190剧本多势力做准备）
-const ALL_FACS = Object.keys(FAC).filter(f=>f!=='rebel'); // 所有正式势力（不含叛军）
-const PLAYABLE_FACS = ['wei','shu','wu','nanman']; // 可选玩家势力
 
 // ═══════════════════════════════════════
 // C3 宣称 + 天子 + 称帝系统
 // ═══════════════════════════════════════
 
-/** 势力身份标签（运行时可变，称帝/天子易主时修改type） */
-// v172: 新增 stage（势力演进阶段）和 anchorState（一方之主的根据地州）
-//   type:  对外合法性（emperor_holder/han_royal/warlord/tribal/emperor）— 影响宣战/信誉
-//   stage: 对内治理阶段（warlord/regional/regime）— 影响派系影响力+豪族上下限
-//   anchorState: 仅 regional 阶段有值，军阀/政权均为 null
-const FAC_IDENTITY = {
-  wei:    { type:'emperor_holder', _baseType:'warlord',  traits:['枭雄'],     stage:'regime',  anchorState:null },
-  shu:    { type:'han_royal',      _baseType:'han_royal', traits:['仁主','汉室'], stage:'regime',  anchorState:null },
-  wu:     { type:'warlord',        _baseType:'warlord',  traits:[],            stage:'regime',  anchorState:null },
-  nanman: { type:'tribal',         _baseType:'tribal',   traits:['蛮族'],      stage:'warlord', anchorState:null },
-};
 
 /** v172: 势力演进阶段常量 */
 const STAGE_NAMES = { warlord:'军阀', regional:'一方之主', regime:'政权' };
@@ -1231,12 +1211,6 @@ const STAGE_PROMO = {
 // 负值方向: mandate→崇汉, power→共治, civil→仁政, military→怀柔, strategy→守成
 // 范围 -100 ~ +100, 0为中立
 // ═══════════════════════════════════════
-const ETHOS_INIT = {
-  wei:    { mandate:  15, power:  20, civil:  0, military: 10, strategy: 15 },
-  shu:    { mandate: -30, power:   0, civil:  5, military:-20, strategy: 10 },
-  wu:     { mandate:   0, power: -20, civil:  0, military:  0, strategy:-20 },
-  nanman: { mandate:   0, power:   0, civil:-10, military: 15, strategy:  5 },
-};
 const ETHOS_DIMS = ['mandate','power','civil','military','strategy'];
 const ETHOS_LABELS = {
   mandate:  { neg:'崇汉', pos:'篡汉',   icon:'👑' },
@@ -1635,15 +1609,6 @@ function aiDoTechResearch(fid) {
 
 
 
-const DIPLO_INIT={ // ★ v120: 三国开局全面和平，需经外交恶化/宣战才开战
-  'wei-shu':{status:'neutral',rel:40}, // ★ v133: 30→40 给外交缓冲
-  'wei-wu': {status:'neutral',rel:45}, // ★ v133: 38→45 给外交缓冲
-  'shu-wu': {status:'ally',rel:78},
-  // ★ v144: 南蛮外交初始化
-  'wei-nanman':{status:'neutral',rel:25},
-  'shu-nanman':{status:'vassal',rel:50,suzerain:'shu'}, // 南蛮为蜀附庸
-  'wu-nanman': {status:'neutral',rel:30},
-};
 
 // ═══════════════════════════════════════════════════════
 // 地图系统 v4.0 — 六边形网格（Hex Grid）
