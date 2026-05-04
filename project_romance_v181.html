@@ -12801,7 +12801,7 @@ function canEnthrone(fid){
   const _enthroneMinRep = _huaxinBonus ? 30 : 40;
   const cityCount = Object.values(G.cities).filter(c=>c.fac===fid).length;
   if(cityCount < _enthroneMinCities) return false;
-  if((G.reputation?.[fid]||50) < _enthroneMinRep) return false;
+  if((G.reputation?.[fid]||REPUTATION_DEFAULT) < _enthroneMinRep) return false;
   if(isVassal(fid)) return false;
   return true;
 }

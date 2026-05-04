@@ -47,11 +47,22 @@ v181.html 行数变化:**39547 → 36799 行**(-2748,~7% 减重)。差距:抽出
 
 ## 四、D 类自然 close 记录
 
-### close(2 个,均通过 1.5 抽离副产物)
-- **D-141**:`G._eventCatCooldown[X] = 3` 硬编 4 处 → `EVENT_CAT_COOLDOWN`(constants.js)
-  - commit message:`closes D-141 via centralization`
-- **D-144**:`G.reputation[X] || 50` / `?? 50` 硬编 22 处(15 in v181 + 7 in events.js)→ `REPUTATION_DEFAULT`(constants.js)
-  - commit message:`closes D-144 via centralization`
+### close 状态(post-merge 校准,2026-05-04)
+
+**D-141 ✅ 完整 close**:`G._eventCatCooldown[X] = 3` 硬编 4 处 → `EVENT_CAT_COOLDOWN`(constants.js)
+- 实际替换:4/4,全部在 `project_romance_v181.html`(原 L8256/L8278/L8342/L13918)
+- post-merge grep 验证:0 处代码残留
+- commit message:`closes D-141 via centralization`
+
+**D-144 ✅ 完整 close(含 post-merge 补丁)**:`G.reputation` 默认 50 硬编 → `REPUTATION_DEFAULT`(constants.js)
+- 真实硬编总数:**23 处**(16 in v181 + 7 in events.js)
+- 1.5 替换:22/23(15 in v181 + 7 in events.js)
+- **遗漏 1 处**:`project_romance_v181.html:L12804`
+  - 原文:`if((G.reputation?.[fid]||50) < _enthroneMinRep) return false;`
+  - 漏的原因:1.5 替换脚本的正则 `G\.reputation\[[^\]]+\]\|\|50` 只匹配 `G.reputation[XXX]||50`(裸 bracket 形式),**未涵盖可选链+bracket 混合写法 `G.reputation?.[XXX]||50`**(整个 v181 + events.js 仅此 1 处用了此写法)
+- 补丁:L12804 遗漏在 phase 1 review 时发现,在专用 commit 中修复。原 1.5 commit message 写"23 sites"实际生效
+- 总状态:23/23 全部替换,完整 close
+- 1.5 commit `4e514fe` message 写"22 sites"为 D-144 总数 — 实际真实是 23,补丁 commit 校准
 
 ### deferred(留 sprint,严格判定不通过 CLAUDE.md L83 "修复 = 抽离副产物")
 - **D-123**:ethos 漂移系数。所有系数都在 `processFacEthos` 函数内部单点使用,抽到 const 只是 literal→named const,不形成跨文件中心化。属于 phase 3 chains/ethos.js 机制层重构范围。
