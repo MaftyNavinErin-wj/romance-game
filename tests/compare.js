@@ -16,7 +16,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const BASELINE_DEFAULT = path.resolve(__dirname, 'baseline', 'v181_pre_refactor.json');
+const BASELINE_DEFAULT = path.resolve(__dirname, 'baseline', 'phase1_post.json');
 const CURRENT_DEFAULT  = path.resolve(__dirname, 'current.json');
 
 function diff(a, b, p, out, max) {

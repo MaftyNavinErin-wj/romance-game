@@ -25,15 +25,15 @@ node tests/compare.js
 
 ## 二、设计
 
-### 第一层:核心状态快照(本 session 实装)
+### 第一层:核心状态快照(phase 0 实装)
 
 - 跑模式:jsdom + headless,无 UI 渲染
 - 固定 seed(`project_romance_test_seed_001`),Math.random 全替换为 Mulberry32
 - 50 turn,AI 自动推进,每 turn 末抓 10 类字段
-- 输出 `current.json`,与 `baseline/v181_pre_refactor.json` deep-diff
+- 输出 `current.json`,与 `baseline/phase1_post.json` deep-diff
 - PASS 标准:**100% 一致**(任何 diff 必须解释或回滚)
 
-### 抓的 10 类字段
+### 抓的 10 类字段(第一层)
 
 | # | 路径 | 频率 |
 |---|---|---|
@@ -48,10 +48,19 @@ node tests/compare.js
 | 9 | `eventLog[]` 累计 | 每 turn |
 | 10 | `G.{turn,currentEvent,_eventQueue.length,_eventPromises.length}` | 每 turn |
 
-### 后续层(留给后续 session,本 session 不做)
+### 第二层(phase 2.0 实装)— 决策路径采样
 
-- **第二层**(REFACTOR_PLAN 阶段 2.0 升级):决策路径采样 — cityChangeLog / diploChangeLog / loyaltyCrossLog / eventTriggerLog / factionModLog
-- **第三层**(默认不做):UI/DOM 快照,仅在阶段 3 实际遇到 UI 时序问题再做
+| # | 字段 | 内容 |
+|---|---|---|
+| 11 | `cityChangeLog` | `{count, recent5}` — `recent5` 是 `[{turn,cityId,from,to}]`(v181 自带 G._cityChangeLog,turn-24 后清旧) |
+| 12 | `genFactionModLog` | `{count, recent5}` — `recent5` 是 flatten 全 gen 的最近 5 条 `[{name,turn,event,delta,after}]` |
+| 13 | `eventQueue` | `{ids, head}` — `ids` 是当前 G._eventQueue 全量事件 ID 数组,`head` 是队首 `{id, fid, forPlayer, ctx}`,ctx 内对象引用转 `<ref:xxx>` 字符串避免循环引用 |
+
+第二层覆盖事件触发顺序 / 城市易主路径 / 武将派系修正,为 phase 2 渲染抽离时检测时序破坏提供安全网。设计依据:phase 2.0 启动前对 baseline 做的 50 turn 探测显示 cityChangeLog max=10 / genFactionModLog max=587 / eventQueue ids max length=6,具有足够动态信号。
+
+### 第三层(默认不做)
+
+UI/DOM 快照,仅在阶段 3 实际遇到 UI 时序问题再做。
 
 ---
 
@@ -130,7 +139,7 @@ node tests/compare.js
 | `smoke.js` | 主脚本(jsdom + 50 turn + captureState) |
 | `compare.js` | deep-diff baseline vs current |
 | `vendor/seedrandom.js` | Mulberry32 PRNG(public domain),注入式替换 Math.random |
-| `baseline/v181_pre_refactor.json` | 权威 baseline,基于 v181 原代码 |
+| `baseline/phase1_post.json` | 权威 baseline(phase 2.0 起)— 含 layer-1 + layer-2,基于 phase-1 完成后的 v181 + src/data/。原 `v181_pre_refactor.json` / `phase1_complete.json`(layer-1 only)在 git tag `phase1-baseline-archive` 处归档 |
 | `current.json` | 每次跑 smoke 的输出(.gitignore 排除) |
 | `README.md` | 本文件 |
 

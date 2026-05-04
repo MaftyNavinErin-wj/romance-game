@@ -29,32 +29,18 @@ const HTML_PATH = path.resolve(__dirname, '..', 'project_romance_v181.html');
 const OUT_PATH  = path.resolve(__dirname, 'current.json');
 
 // ─────────────────────────────────────────────────────────────────
-// 状态采样:第一层 10 类字段(按 v181 真实结构)
+// 状态采样
 //
-// 文档 vs 真实(详见 README):
-//   1. factions[].{gold,grain,wood,iron,troops_total}
-//        → factions[fid].res.{gold, wood, iron, horses} + factions[fid].totalTroops
-//          (无 grain — grain 在 cities[].storage)
-//   2. factions[].ethos.{benevolence, order, legitimacy, martial}
-//        → factions[fid].ethos.{mandate, power, civil, military, strategy}  [5 维]
-//   3. factions[].reputation
-//        → G.reputation[fid]  (顶层 map,不是 faction 字段)
-//   4. cities[].{fac, occupied, troops}
-//        → cities[cid].{fac, occupied, troops}  ✅ 一致
-//   5. cities[].income_last_turn
-//        → cities[cid].storage  (无 income_last_turn 字段;storage 是当前积粮)
-//   6. diplo[].{a, b, status, rel}
-//        → diplo[key].{status, rel, suzerain?}  key="wei-shu" 双向
-//   7. generals[].{fac, post, loyalty, factionMod, status, lvl}
-//        → generals[fid][i].name + G.genPost[name]/genLoyalty[name]/genFactionMod[name]/
-//          genWounded[name]/genJoinTurn[name]  (散在 G 多张 map)
-//   8. units[].{fac, city, lvl, morale, troops}
-//        → units[].{id, fac, hq, hr, status, level, squads[]}  (子部队在 squads)
-//   9. eventLog[] 累计
-//        → G.logs[]  (综合日志 [{msg, type}],含事件/战斗/系统)
-//  10. G.{turn, currentEvent, _eventQueue.length, _eventPromises.length}
-//        → G.{turn, _pendingEvent, _eventQueue.length, _eventPromises.length}
-//          (无 currentEvent;_pendingEvent 是真实字段)
+// 第一层(原 10 类核心字段,phase 0 实装):
+//   factions / cities / diplo / generals / units / logs / top
+//   字段映射详见 tests/README.md §三
+//
+// 第二层(phase 2.0 升级 — 决策路径采样):
+//   - cityChangeLog: count + recent 5 entries
+//   - genFactionModLog: count + recent 5 entries (flattened across all gens)
+//   - eventQueue: full ID array + queue head detail
+//   覆盖事件触发顺序 / 城市易主路径 / 武将派系修正路径,为 phase 2 渲染抽离
+//   提供时序不变性安全网。设计参考见 phase1_summary §五的 baseline 探测产出。
 // ─────────────────────────────────────────────────────────────────
 
 function pick(obj, keys) {
@@ -183,7 +169,70 @@ function captureState(G) {
     wildPoolLen: Array.isArray(G.wildPool) ? G.wildPool.length : null,
   };
 
-  return { factions, cities, diplo, generals, units, logs, top };
+  // ── 第二层(phase 2.0):决策路径采样 ──
+
+  // (a) cityChangeLog:array of {turn, cityId, from, to},v181 在 turn-24 后会清旧记录
+  const ccl = Array.isArray(G._cityChangeLog) ? G._cityChangeLog : [];
+  const cityChangeLog = {
+    count: ccl.length,
+    recent5: ccl.slice(-5).map(e => ({
+      turn: e.turn ?? null, cityId: e.cityId ?? null, from: e.from ?? null, to: e.to ?? null,
+    })),
+  };
+
+  // (b) genFactionModLog:object keyed by gen name,每 gen array of {turn, event, delta, after}
+  // 每 gen array cap 8。flatten 全局 + sort by turn desc 取 recent 5
+  const gfml = (G.genFactionModLog && typeof G.genFactionModLog === 'object') ? G.genFactionModLog : {};
+  let gfmlFlat = [];
+  for (const name of Object.keys(gfml)) {
+    const arr = Array.isArray(gfml[name]) ? gfml[name] : [];
+    for (const e of arr) {
+      gfmlFlat.push({
+        name, turn: e.turn ?? null, event: e.event ?? null,
+        delta: e.delta ?? null, after: e.after ?? null,
+      });
+    }
+  }
+  // sort by turn ascending,然后 slice(-5) 取最近 5(turn 相同时按 name 字母序稳定)
+  gfmlFlat.sort((a, b) => (a.turn - b.turn) || a.name.localeCompare(b.name));
+  const genFactionModLog = {
+    count: gfmlFlat.length,
+    recent5: gfmlFlat.slice(-5),
+  };
+
+  // (c) eventQueue:array of {def, fid, ctx, forPlayer}。def 含函数引用 + ctx 含 city 对象引用,
+  // 只取可序列化字段:def.id / fid / forPlayer / ctx 的 ID 化版本(city.id 而非 city ref)
+  const eq = Array.isArray(G._eventQueue) ? G._eventQueue : [];
+  function safeCtx(ctx) {
+    if (!ctx || typeof ctx !== 'object') return null;
+    const out = {};
+    for (const k of Object.keys(ctx)) {
+      const v = ctx[k];
+      if (v == null) continue;
+      const t = typeof v;
+      if (t === 'string' || t === 'number' || t === 'boolean') {
+        out[k] = v;
+      } else if (t === 'object') {
+        // 已知 city 引用 → 取 id
+        if ('id' in v && typeof v.id === 'string') out[k] = `<ref:${v.id}>`;
+        // 已知 array of refs(generals 等)→ 长度 + 名字采样
+        else if (Array.isArray(v)) out[k] = `<arr:${v.length}>`;
+        else out[k] = '<obj>';
+      }
+    }
+    return out;
+  }
+  const eventQueue = {
+    ids: eq.map(q => q?.def?.id ?? null),
+    head: eq[0] ? {
+      id: eq[0].def?.id ?? null,
+      fid: eq[0].fid ?? null,
+      forPlayer: eq[0].forPlayer ?? null,
+      ctx: safeCtx(eq[0].ctx),
+    } : null,
+  };
+
+  return { factions, cities, diplo, generals, units, logs, top, cityChangeLog, genFactionModLog, eventQueue };
 }
 
 // ─────────────────────────────────────────────────────────────────
