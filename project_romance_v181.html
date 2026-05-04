@@ -801,6 +801,7 @@ header{background:rgba(235,225,205,.98);border-bottom:1px solid rgba(80,65,40,.2
   </div>
 </div>
 
+<script src="src/data/constants.js"></script>
 <script src="src/data/events.js"></script>
 <script src="src/data/generals.js"></script>
 <script src="src/data/cities.js"></script>
@@ -8253,7 +8254,7 @@ function rollEventsV2(){
     choices[idx].effect();
     // 设冷却
     G._eventCooldown[t.def.id] = t.def.cooldown;
-    G._eventCatCooldown[t.def.category] = 3;
+    G._eventCatCooldown[t.def.category] = EVENT_CAT_COOLDOWN;
     // ★ v131: 一次性事件标记
     if(t.def.oneTime){ if(!G._eventFired) G._eventFired={}; G._eventFired[t.def.id]=G.turn; }
     log(`${t.def.icon} ${t.ctx.city?.name||t.ctx.genName||t.ctx.facLabel||t.ctx.complainerName||''}${t.def.name}（${FAC[t.fid]?.name||t.fid}）`,'event');
@@ -8275,7 +8276,7 @@ function rollEventsV2(){
       if(choices[idx]?.disabled) idx = choices.findIndex(c=>!c.disabled);
       if(idx>=0) choices[idx].effect();
       G._eventCooldown[first.def.id] = first.def.cooldown;
-      G._eventCatCooldown[first.def.category] = 3;
+      G._eventCatCooldown[first.def.category] = EVENT_CAT_COOLDOWN;
       // ★ v131: 一次性事件标记
       if(first.def.oneTime){ if(!G._eventFired) G._eventFired={}; G._eventFired[first.def.id]=G.turn; }
       log(`${first.def.icon} ${first.ctx.city?.name||first.ctx.genName||first.ctx.facLabel||first.ctx.complainerName||''}${first.def.name}`,'event');
@@ -8339,7 +8340,7 @@ function resolveEventChoice(idx){
   if(!G._eventCooldown) G._eventCooldown={};
   if(!G._eventCatCooldown) G._eventCatCooldown={};
   G._eventCooldown[def.id] = def.cooldown;
-  G._eventCatCooldown[def.category] = 3;
+  G._eventCatCooldown[def.category] = EVENT_CAT_COOLDOWN;
   // ★ v131: 一次性事件标记
   if(def.oneTime){ if(!G._eventFired) G._eventFired={}; G._eventFired[def.id]=G.turn; }
 
@@ -11837,7 +11838,7 @@ function aiDoDiplo(fid){
         } else {
           // 无宣称：根据信誉决定
           // ★ B4: diploAggro越高越不在乎廉耻（曹操×0.2，刘备×0.7）
-          const rep = G.reputation?.[fid] ?? 50;
+          const rep = G.reputation?.[fid] ?? REPUTATION_DEFAULT;
           const shameFactor = 1.0 - (_p.diploAggro || 0.5);
           if(rep < 30 && Math.random() < 0.80 * shameFactor) proceedWithWar = false;
           else if(rep < 60 && Math.random() < 0.50 * shameFactor) proceedWithWar = false;
@@ -12561,7 +12562,7 @@ function cancelTradeAgreement(target){
   addDiplo(fid, target, -8);
   // 信誉惩罚（复用现有信誉度系统）
   if(!G.reputation) G.reputation={wei:45,shu:80,wu:60,nanman:30};
-  G.reputation[fid] = Math.max(0, (G.reputation[fid]||50) - 3);
+  G.reputation[fid] = Math.max(0, (G.reputation[fid]||REPUTATION_DEFAULT) - 3);
   log(`❌ 中止与${FAC[target]?.name}的通商协定（好感-8，信誉-3）`, 'diplo');
   invalidateLeftCache(); renderAllLight(); // ★ v167fix #36
 }
@@ -12620,7 +12621,7 @@ function applyReputationPenalty(fid, reason){
   // SKILL_INLINE: jianxiong_pen — 曹操奸雄：信誉惩罚减半
   if(pen && hasFacGen(fid, '曹操') && genHasOffice('曹操', fid)) pen = Math.floor(pen * 0.5);
   if(!pen) return;
-  G.reputation[fid] = Math.max(0, Math.min(100, (G.reputation[fid]||50) - pen));
+  G.reputation[fid] = Math.max(0, Math.min(100, (G.reputation[fid]||REPUTATION_DEFAULT) - pen));
   const isPlayer = fid === G.playerFac;
   if(isPlayer){
     log(`⚠️ ${labels[reason]}，声誉 -${pen}（现为 ${Math.round(G.reputation[fid])}）`,'diplo');
@@ -12631,13 +12632,13 @@ function applyReputationPenalty(fid, reason){
 
 /** C3 信誉度惩罚修正系数（仅 rep<60 时生效，高于60无惩罚） */
 function _repPenaltyFactor(fid){
-  const rep = G.reputation?.[fid] ?? 50;
+  const rep = G.reputation?.[fid] ?? REPUTATION_DEFAULT;
   return rep >= 60 ? 0 : (60 - rep) * 0.003; // rep=30 → 0.09
 }
 
 /** C3 送礼友好度倍率（仅 rep<60 时打折，高于60不加成） */
 function _repGiftMult(fid){
-  const rep = G.reputation?.[fid] ?? 50;
+  const rep = G.reputation?.[fid] ?? REPUTATION_DEFAULT;
   return rep >= 60 ? 1.0 : 1 - (60 - rep) * 0.005; // rep=30 → 0.85
 }
 
@@ -12736,7 +12737,7 @@ function applyWarDeclarationEffects(fid, target, claimType){
   if(claimType === 'imperial_decree' && targetType === 'han_royal') repChange -= 10;
   // 直接操作reputation
   if(G.reputation && repChange !== 0){
-    G.reputation[fid] = Math.max(0, Math.min(100, (G.reputation[fid]||50) + repChange));
+    G.reputation[fid] = Math.max(0, Math.min(100, (G.reputation[fid]||REPUTATION_DEFAULT) + repChange));
     const repLabels = {strong:'',medium:'',weak:'弱宣称出兵',none:'无名出兵'};
     const lbl = repLabels[strength] || '';
     if(fid === G.playerFac && lbl) log(`⚠️ ${lbl}，声誉 ${repChange}（现为 ${Math.round(G.reputation[fid])}）`, 'diplo');
@@ -12889,7 +12890,7 @@ function doEnthrone(fid){
   }
   FAC_IDENTITY[fid].type = 'emperor';
   // 信誉+10
-  G.reputation[fid] = Math.min(100, (G.reputation[fid]||50) + 10);
+  G.reputation[fid] = Math.min(100, (G.reputation[fid]||REPUTATION_DEFAULT) + 10);
   // 第三方关系
   ALL_FACS.forEach(other => {
     if(other === fid) return;
@@ -12940,7 +12941,7 @@ function processReputation(){
     const _caocaoRep = hasFacGen(fid, '曹操') && genHasOffice('曹操', fid) ? 2 : 1;
     // SKILL_INLINE: kaifan — 钟繇楷范：当官时信誉+0.15/旬
     const _zhongyaoRep = hasFacGen(fid, '钟繇') && genHasOffice('钟繇', fid) ? 0.15 : 0;
-    G.reputation[fid] = Math.min(100, (G.reputation[fid]||50) + (atWar ? 0.1 : 0.2) * _caocaoRep + _zhongyaoRep);
+    G.reputation[fid] = Math.min(100, (G.reputation[fid]||REPUTATION_DEFAULT) + (atWar ? 0.1 : 0.2) * _caocaoRep + _zhongyaoRep);
   });
 }
 
@@ -13477,7 +13478,7 @@ function _applySiegeAftermath(cityId, atkFac, choiceId){
   if(city.gentry != null) city.gentry = Math.max(0, Math.min(100, city.gentry + opt.gentryMod));
   // 信誉
   if(opt.repCost){
-    G.reputation[atkFac] = Math.max(0, (G.reputation[atkFac]||50) + opt.repCost);
+    G.reputation[atkFac] = Math.max(0, (G.reputation[atkFac]||REPUTATION_DEFAULT) + opt.repCost);
     if(atkFac === G.playerFac && opt.repCost < 0) log(`📉 信誉${opt.repCost}（${opt.label}）`, 'diplo');
   }
   // 价值观冲击
@@ -13915,7 +13916,7 @@ async function nextTurn(){
       if(!G._eventCooldown) G._eventCooldown={};
       if(!G._eventCatCooldown) G._eventCatCooldown={};
       G._eventCooldown[_ffEvt.def.id] = _ffEvt.def.cooldown;
-      G._eventCatCooldown[_ffEvt.def.category] = 3;
+      G._eventCatCooldown[_ffEvt.def.category] = EVENT_CAT_COOLDOWN;
       if(_ffEvt.def.oneTime){ if(!G._eventFired) G._eventFired={}; G._eventFired[_ffEvt.def.id]=G.turn; }
       G._pendingEvent = null;
       document.getElementById('eventModal').style.display = 'none';
@@ -14179,7 +14180,7 @@ function diploDemandVassal(other){
   // 好感度修正：rel高更愿臣服
   acceptRate += ((d.rel||40) - 40) * 0.003;
   // 信誉修正
-  acceptRate += ((G.reputation?.[fid]??50) - 50) * 0.002;
+  acceptRate += ((G.reputation?.[fid] ?? REPUTATION_DEFAULT) - 50) * 0.002;
   acceptRate = Math.max(0.05, Math.min(0.90, acceptRate));
 
   const accepted = Math.random() < acceptRate;
@@ -17428,7 +17429,7 @@ function renderDipTab(c){
   c.innerHTML =
     `<div style="font-size:10px;color:rgba(92,74,50,.40);margin-bottom:8px">外交总览 ${_tabHelpHtml('dip')} <span style="font-size:9px;color:rgba(92,74,50,.25)">${FAC[fid]?.full}</span></div>` +
     (() => {
-      const rep = Math.round(G.reputation?.[fid] ?? 50);
+      const rep = Math.round(G.reputation?.[fid] ?? REPUTATION_DEFAULT);
       const repCol = rep>=70?'#1a7a3a':rep>=40?'#6b5530':'#c03030';
       const repLabel = rep>=80?'名震四海':rep>=60?'信义之名':rep>=40?'毁誉参半':rep>=20?'言而无信':'臭名昭著';
       return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:6px 8px;background:rgba(80,65,40,.04);border:1px solid rgba(80,65,40,.10);border-radius:3px">
@@ -18526,7 +18527,7 @@ function showFacBreakdown(e, type, fid){
 function showRepBreakdown(e, fid){
   e.stopPropagation();
   const tip = document.getElementById('bdTip');
-  const rep = Math.round(G.reputation?.[fid] ?? 50);
+  const rep = Math.round(G.reputation?.[fid] ?? REPUTATION_DEFAULT);
   const repCol = rep>=70?'#1a7a3a':rep>=40?'#6b5530':'#c03030';
   const repLabel = rep>=80?'名震四海':rep>=60?'信义之名':rep>=40?'毁誉参半':rep>=20?'言而无信':'臭名昭著';
 
@@ -18620,7 +18621,7 @@ function showDiploBreakdown(e, otherFid){
   html += `<div class="bd-row"><span class="bd-label">军力对比</span><span class="bd-val" style="color:${ratio>=0.55?'#1a7a3a':ratio>=0.45?'#6b5530':'#c03030'}">我方${Math.round(ratio*100)}% : 对方${Math.round((1-ratio)*100)}%</span></div>`;
 
   // 信誉度
-  const myRep = Math.round(G.reputation?.[fid] ?? 50);
+  const myRep = Math.round(G.reputation?.[fid] ?? REPUTATION_DEFAULT);
   html += `<div class="bd-row"><span class="bd-label">我方信誉</span><span class="bd-val">${myRep}（影响AI外交态度）</span></div>`;
 
   tip.innerHTML = html;
@@ -33980,7 +33981,7 @@ function getGameState(fid) {
       salary: Math.round(salary),
     },
     cities, armies, gen_summary: genSummary, generals,
-    rep: G.reputation?.[fid] ?? 50,
+    rep: G.reputation?.[fid] ?? REPUTATION_DEFAULT,
     diplo: diplomacy, threats, tech: techState, schemes,
     wild: wildAvail.length ? wildAvail : undefined,
     poach: poachAvail.length ? poachAvail : undefined,
@@ -35779,7 +35780,7 @@ showTitleScreen();
         const repP = _dbgParseNum(repRaw);
         if(repP){
           if(!G.reputation) G.reputation = {};
-          G.reputation[fid] = Math.max(0, Math.min(100, _dbgApplyNum(G.reputation[fid]||50, repP)));
+          G.reputation[fid] = Math.max(0, Math.min(100, _dbgApplyNum(G.reputation[fid]||REPUTATION_DEFAULT, repP)));
           changed.push('信誉');
         }
         // 粮：所有该势力城+N

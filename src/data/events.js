@@ -1485,7 +1485,7 @@ const EVENT_DEFS = [
           effect(){
             safeSub(G.factions[fid].res, 'gold', 50);
             if(!G.reputation) G.reputation={wei:45,shu:80,wu:60,nanman:30};
-            G.reputation[fid] = Math.min(100, (G.reputation[fid]||50)+3);
+            G.reputation[fid] = Math.min(100, (G.reputation[fid]||REPUTATION_DEFAULT)+3);
           }},
       ];
     },
@@ -1537,7 +1537,7 @@ const EVENT_DEFS = [
             c.morale = Math.min(100, c.morale + 2);
             const fid = ctx.fid;
             if(!G.reputation) G.reputation={wei:45,shu:80,wu:60,nanman:30};
-            G.reputation[fid] = Math.max(0, (G.reputation[fid]||50) - 2);
+            G.reputation[fid] = Math.max(0, (G.reputation[fid]||REPUTATION_DEFAULT) - 2);
             applyEthosShock(fid,'civil',2,'拒绝流民');
           }},
         { label:'③ 择壮编军', desc:`人口+3%，城防+${Math.min(500,cap-(c.garrison||0))}，豪族-5，民心-5｜武略→铁血`,
@@ -1828,7 +1828,7 @@ const EVENT_DEFS = [
               // ── 成功 ──
               G.units.forEach(u=>{ if(u.fac===fid) u.squads.forEach(sq=>{ sq.morale=Math.min(100,sq.morale+5); }); });
               if(!G.reputation) G.reputation={wei:45,shu:80,wu:60,nanman:30};
-              G.reputation[fid] = Math.min(100, (G.reputation[fid]||50) + 3);
+              G.reputation[fid] = Math.min(100, (G.reputation[fid]||REPUTATION_DEFAULT) + 3);
               // 鹰派genFactionMod+2
               if(!G.genFactionMod) G.genFactionMod={};
               if(!G.genFactionModLog) G.genFactionModLog={};
@@ -1848,7 +1848,7 @@ const EVENT_DEFS = [
             } else {
               // ── 失败 ──
               if(!G.reputation) G.reputation={wei:45,shu:80,wu:60,nanman:30};
-              G.reputation[fid] = Math.max(0, (G.reputation[fid]||50) - 2);
+              G.reputation[fid] = Math.max(0, (G.reputation[fid]||REPUTATION_DEFAULT) - 2);
               // 鹰派genFactionMod-2
               if(!G.genFactionMod) G.genFactionMod={};
               if(!G.genFactionModLog) G.genFactionModLog={};
@@ -1999,7 +1999,7 @@ const EVENT_DEFS = [
             applyEthosShock(fid, 'mandate', mandatePush, '劝进表');
             if(ctx.hasEmperor){
               if(!G.reputation) G.reputation={wei:45,shu:80,wu:60,nanman:30};
-              G.reputation[fid] = Math.max(0, (G.reputation[fid]||50) - 5);
+              G.reputation[fid] = Math.max(0, (G.reputation[fid]||REPUTATION_DEFAULT) - 5);
             }
             // warlord派系+3
             (G.generals[fid]||[]).forEach(g => {
@@ -2070,7 +2070,7 @@ const EVENT_DEFS = [
           effect(){
             applyEthosShock(fid, 'mandate', -10, '还政姿态');
             if(!G.reputation) G.reputation={wei:45,shu:80,wu:60,nanman:30};
-            G.reputation[fid] = Math.min(100, (G.reputation[fid]||50) + 5);
+            G.reputation[fid] = Math.min(100, (G.reputation[fid]||REPUTATION_DEFAULT) + 5);
             (G.generals[fid]||[]).forEach(g => {
               if(g.role==='ruler') return;
               const tags = GEN_TAGS[g.name]||{};
@@ -2273,7 +2273,7 @@ const EVENT_DEFS = [
             city.pop = Math.max(1000, city.pop - popLoss);
             city.morale = Math.max(0, city.morale - 15);
             if(!G.reputation) G.reputation={};
-            G.reputation[fid] = Math.max(0, (G.reputation[fid]||50) - 3);
+            G.reputation[fid] = Math.max(0, (G.reputation[fid]||REPUTATION_DEFAULT) - 3);
             applyEthosShock(fid, 'civil', 5, '水淹围城');
             log(`🌊 ${city.name}被水淹！城防衰减+40%，人口损失${popLoss}人`, 'event');
           }},
