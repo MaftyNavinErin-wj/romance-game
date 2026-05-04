@@ -9,6 +9,6 @@
     "test": "npm run smoke && npm run compare"
   },
   "devDependencies": {
-    "jsdom": "^25.0.0"
+    "jsdom": "^25.0.1"
   }
 }
