@@ -808,6 +808,7 @@ header{background:rgba(235,225,205,.98);border-bottom:1px solid rgba(80,65,40,.2
 <script src="src/data/cities.js"></script>
 <script src="src/data/factions.js"></script>
 <script src="src/render/notifications.js"></script>
+<script src="src/render/modals.js"></script>
 <script>
 
 // ═══════════════════════════════════════
@@ -8230,34 +8231,6 @@ function _popEventQueue(){
 }
 
 /** 展示事件弹窗给玩家 */
-function _showEventToPlayer(evt){
-  G._pendingEvent = evt;
-  const {def, ctx} = evt;
-  const choices = def.choices(ctx);
-  const narrativeText = def.narrative(ctx);
-
-  let choicesHtml = choices.map((ch,i)=>{
-    const dis = ch.disabled ? 'opacity:.4;pointer-events:none;cursor:not-allowed' : 'cursor:pointer';
-    return `<div onclick="resolveEventChoice(${i})" style="padding:10px 14px;margin-bottom:8px;border:1px solid rgba(92,74,50,.25);background:rgba(80,65,40,.04);${dis};transition:all .15s;font-size:11.5px;line-height:1.7" onmouseover="if(!this.style.pointerEvents || this.style.pointerEvents!=='none')this.style.background='rgba(80,65,40,.10)'" onmouseout="this.style.background='rgba(80,65,40,.04)'">
-      <div style="font-weight:700;color:var(--ink);margin-bottom:3px">${ch.label}</div>
-      <div style="font-size:10px;color:rgba(92,74,50,.6)">${ch.desc}</div>
-    </div>`;
-  }).join('');
-
-  const bodyHtml = `
-    <div style="font-size:11.5px;line-height:2;color:var(--ink);padding:0 0 14px;border-bottom:1px solid rgba(80,65,40,.08);margin-bottom:14px">
-      <span style="font-size:10px;color:rgba(92,74,50,.45);letter-spacing:1px">${ctx.city?.name||ctx.genName||ctx.facLabel||ctx.complainerName||''}</span>
-      <div style="margin-top:8px">${narrativeText}</div>
-    </div>
-    <div style="margin-bottom:6px;font-size:10px;color:rgba(92,74,50,.5);letter-spacing:1px">如何应对？</div>
-    ${choicesHtml}
-  `;
-
-  document.getElementById('eventModalTitle').textContent = `${def.icon} ${def.name}`;
-  document.getElementById('eventModalSeason').textContent = `${YEARS[G.year]} · ${SEASONS[G.seasonIdx]}`;
-  document.getElementById('eventModalBody').innerHTML = bodyHtml;
-  document.getElementById('eventModal').style.display = 'flex';
-}
 
 /** 玩家选择事件选项 */
 function resolveEventChoice(idx){
@@ -11214,16 +11187,6 @@ function poachGen(genName){
 }
 
 // ── 通用轻量弹窗 ──────────────────────────────────────
-function showGenericModal(title, bodyHtml){
-  document.getElementById('genericModalTitle').textContent = title;
-  document.getElementById('genericModalBody').innerHTML = bodyHtml;
-  document.getElementById('genericModal').style.display = 'flex';
-}
-function closeModal(){
-  document.getElementById('genericModal').style.display = 'none';
-  const pm = document.getElementById('postModal');
-  if(pm) pm.style.display = 'none';
-}
 
 // ── AI求和弹窗 ──────────────────────────────────────
 function showDiploSueForPeace(offer){
@@ -11329,55 +11292,6 @@ function _applyPeaceAgreement(fidA, fidB){
 }
 
 // ── 太守任命弹窗 ──────────────────────────────────────
-function openPrefectModal(cityId){
-  const city = G.cities[cityId];
-  if(!city) return;
-  const fid = G.playerFac;
-  const fc = FAC[fid];
-  const gens = (G.generals[fid]||[]).filter(g => g.role !== 'ruler');
-  const deployed = new Set();
-  G.units.forEach(u => u.squads.forEach(sq => deployed.add(sq.genName)));
-
-  const rows = gens.slice().sort((a,b) => b.pol - a.pol).map(g => {
-    const isCurrent = city.prefect === g.name;
-    const isOut = deployed.has(g.name);
-    const otherCity = Object.values(G.cities).find(c => c.id !== cityId && c.prefect === g.name);
-    const hint = isCurrent ? '（当前太守）' : otherCity ? `（已任${otherCity.name}太守）` : isOut ? '（出征中）' : '';
-    const hintCol = isCurrent ? '#8a7040' : otherCity ? '#8a6a10' : 'rgba(92,74,50,.45)';
-    const goldPct = Math.round(g.pol/500*100);
-    const moralePt = (g.pol/200).toFixed(1);
-    // ★ v144→v172: "本地士族"按士族派系判定（含跨州同派系）
-    const _tags = GEN_TAGS[g.name] || {};
-    const _cityState = CITY_TO_STATE[cityId] || '';
-    const _cityGFac = _cityState ? STATE_TO_GENTRY_FAC[_cityState] : null;
-    const _isLocalGentry = _cityGFac && _tags.origin === 'gentry' && !_tags.clique
-      && _tags.state && STATE_TO_GENTRY_FAC[_tags.state] === _cityGFac;
-    const _localBadge = _isLocalGentry ? '<span style="font-size:7px;color:#daa520;background:rgba(218,165,32,.1);border:1px solid rgba(218,165,32,.25);padding:0 3px;border-radius:2px;margin-left:3px">本地士族</span>' : '';
-    return `<div onclick="setPrefect('${cityId}','${g.name}')" style="display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;border-bottom:1px solid rgba(80,65,40,.08);transition:background .15s${_isLocalGentry&&!isCurrent?';background:rgba(218,165,32,.03)':''}"
-      onmouseover="this.style.background='rgba(80,65,40,.05)'" onmouseout="this.style.background='${_isLocalGentry&&!isCurrent?'rgba(218,165,32,.03)':''}'"  >
-      <div style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif SC',serif;font-weight:900;font-size:13px;background:${fc.color}22;border:1px solid ${fc.color}${isCurrent?'88':'33'};color:${isCurrent?fc.color:'rgba(92,74,50,.55)'};">${g.name[0]}</div>
-      <div style="flex:1">
-        <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
-          <span style="font-family:'Noto Serif SC',serif;font-size:11px;color:${isCurrent?fc.color:'rgba(44,36,22,.75)'}">${g.name}</span>${_localBadge}
-          <span style="font-size:8px;color:${hintCol}">${hint}</span>
-        </div>
-        <div style="font-size:9px;color:rgba(92,74,50,.45)">政${g.pol} · 💰+${goldPct}% · 🌿+${moralePt}/旬${isCurrent?'':' · <span style="color:#60c060">任命+8忠诚</span>'}</div>
-      </div>
-      ${isCurrent ? `<span style="font-size:9px;color:#8a7040">✓任职</span>` : `<span style="font-size:9px;color:rgba(92,74,50,.35)">任命→</span>`}
-    </div>`;
-  }).join('');
-
-  const html = `<div style="font-size:11px;color:rgba(92,74,50,.55);padding:10px 12px 8px;border-bottom:1px solid rgba(80,65,40,.10)">
-    <b style="color:${fc.color};font-family:'Noto Serif SC',serif">${city.name}</b> · 任命太守
-    <span style="font-size:9px;margin-left:6px">（太守提供政治加成；出征时buff减半；任命可+8忠诚）</span>
-  </div>
-  ${city.prefect ? `<div onclick="setPrefect('${cityId}',null)" style="display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;border-bottom:1px solid rgba(80,65,40,.08);color:rgba(92,74,50,.40);font-size:10px" onmouseover="this.style.background='rgba(192,48,48,.04)'" onmouseout="this.style.background=''">
-    <span style="font-size:12px">✕</span> 撤销太守任命
-  </div>` : ''}
-  <div style="max-height:280px;overflow-y:auto">${rows || '<div style="padding:12px;font-size:10px;color:rgba(92,74,50,.35)">暂无可用武将</div>'}</div>`;
-
-  showGenericModal('任命太守', html);
-}
 
 // 清除指定将领的所有太守任职（下野/易主/城市被夺时调用）
 function clearPrefectByGen(genName){
@@ -11951,37 +11865,6 @@ function setStrategist(fid, genName){
 }
 
 /** 弹出军师选将弹窗（仅玩家） */
-function openStrategistModal(){
-  const fid = G.playerFac;
-  const gens = (G.generals[fid]||[]).filter(g=>g.role!=='ruler');
-  const cur = G.factions[fid]?.strategist;
-  const facColor = FAC[fid]?.color || '#6b5530';
-  const rows = gens.map(g=>{
-    const isCur = g.name===cur;
-    const intLabel = `int:${g.int}`;
-    return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(80,65,40,.08)">
-      <span style="flex:1;font-family:'Noto Serif SC',serif;font-size:11px;color:${isCur?facColor:'rgba(44,36,22,.85)'}">${g.name}${isCur?' ★':''}</span>
-      <span style="font-size:9px;color:rgba(92,74,50,.55)">${intLabel}</span>
-      ${isCur
-        ? `<button onclick="setStrategist('${fid}',null);closeModal()" style="padding:2px 8px;font-size:9px;background:rgba(128,64,32,.1);color:#804020;border:1px solid rgba(128,64,32,.25);border-radius:2px;cursor:pointer">撤销</button>`
-        : `<button onclick="setStrategist('${fid}','${g.name}');closeModal()" style="padding:2px 8px;font-size:9px;background:rgba(26,122,58,.1);color:#1a7a3a;border:1px solid rgba(26,122,58,.25);border-radius:2px;cursor:pointer">任命</button>`
-      }
-    </div>`;
-  }).join('');
-  const curGen = gens.find(g=>g.name===cur);
-  const curLine = cur
-    ? `<div style="font-size:10px;color:rgba(92,74,50,.55);margin-bottom:8px">当前军师：<span style="color:${facColor}">${cur}</span>（int:${curGen?.int??'?'}）→ 计谋成功率+${Math.round(Math.max(-15,Math.min(15,(curGen?.int??60)-60)/100*50*100))}%加成</div>`
-    : `<div style="font-size:10px;color:rgba(92,74,50,.40);margin-bottom:8px">当前军师：未任命（使用君主int）</div>`;
-  const modal = document.getElementById('genericModal');
-  document.getElementById('genericModalTitle').textContent = '任命军师'; // ★ v149fix: 设置弹窗标题
-  document.getElementById('genericModalBody').innerHTML =
-    `<div style="padding:12px 4px">
-      <div style="font-size:13px;font-family:'Noto Serif SC',serif;color:${facColor};margin-bottom:10px">任命军师</div>
-      ${curLine}
-      <div style="max-height:260px;overflow-y:auto">${rows||'<div style="color:rgba(92,74,50,.40);font-size:10px">无可用武将</div>'}</div>
-    </div>`;
-  modal.style.display='flex';
-}
 
 // ── 计谋成功率 ──
 function _strategyRate(fid, baseRate){
@@ -12285,19 +12168,6 @@ function _buildEnvoyIntel(fid, targetFid){
 }
 
 /** 显示通使情报弹窗 */
-function _showEnvoyIntelModal(targetFid, intelText){
-  const col = FAC[targetFid]?.color || '#6b5530';
-  const html = `<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(20,16,10,.55);z-index:500;display:flex;align-items:center;justify-content:center" id="_envoyModal" onclick="if(event.target===this)this.remove()">
-    <div style="background:rgba(245,238,225,.97);border:2px solid ${col};border-radius:5px;padding:20px 24px;max-width:420px;width:90%;box-shadow:0 4px 20px rgba(0,0,0,.25)">
-      <div style="font-family:'Noto Serif SC',serif;font-size:13px;color:${col};font-weight:600;margin-bottom:12px;border-bottom:1px solid rgba(80,65,40,.15);padding-bottom:8px">🏛 通使·${FAC[targetFid]?.full}情报</div>
-      <div style="font-size:11px;color:rgba(92,74,50,.80);line-height:1.9;white-space:pre-line">${intelText}</div>
-      <div style="text-align:center;margin-top:16px">
-        <button onclick="document.getElementById('_envoyModal').remove()" style="padding:5px 24px;font-size:11px;background:rgba(80,65,40,.12);color:rgba(92,74,50,.8);border:1px solid rgba(80,65,40,.2);border-radius:3px;cursor:pointer">知悉</button>
-      </div>
-    </div>
-  </div>`;
-  document.body.insertAdjacentHTML('beforeend', html);
-}
 
 /** 计谋：通使（好感+揭雾首都+情报弹窗） */
 function stratEnvoy(targetFid){
@@ -16476,25 +16346,6 @@ function openPostAction(genName, fid){
 }
 
 // 通用弹窗（复用现有modal框架或简单创建）
-function showModal(title, content){
-  let m = document.getElementById('postModal');
-  if(!m){
-    m = document.createElement('div');
-    m.id='postModal';
-    m.style.cssText='position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35)';
-    m.onclick=e=>{ if(e.target===m) closePostModal(); };
-    document.body.appendChild(m);
-  }
-  m.innerHTML=`<div style="background:rgba(245,238,225,.98);border:1px solid rgba(92,74,50,.4);border-radius:4px;padding:14px 18px;min-width:240px;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.6)">
-    <div style="font-family:'Noto Serif SC',serif;font-size:13px;color:var(--ink-l);margin-bottom:8px;border-bottom:1px solid rgba(80,65,40,.14);padding-bottom:6px">${title}</div>
-    ${content}
-  </div>`;
-  m.style.display='flex';
-}
-function closePostModal(){
-  const m=document.getElementById('postModal');
-  if(m) m.style.display='none';
-}
 
 // ═══════════════════════════════════════
 // 武将详情弹窗
