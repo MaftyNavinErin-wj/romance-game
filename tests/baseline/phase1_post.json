@@ -3,7 +3,7 @@
     "seed": "project_romance_test_seed_001",
     "turns": 50,
     "v181_html": "project_romance_v181.html",
-    "generated_at": "2026-05-04T10:18:05.085Z"
+    "generated_at": "2026-05-04T11:26:34.020Z"
   },
   "snapshots": [
     {
@@ -2654,6 +2654,18 @@
           "cityChangeLogLen": 0,
           "transfersLen": 0,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "genFactionModLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "eventQueue": {
+          "ids": [],
+          "head": null
         }
       }
     },
@@ -5416,6 +5428,54 @@
           "cityChangeLogLen": 0,
           "transfersLen": 0,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "genFactionModLog": {
+          "count": 93,
+          "recent5": [
+            {
+              "name": "朱灵",
+              "turn": 2,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 2
+            },
+            {
+              "name": "朱灵",
+              "turn": 2,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 4
+            },
+            {
+              "name": "朱灵",
+              "turn": 2,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "朱灵",
+              "turn": 2,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 8
+            },
+            {
+              "name": "朱灵",
+              "turn": 2,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 10
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [],
+          "head": null
         }
       }
     },
@@ -8251,6 +8311,54 @@
           "cityChangeLogLen": 0,
           "transfersLen": 0,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "genFactionModLog": {
+          "count": 94,
+          "recent5": [
+            {
+              "name": "朱灵",
+              "turn": 2,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 4
+            },
+            {
+              "name": "朱灵",
+              "turn": 2,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "朱灵",
+              "turn": 2,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 8
+            },
+            {
+              "name": "朱灵",
+              "turn": 2,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 10
+            },
+            {
+              "name": "祝融",
+              "turn": 3,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [],
+          "head": null
         }
       }
     },
@@ -11130,6 +11238,54 @@
           "cityChangeLogLen": 0,
           "transfersLen": 0,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "genFactionModLog": {
+          "count": 146,
+          "recent5": [
+            {
+              "name": "严颜",
+              "turn": 4,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 2
+            },
+            {
+              "name": "严颜",
+              "turn": 4,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 4
+            },
+            {
+              "name": "严颜",
+              "turn": 4,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "严颜",
+              "turn": 4,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 8
+            },
+            {
+              "name": "张翼",
+              "turn": 4,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 1.7
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [],
+          "head": null
         }
       }
     },
@@ -14009,6 +14165,54 @@
           "cityChangeLogLen": 0,
           "transfersLen": 0,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "genFactionModLog": {
+          "count": 146,
+          "recent5": [
+            {
+              "name": "严颜",
+              "turn": 4,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 2
+            },
+            {
+              "name": "严颜",
+              "turn": 4,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 4
+            },
+            {
+              "name": "严颜",
+              "turn": 4,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "严颜",
+              "turn": 4,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 8
+            },
+            {
+              "name": "张翼",
+              "turn": 4,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 1.7
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [],
+          "head": null
         }
       }
     },
@@ -16895,6 +17099,54 @@
           "cityChangeLogLen": 0,
           "transfersLen": 0,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "genFactionModLog": {
+          "count": 185,
+          "recent5": [
+            {
+              "name": "徐盛",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "周泰",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 2
+            },
+            {
+              "name": "周泰",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 4
+            },
+            {
+              "name": "周泰",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "周瑜",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 2
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [],
+          "head": null
         }
       }
     },
@@ -19777,6 +20029,54 @@
           "cityChangeLogLen": 0,
           "transfersLen": 1,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "genFactionModLog": {
+          "count": 185,
+          "recent5": [
+            {
+              "name": "徐盛",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "周泰",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 2
+            },
+            {
+              "name": "周泰",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 4
+            },
+            {
+              "name": "周泰",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "周瑜",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 2
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [],
+          "head": null
         }
       }
     },
@@ -22663,6 +22963,54 @@
           "cityChangeLogLen": 0,
           "transfersLen": 4,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "genFactionModLog": {
+          "count": 185,
+          "recent5": [
+            {
+              "name": "徐盛",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "周泰",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 2
+            },
+            {
+              "name": "周泰",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 4
+            },
+            {
+              "name": "周泰",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "周瑜",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 2
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [],
+          "head": null
         }
       }
     },
@@ -25545,6 +25893,68 @@
           "cityChangeLogLen": 0,
           "transfersLen": 7,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "genFactionModLog": {
+          "count": 185,
+          "recent5": [
+            {
+              "name": "徐盛",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "周泰",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 2
+            },
+            {
+              "name": "周泰",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 4
+            },
+            {
+              "name": "周泰",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "周瑜",
+              "turn": 6,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 2
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -28427,6 +28837,68 @@
           "cityChangeLogLen": 0,
           "transfersLen": 5,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "genFactionModLog": {
+          "count": 251,
+          "recent5": [
+            {
+              "name": "钟繇",
+              "turn": 10,
+              "event": "朝议采纳「兴商令」",
+              "delta": 1.5,
+              "after": 3.7
+            },
+            {
+              "name": "周瑜",
+              "turn": 10,
+              "event": "朝议采纳「扩军备战」",
+              "delta": 1.5,
+              "after": 3.5
+            },
+            {
+              "name": "周瑜",
+              "turn": 10,
+              "event": "朝议否决「军防工程」",
+              "delta": -0.8,
+              "after": 2.7
+            },
+            {
+              "name": "朱灵",
+              "turn": 10,
+              "event": "朝议否决「扩军备战」",
+              "delta": -0.8,
+              "after": 12.2
+            },
+            {
+              "name": "诸葛亮",
+              "turn": 10,
+              "event": "朝议否决「招贤令」",
+              "delta": -0.8,
+              "after": -2.15
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -31309,6 +31781,68 @@
           "cityChangeLogLen": 0,
           "transfersLen": 4,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "genFactionModLog": {
+          "count": 251,
+          "recent5": [
+            {
+              "name": "钟繇",
+              "turn": 10,
+              "event": "朝议采纳「兴商令」",
+              "delta": 1.5,
+              "after": 3.7
+            },
+            {
+              "name": "周瑜",
+              "turn": 10,
+              "event": "朝议采纳「扩军备战」",
+              "delta": 1.5,
+              "after": 3.5
+            },
+            {
+              "name": "周瑜",
+              "turn": 10,
+              "event": "朝议否决「军防工程」",
+              "delta": -0.8,
+              "after": 2.7
+            },
+            {
+              "name": "朱灵",
+              "turn": 10,
+              "event": "朝议否决「扩军备战」",
+              "delta": -0.8,
+              "after": 12.2
+            },
+            {
+              "name": "诸葛亮",
+              "turn": 10,
+              "event": "朝议否决「招贤令」",
+              "delta": -0.8,
+              "after": -2.15
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -34176,6 +34710,68 @@
           "cityChangeLogLen": 0,
           "transfersLen": 6,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "genFactionModLog": {
+          "count": 251,
+          "recent5": [
+            {
+              "name": "钟繇",
+              "turn": 10,
+              "event": "朝议采纳「兴商令」",
+              "delta": 1.5,
+              "after": 3.7
+            },
+            {
+              "name": "周瑜",
+              "turn": 10,
+              "event": "朝议采纳「扩军备战」",
+              "delta": 1.5,
+              "after": 3.5
+            },
+            {
+              "name": "周瑜",
+              "turn": 10,
+              "event": "朝议否决「军防工程」",
+              "delta": -0.8,
+              "after": 2.7
+            },
+            {
+              "name": "朱灵",
+              "turn": 10,
+              "event": "朝议否决「扩军备战」",
+              "delta": -0.8,
+              "after": 12.2
+            },
+            {
+              "name": "诸葛亮",
+              "turn": 10,
+              "event": "朝议否决「招贤令」",
+              "delta": -0.8,
+              "after": -2.15
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -37043,6 +37639,68 @@
           "cityChangeLogLen": 0,
           "transfersLen": 8,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "genFactionModLog": {
+          "count": 251,
+          "recent5": [
+            {
+              "name": "钟繇",
+              "turn": 10,
+              "event": "朝议采纳「兴商令」",
+              "delta": 1.5,
+              "after": 3.7
+            },
+            {
+              "name": "周瑜",
+              "turn": 10,
+              "event": "朝议采纳「扩军备战」",
+              "delta": 1.5,
+              "after": 3.5
+            },
+            {
+              "name": "周瑜",
+              "turn": 10,
+              "event": "朝议否决「军防工程」",
+              "delta": -0.8,
+              "after": 2.7
+            },
+            {
+              "name": "朱灵",
+              "turn": 10,
+              "event": "朝议否决「扩军备战」",
+              "delta": -0.8,
+              "after": 12.2
+            },
+            {
+              "name": "诸葛亮",
+              "turn": 10,
+              "event": "朝议否决「招贤令」",
+              "delta": -0.8,
+              "after": -2.15
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -39874,6 +40532,69 @@
           "cityChangeLogLen": 0,
           "transfersLen": 9,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "genFactionModLog": {
+          "count": 251,
+          "recent5": [
+            {
+              "name": "钟繇",
+              "turn": 10,
+              "event": "朝议采纳「兴商令」",
+              "delta": 1.5,
+              "after": 3.7
+            },
+            {
+              "name": "周瑜",
+              "turn": 10,
+              "event": "朝议采纳「扩军备战」",
+              "delta": 1.5,
+              "after": 3.5
+            },
+            {
+              "name": "周瑜",
+              "turn": 10,
+              "event": "朝议否决「军防工程」",
+              "delta": -0.8,
+              "after": 2.7
+            },
+            {
+              "name": "朱灵",
+              "turn": 10,
+              "event": "朝议否决「扩军备战」",
+              "delta": -0.8,
+              "after": 12.2
+            },
+            {
+              "name": "诸葛亮",
+              "turn": 10,
+              "event": "朝议否决「招贤令」",
+              "delta": -0.8,
+              "after": -2.15
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -42703,6 +43424,69 @@
           "cityChangeLogLen": 0,
           "transfersLen": 8,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "genFactionModLog": {
+          "count": 251,
+          "recent5": [
+            {
+              "name": "钟繇",
+              "turn": 10,
+              "event": "朝议采纳「兴商令」",
+              "delta": 1.5,
+              "after": 3.7
+            },
+            {
+              "name": "周瑜",
+              "turn": 10,
+              "event": "朝议采纳「扩军备战」",
+              "delta": 1.5,
+              "after": 3.5
+            },
+            {
+              "name": "周瑜",
+              "turn": 10,
+              "event": "朝议否决「军防工程」",
+              "delta": -0.8,
+              "after": 2.7
+            },
+            {
+              "name": "朱灵",
+              "turn": 10,
+              "event": "朝议否决「扩军备战」",
+              "delta": -0.8,
+              "after": 12.2
+            },
+            {
+              "name": "诸葛亮",
+              "turn": 10,
+              "event": "朝议否决「招贤令」",
+              "delta": -0.8,
+              "after": -2.15
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -45539,6 +46323,69 @@
           "cityChangeLogLen": 0,
           "transfersLen": 3,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 0,
+          "recent5": []
+        },
+        "genFactionModLog": {
+          "count": 251,
+          "recent5": [
+            {
+              "name": "钟繇",
+              "turn": 10,
+              "event": "朝议采纳「兴商令」",
+              "delta": 1.5,
+              "after": 3.7
+            },
+            {
+              "name": "周瑜",
+              "turn": 10,
+              "event": "朝议采纳「扩军备战」",
+              "delta": 1.5,
+              "after": 3.5
+            },
+            {
+              "name": "周瑜",
+              "turn": 10,
+              "event": "朝议否决「军防工程」",
+              "delta": -0.8,
+              "after": 2.7
+            },
+            {
+              "name": "朱灵",
+              "turn": 10,
+              "event": "朝议否决「扩军备战」",
+              "delta": -0.8,
+              "after": 12.2
+            },
+            {
+              "name": "诸葛亮",
+              "turn": 10,
+              "event": "朝议否决「招贤令」",
+              "delta": -0.8,
+              "after": -2.15
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -48375,6 +49222,76 @@
           "cityChangeLogLen": 1,
           "transfersLen": 3,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 1,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 270,
+          "recent5": [
+            {
+              "name": "徐盛",
+              "turn": 17,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 9
+            },
+            {
+              "name": "周泰",
+              "turn": 17,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 9
+            },
+            {
+              "name": "周瑜",
+              "turn": 17,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 5.7
+            },
+            {
+              "name": "朱桓",
+              "turn": 17,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 3
+            },
+            {
+              "name": "朱然",
+              "turn": 17,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 3
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -51191,6 +52108,76 @@
           "cityChangeLogLen": 1,
           "transfersLen": 1,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 1,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 270,
+          "recent5": [
+            {
+              "name": "徐盛",
+              "turn": 17,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 9
+            },
+            {
+              "name": "周泰",
+              "turn": 17,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 9
+            },
+            {
+              "name": "周瑜",
+              "turn": 17,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 5.7
+            },
+            {
+              "name": "朱桓",
+              "turn": 17,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 3
+            },
+            {
+              "name": "朱然",
+              "turn": 17,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 3
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -54016,6 +55003,82 @@
           "cityChangeLogLen": 2,
           "transfersLen": 0,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 2,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 338,
+          "recent5": [
+            {
+              "name": "钟繇",
+              "turn": 19,
+              "event": "朝议否决「安民策」",
+              "delta": -0.8,
+              "after": 2.4000000000000004
+            },
+            {
+              "name": "周瑜",
+              "turn": 19,
+              "event": "朝议否决「军防工程」",
+              "delta": -0.8,
+              "after": 4.9
+            },
+            {
+              "name": "朱桓",
+              "turn": 19,
+              "event": "朝议采纳「扩军备战」",
+              "delta": 1.5,
+              "after": 4.5
+            },
+            {
+              "name": "朱然",
+              "turn": 19,
+              "event": "朝议采纳「扩军备战」",
+              "delta": 1.5,
+              "after": 4.5
+            },
+            {
+              "name": "诸葛亮",
+              "turn": 19,
+              "event": "朝议采纳「劝农令」",
+              "delta": 1.5,
+              "after": -1.9999999999999991
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -56805,6 +57868,82 @@
           "cityChangeLogLen": 2,
           "transfersLen": 1,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 2,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 345,
+          "recent5": [
+            {
+              "name": "曹休",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹彰",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹真",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹植",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "王朗",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": -3.5
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -59616,6 +60755,82 @@
           "cityChangeLogLen": 2,
           "transfersLen": 0,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 2,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 345,
+          "recent5": [
+            {
+              "name": "曹休",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹彰",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹真",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹植",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "王朗",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": -3.5
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -62449,6 +63664,83 @@
           "cityChangeLogLen": 2,
           "transfersLen": 0,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 2,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 345,
+          "recent5": [
+            {
+              "name": "曹休",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹彰",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹真",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹植",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "王朗",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": -3.5
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -65318,6 +66610,83 @@
           "cityChangeLogLen": 2,
           "transfersLen": 0,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 2,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 345,
+          "recent5": [
+            {
+              "name": "曹休",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹彰",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹真",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹植",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "王朗",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": -3.5
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -68122,6 +69491,83 @@
           "cityChangeLogLen": 2,
           "transfersLen": 1,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 2,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 345,
+          "recent5": [
+            {
+              "name": "曹休",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹彰",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹真",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹植",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "王朗",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": -3.5
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -70909,6 +72355,83 @@
           "cityChangeLogLen": 2,
           "transfersLen": 2,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 2,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 345,
+          "recent5": [
+            {
+              "name": "曹休",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹彰",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹真",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹植",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "王朗",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": -3.5
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -73705,6 +75228,83 @@
           "cityChangeLogLen": 2,
           "transfersLen": 3,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 2,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 345,
+          "recent5": [
+            {
+              "name": "曹休",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹彰",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹真",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 9
+            },
+            {
+              "name": "曹植",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 6
+            },
+            {
+              "name": "王朗",
+              "turn": 20,
+              "event": "任命官职",
+              "delta": 2,
+              "after": -3.5
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -76501,6 +78101,89 @@
           "cityChangeLogLen": 3,
           "transfersLen": 5,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 3,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 27,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 359,
+          "recent5": [
+            {
+              "name": "魏延",
+              "turn": 27,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15.5
+            },
+            {
+              "name": "吴懿",
+              "turn": 27,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 10
+            },
+            {
+              "name": "严颜",
+              "turn": 27,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15.5
+            },
+            {
+              "name": "张飞",
+              "turn": 27,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 8.2
+            },
+            {
+              "name": "赵云",
+              "turn": 27,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 8.2
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -79290,6 +80973,89 @@
           "cityChangeLogLen": 3,
           "transfersLen": 6,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 3,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 27,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 413,
+          "recent5": [
+            {
+              "name": "钟繇",
+              "turn": 28,
+              "event": "朝议否决「招贤令」",
+              "delta": -0.8,
+              "after": 0.8000000000000003
+            },
+            {
+              "name": "周瑜",
+              "turn": 28,
+              "event": "朝议采纳「扩军备战」",
+              "delta": 1.5,
+              "after": 6.4
+            },
+            {
+              "name": "朱桓",
+              "turn": 28,
+              "event": "朝议否决「军防工程」",
+              "delta": -0.8,
+              "after": 3.7
+            },
+            {
+              "name": "朱然",
+              "turn": 28,
+              "event": "朝议否决「军防工程」",
+              "delta": -0.8,
+              "after": 3.7
+            },
+            {
+              "name": "诸葛亮",
+              "turn": 28,
+              "event": "朝议否决「安民策」",
+              "delta": -0.8,
+              "after": -4.149999999999999
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -82099,6 +83865,96 @@
           "cityChangeLogLen": 4,
           "transfersLen": 5,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 4,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 27,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 413,
+          "recent5": [
+            {
+              "name": "钟繇",
+              "turn": 28,
+              "event": "朝议否决「招贤令」",
+              "delta": -0.8,
+              "after": 0.8000000000000003
+            },
+            {
+              "name": "周瑜",
+              "turn": 28,
+              "event": "朝议采纳「扩军备战」",
+              "delta": 1.5,
+              "after": 6.4
+            },
+            {
+              "name": "朱桓",
+              "turn": 28,
+              "event": "朝议否决「军防工程」",
+              "delta": -0.8,
+              "after": 3.7
+            },
+            {
+              "name": "朱然",
+              "turn": 28,
+              "event": "朝议否决「军防工程」",
+              "delta": -0.8,
+              "after": 3.7
+            },
+            {
+              "name": "诸葛亮",
+              "turn": 28,
+              "event": "朝议否决「安民策」",
+              "delta": -0.8,
+              "after": -4.149999999999999
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -84884,6 +86740,96 @@
           "cityChangeLogLen": 4,
           "transfersLen": 2,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 4,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 27,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 413,
+          "recent5": [
+            {
+              "name": "钟繇",
+              "turn": 28,
+              "event": "朝议否决「招贤令」",
+              "delta": -0.8,
+              "after": 0.8000000000000003
+            },
+            {
+              "name": "周瑜",
+              "turn": 28,
+              "event": "朝议采纳「扩军备战」",
+              "delta": 1.5,
+              "after": 6.4
+            },
+            {
+              "name": "朱桓",
+              "turn": 28,
+              "event": "朝议否决「军防工程」",
+              "delta": -0.8,
+              "after": 3.7
+            },
+            {
+              "name": "朱然",
+              "turn": 28,
+              "event": "朝议否决「军防工程」",
+              "delta": -0.8,
+              "after": 3.7
+            },
+            {
+              "name": "诸葛亮",
+              "turn": 28,
+              "event": "朝议否决「安民策」",
+              "delta": -0.8,
+              "after": -4.149999999999999
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -87673,6 +89619,96 @@
           "cityChangeLogLen": 4,
           "transfersLen": 1,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 4,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 27,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 413,
+          "recent5": [
+            {
+              "name": "钟繇",
+              "turn": 28,
+              "event": "朝议否决「招贤令」",
+              "delta": -0.8,
+              "after": 0.8000000000000003
+            },
+            {
+              "name": "周瑜",
+              "turn": 28,
+              "event": "朝议采纳「扩军备战」",
+              "delta": 1.5,
+              "after": 6.4
+            },
+            {
+              "name": "朱桓",
+              "turn": 28,
+              "event": "朝议否决「军防工程」",
+              "delta": -0.8,
+              "after": 3.7
+            },
+            {
+              "name": "朱然",
+              "turn": 28,
+              "event": "朝议否决「军防工程」",
+              "delta": -0.8,
+              "after": 3.7
+            },
+            {
+              "name": "诸葛亮",
+              "turn": 28,
+              "event": "朝议否决「安民策」",
+              "delta": -0.8,
+              "after": -4.149999999999999
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -90460,6 +92496,102 @@
           "cityChangeLogLen": 5,
           "transfersLen": 2,
           "wildPoolLen": 6
+        },
+        "cityChangeLog": {
+          "count": 5,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 27,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            },
+            {
+              "turn": 32,
+              "cityId": "guangling",
+              "from": "wei",
+              "to": "wu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 432,
+          "recent5": [
+            {
+              "name": "徐盛",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 12
+            },
+            {
+              "name": "周泰",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 12
+            },
+            {
+              "name": "周瑜",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 9.4
+            },
+            {
+              "name": "朱桓",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 6.7
+            },
+            {
+              "name": "朱然",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 6.7
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -93254,6 +95386,102 @@
           "cityChangeLogLen": 5,
           "transfersLen": 4,
           "wildPoolLen": 6
+        },
+        "cityChangeLog": {
+          "count": 5,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 27,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            },
+            {
+              "turn": 32,
+              "cityId": "guangling",
+              "from": "wei",
+              "to": "wu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 432,
+          "recent5": [
+            {
+              "name": "徐盛",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 12
+            },
+            {
+              "name": "周泰",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 12
+            },
+            {
+              "name": "周瑜",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 9.4
+            },
+            {
+              "name": "朱桓",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 6.7
+            },
+            {
+              "name": "朱然",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 6.7
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -96024,6 +98252,102 @@
           "cityChangeLogLen": 5,
           "transfersLen": 6,
           "wildPoolLen": 6
+        },
+        "cityChangeLog": {
+          "count": 5,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 27,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            },
+            {
+              "turn": 32,
+              "cityId": "guangling",
+              "from": "wei",
+              "to": "wu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 432,
+          "recent5": [
+            {
+              "name": "徐盛",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 12
+            },
+            {
+              "name": "周泰",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 12
+            },
+            {
+              "name": "周瑜",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 9.4
+            },
+            {
+              "name": "朱桓",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 6.7
+            },
+            {
+              "name": "朱然",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 6.7
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -98801,6 +101125,102 @@
           "cityChangeLogLen": 5,
           "transfersLen": 4,
           "wildPoolLen": 6
+        },
+        "cityChangeLog": {
+          "count": 5,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 27,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            },
+            {
+              "turn": 32,
+              "cityId": "guangling",
+              "from": "wei",
+              "to": "wu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 432,
+          "recent5": [
+            {
+              "name": "徐盛",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 12
+            },
+            {
+              "name": "周泰",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 12
+            },
+            {
+              "name": "周瑜",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 9.4
+            },
+            {
+              "name": "朱桓",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 6.7
+            },
+            {
+              "name": "朱然",
+              "turn": 32,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 6.7
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -101580,6 +104000,102 @@
           "cityChangeLogLen": 5,
           "transfersLen": 6,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 5,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 27,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            },
+            {
+              "turn": 32,
+              "cityId": "guangling",
+              "from": "wei",
+              "to": "wu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 455,
+          "recent5": [
+            {
+              "name": "臧霸",
+              "turn": 36,
+              "event": "檄文失败",
+              "delta": -2,
+              "after": 10.2
+            },
+            {
+              "name": "张郃",
+              "turn": 36,
+              "event": "檄文失败",
+              "delta": -2,
+              "after": 10.2
+            },
+            {
+              "name": "张辽",
+              "turn": 36,
+              "event": "檄文失败",
+              "delta": -2,
+              "after": 10.2
+            },
+            {
+              "name": "张绣",
+              "turn": 36,
+              "event": "檄文失败",
+              "delta": -2,
+              "after": 10.2
+            },
+            {
+              "name": "朱灵",
+              "turn": 36,
+              "event": "檄文失败",
+              "delta": -2,
+              "after": 10.2
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -104330,6 +106846,102 @@
           "cityChangeLogLen": 5,
           "transfersLen": 5,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 5,
+          "recent5": [
+            {
+              "turn": 17,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 19,
+              "cityId": "changan",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 27,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            },
+            {
+              "turn": 32,
+              "cityId": "guangling",
+              "from": "wei",
+              "to": "wu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 492,
+          "recent5": [
+            {
+              "name": "周瑜",
+              "turn": 37,
+              "event": "朝议采纳「充员令」",
+              "delta": 1.5,
+              "after": 10.9
+            },
+            {
+              "name": "朱桓",
+              "turn": 37,
+              "event": "朝议否决「扩军备战」",
+              "delta": -0.8,
+              "after": 5.9
+            },
+            {
+              "name": "朱然",
+              "turn": 37,
+              "event": "朝议否决「扩军备战」",
+              "delta": -0.8,
+              "after": 5.9
+            },
+            {
+              "name": "诸葛瑾",
+              "turn": 37,
+              "event": "朝议采纳「劝农令」",
+              "delta": 1.5,
+              "after": -7.5
+            },
+            {
+              "name": "诸葛亮",
+              "turn": 37,
+              "event": "朝议采纳「劝农令」",
+              "delta": 1.5,
+              "after": -4.000000000000002
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -107059,6 +109671,102 @@
           "cityChangeLogLen": 7,
           "transfersLen": 2,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 7,
+          "recent5": [
+            {
+              "turn": 27,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            },
+            {
+              "turn": 32,
+              "cityId": "guangling",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 38,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 38,
+              "cityId": "xiapi",
+              "from": "wei",
+              "to": "wu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 514,
+          "recent5": [
+            {
+              "name": "赵云",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 11.099999999999998
+            },
+            {
+              "name": "周泰",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15
+            },
+            {
+              "name": "周瑜",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 13.9
+            },
+            {
+              "name": "朱桓",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 8.9
+            },
+            {
+              "name": "朱然",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 8.9
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -109792,6 +112500,102 @@
           "cityChangeLogLen": 7,
           "transfersLen": 2,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 7,
+          "recent5": [
+            {
+              "turn": 27,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            },
+            {
+              "turn": 32,
+              "cityId": "guangling",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 38,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 38,
+              "cityId": "xiapi",
+              "from": "wei",
+              "to": "wu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 514,
+          "recent5": [
+            {
+              "name": "赵云",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 11.099999999999998
+            },
+            {
+              "name": "周泰",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15
+            },
+            {
+              "name": "周瑜",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 13.9
+            },
+            {
+              "name": "朱桓",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 8.9
+            },
+            {
+              "name": "朱然",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 8.9
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -112530,6 +115334,102 @@
           "cityChangeLogLen": 7,
           "transfersLen": 5,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 7,
+          "recent5": [
+            {
+              "turn": 27,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            },
+            {
+              "turn": 32,
+              "cityId": "guangling",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 38,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 38,
+              "cityId": "xiapi",
+              "from": "wei",
+              "to": "wu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 514,
+          "recent5": [
+            {
+              "name": "赵云",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 11.099999999999998
+            },
+            {
+              "name": "周泰",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15
+            },
+            {
+              "name": "周瑜",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 13.9
+            },
+            {
+              "name": "朱桓",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 8.9
+            },
+            {
+              "name": "朱然",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 8.9
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -115268,6 +118168,102 @@
           "cityChangeLogLen": 6,
           "transfersLen": 2,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 6,
+          "recent5": [
+            {
+              "turn": 27,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            },
+            {
+              "turn": 32,
+              "cityId": "guangling",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 38,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 38,
+              "cityId": "xiapi",
+              "from": "wei",
+              "to": "wu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 514,
+          "recent5": [
+            {
+              "name": "赵云",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 11.099999999999998
+            },
+            {
+              "name": "周泰",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15
+            },
+            {
+              "name": "周瑜",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 13.9
+            },
+            {
+              "name": "朱桓",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 8.9
+            },
+            {
+              "name": "朱然",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 8.9
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -118030,6 +121026,102 @@
           "cityChangeLogLen": 7,
           "transfersLen": 2,
           "wildPoolLen": 4
+        },
+        "cityChangeLog": {
+          "count": 7,
+          "recent5": [
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            },
+            {
+              "turn": 32,
+              "cityId": "guangling",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 38,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 38,
+              "cityId": "xiapi",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 42,
+              "cityId": "xuzhou",
+              "from": "wu",
+              "to": "wei"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 514,
+          "recent5": [
+            {
+              "name": "赵云",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 11.099999999999998
+            },
+            {
+              "name": "周泰",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15
+            },
+            {
+              "name": "周瑜",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 13.9
+            },
+            {
+              "name": "朱桓",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 8.9
+            },
+            {
+              "name": "朱然",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 8.9
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -120786,6 +123878,102 @@
           "cityChangeLogLen": 6,
           "transfersLen": 3,
           "wildPoolLen": 4
+        },
+        "cityChangeLog": {
+          "count": 6,
+          "recent5": [
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            },
+            {
+              "turn": 32,
+              "cityId": "guangling",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 38,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 38,
+              "cityId": "xiapi",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 42,
+              "cityId": "xuzhou",
+              "from": "wu",
+              "to": "wei"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 514,
+          "recent5": [
+            {
+              "name": "赵云",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 11.099999999999998
+            },
+            {
+              "name": "周泰",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15
+            },
+            {
+              "name": "周瑜",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 13.9
+            },
+            {
+              "name": "朱桓",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 8.9
+            },
+            {
+              "name": "朱然",
+              "turn": 38,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 8.9
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -123522,6 +126710,102 @@
           "cityChangeLogLen": 6,
           "transfersLen": 2,
           "wildPoolLen": 4
+        },
+        "cityChangeLog": {
+          "count": 6,
+          "recent5": [
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            },
+            {
+              "turn": 32,
+              "cityId": "guangling",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 38,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 38,
+              "cityId": "xiapi",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 42,
+              "cityId": "xuzhou",
+              "from": "wu",
+              "to": "wei"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 526,
+          "recent5": [
+            {
+              "name": "臧霸",
+              "turn": 44,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 12.2
+            },
+            {
+              "name": "张郃",
+              "turn": 44,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 12.2
+            },
+            {
+              "name": "张辽",
+              "turn": 44,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 12.2
+            },
+            {
+              "name": "张绣",
+              "turn": 44,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 12.2
+            },
+            {
+              "name": "朱灵",
+              "turn": 44,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 12.2
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -126292,6 +129576,102 @@
           "cityChangeLogLen": 6,
           "transfersLen": 3,
           "wildPoolLen": 4
+        },
+        "cityChangeLog": {
+          "count": 6,
+          "recent5": [
+            {
+              "turn": 29,
+              "cityId": "luoyang",
+              "from": "shu",
+              "to": "wei"
+            },
+            {
+              "turn": 32,
+              "cityId": "guangling",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 38,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 38,
+              "cityId": "xiapi",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 42,
+              "cityId": "xuzhou",
+              "from": "wu",
+              "to": "wei"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 526,
+          "recent5": [
+            {
+              "name": "臧霸",
+              "turn": 44,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 12.2
+            },
+            {
+              "name": "张郃",
+              "turn": 44,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 12.2
+            },
+            {
+              "name": "张辽",
+              "turn": 44,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 12.2
+            },
+            {
+              "name": "张绣",
+              "turn": 44,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 12.2
+            },
+            {
+              "name": "朱灵",
+              "turn": 44,
+              "event": "任命官职",
+              "delta": 2,
+              "after": 12.2
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -129030,6 +132410,102 @@
           "cityChangeLogLen": 7,
           "transfersLen": 2,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 7,
+          "recent5": [
+            {
+              "turn": 32,
+              "cityId": "guangling",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 38,
+              "cityId": "luoyang",
+              "from": "wei",
+              "to": "shu"
+            },
+            {
+              "turn": 38,
+              "cityId": "xiapi",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 42,
+              "cityId": "xuzhou",
+              "from": "wu",
+              "to": "wei"
+            },
+            {
+              "turn": 46,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 566,
+          "recent5": [
+            {
+              "name": "朱桓",
+              "turn": 46,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 11.9
+            },
+            {
+              "name": "朱灵",
+              "turn": 46,
+              "event": "朝议采纳「充员令」",
+              "delta": 1.5,
+              "after": 13.7
+            },
+            {
+              "name": "朱灵",
+              "turn": 46,
+              "event": "朝议否决「安民策」",
+              "delta": -0.8,
+              "after": 12.899999999999999
+            },
+            {
+              "name": "朱然",
+              "turn": 46,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 11.9
+            },
+            {
+              "name": "诸葛亮",
+              "turn": 46,
+              "event": "朝议采纳「兴商令」",
+              "delta": 1.5,
+              "after": -3.850000000000005
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -131729,6 +135205,102 @@
           "cityChangeLogLen": 9,
           "transfersLen": 2,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 9,
+          "recent5": [
+            {
+              "turn": 38,
+              "cityId": "xiapi",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 42,
+              "cityId": "xuzhou",
+              "from": "wu",
+              "to": "wei"
+            },
+            {
+              "turn": 46,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 47,
+              "cityId": "xuchang",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 47,
+              "cityId": "xuchang",
+              "from": "wu",
+              "to": "wei"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 582,
+          "recent5": [
+            {
+              "name": "徐盛",
+              "turn": 47,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 20
+            },
+            {
+              "name": "周泰",
+              "turn": 47,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 20
+            },
+            {
+              "name": "周瑜",
+              "turn": 47,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 20
+            },
+            {
+              "name": "朱桓",
+              "turn": 47,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 14.9
+            },
+            {
+              "name": "朱然",
+              "turn": 47,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 14.9
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -134377,6 +137949,102 @@
           "cityChangeLogLen": 9,
           "transfersLen": 2,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 9,
+          "recent5": [
+            {
+              "turn": 38,
+              "cityId": "xiapi",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 42,
+              "cityId": "xuzhou",
+              "from": "wu",
+              "to": "wei"
+            },
+            {
+              "turn": 46,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 47,
+              "cityId": "xuchang",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 47,
+              "cityId": "xuchang",
+              "from": "wu",
+              "to": "wei"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 582,
+          "recent5": [
+            {
+              "name": "徐盛",
+              "turn": 47,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 20
+            },
+            {
+              "name": "周泰",
+              "turn": 47,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 20
+            },
+            {
+              "name": "周瑜",
+              "turn": 47,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 20
+            },
+            {
+              "name": "朱桓",
+              "turn": 47,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 14.9
+            },
+            {
+              "name": "朱然",
+              "turn": 47,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 14.9
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -137061,6 +140729,102 @@
           "cityChangeLogLen": 9,
           "transfersLen": 1,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 9,
+          "recent5": [
+            {
+              "turn": 38,
+              "cityId": "xiapi",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 42,
+              "cityId": "xuzhou",
+              "from": "wu",
+              "to": "wei"
+            },
+            {
+              "turn": 46,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 47,
+              "cityId": "xuchang",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 47,
+              "cityId": "xuchang",
+              "from": "wu",
+              "to": "wei"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 582,
+          "recent5": [
+            {
+              "name": "徐盛",
+              "turn": 47,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 20
+            },
+            {
+              "name": "周泰",
+              "turn": 47,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 20
+            },
+            {
+              "name": "周瑜",
+              "turn": 47,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 20
+            },
+            {
+              "name": "朱桓",
+              "turn": 47,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 14.9
+            },
+            {
+              "name": "朱然",
+              "turn": 47,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 14.9
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -139745,6 +143509,102 @@
           "cityChangeLogLen": 10,
           "transfersLen": 1,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 10,
+          "recent5": [
+            {
+              "turn": 42,
+              "cityId": "xuzhou",
+              "from": "wu",
+              "to": "wei"
+            },
+            {
+              "turn": 46,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 47,
+              "cityId": "xuchang",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 47,
+              "cityId": "xuchang",
+              "from": "wu",
+              "to": "wei"
+            },
+            {
+              "turn": 50,
+              "cityId": "shouchun",
+              "from": "wu",
+              "to": "wei"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 587,
+          "recent5": [
+            {
+              "name": "臧霸",
+              "turn": 50,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15.899999999999999
+            },
+            {
+              "name": "张郃",
+              "turn": 50,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15.899999999999999
+            },
+            {
+              "name": "张辽",
+              "turn": 50,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15.899999999999999
+            },
+            {
+              "name": "张绣",
+              "turn": 50,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15.899999999999999
+            },
+            {
+              "name": "朱灵",
+              "turn": 50,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15.899999999999999
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     },
@@ -142433,6 +146293,103 @@
           "cityChangeLogLen": 9,
           "transfersLen": 2,
           "wildPoolLen": 5
+        },
+        "cityChangeLog": {
+          "count": 9,
+          "recent5": [
+            {
+              "turn": 42,
+              "cityId": "xuzhou",
+              "from": "wu",
+              "to": "wei"
+            },
+            {
+              "turn": 46,
+              "cityId": "xuzhou",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 47,
+              "cityId": "xuchang",
+              "from": "wei",
+              "to": "wu"
+            },
+            {
+              "turn": 47,
+              "cityId": "xuchang",
+              "from": "wu",
+              "to": "wei"
+            },
+            {
+              "turn": 50,
+              "cityId": "shouchun",
+              "from": "wu",
+              "to": "wei"
+            }
+          ]
+        },
+        "genFactionModLog": {
+          "count": 587,
+          "recent5": [
+            {
+              "name": "臧霸",
+              "turn": 50,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15.899999999999999
+            },
+            {
+              "name": "张郃",
+              "turn": 50,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15.899999999999999
+            },
+            {
+              "name": "张辽",
+              "turn": 50,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15.899999999999999
+            },
+            {
+              "name": "张绣",
+              "turn": 50,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15.899999999999999
+            },
+            {
+              "name": "朱灵",
+              "turn": 50,
+              "event": "占领新城",
+              "delta": 3,
+              "after": 15.899999999999999
+            }
+          ]
+        },
+        "eventQueue": {
+          "ids": [
+            "lure_ambush",
+            "envoy_visit",
+            "propaganda_war",
+            "harvest_bounty",
+            "enemy_starving",
+            "refugee_influx"
+          ],
+          "head": {
+            "id": "lure_ambush",
+            "fid": "wei",
+            "forPlayer": true,
+            "ctx": {
+              "unit": "<ref:u2>",
+              "enemyUnit": "<ref:u5>",
+              "advisorName": "曹仁",
+              "terrain": "hill",
+              "fid": "wei"
+            }
+          }
         }
       }
     }
