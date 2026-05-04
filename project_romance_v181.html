@@ -801,12 +801,14 @@ header{background:rgba(235,225,205,.98);border-bottom:1px solid rgba(80,65,40,.2
   </div>
 </div>
 
+<script src="src/core/state.js"></script>
 <script src="src/data/constants.js"></script>
 <script src="src/data/tags.js"></script>
 <script src="src/data/events.js"></script>
 <script src="src/data/generals.js"></script>
 <script src="src/data/cities.js"></script>
 <script src="src/data/factions.js"></script>
+<script src="src/core/helpers.js"></script>
 <script src="src/render/notifications.js"></script>
 <script src="src/render/modals.js"></script>
 <script src="src/render/ui_panels.js"></script>
@@ -3485,39 +3487,6 @@ function loyaltyDisplay(val){
   if(val>=45) return {icon:'😐',label:'尚算忠诚',hint:'有所顾虑，需妥善对待',col:'#6b5530'};  // ★ v72 60→45
   return {icon:'😠',label:'心存异志',hint:'可能在特定条件下倒戈',col:'#c03030'};
 }
-
-let G={
-  turn:1,year:0,seasonIdx:0,
-  playerFac:'wei',           // ★ 玩家控制的势力（开局选择）
-  selCity:null,selFac:'wei',activeTab:'city',autoDuelMode:'none', // 'none'|'best'
-  resupplyOn:true,
-  // troopMode 已移除（v45）：城防军饷固定，野战部队按自身status计费
-  supplyLines:{},        // v0.5: 玩家建立的长期补给线
-  foodAlertCards:[],     // v0.5: 右下角告急卡片
-  // v1.0: 战斗系统
-  attackSource:null,     // 出兵来源城市ID
-  attackTroops:0,        // 出兵数量（玩家指定）
-  attackGenIdx:-1,       // 选择的将领索引（-1=无）
-  cityWalls:{},          // legacy, unused
-  factions:{},cities:{},generals:{},diplo:{},
-  transfers:[],logs:[],
-  units:[],selUnitId:null,
-  genChronicle:{},   // {genName: [{turn, year, season, text}]}
-  genLoyalty:{},     // {genName: number} 运行时忠诚度，初始从GEN_META读取
-  loyaltyAccum:{},   // {genName: float} 忠诚度浮点累积器
-  recruitableGens:{}, // {genName: {fid, since}} 可挖角武将池（忠诚<35）
-  wildPool:[],       // 在野武将池（最多5人，每5旬刷新）
-  wildPoolTurn:0,    // 上次刷新旬数
-  wildRecruitCD:{},  // {genName: cdUntilTurn} 招募失败冷却
-  reputation:{wei:45,shu:80,wu:60,nanman:30}, // C3 信誉度（0-100），影响外交效果
-  genJoinTurn:{},    // B1 {genName: turn} 加入势力的旬数（开局创始=0）
-  genJoinSource:{},  // B1 {genName: 'founding'|'capture'|'recruit'}
-  genOrigRole:{},    // B1★v71 {genName: 'ruler'|'general'|...} 原势力中的role（捕捉旧阀遗族）
-  genOrigFac:{},     // B1★v71 {genName: fid} 原属势力（捕捉旧阀遗族）
-  genFactionMod:{},  // B1 {genName: number} 派系系统忠诚累积修正[-20,+20]
-  courtDecrees:[],   // I3 朝议buff [{fid, buffKey, effectVal, name, proposer, expiresAt}]
-};
-
 
 let _unitIdCounter=1;
 
@@ -16708,16 +16677,6 @@ function updateFacStats(){
   });
 }
 
-function fmt(n){
-  if(n===undefined||n===null) return'0';
-  n=Math.floor(n);
-  if(Math.abs(n)>=10000) return(n/10000).toFixed(1)+'万';
-  return n.toLocaleString();
-}
-
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-
-
 /** v85: 全局键盘事件处理（body onkeydown） */
 function handleKeyDown(e){
   // Enter/Space → 关闭当前战报弹窗
@@ -17031,8 +16990,6 @@ function calcSlotMatCost(type, troops){
 }
 /** ★ v118: 合并多个材料费对象 */
 function mergeMatCosts(...cs){const o={};for(const c of cs)for(const[k,v]of Object.entries(c))o[k]=(o[k]||0)+v;return o;}
-/** ★ v154fix H2: 安全扣减工具——保证资源不为负 */
-function safeSub(res, key, amount){ res[key] = Math.max(0, (res[key]||0) - amount); }
 /** ★ v118: 检查势力是否负担得起材料费 */
 function canAffordMat(fid, matCost){
   const res=G.factions[fid]?.res; if(!res) return false;
