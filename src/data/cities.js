@@ -90,6 +90,8 @@ const CITIES_DEF = [
   // ── 吴 新增 ──
   {id:'lujiang',  name:'庐江', q:66,r:35, tags:['平原','水乡'],       jun:'huainanjun', fac:'wu',pop:160000, troops:1000,               size:'medium', base:{food:340,gold:79, wood:55,iron:45,horses:2}},
 ];
+// Note: CITIES_DEF.forEach 在 v181.html 主 script 中执行,会给每个 city 对象添加 x/y 像素坐标
+// (依赖 hexToPixel,后定义)
 
 // ★ O1: 城市ID→定义的O(1)查表（替代32处CITIES_DEF.find）
 const CITY_MAP = Object.fromEntries(CITIES_DEF.map(c => [c.id, c]));

@@ -1985,6 +1985,7 @@ function getKnownCityCount(viewerFid, targetFid) {
 }
 
 
+// Mutates CITIES_DEF (from src/data/cities.js): adds x/y pixel coords to each city
 // 兼容旧代码: city.x / city.y 从 hex 坐标计算
 CITIES_DEF.forEach(c => {
   const p = hexToPixel(c.q, c.r);
