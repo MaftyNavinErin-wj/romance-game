@@ -1,0 +1,103 @@
+// compare.js — deep-diff between baseline.json and current.json
+//
+// 用法:
+//   node tests/compare.js [baseline_path] [current_path]
+// 默认:
+//   baseline = tests/baseline/v181_pre_refactor.json
+//   current  = tests/current.json
+//
+// 退出码:
+//   0 = PASS(完全一致)
+//   1 = FAIL(有 diff)
+//   2 = ERROR(文件读不到等)
+
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+
+const BASELINE_DEFAULT = path.resolve(__dirname, 'baseline', 'v181_pre_refactor.json');
+const CURRENT_DEFAULT  = path.resolve(__dirname, 'current.json');
+
+function diff(a, b, p, out, max) {
+  if (out.length >= max) return;
+  if (a === b) return;
+  if (typeof a !== typeof b) {
+    out.push({ path: p, expected: a, actual: b, kind: 'type' });
+    return;
+  }
+  if (a == null || b == null) {
+    out.push({ path: p, expected: a, actual: b, kind: 'null' });
+    return;
+  }
+  if (Array.isArray(a) || Array.isArray(b)) {
+    if (!Array.isArray(a) || !Array.isArray(b)) {
+      out.push({ path: p, expected: a, actual: b, kind: 'arrayShape' });
+      return;
+    }
+    if (a.length !== b.length) {
+      out.push({ path: p + '.length', expected: a.length, actual: b.length, kind: 'length' });
+    }
+    const n = Math.max(a.length, b.length);
+    for (let i = 0; i < n; i++) {
+      diff(a[i], b[i], `${p}[${i}]`, out, max);
+      if (out.length >= max) return;
+    }
+    return;
+  }
+  if (typeof a === 'object') {
+    const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+    for (const k of keys) {
+      diff(a[k], b[k], p ? `${p}.${k}` : k, out, max);
+      if (out.length >= max) return;
+    }
+    return;
+  }
+  // primitive 不等
+  out.push({ path: p, expected: a, actual: b, kind: 'value' });
+}
+
+function fmt(v) {
+  if (v === undefined) return 'undefined';
+  const s = JSON.stringify(v);
+  return s.length > 80 ? s.slice(0, 77) + '...' : s;
+}
+
+function main() {
+  const args = process.argv.slice(2);
+  const basePath = args[0] || BASELINE_DEFAULT;
+  const curPath  = args[1] || CURRENT_DEFAULT;
+  const MAX_DIFFS = 50;
+
+  if (!fs.existsSync(basePath)) {
+    console.error('[compare] baseline not found:', basePath);
+    process.exit(2);
+  }
+  if (!fs.existsSync(curPath)) {
+    console.error('[compare] current not found:', curPath);
+    process.exit(2);
+  }
+
+  const base = JSON.parse(fs.readFileSync(basePath, 'utf8'));
+  const cur  = JSON.parse(fs.readFileSync(curPath, 'utf8'));
+
+  // meta 字段忽略 generated_at(每次跑都不同)
+  const baseSnap = base.snapshots;
+  const curSnap  = cur.snapshots;
+
+  const diffs = [];
+  diff(baseSnap, curSnap, 'snapshots', diffs, MAX_DIFFS);
+
+  if (diffs.length === 0) {
+    console.log(`[compare] PASS — ${baseSnap.length} snapshots identical`);
+    process.exit(0);
+  }
+
+  console.log(`[compare] FAIL — ${diffs.length}${diffs.length === MAX_DIFFS ? '+' : ''} diffs (showing first ${diffs.length})`);
+  for (const d of diffs) {
+    console.log(`  ${d.path}: expected=${fmt(d.expected)} actual=${fmt(d.actual)} [${d.kind}]`);
+  }
+  process.exit(1);
+}
+
+main();
