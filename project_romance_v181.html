@@ -807,6 +807,7 @@ header{background:rgba(235,225,205,.98);border-bottom:1px solid rgba(80,65,40,.2
 <script src="src/data/generals.js"></script>
 <script src="src/data/cities.js"></script>
 <script src="src/data/factions.js"></script>
+<script src="src/render/notifications.js"></script>
 <script>
 
 // ═══════════════════════════════════════
@@ -17656,13 +17657,6 @@ function log(msg,type=''){
   if(G.logs.length>8) G.logs.pop();
   const el=document.getElementById('elog');
   el.innerHTML=G.logs.slice(0,5).map((e,i)=>`<span class="ev ${e.type}" style="opacity:${1-i*.18}">${e.msg}</span>`).join('<span style="color:rgba(80,65,40,.12);margin:0 6px">·</span>');
-}
-
-function showNotif(msg,type='info'){
-  const cols={info:'var(--ink-l)',warn:'#8a6a10',battle:'#c03030'};
-  const el=document.createElement('div');
-  el.className='notif';el.style.borderLeftColor=cols[type]||cols.info;el.textContent=msg;
-  document.body.appendChild(el);setTimeout(()=>el.remove(),3000);
 }
 
 function updateFacStats(){
