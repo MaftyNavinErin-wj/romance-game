@@ -1,0 +1,14 @@
+{
+  "name": "project-romance",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Project Romance — refactor harness (smoke test only; game itself is plain HTML/JS, not npm-managed).",
+  "scripts": {
+    "smoke": "node tests/smoke.js",
+    "compare": "node tests/compare.js",
+    "test": "npm run smoke && npm run compare"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.0"
+  }
+}
