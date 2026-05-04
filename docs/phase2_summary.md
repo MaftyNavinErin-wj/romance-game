@@ -86,9 +86,17 @@ PLAN 2.2 列了 4 类 modal,但 v181 实际有 ~25 个 modal 函数。strict 范
 - 其他:`showMigrateDialog` / `_showApiKeyModal` / `_confirmApiKey` / `closeBattleModal` / `showNextPrisonerModal` / `openPostAppoint` / `openPostAction` / `openGenProfile` / `closeGenProfile`
 
 ### 5.4 ui_panels 严格 4 项,renderRight 留 v181
-PLAN 2.3 4 项是 "势力 / 城市 / 武将 / 顶部",strict 抽离 4 项对应 renders。renderRight(8-tab dispatcher)留 v181 — 它需要调用 ui_panels.js 的 renderCityTab / renderGenTab(共 script-scope OK)+ v181 内的 renderMilTab / renderPostTab / renderStatsTab / renderTechTab / renderSchemeTab / renderEthosTab / renderDipTab / renderFactionTab(留 v181)。如果把 renderRight 抽到 ui_panels.js,跨文件依赖会变多,反而不直观。
+PLAN 2.3 4 项是 "势力 / 城市 / 武将 / 顶部",strict 抽离 4 项对应 renders。renderRight(10-tab dispatcher)留 v181 — 它需要调用 ui_panels.js 的 renderCityTab / renderGenTab(共 script-scope OK)+ v181 内的 8 个其他 tab renders(留 v181)。如果把 renderRight 抽到 ui_panels.js,跨文件依赖会变多,反而不直观。
 
-未抽的右侧 tabs 留 v181(7 个):MilTab / PostTab / StatsTab / TechTab / SchemeTab / EthosTab / DipTab / FactionTab 等。
+未抽的右侧 tabs 留 v181(8 个):
+- `renderMilTab` — 军事 tab
+- `renderPostTab` — 官职 tab
+- `renderStatsTab` — 统计 tab
+- `renderFactionTab` — 势力 tab
+- `renderTechTab` — 科技 tab
+- `renderSchemeTab` — 计谋 tab
+- `renderEthosTab` — 价值观 tab
+- `renderDipTab` — 外交 tab(renderRight else 默认)
 
 ---
 
@@ -104,6 +112,8 @@ PLAN 2.3 4 项是 "势力 / 城市 / 武将 / 顶部",strict 抽离 4 项对应 
 
 ### 6.3 _applyCeremony 是 mechanism but 抽到 render 层
 严格说 _applyCeremony 是 mechanism(mutates G.genLoyalty / G.units.squads.morale)。但它是 ceremony 流程的 atomic part(picker → confirm → apply),拆分会破坏代码 coherence。phase 2.4 一起抽,在文件 header 显式标注。phase 3 若需要重新归位,可移到 chains/general.js。
+
+**Review 期补充(2026-05-04)**:实测 `_applyCeremony` 函数体 13 行 — **0 行 DOM/渲染操作,100% mechanism**(state mutation + 调 mechanism helpers 如 `addStatExp / log`)。phase 2 strict 不改逻辑遗留。已在 src/render/ceremonies.js 加 `TODO(phase-3)` 注释。phase 3 拆 chains 时回收(候选目标:`chains/general.js`(武将链 — 主操作 G.genLoyalty / 武将经验)或 `chains/politics.js`(政治链 — 拜将大典属政治仪式),根据典礼绑定的 mechanism 模块归属再决定)。
 
 ### 6.4 v181 内 mechanism 函数仍调用 render 函数
 ceremony / breakdown / panel 等渲染函数被 v181 的 mechanism 调用。phase 2 抽离后,调用关系反向:render 层(被引用) ← mechanism 层(调用方,在 v181 inline)。这违反"render 层不直接读 G state"的最终架构原则,但 phase 2 strict 不改逻辑,问题留 phase 3 解决。
