@@ -802,6 +802,7 @@ header{background:rgba(235,225,205,.98);border-bottom:1px solid rgba(80,65,40,.2
 </div>
 
 <script src="src/data/constants.js"></script>
+<script src="src/data/tags.js"></script>
 <script src="src/data/events.js"></script>
 <script src="src/data/generals.js"></script>
 <script src="src/data/cities.js"></script>
@@ -811,36 +812,7 @@ header{background:rgba(235,225,205,.98);border-bottom:1px solid rgba(80,65,40,.2
 // ═══════════════════════════════════════
 // CONSTANTS
 // ═══════════════════════════════════════
-const SEASONS=['春','夏','秋','冬'];
-const SEASON_MOD={春:1.1,夏:0.9,秋:1.2,冬:0.75};
-const YEARS=['建安十九年','建安二十年','建安二十一年','建安二十二年','建安二十三年','建安二十四年','建安二十五年','黄初元年','黄初二年','黄初三年','黄初四年','黄初五年','黄初六年','黄初七年','太和元年'];
 
-// ── MULTI-TAG SYSTEM ──
-// ★ 已调整：山地 foodM -0.30→-0.15，雄关 foodM -0.40→-0.20
-const TAGS={
-  都市:{icon:'🏙',color:'#6b5530',foodM:0,   goldM:.20,woodM:0,  slots:2, durM:1.0, desc:'人口中心 金钱+20% 槽位+2'},
-  平原:{icon:'🌾',color:'#7aaa30',foodM:.40, goldM:0,  woodM:0,  slots:0, durM:1.0, desc:'农业沃土 粮食+40%'},
-  水乡:{icon:'🌊',color:'#3090c0',foodM:.10, goldM:0,  woodM:.40,slots:0, durM:1.1, desc:'水网密布 粮食+10% 木材+40% 耐久+10%'},
-  港口:{icon:'⚓',color:'#2060a0',foodM:0,   goldM:.40,woodM:0,  slots:0, durM:1.0, desc:'商贸要道 金钱+40% 可建港口升级'},
-  山地:{icon:'⛰',color:'#806050',foodM:-.15,goldM:0,  woodM:.20,slots:-1,durM:1.4, desc:'险峻地形 粮食-15% 木材+20% 耐久+40%'},
-  雄关:{icon:'🏯',color:'#909090',foodM:-.20,goldM:0,  woodM:0,  slots:-1,durM:2.0, desc:'天下要隘 围城耐久×2 粮食-20%'},       // ★ -0.40→-0.20
-  产马:{icon:'🐴',color:'#c08040',foodM:0,   goldM:0,  woodM:0,  slots:0, durM:1.0, desc:'产马之地 马匹产出×3'},
-  产铁:{icon:'⚙', color:'#8090a0',foodM:0,   goldM:0,  woodM:0,  slots:0, durM:1.0, desc:'铁矿丰富 铁矿+100%',ironM:1.0},
-  产木:{icon:'🪵',color:'#507040',foodM:0,   goldM:0,  woodM:.80,slots:0, durM:1.0, desc:'林木茂盛 木材+80%'},
-};
-
-function getCityStats(tags){
-  let foodM=1,goldM=1,woodM=1,ironM=1,slots=3,durM=1;
-  (tags||[]).forEach(t=>{
-    const td=TAGS[t]; if(!td) return;
-    foodM+=td.foodM||0; goldM+=td.goldM||0;
-    woodM+=td.woodM||0; ironM+=(td.ironM||0);
-    slots+=td.slots||0; durM*=(td.durM||1);
-  });
-  const hasHorse=(tags||[]).includes('产马');
-  return{foodM:Math.max(.1,foodM),goldM:Math.max(.1,goldM),woodM:Math.max(.1,woodM),
-         ironM:Math.max(1,ironM),horseM:hasHorse?3.0:1.0,slots:Math.max(1,slots),durM};
-}
 
 // ── TAX / POLICY ──
 const TAX=[
@@ -1190,8 +1162,6 @@ function getBarracksDiscount(city){
 
 
 /** v172: 势力演进阶段常量 */
-const STAGE_NAMES = { warlord:'军阀', regional:'一方之主', regime:'政权' };
-const STAGE_ORDER = { warlord:0, regional:1, regime:2 };
 
 // 豪族支持度按阶段 clamp 的上下限（军阀强权保底25+不得拥戴封70；其他完全解锁）
 const STAGE_GENTRY_BOUNDS = {
@@ -1212,44 +1182,6 @@ const STAGE_PROMO = {
 // 负值方向: mandate→崇汉, power→共治, civil→仁政, military→怀柔, strategy→守成
 // 范围 -100 ~ +100, 0为中立
 // ═══════════════════════════════════════
-const ETHOS_DIMS = ['mandate','power','civil','military','strategy'];
-const ETHOS_LABELS = {
-  mandate:  { neg:'崇汉', pos:'篡汉',   icon:'👑' },
-  power:    { neg:'士族共治', pos:'集权', icon:'⚖' },
-  civil:    { neg:'仁政', pos:'暴政',    icon:'🏛' },
-  military: { neg:'怀柔', pos:'铁血',    icon:'⚔' },
-  strategy: { neg:'守成', pos:'扩张',    icon:'🗺' },
-};
-const ETHOS_DIM_NAMES = { mandate:'天命', power:'权柄', civil:'文治', military:'武略', strategy:'方略' };
-function _ethosTierLabel(val, dim){
-  const abs = Math.abs(val);
-  if(abs < 15) return '不偏不倚';
-  // 每个维度×每个方向×3个等级 = 独立的四字描述
-  const labels = {
-    mandate: {
-      neg: abs < 40 ? '心系汉室' : abs < 70 ? '矢志兴汉' : '汉贼不两立',
-      pos: abs < 40 ? '天命有归' : abs < 70 ? '代汉自立' : '改朝换代',
-    },
-    power: {
-      neg: abs < 40 ? '兼听则明' : abs < 70 ? '与士共治' : '君弱臣强',
-      pos: abs < 40 ? '乾纲独断' : abs < 70 ? '大权在握' : '唯我独尊',
-    },
-    civil: {
-      neg: abs < 40 ? '爱民如子' : abs < 70 ? '仁德布四方' : '圣主明君',
-      pos: abs < 40 ? '严刑峻法' : abs < 70 ? '苛政猛于虎' : '残暴不仁',
-    },
-    military: {
-      neg: abs < 40 ? '以德服人' : abs < 70 ? '偃武修文' : '刀枪入库',
-      pos: abs < 40 ? '厉兵秣马' : abs < 70 ? '穷兵黩武' : '嗜杀成性',
-    },
-    strategy: {
-      neg: abs < 40 ? '固守疆土' : abs < 70 ? '韬光养晦' : '闭关锁国',
-      pos: abs < 40 ? '开疆拓土' : abs < 70 ? '鲸吞蚕食' : '席卷天下',
-    },
-  };
-  const side = val >= 0 ? 'pos' : 'neg';
-  return labels[dim]?.[side] || (val >= 0 ? ETHOS_LABELS[dim].pos : ETHOS_LABELS[dim].neg);
-}
 
 /** 攻城胜利后处置选项 */
 const SIEGE_AFTERMATH = {
