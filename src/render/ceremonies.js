@@ -25,24 +25,7 @@
 //   - DOM 元素:#ceremonyModal(lazy 创建) / #crm-count / #crm-confirm
 //   - CSS 类 / 内联 style:在 v181 内联 <style> 中
 
-// ★ v131: D1拜将大典——多选面板
-// TODO(phase-3): _applyCeremony is 100% mechanism (verified phase 2 review),
-// will be moved to chains/ during phase 3 mechanism extraction.
-function _applyCeremony(picked, fid){
-  // ★ v133: 标记已封，不再触发
-  if(!G._eventFired) G._eventFired={};
-  G._eventFired.general_ceremony = G.turn;
-  picked.forEach(name=>{
-    if(G.genLoyalty[name]!==undefined) G.genLoyalty[name]=Math.min(100,G.genLoyalty[name]+10);
-    if(G.loyaltyAccum) G.loyaltyAccum[name]=G.genLoyalty[name];
-    addStatExp(name, 'com', 25);
-    addStatExp(name, 'war', 25);
-  });
-  G.units.filter(u=>u.fac===fid).forEach(u=>{
-    u.squads.forEach(sq=>{ sq.morale=Math.min(100,sq.morale+5); });
-  });
-  log(`🏅 拜将大典：${picked.join('、')}受封，全军振奋`,'event');
-}
+// _applyCeremony (原 L31-L45) 已搬到 src/chains/general.js GEN15 段 (Session 3.12 / phase 2 carry-over closed). _confirmCeremony 调用关系不变 (跨 script hoisted function 全局可见).
 function _showCeremonyPicker(allCands, fid, title){
   let m = document.getElementById('ceremonyModal');
   if(!m){
