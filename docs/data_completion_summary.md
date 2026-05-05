@@ -222,7 +222,72 @@ dc.collect 跑 3 次完整 smoke 验证稳定性:
 
 ---
 
-## 九、累计 phase 1+2+3+data-completion 统计
+## 九、dc 后 v181 剩余审查(6 桶实测重测)
+
+> phase3_summary §10.0 的 6 桶分类基于 v181 17391 行(phase 3 末)。dc 完成后 v181 = 15656 行,本节用 grep + awk + wc 实测重测各桶,**不引用 phase3_summary 旧数字**。phase 4 / 后续 sprint 启动决策必读。
+
+### 9.1 dc 后 v181 结构实测(L 行号 = current v181 post-dc)
+
+**inline script 结构**(2 段):
+- L1-L830:HTML shell + style + button bar + canvas(**830 行**,unchanged)
+- L831 `<script>` → L14257 `</script>` = inline script 第一段(13427 行)
+- L14258-L14336 = 中间段(79 行,含 `<script>` 间隔 + 剩余 closing tags)
+- L14337 `<script>` → L15632 `</script>` = inline script 第二段(1296 行,顶层 `_debug` 调试块)
+- L15633-L15656 = 收尾 closing tags + tail(24 行)
+
+### 9.2 dc 后 6 桶分类(实测)
+
+| 桶 | 关键行号 | 行数 | % | dc 前 (phase3_summary §10.0) | 变化 | 内容 |
+|---|---|---|---|---|---|---|
+| **桶 1**:HTML shell + style + button bar | L1-L830 | **830** | 5.3% | 830(4.8%)| **不变** | `<head>` + `<style>` + `<body>` + `.topbar` + canvas + main `<script>` opening |
+| **桶 2**:顶层静态数据 const **残余**(数据 sprint 后)| L831-L1186 | **356** | 2.3% | ~2063(11.9%)| **-1707**(-82.7%) | dc/phase 3 markers (~30 行) + squad class 6 函数 (L907-L985, 75 行) + 散在 section headers + GEN_MAP let (L1188-L1190 区域) + 散在注释空行. **dc 已抽 1742 行 verbatim 到 src/data/(constants.js / generals.js / state_county.js)** |
+| **桶 3**:渲染层尾巴(留 v181 / phase 2 原则)| L1187-L11856 散在 | **~10670** | ~68.2% | ~5500(31.6%)| **不变量级**(行号偏移)| 8 right tabs + renderRight(L2399/L2575/L2749/L2922/L3442/L3648/L3909/L4040/L11404)+ 战斗动画 ~2517 行 + 各 modal HTML 构造 + 各 modal handler. **(此区段同时含散在的 mechanism helpers / 顶层 lets,与桶 6 部分混杂,精确切分困难,粗归桶 3)** |
+| **桶 4**:_exec 派发(架构债)| L13381-L14000 | **620** | 4.0% | 620(3.6%)| **不变** | 36 个 _execXxx(plan 字面 39 实测 36;**phase 3 已知架构债,sprint 5 batch 处理**,见 phase3_summary §10.5)|
+| **桶 5**:reset+serialize+boot 集中点 | L11857-L13380 区域 | **~1524** | ~9.7% | ~1000(5.7%)| **+524**(范围扩,此区段也含 boot 周围其他 mechanism)| `loadFromSlot`(L11857)/ `showTitleScreen`(L11877)/ `_exitGame`(L11918)/ `backToTitle`(L11928,M4 carry-over §1 集中 reset 20+ lets)/ saveGame meta + slot codec / 顶层 boot call |
+| **桶 6**:顶层杂项 + 第二段 _debug script | L14001-L14336 + L14337-L15632 + L15633-L15656 散在 | **~1656** | ~10.6% | ~7378(42.4%)| **-5722**(范围重定义)| _exec 后到第一段 script 末(L14001-L14257, 257 行)+ 中间段(L14258-L14336, 79 行)+ **第二段 inline `<script>` `_debug` 调试块**(L14337-L15632, **1296 行**)+ closing tail(L15633-L15656, 24 行)+ 散在桶 3 区内未精确切出的顶层 lets(粗估几十行,精确无法分) |
+| **总计** | — | **15656** | 100% | 17391 | **-1735** | |
+
+### 9.3 桶 6 范围重定义说明(诚实记录)
+
+phase3_summary §10.0 桶 6 估 ~7378 行(42.4%),是把 inline script 内"非 _exec 非顶层 const"的顶层 lets / mechanism helpers / 工具 / 第二段全部归桶 6 的 **catch-all 估算**(estimate)。
+
+dc 实测后采取**更精确的边界划分**:
+- **桶 6 严格定义**:_exec 后段 + 中间段 + 第二段 _debug + closing tail = **~1656 行**(不再含散在 mechanism helpers)
+- **散在的 mechanism helpers / 顶层 lets**:**归桶 3**(渲染层 + 机制 mixed,本就难精确切分)
+
+**这不是 dc 工作改动了内容**,而是分桶方法精化:**phase3_summary §10.0 桶 6 是 catch-all 粗估,本节桶 6 是精确测量**。
+
+如要回比:phase 3 末桶 6 catch-all ~7378 行 = 本节桶 6 精确 ~1656 + 散归桶 3 的 mechanism helpers ~5722,总和一致。
+
+### 9.4 dc 影响范围结论
+
+- **桶 2 大幅减少**:~2063 → **356 行(-82.7%)**,数据 sprint 主目标达成
+- **桶 1 / 4 不变**(HTML shell / _exec 段 byte-identical)
+- **桶 3 / 5 / 6 行号偏移但内容不变**(范围重定义后行数对应)
+
+### 9.5 桶 2 残余内容(356 行,sprint 启动决策依据)
+
+**核心残余**:
+- **squad class 6 函数**(L907-L985,~79 行):`getSquadClass / getUnitClassBuffs / getClassDuelWeight / genClassTagsHtml / genClassSelectorHtml / genClassBuffsHtml`(DP-B 决策延续 phase3_12_notes §一,留 v181 等 mechanism/render sprint)
+- **GEN_MAP let region**(L1188-L1192,~5 行):`let GEN_MAP = Object.fromEntries([...ALL_GENS, ...GEN_POOL_INACTIVE].map(g=>[g.name, g]));` + 周围 docstring(留 v181 等运行时 helper sprint,phase 3.12 决策延续)
+- **dc + phase 3 markers**(~5 dc + ~25+ phase 3 = ~30 行):placeholder marker 注释,仅文档作用,无运行时影响
+- **散在 section headers + 注释 + 空行**(~240 行):各历史阶段留下的 section header / docstring / 隔行,可在后续 sprint 清理但**优先级低**(纯注释)
+
+### 9.6 sprint 启动决策启发(基于 dc 后 6 桶实测)
+
+| sprint 候选 | 行数 | 优先级 | 备注 |
+|---|---|---|---|
+| **桶 4 _exec 架构债 sprint**(5 batch)| 620 | 高 | 与 D-064 同步,phase3_summary §10.5 已写出 5 batch 建议 |
+| **桶 2 squad class + GEN_MAP helper sprint**(零碎)| ~85 | 中低 | 75 squad class + 5 GEN_MAP + ~5 周围,适合做 audit pass 2 衍生 sprint;独立做收益不大 |
+| **桶 3 渲染层 phase 4**(~10670 行)| 大 | 待决 | 8 right tabs + 战斗动画 + modals,phase 4 主目标(若进 phase 4)|
+| **桶 6 第二段 _debug 抽离**(1296 行)| 中 | 低 | 可单独抽到 src/dev/_debug.js,纯调试代码无运行时影响 |
+| **桶 2 markers + section headers 清理**(~270 行,纯注释)| 小 | 极低 | 后续整体修订时清理,**不值得单独 sprint** |
+
+**核心结论**:dc 后桶 2 已基本"清空数据",剩余 356 行主要是 markers / squad class 函数 / GEN_MAP helper / 注释。**桶 2 数据 sprint 收尾**(本工作目标达成)。
+
+---
+
+## 十、累计 phase 1+2+3+data-completion 统计
 
 | 指标 | 起点(v181 原版)| 阶段 1 末 | 阶段 2 末 | 阶段 3 末 | **dc 末** | 累计变化 |
 |---|---|---|---|---|---|---|
@@ -243,7 +308,7 @@ dc.collect 跑 3 次完整 smoke 验证稳定性:
 
 ---
 
-## 十、refactor/data-completion → main 合并
+## 十一、refactor/data-completion → main 合并
 
 合并方式:`git merge --no-ff refactor/data-completion`(保留 5 commit 历史 + 1 merge,便于追溯)。
 
