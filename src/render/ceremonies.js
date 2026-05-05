@@ -4,6 +4,7 @@
 //
 // 来源:从 project_romance_v181.html L8269-L8336 整体抽离(Session 2.4 / 阶段 2)
 // 抽离方式:**只搬运,不改逻辑**(verbatim relocation)。
+// 接口风格:全局函数(同 phase 2.1 决定),所有调用点不需改。
 //
 // 抽离的 4 个函数(紧耦合,作为一个典礼子系统抽出):
 //   - _applyCeremony(picked, fid):应用典礼效果(忠诚+10 / 统武经验+25 / 全军士气+5)

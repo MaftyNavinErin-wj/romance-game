@@ -4,6 +4,7 @@
 //
 // 来源:从 project_romance_v181.html 整体抽离(Session 2.3 / 阶段 2)
 // 抽离方式:**只搬运,不改逻辑**(verbatim relocation),全局函数风格保持。
+// 接口风格:全局函数(同 phase 2.1 决定),所有调用点不需改。
 //
 // 抽离的 4 个 PANEL 单元:
 //   1. renderTurnInfo()(原 L14482-L14489):顶部信息栏(turnDisp + seasonTag)

@@ -4,6 +4,7 @@
 //
 // 来源:从 project_romance_v181.html 整体抽离(Session 2.5 / 阶段 2)
 // 抽离方式:**只搬运,不改逻辑**(verbatim relocation)。
+// 接口风格:全局函数(同 phase 2.1 决定),所有调用点不需改。
 //
 // 抽离的 3 段(共 ~1253 行):
 //   1. hideTip()(原 L16691):隐藏 #_tip 元素
