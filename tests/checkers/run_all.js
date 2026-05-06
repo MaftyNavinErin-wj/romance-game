@@ -28,6 +28,14 @@ let hadBlockingFinding = false;
 for (const c of checkers) {
   const fullPath = path.join(__dirname, c.file);
   const result = spawnSync('node', [fullPath], { stdio: 'inherit' });
+  // codex 三次 review LOW #2 修法:spawnSync 异常状态识别
+  // result.error: node 启动失败 / 找不到 node / 系统级错误
+  // result.status === null: 进程被 signal 杀掉(SIGKILL/SIGTERM)
+  // 这两种情况都视为 ERROR exit 2,不能默认走"无 HIGH finding"路径
+  if (result.error || result.status === null) {
+    console.error(`[run-all] checker ${c.file} 异常退出 (error=${result.error?.message || 'killed by signal'}, status=${result.status}) — aborting`);
+    process.exit(2);
+  }
   if (result.status === 1 && c.gate) hadBlockingFinding = true;
   if (result.status === 2) {
     console.error(`[run-all] checker ${c.file} ERROR — aborting`);

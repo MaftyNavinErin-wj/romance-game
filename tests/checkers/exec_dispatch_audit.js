@@ -3,10 +3,11 @@
 // Checker 1:_exec 四表对账
 //
 // 目的:对账 Claude AI 决策接口的 4 个表的一致性
-//   表 A:_exec* 函数定义全集(grep src/ + project_romance_v181.html)
+//   表 A:_exec* 函数定义全集(grep src/core + src/chains + project_romance_v181.html,不扫 src/render)
 //   表 B:_execOneAction dispatcher case 全集(src/core/claude_ai.js)
-//   表 C:prompt action type 指令全集(src/core/claude_ai.js,2 处 prompt)
-//   表 D:case ↔ function 映射(snake_case → _execCamelCase)
+//   表 C:prompt action type 指令全集(src/core/claude_ai.js,2 处 prompt;F7: matchAll 单行多 type 安全)
+//   表 D:三向交叉(F4: 主键改 dispatcher case 权威 source-of-truth,反查 case→fn,
+//       避免之前 fnToType(_execDemandVassal)→demand_vassal 反推假阴性)
 //
 // 服务的 D 类:
 //   D-099 (prompt 缺 _exec 指令)/ D-100 (派发器漏 enthrone case) / D-016 / D-020 /
@@ -15,7 +16,11 @@
 // 工作流原则:
 //   - read-only,不动代码,只产报告
 //   - 输出 docs/checker_reports/exec_dispatch_audit.md
-//   - 退出码:0 = 对账完整 / 1 = 发现缺漏 / 2 = ERROR
+//   - 退出码(F5 二次修法,codex review):
+//     0 = 无 HIGH/ERROR finding(可能仍有 WARN no_dispatcher_case / INFO naming_mismatch)
+//     1 = 有 HIGH/ERROR finding(case_no_prompt / prompt_no_case / missing_function 等)
+//     2 = ERROR
+//   - sprint gate:✅ Yes(D-099 / D-100 batch 修完后 HIGH 清零,exit 0 作 batch 通过证据)
 //
 // 用法:
 //   node tests/checkers/exec_dispatch_audit.js
