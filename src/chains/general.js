@@ -1733,6 +1733,10 @@ function setPrefect(cityId, genName){
       // ★ v73 任命官职 → 同派系凝聚感 +2
       const apFac = getGenFaction(genName, cityFac);
       if(apFac) triggerFactionEvent('appointPost', cityFac, {appointedFaction: apFac});
+      // D-051 fix: 价值观冲击 — 任命太守（与 appointGenPost 同模式：士族→共治，寒门/宗亲→集权）
+      const _apOrigin = (GEN_TAGS[genName]||{}).origin;
+      if(_apOrigin === 'gentry') applyEthosShock(cityFac, 'power', -2, '任命士族太守');
+      else if(_apOrigin === 'humble' || _apOrigin === 'clan') applyEthosShock(cityFac, 'power', 2, '任命寒门/宗亲太守');
     }
   }
   if(oldPrefect && oldPrefect !== genName){
@@ -1745,6 +1749,10 @@ function setPrefect(cityId, genName){
     if(cityFac && ALL_FACS.includes(cityFac)){
       const rmFac = getGenFaction(oldPrefect, cityFac);
       if(rmFac) triggerFactionEvent('removePost', cityFac, {removedFaction: rmFac});
+      // D-051 fix: 价值观冲击 — 卸任太守（与 dismissGenPost 同模式）
+      const _rmOrigin = (GEN_TAGS[oldPrefect]||{}).origin;
+      if(_rmOrigin === 'gentry') applyEthosShock(cityFac, 'power', 3, '罢免士族太守');
+      else if(_rmOrigin === 'humble' || _rmOrigin === 'clan') applyEthosShock(cityFac, 'power', -1, '罢免寒门/宗亲太守');
     }
   }
 
@@ -1803,6 +1811,10 @@ function setStrategist(fid, genName){
     if(ALL_FACS.includes(fid)){
       const apFac = getGenFaction(genName, fid);
       if(apFac) triggerFactionEvent('appointPost', fid, {appointedFaction: apFac});
+      // D-051 fix: 价值观冲击 — 任命军师（与 appointGenPost 同模式）
+      const _apOrigin = (GEN_TAGS[genName]||{}).origin;
+      if(_apOrigin === 'gentry') applyEthosShock(fid, 'power', -2, '任命士族军师');
+      else if(_apOrigin === 'humble' || _apOrigin === 'clan') applyEthosShock(fid, 'power', 2, '任命寒门/宗亲军师');
     }
     log(`📜 ${FAC[fid]?.name}任命 ${genName} 为军师`, 'fac');
   } else {
@@ -1812,6 +1824,10 @@ function setStrategist(fid, genName){
   if(prev && prev !== genName && ALL_FACS.includes(fid)){
     const rmFac = getGenFaction(prev, fid);
     if(rmFac) triggerFactionEvent('removePost', fid, {removedFaction: rmFac});
+    // D-051 fix: 价值观冲击 — 卸任军师（与 dismissGenPost 同模式）
+    const _rmOrigin = (GEN_TAGS[prev]||{}).origin;
+    if(_rmOrigin === 'gentry') applyEthosShock(fid, 'power', 3, '罢免士族军师');
+    else if(_rmOrigin === 'humble' || _rmOrigin === 'clan') applyEthosShock(fid, 'power', -1, '罢免寒门/宗亲军师');
   }
   renderRight(); renderLeft();
 }
