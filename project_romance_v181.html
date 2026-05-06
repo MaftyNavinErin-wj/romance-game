@@ -13983,7 +13983,7 @@ function _execSetReinforcePolicy(fid, act) {
   const policy = act.policy;
   if (!['aggr', 'bal', 'elit'].includes(policy)) return false;
   if (!G.factions[fid]) return false;
-  G.factions[fid].reinforcePolicy = policy;
+  G.factions[fid].policyId = policy;
   const labels = { aggr: '激进', bal: '均衡', elit: '精兵' };
   log(`📋 [AI] ${FAC[fid]?.name}补员策略调整为「${labels[policy]}」`, 'economy');
   return true;
