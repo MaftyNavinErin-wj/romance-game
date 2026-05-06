@@ -1669,6 +1669,9 @@ function poachGen(genName){
     { const _cloned = _deepCloneGen(gen); G.generals[G.playerFac].push(_cloned); GEN_MAP[_cloned.name] = _cloned; } // ★ v155fix P0
     G.genLoyalty[genName] = 60; // 初始忠诚60
     G.loyaltyAccum[genName] = 60;
+    // D-063 fix: 补写入伙时机字段（被挖武将得 9 旬冷却保护，避免立即下野/被回挖）
+    G.genJoinTurn[genName] = G.turn;
+    G.genJoinSource[genName] = 'poach';
     delete G.recruitableGens[genName];
     setRetainers(genName, 0); // ★ v163: 叛逃/被挖角→部曲归零
     // ★ v161: 叛逃→属县家族忠诚冲击-15
