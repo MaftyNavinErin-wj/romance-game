@@ -35,17 +35,32 @@ const KNOWN_EVENT_TYPES = [
   'warDeclare', 'betray', 'appointPost', 'removePost',
 ];
 
-// ── 已知 D 类 finding(来自 cross_chain_d_list_v1_0.md + walkthrough)
+// ── 已知 D 类 finding(来自 cross_chain_d_list_v1_0.md + audit_walkthroughs/)
+// walkthrough 校准:event_chain_walkthrough.md L155 列 D-131 期望 7 处缺失
 const KNOWN_GAPS = {
   warDeclare: {
-    expected: ['玩家 diploWar', 'aiDoDiplo neutral 分支宣战', '_execDeclareWar'],
+    expected_count: 7,  // walkthrough 列出 7 处 v181 原行号缺失:14327/14447/14462/14540/16251/_execDeclareWar 37466/9648
+    expected: [
+      'v181 14327 玩家 diploWar 路径',
+      'v181 14447 aiDoDiplo 分支',
+      'v181 14462 aiDoDiplo 分支',
+      'v181 14540 aiDoDiplo 极弱投靠/相关',
+      'v181 16251 checkDiplo 自动宣战 (rel≤10) (D-117c 关联)',
+      'v181 37466 _execDeclareWar',
+      'v181 9648 (其他状态变化点)',
+    ],
     d_class: 'D-049 / D-131',
-    note: 'v181 仅 doEnthrone (politics.js:1028) 调,真正宣战 3 路径全漏',
+    note: '当前仅 doEnthrone (politics.js doEnthrone) 1 caller,称帝路径触发(语义偏离),真正宣战 7 路径全漏。v130 重构推广不彻底典型',
   },
   betray: {
-    expected: ['玩家 diploWar betray', 'AI 主动背刺', 'de facto 宣战背刺(中立战斗)'],
+    expected_count: 3,  // 粗估:玩家 diploWar 已修(diplomacy.js:431)+ AI 主动背刺漏 + de facto 宣战漏
+    expected: [
+      '玩家 diploWar betray (已 ✓ src/chains/diplomacy.js:431)',
+      'AI 主动背刺路径 (D-048 漏)',
+      'de facto 宣战背刺(中立状态战斗自动 enemy,D-118 关联)',
+    ],
     d_class: 'D-048',
-    note: '玩家被罚 AI 不被罚,对称性 bug',
+    note: '玩家被罚 AI 不被罚,对称性 bug。具体期望行号待 sprint scout 深入',
   },
 };
 
@@ -158,10 +173,12 @@ function main() {
 
   // (4) 已知 D 类的 expected caller 缺漏提示
   for (const [t, gap] of Object.entries(KNOWN_GAPS)) {
+    const actual = byType[t]?.length || 0;
+    const missing = Math.max(0, gap.expected_count - actual);
     findings.push({
       kind: 'known_gap',
       severity: 'HIGH',
-      msg: `eventType '${t}' 已知缺漏:${gap.note};期望 caller:${gap.expected.join(' / ')};当前 caller=${byType[t].length}`,
+      msg: `eventType '${t}' 已知缺漏:${gap.note};期望 ${gap.expected_count} 处 caller,实际 ${actual} 处,缺 ${missing}`,
       candidate_d: gap.d_class,
     });
   }
@@ -195,8 +212,13 @@ function main() {
     lines.push(`### \`${t}\` (${byType[t]?.length || 0} caller)`);
     lines.push('');
     if (KNOWN_GAPS[t]) {
-      lines.push(`> **已知缺漏(${KNOWN_GAPS[t].d_class})**:${KNOWN_GAPS[t].note}`);
-      lines.push(`> 期望 caller:${KNOWN_GAPS[t].expected.join(' / ')}`);
+      const gap = KNOWN_GAPS[t];
+      const actual = byType[t]?.length || 0;
+      lines.push(`> **已知缺漏(${gap.d_class})**:${gap.note}`);
+      lines.push(`> 期望 **${gap.expected_count}** 处 caller,实际 **${actual}** 处,缺 **${Math.max(0, gap.expected_count - actual)}** 处`);
+      lines.push('>');
+      lines.push('> 期望 caller 详细(walkthrough 校准):');
+      for (const e of gap.expected) lines.push(`> - ${e}`);
       lines.push('');
     }
     if (!byType[t] || byType[t].length === 0) {

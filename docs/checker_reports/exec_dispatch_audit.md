@@ -1,6 +1,6 @@
 # Checker 1:_exec 四表对账报告
 
-> 生成时间:2026-05-06T07:07:29.944Z
+> 生成时间:2026-05-06T07:23:08.028Z
 > 数据源:`project_romance_v181.html` + `src/core/claude_ai.js` + `src/chains/*.js` + `src/render/*.js`
 > 服务 D 类:D-099 / D-100 / D-016 / D-020 / D-064 / D-076(Claude AI 路径错配模式)
 

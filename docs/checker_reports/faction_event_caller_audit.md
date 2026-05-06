@@ -1,6 +1,6 @@
 # Checker 2:triggerFactionEvent caller 覆盖表
 
-> 生成时间:2026-05-06T07:07:30.537Z
+> 生成时间:2026-05-06T07:23:08.653Z
 > 数据源:`project_romance_v181.html` + `src/**/*.js`
 > 服务 D 类:D-048 / D-049 / D-131(v130 重构推广不彻底模式)
 
@@ -49,8 +49,17 @@
 
 ### `warDeclare` (1 caller)
 
-> **已知缺漏(D-049 / D-131)**:v181 仅 doEnthrone (politics.js:1028) 调,真正宣战 3 路径全漏
-> 期望 caller:玩家 diploWar / aiDoDiplo neutral 分支宣战 / _execDeclareWar
+> **已知缺漏(D-049 / D-131)**:当前仅 doEnthrone (politics.js doEnthrone) 1 caller,称帝路径触发(语义偏离),真正宣战 7 路径全漏。v130 重构推广不彻底典型
+> 期望 **7** 处 caller,实际 **1** 处,缺 **6** 处
+>
+> 期望 caller 详细(walkthrough 校准):
+> - v181 14327 玩家 diploWar 路径
+> - v181 14447 aiDoDiplo 分支
+> - v181 14462 aiDoDiplo 分支
+> - v181 14540 aiDoDiplo 极弱投靠/相关
+> - v181 16251 checkDiplo 自动宣战 (rel≤10) (D-117c 关联)
+> - v181 37466 _execDeclareWar
+> - v181 9648 (其他状态变化点)
 
 | chain | 文件:行 | 所在函数 | snippet |
 |---|---|---|---|
@@ -58,8 +67,13 @@
 
 ### `betray` (1 caller)
 
-> **已知缺漏(D-048)**:玩家被罚 AI 不被罚,对称性 bug
-> 期望 caller:玩家 diploWar betray / AI 主动背刺 / de facto 宣战背刺(中立战斗)
+> **已知缺漏(D-048)**:玩家被罚 AI 不被罚,对称性 bug。具体期望行号待 sprint scout 深入
+> 期望 **3** 处 caller,实际 **1** 处,缺 **2** 处
+>
+> 期望 caller 详细(walkthrough 校准):
+> - 玩家 diploWar betray (已 ✓ src/chains/diplomacy.js:431)
+> - AI 主动背刺路径 (D-048 漏)
+> - de facto 宣战背刺(中立状态战斗自动 enemy,D-118 关联)
 
 | chain | 文件:行 | 所在函数 | snippet |
 |---|---|---|---|
@@ -87,5 +101,5 @@
 
 | # | severity | kind | 描述 | 候选 D 类 |
 |---|---|---|---|---|
-| 1 | HIGH | known_gap | eventType 'warDeclare' 已知缺漏:v181 仅 doEnthrone (politics.js:1028) 调,真正宣战 3 路径全漏;期望 caller:玩家 diploWar / aiDoDiplo neutral 分支宣战 / _execDeclareWar;当前 caller=1 | D-049 / D-131 |
-| 2 | HIGH | known_gap | eventType 'betray' 已知缺漏:玩家被罚 AI 不被罚,对称性 bug;期望 caller:玩家 diploWar betray / AI 主动背刺 / de facto 宣战背刺(中立战斗);当前 caller=1 | D-048 |
+| 1 | HIGH | known_gap | eventType 'warDeclare' 已知缺漏:当前仅 doEnthrone (politics.js doEnthrone) 1 caller,称帝路径触发(语义偏离),真正宣战 7 路径全漏。v130 重构推广不彻底典型;期望 7 处 caller,实际 1 处,缺 6 | D-049 / D-131 |
+| 2 | HIGH | known_gap | eventType 'betray' 已知缺漏:玩家被罚 AI 不被罚,对称性 bug。具体期望行号待 sprint scout 深入;期望 3 处 caller,实际 1 处,缺 2 | D-048 |
