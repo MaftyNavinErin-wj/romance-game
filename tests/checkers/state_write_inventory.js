@@ -1,21 +1,27 @@
 // tests/checkers/state_write_inventory.js
 //
-// Checker 3:G 写口反向索引(粗粒度)
+// Checker 3:G 写口 advisory inventory(粗粒度)
+//
+// ⚠️ F2 修法(codex review):本 checker 是 advisory inventory,**不是 D-120 closure gate**
+//   - D-120 真正语义是"per-turn reset"(`nextTurn` 末 `forEach delete`),本 checker 不检查
+//   - 本 checker 只看"整局 reset"(backToTitle / initGame)+ save/load idiom
+//   - 即使 D-120 修复(per-turn reset 加上),本 checker 仍会报字段为 lifecycle_gap WARN(不是 bug)
+//   - 反向也成立:本 checker 通过 ≠ D-120 修好(可能漏)
 //
 // 目的:
-//   (1) 列出所有 G._xxx 顶层动态字段 + 写入 / 读取位置 + 重置 / save / load 检查
-//   (2) 服务 D-120 + 模式 6 状态生命周期类
-//   (3) 列出核心 G subtree 写口高度集中的位置(模式 5 双向不一致检查辅助)
+//   (1) 列出所有 G._xxx 顶层动态字段 + 写入 / 读取位置 inventory
+//   (2) 标注哪些字段在整局 reset / save / load 闭环中缺失(advisory)
+//   (3) 为模式 6 状态生命周期类提供 raw data,人工 + walkthrough 二次确认才是 closure
 //
-// 服务的 D 类:
-//   D-120 (G._diploActed_${fid} 顶层字段永不重置)
-//   D-052 / D-053 / D-055 (核心算法回路双向不一致,辅助检查)
-//   模式 6 状态生命周期类(普适)
+// 服务的 D 类(advisory only,不作 closure):
+//   D-120 (G._diploActed_${fid} per-turn reset 缺) — 本 checker 仅 inventory,需配合 walkthrough
+//   模式 6 状态生命周期类(普适 inventory)
 //
 // 工作流原则:
 //   - read-only,只产报告
 //   - 输出 docs/checker_reports/state_write_inventory.md
-//   - 退出码:0 = 全部字段闭环 / 1 = 有字段缺生命周期点 / 2 = ERROR
+//   - 退出码:0 = 报告生成成功(无论 finding 数) / 2 = ERROR
+//     注:本 checker 不参与 sprint gate(F5),所有 finding 都是 advisory WARN
 
 'use strict';
 
@@ -74,14 +80,34 @@ function collectDynamicFields() {
           f.comments.push({ file: path.relative(ROOT, file), line: idx + 1 });
           continue;
         }
-        // 简易判定 write vs read:`= ` 后面或 `delete G._xxx` 视为写
-        // `G._xxx = ...`(直接赋值)/ `delete G._xxx`(删除)
+        // F3 修法(codex review):扩展 mutation 检测,避免低估写口
+        // 写形式覆盖:
+        //   1. 直接赋值:G._xxx = ... / G._xxx[k] = ... / G._xxx.prop = ...
+        //   2. delete:delete G._xxx
+        //   3. compound assignment:G._xxx += / -= / *= / /= / **= / %=
+        //   4. 自增/自减:G._xxx++ / G._xxx-- / ++G._xxx / --G._xxx
+        //   5. mutation methods:.push() / .pop() / .shift() / .unshift() /
+        //                       .splice() / .sort() / .reverse() / .fill() / .copyWithin()
+        //   6. Object.assign(G._xxx, ...)(注:外面的 Object.assign 调用 — 反向 grep 在 caller 处)
         const afterMatch = line.slice(m.index + m[0].length);
         const beforeMatch = line.slice(0, m.index);
-        const isAssign = /^\s*(?:\[[^\]]*\])?\s*=(?!=)/.test(afterMatch);
+        const isAssign = /^\s*(?:\[[^\]]*\]|\.\w+)*\s*=(?!=)/.test(afterMatch);
+        const isCompoundAssign = /^\s*(?:\[[^\]]*\]|\.\w+)*\s*(?:\+=|-=|\*=|\/=|\*\*=|%=)/.test(afterMatch);
+        const isIncDec = /^\s*(?:\+\+|--)/.test(afterMatch) || /(?:\+\+|--)\s*$/.test(beforeMatch);
         const isDelete = /\bdelete\s+$/.test(beforeMatch);
-        if (isAssign || isDelete) {
-          f.writes.push({ file: path.relative(ROOT, file), line: idx + 1, kind: isDelete ? 'delete' : 'assign' });
+        const isMutationMethod = /^\s*\.\s*(push|pop|shift|unshift|splice|sort|reverse|fill|copyWithin)\s*\(/.test(afterMatch);
+        // Object.assign(G._xxx, ...) 检测:本行含 `Object.assign(`,且 G._xxx 是其首参
+        const isObjectAssignTarget = /Object\.assign\s*\(\s*G\._/.test(beforeMatch + 'G._' + m[1]) &&
+                                      /Object\.assign\s*\(\s*$/.test(beforeMatch);
+        const isWrite = isAssign || isDelete || isCompoundAssign || isIncDec || isMutationMethod || isObjectAssignTarget;
+        if (isWrite) {
+          let kind = 'assign';
+          if (isDelete) kind = 'delete';
+          else if (isCompoundAssign) kind = 'compound';
+          else if (isIncDec) kind = 'inc/dec';
+          else if (isMutationMethod) kind = 'mutation';
+          else if (isObjectAssignTarget) kind = 'Object.assign';
+          f.writes.push({ file: path.relative(ROOT, file), line: idx + 1, kind });
         } else {
           f.reads.push({ file: path.relative(ROOT, file), line: idx + 1 });
         }
@@ -96,12 +122,25 @@ function collectDynamicFields() {
         const f = fields.get(baseName);
         f.usages++;
         if (isComment) continue;
+        // 模板键完整形式 G[`_xxx_${...}`] 之后是 `]`,然后才是赋值/方法调用/运算符
         const afterMatch = line.slice(m.index + m[0].length);
-        const isAssign = /^[^=]*\]\s*=(?!=)/.test(afterMatch);
         const beforeMatch = line.slice(0, m.index);
+        // 找模板字面量的结束位置(] 后面的位置)
+        const closingBracketMatch = afterMatch.match(/^[^\]]*\]/);
+        const afterBracket = closingBracketMatch ? afterMatch.slice(closingBracketMatch[0].length) : afterMatch;
+        const isAssign = /^\s*(?:\[[^\]]*\]|\.\w+)*\s*=(?!=)/.test(afterBracket);
+        const isCompoundAssign = /^\s*(?:\[[^\]]*\]|\.\w+)*\s*(?:\+=|-=|\*=|\/=|\*\*=|%=)/.test(afterBracket);
+        const isIncDec = /^\s*(?:\+\+|--)/.test(afterBracket);
         const isDelete = /\bdelete\s+$/.test(beforeMatch);
-        if (isAssign || isDelete) {
-          f.writes.push({ file: path.relative(ROOT, file), line: idx + 1, kind: isDelete ? 'delete' : 'assign' });
+        const isMutationMethod = /^\s*\.\s*(push|pop|shift|unshift|splice|sort|reverse|fill|copyWithin)\s*\(/.test(afterBracket);
+        const isWrite = isAssign || isDelete || isCompoundAssign || isIncDec || isMutationMethod;
+        if (isWrite) {
+          let kind = 'assign';
+          if (isDelete) kind = 'delete';
+          else if (isCompoundAssign) kind = 'compound';
+          else if (isIncDec) kind = 'inc/dec';
+          else if (isMutationMethod) kind = 'mutation';
+          f.writes.push({ file: path.relative(ROOT, file), line: idx + 1, kind });
         } else {
           f.reads.push({ file: path.relative(ROOT, file), line: idx + 1 });
         }
@@ -193,35 +232,44 @@ function main() {
     'G._diploActed__<dynamic>': { d_class: 'D-120', note: '顶层字段每旬不重置(玩家附庸 3 入口整局各 1 次)' },
   };
 
+  // F2 修法(codex review):全部 finding 降为 WARN(advisory)
+  // 即使 KNOWN(D-120),checker 也不能 close — D-120 真正语义是 per-turn reset,本 checker 不查
   for (const [name, f] of sortedFields) {
     const lc = lifecycle[name];
-    // 只关注 write 存在但 reset 不闭环的(模式 6)
     if (f.writes.length === 0) continue;
     const inReset = lc.backToTitle === '✓' || lc.initGame === '✓';
-    // save / load 接受"整体 idiom"为闭环
     const inSave = lc._serializeG === '✓' || lc._serializeG === '✓ (整体)';
     const inLoad = lc._deserializeG === '✓' || lc._deserializeG === '✓ (整体)';
     if (!inReset || !inSave || !inLoad) {
       const known = KNOWN[name];
       findings.push({
         kind: 'lifecycle_gap',
-        severity: known ? 'HIGH' : 'WARN',
+        severity: 'WARN',  // F2: 全部 advisory,checker 不作为 closure gate
         field: name,
-        msg: `${name} 写入存在(${f.writes.length}处)但生命周期闭环不完整: reset=${inReset?'✓':'✗'} save=${inSave?'✓':'✗'} load=${inLoad?'✓':'✗'}`,
+        msg: `${name} 写入存在(${f.writes.length}处)但整局生命周期闭环不完整: reset=${inReset?'✓':'✗'} save=${inSave?'✓':'✗'} load=${inLoad?'✓':'✗'}`,
         candidate_d: known?.d_class || '模式 6 同模式',
-        note: known?.note,
+        note: known ? `${known.note} (注:本 checker 不查 per-turn,advisory inventory only)` : null,
       });
     }
   }
 
   // 写报告
   const lines = [];
-  lines.push('# Checker 3:G 写口反向索引 + 生命周期闭环检查');
+  lines.push('# Checker 3:G 写口 advisory inventory(NOT D-120 closure gate)');
   lines.push('');
-  lines.push(`> 生成时间:${new Date().toISOString()}`);
+  lines.push('> Generated by `tests/checkers/state_write_inventory.js`(无 timestamp,git commit 即可追溯)');
   lines.push('> 数据源:`project_romance_v181.html` + `src/**/*.js`');
-  lines.push('> 服务 D 类:D-120 + 模式 6 状态生命周期类');
   lines.push('> 检查范围:`G._xxx` 顶层动态字段 + `G[`_xxx_${...}`]` 模板字段');
+  lines.push('');
+  lines.push('> ⚠️ **Sprint gate 能力:NO — 本 checker 是 advisory inventory,不是 D-120 closure gate**');
+  lines.push('>');
+  lines.push('> - D-120 真正语义是"per-turn reset"(`nextTurn` 末 `forEach delete`),本 checker 不检查');
+  lines.push('> - 本 checker 只看"整局 reset"(backToTitle / initGame)+ save/load idiom');
+  lines.push('> - 即使 D-120 修好(per-turn reset 加上),本 checker 仍报字段为 lifecycle_gap WARN(不是 bug)');
+  lines.push('> - 反向也成立:本 checker 通过 ≠ D-120 修好(可能漏)');
+  lines.push('> - **D-120 closure 必须靠 walkthrough + 人工 review,不能用 checker 自动判定**');
+  lines.push('');
+  lines.push('> 服务方式:为模式 6 状态生命周期类提供 raw inventory 数据,sprint 期 batch fix 时人工核每个字段语义');
   lines.push('');
   lines.push('## 总览');
   lines.push('');
@@ -263,26 +311,31 @@ function main() {
       lines.push(`| ${i + 1} | ${f.severity} | \`${f.field}\` | ${f.msg} | ${f.candidate_d} | ${f.note || '-'} |`);
     });
     lines.push('');
-    lines.push('### 注:本 checker 是粗粒度初版,只覆盖"整局 reset"(backToTitle / initGame)语义');
+    lines.push('### Advisory only — 全部 WARN(F2 修法,codex review)');
     lines.push('');
-    lines.push('**已知限制**:');
-    lines.push('- ✅ save / load 整体 idiom(`JSON.stringify(G)` / `Object.keys(snap).forEach`)已识别为 ✓');
-    lines.push('- ❌ **D-120 真正的问题是"每旬末重置"(per-turn expire),不是整局 reset**');
-    lines.push('  - D-120 语义:`G._diploActed_${fid}` 在 nextTurn 末没有 `ALL_FACS.forEach(f => delete G[\\`_diploActed_${f}\\`])`');
-    lines.push('  - 当前 checker 不检查 per-turn expire(下个版本可加 nextTurn / processXxx 函数体扫描)');
-    lines.push('- ❌ checker 不区分"该字段应整局保存"vs"该字段应每旬重置"(语义判定靠 audit walkthrough)');
+    lines.push('**已识别**(checker 1.1 增强):');
+    lines.push('- ✅ save / load 整体 idiom(`JSON.stringify(G)` / `Object.keys(snap).forEach`)识别为 ✓');
+    lines.push('- ✅ mutation 写口扩展:`.push() / .pop() / .splice() / += / ++ / Object.assign(G._xxx, ...)` 等(F3 修法)');
+    lines.push('');
+    lines.push('**仍未覆盖**(下版本扩展候选):');
+    lines.push('- ❌ **per-turn reset 检查**(D-120 真正语义)— 不扫 `nextTurn` / `processXxx` 函数体内 forEach delete');
+    lines.push('- ❌ 不区分"该字段应整局保存"vs"该字段应每旬重置"(语义判定靠 audit walkthrough)');
     lines.push('- ❌ 误报:某字段已在更高层 reset 函数(如某个 `_resetXxx`)处理,本 checker 未追溯');
+    lines.push('- ❌ 深层对象写入(如 `G._foo.bar.baz = ...`)只识别为 G._foo 的 read');
     lines.push('');
-    lines.push('Sprint 修 D-120 / 模式 6 时需结合 walkthrough + 代码 review 二次确认每个 finding 的真实语义。');
+    lines.push('Sprint 修 D-120 / 模式 6 时**必须**结合 walkthrough + 代码 review 二次确认每个 finding 的真实语义。');
+    lines.push('checker 不能 close 这些 D 类。');
   }
   lines.push('');
 
   fs.writeFileSync(REPORT, lines.join('\n'));
   console.log(`[checker-3] wrote ${path.relative(ROOT, REPORT)}`);
   const totalFields = [...fields.keys()].length;
-  console.log(`[checker-3] dynamic_fields=${totalFields} findings=${findings.length}`);
+  console.log(`[checker-3] dynamic_fields=${totalFields} findings=${findings.length} (all advisory WARN)`);
 
-  process.exit(findings.some(f => f.severity === 'HIGH') ? 1 : 0);
+  // F5 修法(codex review):本 checker 是 advisory inventory,不参与 sprint gate
+  // 全部 finding 是 WARN(F2),exit 0 永远(除非 ERROR)
+  process.exit(0);
 }
 
 main();
