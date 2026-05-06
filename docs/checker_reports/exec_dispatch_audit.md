@@ -137,45 +137,45 @@
 > **F4 修法(codex review)**:主键改 dispatcher case(权威 source-of-truth),反查 case→fn
 > 之前用 `fnToType(_execDemandVassal)→demand_vassal` 反推会假阴性(case 实际是 `diplo_demand_vassal`)
 
-| dispatcher case | → 函数 | prompt 提及 | 函数存在 |
+| dispatcher case | → 函数 | prompt 提及 | issue |
 |---|---|---|---|
-| `appoint_post` | ✓ `_execAppointPost` | ✓ | - |
-| `attack` (fallthrough) | ✓ `_execMove` | ✓ | - |
-| `billet` | ✓ `_execBillet` | ✓ | - |
-| `break_alliance` | ✓ `_execBreakAlliance` | ✓ | - |
-| `build` | ✓ `_execBuild` | ✓ | - |
-| `cancel_siege` | ✓ `_execCancelSiege` | ✗ | - | ⚠️
-| `cancel_special` | ✓ `_execCancelSpecial` | ✓ | - |
-| `cancel_supply` | ✓ `_execCancelSupply` | ✗ | - | ⚠️
-| `declare_war` | ✓ `_execDeclareWar` | ✓ | - |
-| `diplo_armistice` | ✓ `_execDiploArmistice` | ✗ | - | ⚠️
-| `diplo_demand_vassal` | ✓ `_execDemandVassal` | ✗ | - | ⚠️
-| `diplo_gift` | ✓ `_execDiploGift` | ✓ | - |
-| `diplo_release_vassal` | ✓ `_execReleaseVassal` | ✗ | - | ⚠️
-| `diplo_submit_vassal` | ✓ `_execSubmitVassal` | ✗ | - | ⚠️
-| `disband` | ✓ `_execDisband` | ✓ | - |
-| `dismiss_post` | ✓ `_execDismissPost` | ✓ | - |
-| `enthrone` | ✓ `_execEnthrone` | ✓ | - |
-| `move` | ✓ `_execMove` | ✓ | - |
-| `poach` | ✓ `_execPoach` | ✓ | - |
-| `propose_alliance` | ✓ `_execProposeAlliance` | ✓ | - |
-| `recruit` | ✓ `_execRecruit` | ✓ | - |
-| `recruit_wild` | ✓ `_execRecruitWild` | ✓ | - |
-| `research` | ✓ `_execResearch` | ✓ | - |
-| `scheme_drive_wolf` | ✓ `_execSchemeDriveWolf` | ✓ | - |
-| `scheme_rumor` | ✓ `_execSchemeRumor` | ✓ | - |
-| `scheme_scout` | ✓ `_execSchemeScout` | ✓ | - |
-| `scheme_spy` | ✓ `_execSchemeSpy` | ✓ | - |
-| `scheme_two_tigers` | ✓ `_execSchemeTwoTigers` | ✓ | - |
-| `set_ambush` | ✓ `_execSetAmbush` | ✓ | - |
-| `set_camp` | ✓ `_execSetCamp` | ✓ | - |
-| `set_prefect` | ✓ `_execSetPrefect` | ✓ | - |
-| `set_reinforce_policy` | ✓ `_execSetReinforcePolicy` | ✓ | - |
-| `set_strategist` | ✓ `_execSetStrategist` | ✓ | - |
-| `set_tax` | ✓ `_execSetTax` | ✓ | - |
-| `start_claim` | ✓ `_execStartClaim` | ✓ | - |
-| `toggle_resupply` | ✓ `_execToggleResupply` | ✗ | - | ⚠️
-| `transfer_food` | ✓ `_execTransferFood` | ✓ | - |
+| `appoint_post` | ✓ `_execAppointPost` | ✓ |  |
+| `attack` (fallthrough) | ✓ `_execMove` | ✓ |  |
+| `billet` | ✓ `_execBillet` | ✓ |  |
+| `break_alliance` | ✓ `_execBreakAlliance` | ✓ |  |
+| `build` | ✓ `_execBuild` | ✓ |  |
+| `cancel_siege` | ✓ `_execCancelSiege` | ✗ | ⚠️ |
+| `cancel_special` | ✓ `_execCancelSpecial` | ✓ |  |
+| `cancel_supply` | ✓ `_execCancelSupply` | ✗ | ⚠️ |
+| `declare_war` | ✓ `_execDeclareWar` | ✓ |  |
+| `diplo_armistice` | ✓ `_execDiploArmistice` | ✗ | ⚠️ |
+| `diplo_demand_vassal` | ✓ `_execDemandVassal` | ✗ | ⚠️ |
+| `diplo_gift` | ✓ `_execDiploGift` | ✓ |  |
+| `diplo_release_vassal` | ✓ `_execReleaseVassal` | ✗ | ⚠️ |
+| `diplo_submit_vassal` | ✓ `_execSubmitVassal` | ✗ | ⚠️ |
+| `disband` | ✓ `_execDisband` | ✓ |  |
+| `dismiss_post` | ✓ `_execDismissPost` | ✓ |  |
+| `enthrone` | ✓ `_execEnthrone` | ✓ |  |
+| `move` | ✓ `_execMove` | ✓ |  |
+| `poach` | ✓ `_execPoach` | ✓ |  |
+| `propose_alliance` | ✓ `_execProposeAlliance` | ✓ |  |
+| `recruit` | ✓ `_execRecruit` | ✓ |  |
+| `recruit_wild` | ✓ `_execRecruitWild` | ✓ |  |
+| `research` | ✓ `_execResearch` | ✓ |  |
+| `scheme_drive_wolf` | ✓ `_execSchemeDriveWolf` | ✓ |  |
+| `scheme_rumor` | ✓ `_execSchemeRumor` | ✓ |  |
+| `scheme_scout` | ✓ `_execSchemeScout` | ✓ |  |
+| `scheme_spy` | ✓ `_execSchemeSpy` | ✓ |  |
+| `scheme_two_tigers` | ✓ `_execSchemeTwoTigers` | ✓ |  |
+| `set_ambush` | ✓ `_execSetAmbush` | ✓ |  |
+| `set_camp` | ✓ `_execSetCamp` | ✓ |  |
+| `set_prefect` | ✓ `_execSetPrefect` | ✓ |  |
+| `set_reinforce_policy` | ✓ `_execSetReinforcePolicy` | ✓ |  |
+| `set_strategist` | ✓ `_execSetStrategist` | ✓ |  |
+| `set_tax` | ✓ `_execSetTax` | ✓ |  |
+| `start_claim` | ✓ `_execStartClaim` | ✓ |  |
+| `toggle_resupply` | ✓ `_execToggleResupply` | ✗ | ⚠️ |
+| `transfer_food` | ✓ `_execTransferFood` | ✓ |  |
 
 ## 缺漏 findings
 

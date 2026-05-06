@@ -321,7 +321,7 @@ function main() {
     lines.push('- ❌ **per-turn reset 检查**(D-120 真正语义)— 不扫 `nextTurn` / `processXxx` 函数体内 forEach delete');
     lines.push('- ❌ 不区分"该字段应整局保存"vs"该字段应每旬重置"(语义判定靠 audit walkthrough)');
     lines.push('- ❌ 误报:某字段已在更高层 reset 函数(如某个 `_resetXxx`)处理,本 checker 未追溯');
-    lines.push('- ❌ 深层对象写入(如 `G._foo.bar.baz = ...`)只识别为 G._foo 的 read');
+    lines.push('- ⚠️ 深层方法调用(如 `G._foo.bar.baz()` 非 mutation method)识别为 G._foo 的 read(可能漏当对象用作 mutator 时)');
     lines.push('');
     lines.push('Sprint 修 D-120 / 模式 6 时**必须**结合 walkthrough + 代码 review 二次确认每个 finding 的真实语义。');
     lines.push('checker 不能 close 这些 D 类。');

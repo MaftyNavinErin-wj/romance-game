@@ -17,7 +17,12 @@
 // 工作流原则:
 //   - read-only,只产报告
 //   - 输出 docs/checker_reports/faction_event_caller_audit.md
-//   - 退出码:0 = 至少 1 caller per eventType / 1 = 有 eventType 缺 caller / 2 = ERROR
+//   - 退出码(F5 二次修法,codex review):
+//     0 = 无 HIGH/ERROR finding(可能仍有 WARN no_caller / INFO known_gap_closed 等)
+//     1 = 有 HIGH/ERROR finding(目前只有 known_gap HIGH 触发,即 KNOWN_GAPS 内
+//         actual<expected_count 时;闭合后降为 INFO,exit 0)
+//     2 = ERROR
+//   - sprint gate:✅ Yes(KNOWN_GAPS 闭合后 finding 自动从 HIGH 降级,可作 batch 通过证据)
 
 'use strict';
 
@@ -271,12 +276,15 @@ function main() {
   lines.push('');
 
   fs.writeFileSync(REPORT, lines.join('\n'));
+  const hasHighFinding = findings.some(f => f.severity === 'HIGH' || f.severity === 'ERROR');
   console.log(`[checker-2] wrote ${path.relative(ROOT, REPORT)}`);
-  console.log(`[checker-2] callers=${callers.length} eventTypes=${KNOWN_EVENT_TYPES.length} findings=${findings.length}`);
+  console.log(`[checker-2] callers=${callers.length} eventTypes=${KNOWN_EVENT_TYPES.length} findings=${findings.length} (HIGH/ERROR=${findings.filter(f => f.severity === 'HIGH' || f.severity === 'ERROR').length})`);
 
-  // 退出码:有 0-caller eventType 时报警
-  const hasZeroCaller = KNOWN_EVENT_TYPES.some(t => byType[t].length === 0);
-  process.exit(hasZeroCaller || findings.some(f => f.severity === 'HIGH') ? 1 : 0);
+  // F5 二次修法(codex review):exit 1 仅 HIGH/ERROR 触发,与 run_all.js 语义同步
+  // 0 caller eventType 走 no_caller WARN(不在 KNOWN_GAPS 的 eventType,潜在风险但确定性不足)
+  // 已知 gap 通过 KNOWN_GAPS 报 known_gap HIGH(actual<expected → HIGH;闭合 → INFO)
+  // 未来若某 eventType 0 caller 被 audit 升级为 HIGH-significance,加进 KNOWN_GAPS 用 known_gap 模式
+  process.exit(hasHighFinding ? 1 : 0);
 }
 
 main();

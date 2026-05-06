@@ -135,7 +135,7 @@ npm run checkers      # 跑全部 3 个 checker,输出报告到 docs/checker_rep
 1. per-turn reset 检查(扫 `nextTurn` / `processXxx` 函数体内 `forEach delete` pattern)
 2. 不区分"该字段应整局保存"vs"该字段应每旬重置"(语义判定靠 audit walkthrough)
 3. 可能误报:某字段在更高层 reset 函数(如自定义 `_resetXxx`)处理,本 checker 未追溯
-4. 深层对象写入(如 `G._foo.bar.baz = ...`)只识别为 G._foo 的 read
+4. 深层方法调用(如 `G._foo.bar.baz()` 非 mutation method)识别为 G._foo 的 read(可能漏当对象用作 mutator 时);深层赋值 `G._foo.bar = ...` / `G._foo.bar.baz = ...` 已正确识别为 write(F3 regex 含 `\.\w+`)
 
 ### 输出 finding 类型
 

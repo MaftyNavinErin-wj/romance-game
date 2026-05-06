@@ -268,15 +268,15 @@ function main() {
   lines.push('> **F4 修法(codex review)**:主键改 dispatcher case(权威 source-of-truth),反查 case→fn');
   lines.push('> 之前用 `fnToType(_execDemandVassal)→demand_vassal` 反推会假阴性(case 实际是 `diplo_demand_vassal`)');
   lines.push('');
-  lines.push('| dispatcher case | → 函数 | prompt 提及 | 函数存在 |');
+  lines.push('| dispatcher case | → 函数 | prompt 提及 | issue |');
   lines.push('|---|---|---|---|');
   // 主键 = dispatcher case(权威),反查每个 case 对应的 fn 是否存在 + prompt 是否声明
   for (const c of cases.sort((a, b) => a.type.localeCompare(b.type))) {
     const fnMark = c.fn ? (defNames.has(c.fn) ? '✓ `' + c.fn + '`' : '✗ MISSING `' + c.fn + '`') : '(none)';
     const promptMark = promptTypeSet.has(c.type) ? '✓' : '✗';
     const fallthrough = c.fallthrough ? ' (fallthrough)' : '';
-    const issue = (promptMark === '✗' || !c.fn || !defNames.has(c.fn)) ? ' ⚠️' : '';
-    lines.push(`| \`${c.type}\`${fallthrough} | ${fnMark} | ${promptMark} | - |${issue}`);
+    const issue = (promptMark === '✗' || !c.fn || !defNames.has(c.fn)) ? '⚠️' : '';
+    lines.push(`| \`${c.type}\`${fallthrough} | ${fnMark} | ${promptMark} | ${issue} |`);
   }
   lines.push('');
   // 补充列出 prompt 中提到但 dispatcher 没 case 的 type(独立小表,避免污染主表)
@@ -316,10 +316,13 @@ function main() {
   lines.push('');
 
   fs.writeFileSync(REPORT, lines.join('\n'));
+  const hasHighFinding = findings.some(f => f.severity === 'HIGH' || f.severity === 'ERROR');
   console.log(`[checker-1] wrote ${path.relative(ROOT, REPORT)}`);
-  console.log(`[checker-1] defs=${defs.length} cases=${cases.length} prompt_types=${Object.keys(promptTypes).length} findings=${findings.length}`);
+  console.log(`[checker-1] defs=${defs.length} cases=${cases.length} prompt_types=${Object.keys(promptTypes).length} findings=${findings.length} (HIGH/ERROR=${findings.filter(f => f.severity === 'HIGH' || f.severity === 'ERROR').length})`);
 
-  process.exit(findings.length > 0 ? 1 : 0);
+  // F5 二次修法(codex review):exit 1 仅 HIGH/ERROR 触发,与 run_all.js 语义同步
+  // WARN no_dispatcher_case / INFO naming_mismatch 不阻断 sprint gate
+  process.exit(hasHighFinding ? 1 : 0);
 }
 
 main();
