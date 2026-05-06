@@ -1,0 +1,194 @@
+# Checker 1:_exec 四表对账报告
+
+> 生成时间:2026-05-06T07:07:29.944Z
+> 数据源:`project_romance_v181.html` + `src/core/claude_ai.js` + `src/chains/*.js` + `src/render/*.js`
+> 服务 D 类:D-099 / D-100 / D-016 / D-020 / D-064 / D-076(Claude AI 路径错配模式)
+
+## 总览
+
+| 表 | 数量 |
+|---|---|
+| A: _exec* 函数定义 | 36 |
+| B: dispatcher case | 37 |
+| C: prompt 指令 type | 30 |
+| 缺漏 finding | 10 |
+
+## 表 A:_exec* 函数定义
+
+| 函数名 | 文件 | 行 | 期望 type(snake_case) |
+|---|---|---|---|
+| `_execAppointPost` | project_romance_v181.html | 13465 | `appoint_post` |
+| `_execBillet` | project_romance_v181.html | 13956 | `billet` |
+| `_execBreakAlliance` | project_romance_v181.html | 13619 | `break_alliance` |
+| `_execBuild` | project_romance_v181.html | 13381 | `build` |
+| `_execCancelSiege` | project_romance_v181.html | 13948 | `cancel_siege` |
+| `_execCancelSpecial` | project_romance_v181.html | 13938 | `cancel_special` |
+| `_execCancelSupply` | project_romance_v181.html | 13455 | `cancel_supply` |
+| `_execDeclareWar` | project_romance_v181.html | 13564 | `declare_war` |
+| `_execDemandVassal` | project_romance_v181.html | 13681 | `demand_vassal` |
+| `_execDiploArmistice` | project_romance_v181.html | 13649 | `diplo_armistice` |
+| `_execDiploGift` | project_romance_v181.html | 13632 | `diplo_gift` |
+| `_execDisband` | project_romance_v181.html | 13902 | `disband` |
+| `_execDismissPost` | project_romance_v181.html | 13493 | `dismiss_post` |
+| `_execEnthrone` | project_romance_v181.html | 13996 | `enthrone` |
+| `_execMove` | project_romance_v181.html | 13835 | `move` |
+| `_execPoach` | project_romance_v181.html | 13523 | `poach` |
+| `_execProposeAlliance` | project_romance_v181.html | 13595 | `propose_alliance` |
+| `_execRecruit` | project_romance_v181.html | 13854 | `recruit` |
+| `_execRecruitWild` | project_romance_v181.html | 13511 | `recruit_wild` |
+| `_execReleaseVassal` | project_romance_v181.html | 13695 | `release_vassal` |
+| `_execResearch` | project_romance_v181.html | 13541 | `research` |
+| `_execSchemeDriveWolf` | project_romance_v181.html | 13706 | `scheme_drive_wolf` |
+| `_execSchemeRumor` | project_romance_v181.html | 13779 | `scheme_rumor` |
+| `_execSchemeScout` | project_romance_v181.html | 13802 | `scheme_scout` |
+| `_execSchemeSpy` | project_romance_v181.html | 13752 | `scheme_spy` |
+| `_execSchemeTwoTigers` | project_romance_v181.html | 13732 | `scheme_two_tigers` |
+| `_execSetAmbush` | project_romance_v181.html | 13926 | `set_ambush` |
+| `_execSetCamp` | project_romance_v181.html | 13916 | `set_camp` |
+| `_execSetPrefect` | project_romance_v181.html | 13422 | `set_prefect` |
+| `_execSetReinforcePolicy` | project_romance_v181.html | 13982 | `set_reinforce_policy` |
+| `_execSetStrategist` | project_romance_v181.html | 13500 | `set_strategist` |
+| `_execSetTax` | project_romance_v181.html | 13414 | `set_tax` |
+| `_execStartClaim` | project_romance_v181.html | 13671 | `start_claim` |
+| `_execSubmitVassal` | project_romance_v181.html | 13688 | `submit_vassal` |
+| `_execToggleResupply` | project_romance_v181.html | 13448 | `toggle_resupply` |
+| `_execTransferFood` | project_romance_v181.html | 13433 | `transfer_food` |
+
+## 表 B:dispatcher case
+
+| case type | → 函数 | 行 | 备注 |
+|---|---|---|---|
+| `build` | `_execBuild` | 1434 |  |
+| `set_tax` | `_execSetTax` | 1435 |  |
+| `set_prefect` | `_execSetPrefect` | 1436 |  |
+| `transfer_food` | `_execTransferFood` | 1437 |  |
+| `toggle_resupply` | `_execToggleResupply` | 1438 |  |
+| `cancel_supply` | `_execCancelSupply` | 1439 |  |
+| `appoint_post` | `_execAppointPost` | 1441 |  |
+| `dismiss_post` | `_execDismissPost` | 1442 |  |
+| `set_strategist` | `_execSetStrategist` | 1443 |  |
+| `recruit_wild` | `_execRecruitWild` | 1444 |  |
+| `poach` | `_execPoach` | 1445 |  |
+| `research` | `_execResearch` | 1447 |  |
+| `declare_war` | `_execDeclareWar` | 1449 |  |
+| `propose_alliance` | `_execProposeAlliance` | 1450 |  |
+| `break_alliance` | `_execBreakAlliance` | 1451 |  |
+| `diplo_gift` | `_execDiploGift` | 1452 |  |
+| `diplo_armistice` | `_execDiploArmistice` | 1453 |  |
+| `start_claim` | `_execStartClaim` | 1454 |  |
+| `diplo_demand_vassal` | `_execDemandVassal` | 1455 |  |
+| `diplo_submit_vassal` | `_execSubmitVassal` | 1456 |  |
+| `diplo_release_vassal` | `_execReleaseVassal` | 1457 |  |
+| `scheme_drive_wolf` | `_execSchemeDriveWolf` | 1459 |  |
+| `scheme_two_tigers` | `_execSchemeTwoTigers` | 1460 |  |
+| `scheme_spy` | `_execSchemeSpy` | 1461 |  |
+| `scheme_rumor` | `_execSchemeRumor` | 1462 |  |
+| `scheme_scout` | `_execSchemeScout` | 1463 |  |
+| `attack` | `_execMove` | 1465 | fallthrough → 1466 |
+| `move` | `_execMove` | 1466 |  |
+| `recruit` | `_execRecruit` | 1467 |  |
+| `disband` | `_execDisband` | 1468 |  |
+| `set_camp` | `_execSetCamp` | 1469 |  |
+| `set_ambush` | `_execSetAmbush` | 1470 |  |
+| `cancel_special` | `_execCancelSpecial` | 1471 |  |
+| `cancel_siege` | `_execCancelSiege` | 1472 |  |
+| `billet` | `_execBillet` | 1473 |  |
+| `set_reinforce_policy` | `_execSetReinforcePolicy` | 1474 |  |
+| `enthrone` | `_execEnthrone` | 1476 |  |
+
+## 表 C:prompt 指令 type
+
+| type | 出现行 | 出现次数 |
+|---|---|---|
+| `appoint_post` | 576, 1098 | 2 |
+| `attack` | 570, 1088 | 2 |
+| `billet` | 1092 | 1 |
+| `break_alliance` | 1105 | 1 |
+| `build` | 567, 1085 | 2 |
+| `cancel_special` | 1091 | 1 |
+| `declare_war` | 581, 1103 | 2 |
+| `diplo_gift` | 584, 1107 | 2 |
+| `disband` | 588, 1093 | 2 |
+| `dismiss_post` | 577, 1099 | 2 |
+| `enthrone` | 1114 | 1 |
+| `move` | 569, 1087 | 2 |
+| `poach` | 580, 1102 | 2 |
+| `propose_alliance` | 582, 1104 | 2 |
+| `recruit` | 568, 1086 | 2 |
+| `recruit_wild` | 579, 1101 | 2 |
+| `research` | 585, 1108 | 2 |
+| `scheme_drive_wolf` | 1109 | 1 |
+| `scheme_rumor` | 1112 | 1 |
+| `scheme_scout` | 587, 1113 | 2 |
+| `scheme_spy` | 586, 1111 | 2 |
+| `scheme_two_tigers` | 1110 | 1 |
+| `set_ambush` | 572, 1090 | 2 |
+| `set_camp` | 571, 1089 | 2 |
+| `set_prefect` | 574, 1096 | 2 |
+| `set_reinforce_policy` | 1095 | 1 |
+| `set_strategist` | 578, 1100 | 2 |
+| `set_tax` | 573, 1094 | 2 |
+| `start_claim` | 583, 1106 | 2 |
+| `transfer_food` | 575, 1097 | 2 |
+
+## 表 D:case × prompt × function 三向交叉
+
+| type | dispatcher case | prompt 提及 | 函数定义 |
+|---|---|---|---|
+| `appoint_post` | ✓ | ✓ | ✓ `_execAppointPost` |
+| `attack` | ✓ | ✓ | ✗ | ⚠️
+| `billet` | ✓ | ✓ | ✓ `_execBillet` |
+| `break_alliance` | ✓ | ✓ | ✓ `_execBreakAlliance` |
+| `build` | ✓ | ✓ | ✓ `_execBuild` |
+| `cancel_siege` | ✓ | ✗ | ✓ `_execCancelSiege` | ⚠️
+| `cancel_special` | ✓ | ✓ | ✓ `_execCancelSpecial` |
+| `cancel_supply` | ✓ | ✗ | ✓ `_execCancelSupply` | ⚠️
+| `declare_war` | ✓ | ✓ | ✓ `_execDeclareWar` |
+| `demand_vassal` | ✗ | ✗ | ✓ `_execDemandVassal` | ⚠️
+| `diplo_armistice` | ✓ | ✗ | ✓ `_execDiploArmistice` | ⚠️
+| `diplo_demand_vassal` | ✓ | ✗ | ✗ | ⚠️
+| `diplo_gift` | ✓ | ✓ | ✓ `_execDiploGift` |
+| `diplo_release_vassal` | ✓ | ✗ | ✗ | ⚠️
+| `diplo_submit_vassal` | ✓ | ✗ | ✗ | ⚠️
+| `disband` | ✓ | ✓ | ✓ `_execDisband` |
+| `dismiss_post` | ✓ | ✓ | ✓ `_execDismissPost` |
+| `enthrone` | ✓ | ✓ | ✓ `_execEnthrone` |
+| `move` | ✓ | ✓ | ✓ `_execMove` |
+| `poach` | ✓ | ✓ | ✓ `_execPoach` |
+| `propose_alliance` | ✓ | ✓ | ✓ `_execProposeAlliance` |
+| `recruit` | ✓ | ✓ | ✓ `_execRecruit` |
+| `recruit_wild` | ✓ | ✓ | ✓ `_execRecruitWild` |
+| `release_vassal` | ✗ | ✗ | ✓ `_execReleaseVassal` | ⚠️
+| `research` | ✓ | ✓ | ✓ `_execResearch` |
+| `scheme_drive_wolf` | ✓ | ✓ | ✓ `_execSchemeDriveWolf` |
+| `scheme_rumor` | ✓ | ✓ | ✓ `_execSchemeRumor` |
+| `scheme_scout` | ✓ | ✓ | ✓ `_execSchemeScout` |
+| `scheme_spy` | ✓ | ✓ | ✓ `_execSchemeSpy` |
+| `scheme_two_tigers` | ✓ | ✓ | ✓ `_execSchemeTwoTigers` |
+| `set_ambush` | ✓ | ✓ | ✓ `_execSetAmbush` |
+| `set_camp` | ✓ | ✓ | ✓ `_execSetCamp` |
+| `set_prefect` | ✓ | ✓ | ✓ `_execSetPrefect` |
+| `set_reinforce_policy` | ✓ | ✓ | ✓ `_execSetReinforcePolicy` |
+| `set_strategist` | ✓ | ✓ | ✓ `_execSetStrategist` |
+| `set_tax` | ✓ | ✓ | ✓ `_execSetTax` |
+| `start_claim` | ✓ | ✓ | ✓ `_execStartClaim` |
+| `submit_vassal` | ✗ | ✗ | ✓ `_execSubmitVassal` | ⚠️
+| `toggle_resupply` | ✓ | ✗ | ✓ `_execToggleResupply` | ⚠️
+| `transfer_food` | ✓ | ✓ | ✓ `_execTransferFood` |
+
+## 缺漏 findings
+
+共 10 个 finding:
+
+| # | severity | kind | 描述 | 候选 D 类 |
+|---|---|---|---|---|
+| 1 | HIGH | case_no_prompt | dispatcher case 'toggle_resupply' 存在但 prompt 未声明该 type → Claude AI dead code | D-099 同模式 |
+| 2 | HIGH | case_no_prompt | dispatcher case 'cancel_supply' 存在但 prompt 未声明该 type → Claude AI dead code | D-099 同模式 |
+| 3 | HIGH | case_no_prompt | dispatcher case 'diplo_armistice' 存在但 prompt 未声明该 type → Claude AI dead code | D-099 同模式 |
+| 4 | HIGH | case_no_prompt | dispatcher case 'diplo_demand_vassal' 存在但 prompt 未声明该 type → Claude AI dead code | D-099 同模式 |
+| 5 | HIGH | case_no_prompt | dispatcher case 'diplo_submit_vassal' 存在但 prompt 未声明该 type → Claude AI dead code | D-099 同模式 |
+| 6 | HIGH | case_no_prompt | dispatcher case 'diplo_release_vassal' 存在但 prompt 未声明该 type → Claude AI dead code | D-099 同模式 |
+| 7 | HIGH | case_no_prompt | dispatcher case 'cancel_siege' 存在但 prompt 未声明该 type → Claude AI dead code | D-099 同模式 |
+| 8 | INFO | naming_mismatch | 函数 _execDemandVassal → 期望 type='demand_vassal',实际 primary case='diplo_demand_vassal'(命名不规则) | - |
+| 9 | INFO | naming_mismatch | 函数 _execSubmitVassal → 期望 type='submit_vassal',实际 primary case='diplo_submit_vassal'(命名不规则) | - |
+| 10 | INFO | naming_mismatch | 函数 _execReleaseVassal → 期望 type='release_vassal',实际 primary case='diplo_release_vassal'(命名不规则) | - |

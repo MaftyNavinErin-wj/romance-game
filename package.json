@@ -6,7 +6,8 @@
   "scripts": {
     "smoke": "node tests/smoke.js",
     "compare": "node tests/compare.js tests/baseline/data_completion_complete.json tests/current.json",
-    "test": "npm run smoke && npm run compare"
+    "test": "npm run smoke && npm run compare",
+    "checkers": "node tests/checkers/run_all.js"
   },
   "devDependencies": {
     "jsdom": "^25.0.1"
