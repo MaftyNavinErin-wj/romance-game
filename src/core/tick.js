@@ -333,6 +333,8 @@ async function nextTurn(){
 
   // 重置外交行动标记
   Object.values(G.diplo).forEach(d=>{ d._actedThisTurn=false; });
+  // D-120 fix: 重置顶层 _diploActed_${fid}（与 B1 字段同时机）
+  ALL_FACS.forEach(fid => { delete G[`_diploActed_${fid}`]; });
 
   // ★ I3 fix: 预计算 _postBuffs（含朝议decree），使 processCityFood/processMorale 在首旬即能读到
   Object.keys(G.factions).forEach(fid => {
