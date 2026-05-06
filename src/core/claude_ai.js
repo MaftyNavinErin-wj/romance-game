@@ -572,6 +572,7 @@ function _tacticalSystemPrompt(fid) {
 - {"type":"set_ambush","army_leader":"将名(中文)"}
 - {"type":"cancel_siege","army_leader":"将名(中文)"} — 取消围城转 halt
 - {"type":"set_tax","level":"none/low/norm/heavy/harsh"}
+- {"type":"set_corvee","level":"low/mid/high"} — 徭役档位(low不征/mid加速建设但-民心/high加速更多但代价更大)
 - {"type":"toggle_resupply"} — 切换/flip 势力 resupply 开关(全军适用,非显式 set)
 - {"type":"set_prefect","city":"城市ID","general":"将名(中文)"}
 - {"type":"transfer_food","from":"城市ID","to":"城市ID"}
@@ -1096,6 +1097,7 @@ contingency列出2-3个"如果...则..."的预案，覆盖最可能的意外情�
 - {"type":"billet","army_leader":"将名(中文)","city":"城市ID(大城)"} — 休整遣散
 - {"type":"disband","army_leader":"将名(中文)"}
 - {"type":"set_tax","level":"none/low/norm/heavy/harsh"}
+- {"type":"set_corvee","level":"low/mid/high"} — 徭役档位(low不征/mid加速建设但-民心/high加速更多但代价更大)
 - {"type":"set_reinforce_policy","policy":"aggr/bal/elit"}
 - {"type":"toggle_resupply"} — 切换/flip 势力 resupply 开关(全军适用,非显式 set)
 - {"type":"set_prefect","city":"城市ID","general":"将名(中文)"}
@@ -1401,7 +1403,7 @@ function executeClaudeActions(fid, actions) {
 
   // 按类型分组排序：内政→人事→科技→外交→计谋→军事（经济先行，军事殿后）
   const ORDER = {
-    build:1, set_tax:1, set_prefect:1, transfer_food:1, toggle_resupply:1, cancel_supply:1,
+    build:1, set_tax:1, set_corvee:1, set_prefect:1, transfer_food:1, toggle_resupply:1, cancel_supply:1,
     appoint_post:2, dismiss_post:2, set_strategist:2, recruit_wild:2, poach:2,
     research:3,
     declare_war:4, propose_alliance:4, break_alliance:4, accept_peace:4, reject_peace:4,
@@ -1439,6 +1441,7 @@ function _execOneAction(fid, act) {
     // ════ 内政 ════
     case 'build': return _execBuild(fid, act);
     case 'set_tax': return _execSetTax(fid, act);
+    case 'set_corvee': return _execSetCorvee(fid, act);  // D-076 fix
     case 'set_prefect': return _execSetPrefect(fid, act);
     case 'transfer_food': return _execTransferFood(fid, act);
     case 'toggle_resupply': return _execToggleResupply(fid, act);
