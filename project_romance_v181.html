@@ -13528,7 +13528,9 @@ function _execPoach(fid, act) {
   const gen = GEN_MAP[genName]; // ★ v167fix #33
   if (!gen) return false;
   const topStat = Math.max(gen.com, gen.war, gen.int, gen.pol, gen.cha);
-  const cost = topStat >= 90 ? 3000 : 1500;
+  // D-064 fix: 加 (1 + _techPoachCost) 科技修正（玩家路径 poachGen L1636 已用，AI 路径漏）
+  const _techPoachCost = getTechEffect(fid, 'poachCostMult');
+  const cost = Math.floor((topStat >= 90 ? 3000 : 1500) * (1 + _techPoachCost));
   if ((G.factions[fid].res.gold || 0) < cost) return false;
   _aiDoPoach(genName, fid, rec.fid, cost);
   return true;
