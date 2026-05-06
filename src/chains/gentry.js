@@ -630,6 +630,8 @@ function _triggerGentryBetray(cityId, siegingFac){
   _aiInvalidateThreatCache();
   updateFogCitySnapshot(cityId, siegingFac);
   if(oldFac !== 'rebel' && siegingFac !== 'rebel') addDiplo(siegingFac, oldFac, -5);
+  // D-031 fix: 开城易主补 _applySiegeAftermath（修补"围城方白嫖一座城无收入/处置选项"漏洞，'pacify' 安民与开城温和语义匹配）
+  if(siegingFac !== 'rebel') _applySiegeAftermath(cityId, siegingFac, 'pacify');
 
   log(`⚠ ${cityName}豪族举事，开城迎降${siegingName}！`, 'event');
   if(oldFac === G.playerFac || siegingFac === G.playerFac){
