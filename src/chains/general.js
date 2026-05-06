@@ -2286,7 +2286,11 @@ function resolvePrisoners(prisonerNames, capturerFid, isPlayer){
     } else {
       const action = aiDisposePrisoner(name, capturerFid);
       if(action === 'surrender') surrenderGen(name, capturerFid);
-      else if(action === 'execute') killGen(name, null);
+      else if(action === 'execute'){
+        // D-061 fix: 传入 killerName (capturerFid 主公) 让 killGen 内血仇/亲密度仇恨扩散触发
+        const ruler = (G.generals[capturerFid] || []).find(g => g.role === 'ruler');
+        killGen(name, ruler?.name || null);
+      }
       else releaseGen(name, capturerFid);
       reports.push({name, action});
     }
