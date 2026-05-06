@@ -1498,8 +1498,7 @@ function rejectVassalOffer(vassal, suzerain){
 
 // 玩家主动接受附庸（外交面板按钮）
 // 玩家解除附庸关系（附庸独立）
-function playerReleaseVassal(other){
-  const fid = G.playerFac;
+function playerReleaseVassal(fid, other){
   [`${other}-${fid}`,`${fid}-${other}`].forEach(k=>{
     if(G.diplo[k]){ G.diplo[k].status='neutral'; delete G.diplo[k].suzerain; }
   });
@@ -1552,8 +1551,7 @@ function requestVassalIndependence(suzerainFid){
 }
 
 // ★ v144: 玩家要求对方称臣（我当宗主）
-function diploDemandVassal(other){
-  const fid = G.playerFac;
+function diploDemandVassal(fid, other){
   const d = G.diplo[`${fid}-${other}`];
   if(!d || d.status !== 'neutral'){ showNotif('仅可对中立势力提出','warn'); return; }
   if(G[`_diploActed_${fid}`]){ showNotif('本旬已行动','warn'); return; }
@@ -1589,8 +1587,7 @@ function diploDemandVassal(other){
 }
 
 // ★ v144: 玩家主动请求称臣（我当附庸）
-function diploSubmitVassal(other){
-  const fid = G.playerFac;
+function diploSubmitVassal(fid, other){
   const d = G.diplo[`${fid}-${other}`];
   if(!d || d.status !== 'neutral'){ showNotif('仅可对中立势力请求','warn'); return; }
   if(G[`_diploActed_${fid}`]){ showNotif('本旬已行动','warn'); return; }
