@@ -3757,18 +3757,18 @@ function renderDipTab(c){
         // 要求称臣：我方实力≥对方2.5倍，双方都非附庸
         const _canDemand = _powRatio >= 2.5 && !_otherIsVassal && !_iAmVassal;
         const _demandReason = _iAmVassal ? '我方是附庸' : _otherIsVassal ? '对方已有宗主' : '实力差距不够大';
-        actionBtns += dipBtn('👑 要求称臣', '', `diploDemandVassal('${other}')`, _canDemand, _canDemand?'':_demandReason);
+        actionBtns += dipBtn('👑 要求称臣', '', `diploDemandVassal('${fid}', '${other}')`, _canDemand, _canDemand?'':_demandReason);
         // 请求称臣：对方实力≥我方1.5倍，我方无宗主，对方非附庸
         const _canSubmit = _powRatio <= 0.67 && !_iAmVassal && !_otherIsVassal;
         const _submitReason = _iAmVassal ? '已有宗主' : _otherIsVassal ? '对方是附庸' : '实力差距不够大';
-        actionBtns += dipBtn('🏳 请求称臣', '', `diploSubmitVassal('${other}')`, _canSubmit, _canSubmit?'':_submitReason);
+        actionBtns += dipBtn('🏳 请求称臣', '', `diploSubmitVassal('${fid}', '${other}')`, _canSubmit, _canSubmit?'':_submitReason);
         } // end !playerIsVassal
       } else if(d.status === 'ally'){
         actionBtns = dipBtn('解盟', 'dip-btn-warn', `diploBreakAlliance('${other}')`, true, '');
       } else if(d.status === 'vassal'){
         // 玩家是宗主：可释放附庸
         if(d.suzerain === fid){
-          actionBtns = dipBtn('释放附庸', 'dip-btn-warn', `playerReleaseVassal('${other}')`, true, '');
+          actionBtns = dipBtn('释放附庸', 'dip-btn-warn', `playerReleaseVassal('${fid}', '${other}')`, true, '');
         } else {
           // ★ v144: 玩家是附庸——可申请解除附庸（需宗主同意，12旬CD）
           const relToSuz = G.diplo[`${fid}-${other}`]?.rel ?? 50;
