@@ -1,0 +1,13 @@
+- [User role](user_role.md) — 用户是 Project Romance 制作人,亲自定 session 范围 + 设计 approval
+- [Project Romance overview](project_overview.md) — 三国题材策略游戏,v181 单 HTML,正在做 data/render/chains/core 四层重构
+- [Refactor phase status](project_refactor_status.md) — phase 3+dc 收官 + sprint 17 batches done (main 56304dd). v181 -60.4%. 27 src/. 9 原则 + streamline 模式 trial 3. 政治 3 全收尾 / 外交 5 修 4 / 武将 7 修 6 / 军事 6 修 4. batch-17 首次触发算法回路类 smoke FAIL acceptable
+- [Chain master scout](project_chain_master_scout.md) — 8 链总图 + map.js carry-over;顺序 ethos→gentry→politics→diplomacy→economy→event→military→general
+- [Chain extraction template](feedback_chain_template.md) — chain 阶段 chains/*.js 模板规范(6 项 header 必含 + 加载顺序 data/core/chains/render/inline)
+- [Phase 3 workflow: scout-before-extract](feedback_phase3_scout_first.md) — 每个 sub-session 先 scout 实测,不照 plan 字面抽
+- [Constitution: design decisions need approval](feedback_design_approval.md) — 任何设计决策必须先讨论再 approve 再实装,不擅自做
+- [Constitution: scope is strict](feedback_scope_strict.md) — session 范围严格限定,不顺手修 D 类不顺手优化
+- [Push authorization](feedback_push_authorization.md) — git push (main / tag / 主干) 必须等制作人明确说"可以 push", 歧义措辞不算自决许可
+- [HANDOVER protected docs](reference_protected_docs.md) — HANDOVER / D 类清单 / 8 链 walkthrough 等只读
+- [Codex review workflow](feedback_codex_review_workflow.md) — sprint batch 期 CC 改 → codex.cmd review (read-only) → LGTM commit / NEEDS-WORK escalate. batch-3 trial 1 verified
+- [Sprint batch 选择不需 double check](feedback_sprint_batch_selection.md) — user 说"继续"/"启动"时 CC 直接选 next batch 进 mini scout,不列候选表(batch 框架切换可一句话说明,fix 设计层 approve 仍保留)
+- [Sprint streamline 多 batch 集中测](feedback_sprint_streamline_batches.md) — 连续简单 batch commit 留 local,集中给一份实机测 checklist,user 一次测完一次性 push 所有 batches

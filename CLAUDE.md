@@ -221,4 +221,17 @@ main                    永远可玩
 
 ---
 
+## 协作偏好沉淀(memory in-repo)
+
+新 session 启动后,**必读 `docs/memory/MEMORY.md`** 加载累积的 user 协作偏好(streamline 模式 / codex review workflow / sprint batch 选择 / push 授权 等)。
+
+memory 设计:
+- `MEMORY.md` 是 index,各 `.md` 详细 entry 按需 load
+- 类型:user / feedback / project / reference
+- session 中如有新 lesson,update 对应 entry + index
+
+跨电脑(家 / 公司)同步:memory 跟随 git repo,clone 后 `docs/memory/` 即可见。
+
+---
+
 (CLAUDE.md v1.0 完结 — 所有 session 启动必读)
