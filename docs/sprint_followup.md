@@ -51,7 +51,7 @@
 
 #### 3.1.1 `cancel_supply` dead code 清理
 
-**位置**:`project_romance_v181.html:13455-13459` `_execCancelSupply` + `src/core/claude_ai.js:1442` dispatcher case
+**位置**:`project_romance_v181.html:13455-13459` `_execCancelSupply` + `src/core/claude_ai.js:1445` dispatcher case
 
 **症状**:函数体 `console.warn('[ClaudeAI] cancel_supply: 当前未实装')` + `return false`(v159fix 注释明确)。dispatcher case 仍在,但 prompt 不暴露。Checker 1 报 `case_no_prompt` HIGH 1 项。
 

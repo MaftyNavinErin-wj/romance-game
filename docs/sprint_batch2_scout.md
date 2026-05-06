@@ -60,47 +60,47 @@ v0.1/v0.2 scout 把 7 个缺漏指令全部判为"已实装,可暴露",其中 4 
 
 ## 一、Sprint 目标 + 范围
 
-修 `src/core/claude_ai.js` 主 prompt(L1085-L1114)中 7 个缺漏的 action type 指令声明。
-这 7 个指令的 `_exec*` 函数都已实装(在 v181.html 内),dispatcher case 也都注册(claude_ai.js:1426-1478),但 **prompt 没声明该 type → Claude AI 永远不会输出该 type → 实际是 dead code**(D-099 同模式)。
+> ⚠️ **§一-§五 是 v0.1/v0.2 scout 阶段的实测记录**(7 个 finding 全部 scout)。
+> **最终实装范围见 §零 v0.3 范围缩减 + §六 修法预览(3 个 AI-safe 实装 + 4 个 followup)**。
+> 保留 §一-§五 是为留 scout 历史 + 失误自报背景,不代表本 batch 实装范围。
+
+scout v0.1/v0.2 阶段 scout 了 7 个缺漏的 action type 指令(`src/core/claude_ai.js` L1085-L1114 主 prompt + L567-L588 战术 prompt 共缺漏)。
+
+scout 当时认定:这 7 个指令的 `_exec*` 函数都已实装(在 v181.html 内),dispatcher case 也都注册(claude_ai.js:1426-1478),但 prompt 没声明该 type → Claude AI 永远不会输出该 type → dead code(D-099 同模式)。
+
+**v0.3 修订(§零 codex review):** scout 当时判定的"全部已实装"中,4 个判错(cancel_supply 未实装 + 附庸 3 个 helper 签名错配 D-091 HIGH)。本 batch 仅暴露确认 AI-safe 的 3 个,4 个 unsafe 标 followup。
 
 **这是 Claude AI v158+ 实装时遗漏的指令文档化**,不是新功能开发。
 
 ---
 
-## 二、7 个缺漏指令清单 + scout
+## 二、7 个缺漏指令清单 + scout(v0.1/v0.2 阶段实测,**含 4 个失误判定**)
 
-| # | type | _exec 函数(v181.html) | 函数体语义(scout 实测) | act schema(从函数体推) |
-|---|---|---|---|---|
-| 1 | `toggle_resupply` | `_execToggleResupply` @ L13448-L13453 | 切换势力级 resupply 开关(`G._facResupply[fid]` flip) | `{"type":"toggle_resupply"}`(无参数) |
-| 2 | `cancel_supply` | `_execCancelSupply` @ L13455-L13459 | **当前未实装**(`return false` + `console.warn`,v159fix 注释明确) | `{"type":"cancel_supply"}` — **应否暴露?见决策点 DP-A** |
-| 3 | `cancel_siege` | `_execCancelSiege` @ L13948-L13953 | 部队取消围城,`unit.status: 'siege' → 'halt'` | `{"type":"cancel_siege","army_leader":"将名(中文)"}` |
-| 4 | `diplo_armistice` | `_execDiploArmistice` @ L13649-L13669 | 主动停战(花 1000 金,acceptRate=peaceWillingness),失败退 700 + rel+3 | `{"type":"diplo_armistice","target":"势力ID"}` |
-| 5 | `diplo_demand_vassal` | `_execDemandVassal` @ L13681-L13686 | 要求他势力称臣(`fid → target`),走 `diploDemandVassal(fid, target)` helper | `{"type":"diplo_demand_vassal","target":"势力ID"}` |
-| 6 | `diplo_submit_vassal` | `_execSubmitVassal` @ L13688-L13693 | 主动投靠他势力(`fid → target`),走 `diploSubmitVassal(fid, target)` helper | `{"type":"diplo_submit_vassal","target":"势力ID"}` |
-| 7 | `diplo_release_vassal` | `_execReleaseVassal` @ L13695-L13700 | 释放附庸(`fid 释放 target`),走 `playerReleaseVassal(fid, target)` helper | `{"type":"diplo_release_vassal","target":"势力ID"}` |
+> ⚠️ 本节"act schema"列是 scout 阶段判定,§零 已修正:行 #5/6/7 helper 签名实际是单参 + `G.playerFac` 硬编(D-091 HIGH),scout 仅看 _exec* 包装器双参传入误判"已实装"。**最终实装范围以 §六 为准,本表保留作 scout 历史记录**。
+
+| # | type | _exec 函数(v181.html) | 函数体语义(scout 实测) | act schema(scout 阶段判定,**v0.3 已纠错**) | v0.3 实装决策 |
+|---|---|---|---|---|---|
+| 1 | `toggle_resupply` | `_execToggleResupply` @ L13448-L13453 | 切换势力级 resupply 开关(`G._facResupply[fid]` flip) | `{"type":"toggle_resupply"}`(无参数) | ✅ AI-safe,本 batch 暴露 |
+| 2 | `cancel_supply` | `_execCancelSupply` @ L13455-L13459 | **当前未实装**(`return false` + `console.warn`,v159fix 注释明确) | `{"type":"cancel_supply"}` | ❌ unsafe(未实装),followup §3.1.1 |
+| 3 | `cancel_siege` | `_execCancelSiege` @ L13948-L13953 | 部队取消围城,`unit.status: 'siege' → 'halt'` | `{"type":"cancel_siege","army_leader":"将名(中文)"}` | ✅ AI-safe,本 batch 暴露 |
+| 4 | `diplo_armistice` | `_execDiploArmistice` @ L13649-L13669 | 主动停战(花 1000 金,acceptRate=peaceWillingness),失败退 700 + rel+3 | `{"type":"diplo_armistice","target":"势力ID"}` | ✅ AI-safe(helper fid 参数化),本 batch 暴露 |
+| 5 | `diplo_demand_vassal` | `_execDemandVassal` @ L13681-L13686 | scout 当时认为:走 `diploDemandVassal(fid, target)` helper | scout 当时写:`{"type":"diplo_demand_vassal","target":"势力ID"}` | ❌ **unsafe(D-091 HIGH)**,helper 实际单参 + G.playerFac 硬编,batch-3 修复 |
+| 6 | `diplo_submit_vassal` | `_execSubmitVassal` @ L13688-L13693 | 同 D-091 模式 | scout 当时写:`{"type":"diplo_submit_vassal","target":"势力ID"}` | ❌ **unsafe(D-091 HIGH)**,batch-3 修复 |
+| 7 | `diplo_release_vassal` | `_execReleaseVassal` @ L13695-L13700 | 同 D-091 模式 | scout 当时写:`{"type":"diplo_release_vassal","target":"势力ID"}` | ❌ **unsafe(D-091 HIGH)**,batch-3 修复 |
 
 ---
 
-## 三、修法方案
+## 三、修法方案(v0.1/v0.2 草案,**v0.3 §零 修订后失效,以 §六 为准**)
 
-### 修改位置
+> ⚠️ 本节是 v0.1/v0.2 阶段的修法草案(7 个指令全补),**v0.3 §零 codex review 后已修订为 3 个 AI-safe**。最终修法见 §六。
 
-`src/core/claude_ai.js` 主 prompt(`L1085-L1114`)— 30 个 type 列表。新增 7 个,达到 37 个 type 与 dispatcher 完全对齐。
+### 修改位置(v0.3 修订)
 
-### 修改内容(待制作人 + codex approve)
+`src/core/claude_ai.js` 主 prompt(`L1085-L1114`)+ 战术 prompt(`L567-L588`)— 各加 3 个 AI-safe 指令(共 6 行),不达到 37 个 type 全对齐(剩 4 个 followup,见 §零)。
 
-按现有指令格式延续(简短中文注释 + 关键参数说明):
+### 修改内容(v0.1/v0.2 草案,**已失效**)
 
-```
-- {"type":"cancel_siege","army_leader":"将名(中文)"} — 取消围城转 halt
-- {"type":"toggle_resupply"} — 切换势力 resupply 开关(全军适用)
-- {"type":"diplo_armistice","target":"势力ID"} — 主动停战(花 1000 金,失败退 700)
-- {"type":"diplo_demand_vassal","target":"势力ID"} — 要求他势力称臣
-- {"type":"diplo_submit_vassal","target":"势力ID"} — 主动投靠他势力
-- {"type":"diplo_release_vassal","target":"势力ID"} — 释放附庸
-```
-
-`cancel_supply` 暂不加(见 DP-A)。
+scout v0.1/v0.2 阶段草案的 6 行 prompt 含 3 个 unsafe 指令(diplo_demand/submit/release_vassal),v0.3 已删除这 3 行。最终 prompt 改动见 §六。
 
 ### 入口路径声明(原则 #12)
 
@@ -116,11 +116,11 @@ v0.1/v0.2 scout 把 7 个缺漏指令全部判为"已实装,可暴露",其中 4 
 
 不涉及新增字段 / 字段语义变更 → **不适用**。
 
-### 验证机制(三重 + 新)
+### 验证机制(三重 + 新,**v0.3 修订**)
 
 1. **smoke byte-identical**:50 turn smoke 应继续 PASS。理由:prompt 改在 doc string 内,不影响 50 turn AI 行为(非 Claude AI 模式下 prompt 根本不被读)。
-2. **checker 1 重跑**:7 个 `case_no_prompt` HIGH 应清零,findings 从 10 → 3(只剩 3 个 INFO `naming_mismatch`)。`exit 0`(无 HIGH)= sprint gate 通过证据。
-3. **代码 review**:7 个新加的 prompt 行参数与对应 _exec 函数读取的 `act.xxx` 字段一致(scout §二 已对照)。
+2. **checker 1 重跑(v0.3 修订预期)**:`case_no_prompt` HIGH **从 7 降到 4**(剩 cancel_supply + 附庸 3 标 followup),findings 从 10 → 7(4 HIGH + 3 INFO naming_mismatch)。**checker 1 exit 仍 1**(本 batch 不能用 exit 0 作 gate);sprint gate 证据语义 = "降级 + followup 标注"(见 §零 + 工作流原则 §十一)。
+3. **代码 review**:3 个新加的 AI-safe prompt 行参数与对应 _exec 函数读取的 `act.xxx` 字段一致(scout §二 v0.3 决策列已对照)。
 
 ---
 

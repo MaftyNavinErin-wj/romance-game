@@ -349,9 +349,11 @@ JS 静默忽略第二参,Claude AI 调用后 helper 用 `G.playerFac` 当 fid �
 
 - 原则 #14:scout 阶段挖出 unsafe scope(避免错误暴露)
 - 原则 #12:fix 阶段声明覆盖路径(避免错误漏修)
-- 原则 #11(本节):batch 末验收时正确语义化(避免错误判定 batch 通过)
+- §十一 sprint gate 证据语义(本节):batch 末验收时正确语义化(避免错误判定 batch 通过)
 
 三层防线串起来,sprint 工作流闭环。
+
+注:§十一 是**语义节**,不是编号原则(原则 #11 已是"replace v181 在前,script tag 在后",见 §七)。
 
 ---
 
