@@ -1594,7 +1594,8 @@ function checkLoyaltyThresholds(){
       ALL_FACS.forEach(otherFid => {
         if(otherFid === fid) return; // 己方科技不影响己方武将被挖
         const pt = getTechEffect(otherFid, 'poachThreshold'); // 负值如-5
-        if(pt < 0) _poachThr = Math.max(_poachThr, 45 - pt); // -(-5) = 50
+        // D-055 fix: 用实际 _poachThr 当基线（投机 55 / 普通 45），不再硬编码 45 失效投机标签科技 buff
+        if(pt < 0) _poachThr -= pt; // pt<0 → _poachThr += |pt|，科技抬高阈值
       });
       if(loy < _poachThr){
         if(!G.recruitableGens[name]){
