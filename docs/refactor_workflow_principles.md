@@ -2,9 +2,9 @@
 
 > 本文档收录 Project Romance 重构期间沉淀的**普适工作流原则**(适用任何 verbatim 搬运 / 文件抽离 / 数据补完工作),phase 4 / sprint / 后续抽离都应遵循。
 >
-> 来源:phase 3 期间 13 sub-session(p3.1-p3.13)沉淀 5 条原则 + refactor/data-completion S2 沉淀 1 条新原则,共 **6 条普适原则 + 1 条 phase 3 chain 阶段专用规范**。
+> 来源:phase 3 期间 13 sub-session(p3.1-p3.13)沉淀 5 条原则 + refactor/data-completion S2 沉淀 1 条新原则 + D 类 sprint 启动期 codex review 沉淀 2 条新原则,共 **8 条普适原则 + 1 条 phase 3 chain 阶段专用规范**。
 >
-> 触发场景:任何工作满足"verbatim 搬运 + smoke byte-identical 守底"模式的 sub-session 启动前必读。
+> 触发场景:任何工作满足"verbatim 搬运 + smoke byte-identical 守底"模式的 sub-session 启动前必读。**D 类 sprint 期 fix 启动前**额外读 §八 §九(原则 #12 #13)。
 
 ---
 
@@ -18,7 +18,9 @@
 | #8 | Node 双脚本(共享 ranges)代替手打 | p3.7 | 中文标点字符替换 → verbatim 失败 | §四 |
 | #9 | scout 四件验证 + docstring 不跨切 | p3.8 / p3.12 | 4 个实装 bug 同源 + dangling docstring | §五 |
 | #10 | ranges 无嵌套 inclusion | p3.11 | 嵌套 range 卡死 iter | §六 |
-| **#11** | **新建文件时,replace v181 在前,script tag 在后**(本次新增)| **dc.S2** | **script tag 偏移行号导致 ranges 错位 → SyntaxError** | **§七** |
+| **#11** | **新建文件时,replace v181 在前,script tag 在后** | **dc.S2** | **script tag 偏移行号导致 ranges 错位 → SyntaxError** | **§七** |
+| **#12** | **D 类 fix 必须显式声明覆盖的入口路径**(sprint 期专用)| **codex review** | **D-048 / D-049 / D-064 等 fix 玩家路径漏 AI/事件路径** | **§八** |
+| **#13** | **状态字段语义变更必须核 5 个生命周期点闭环**(sprint 期专用)| **codex review** | **D-120 顶层字段永不重置等状态生命周期不闭合** | **§九** |
 
 ---
 
@@ -174,9 +176,99 @@
 
 ---
 
+## §八、原则 #12(D 类 sprint 启动起,**新增**):D 类 fix 必须显式声明覆盖的入口路径
+
+### 来源
+
+**codex review**(2026-05-06,sprint 启动期独立第二套眼睛 review):许多 D 类 bug 的根本原因是"某入口路径漏触发某 hook",fix 时若不显式声明覆盖的入口路径,会重蹈"修玩家路径,漏 Claude AI 路径 / 事件路径 / 快进路径"。
+
+**触发示例**:
+- D-048:玩家被罚 AI 不被罚(玩家路径 + AI 路径不对称)
+- D-049:warDeclare 触发漏 3 路径(玩家 / 传统 AI / Claude AI 路径不一致)
+- D-064:`_execPoach` 费用未乘 `(1 + _techPoachCost)`(Claude AI 路径漏修正,玩家/传统 AI 已修)
+- D-095:`aiDoDiplo + _execDeclareWar` 重复调 ethosShock(传统 AI / Claude AI 与玩家 hub 路径不对称)
+
+### 操作规范
+
+**5 路径维度清单**(每个 D 类 fix 必查):
+
+| # | 入口路径 | 典型函数前缀 | 备注 |
+|---|---|---|---|
+| 1 | **玩家路径** | UI handler / `diplo*` / `poach*` / 玩家 4 件套 | 玩家 click/decision 路径 |
+| 2 | **传统 AI 路径**(rule-based AI) | `aiDo*` / `aiSelect*` / `aiExecute*` / `aiConsider*` | 启发式规则决策 |
+| 3 | **Claude AI 路径**(_exec 派发) | `_exec*`(36 个)+ `src/core/claude_ai.js` 派发器 case | LLM 决策路径 |
+| 4 | **事件路径** | `src/data/events.js` callbacks(condition / effect / aiChoose)| 事件触发 |
+| 5 | **快进路径** | `_fastForward` 模式下与正常 turn 路径的差异 | smoke 抓的就是这条 |
+
+**fix commit message / fix note 必含**:
+
+```
+覆盖路径(原则 #12):
+- 玩家路径: <已修 / 不适用 / 留 followup,理由 ...>
+- 传统 AI 路径: <已修 / 不适用 / 留 followup,理由 ...>
+- Claude AI 路径: <已修 / 不适用 / 留 followup,理由 ...>
+- 事件路径: <已修 / 不适用 / 留 followup,理由 ...>
+- 快进路径: <已修 / 不适用,理由 ...>
+```
+
+每条至少声明"已覆盖 / 不适用 / 留 followup"三档之一,并给出**理由**(不能空白省略)。
+
+### 适用范围
+
+- **所有 D 类 sprint 期 fix**(HIGH / MEDIUM / LOW fix verdict)
+- **不适用**:重构期 verbatim 搬运 / D 类自然 close(无主动 fix 行为)
+- **特殊情况**:某入口路径在原 audit 已 verified-with-notes / no-fix,fix note 标"该路径 verdict 已锁,不动",仍需声明
+
+---
+
+## §九、原则 #13(D 类 sprint 启动起,**新增**):状态字段语义变更必须核 5 个生命周期点闭环
+
+### 来源
+
+**codex review**(2026-05-06):D-120(`G._diploActed_${fid}` 顶层字段永不重置 → 玩家附庸 3 入口整局各 1 次)等 bug 暴露状态字段生命周期不闭合 — 写入存在但 reset / expire / save / load 缺一环。
+
+**触发示例**:
+- D-120:`G._diploActed_${fid}` 顶层字段写入存在,**永不重置**(只在 `G.diplo[k]._actedThisTurn` B1 字段内重置,两套机制混用)
+- 类似潜在风险:`G._warClaimStrength` / `G._claimGentryHook` / `G._diploCD_${a}_${b}` 等顶层动态字段的 save/load 闭环
+
+### 操作规范
+
+**5 个生命周期点清单**(任何**新增状态字段**或 fix 涉及的**字段语义变更**必查):
+
+| # | 生命周期点 | 检查 |
+|---|---|---|
+| 1 | **写入 (write)** | 哪些函数写该字段?所有 caller 是否一致 |
+| 2 | **重置 (reset, backToTitle)** | `backToTitle` / 切回主菜单 / `initGame` 重启时该字段是否清空 |
+| 3 | **过期 (expire)** | 如 cooldown / turn-based 过期,是否有 `processXxx` 在主 tick 减/清?永不过期是否设计意图 |
+| 4 | **存档 (save)** | `saveGame` / 序列化时该字段是否写入(`_serializeG`)|
+| 5 | **加载 (load + default)** | `loadFromSlot` / `_deserializeG` 是否读回 + 提供 default 值(避免老存档加载后 undefined)|
+
+**fix commit message / fix note 必含**:
+
+```
+状态生命周期(原则 #13):字段名 `<G.xxx>`
+- write: <写口位置 / "无新增,仅修值">
+- reset: <已闭环 / 留 followup,理由 ...>
+- expire: <已闭环 / 设计意图永不过期,理由 ... / 留 followup>
+- save: <已闭环 / 不需要(派生字段),理由 ...>
+- load + default: <已闭环 / 不需要,理由 ...>
+```
+
+### 适用范围
+
+- **新增状态字段**(任何 `G.xxx` / `G.factions[fid].xxx` / `G.cities[cid].xxx` 等)
+- **fix 涉及字段语义变更**(如 D-021 字段名改,但读端已对齐 → save/load 不动,但要在 fix note 声明"语义不变,生命周期闭环已存在")
+- **不适用**:纯逻辑 fix 不涉及字段(如算法系数调整)
+
+### 与原则 #12 关系
+
+原则 #12 看"**横向**入口路径覆盖",原则 #13 看"**纵向**字段时间轴闭环"。两者正交,sprint 期 fix 应同时套用。
+
+---
+
 ## 原则之间的执行顺序
 
-每个 sub-session 启动按以下顺序套用:
+### 重构期 / 数据搬运 sub-session 启动顺序
 
 ```
 1. 原则 #5 scout (read-only) — 先 scout 报告
@@ -193,16 +285,28 @@
 11. 删 scratch + commit
 ```
 
+### D 类 sprint fix 启动顺序
+
+```
+1. 原则 #5 mini scout — 定位 D 类在 src/ 的实际位置 + walkthrough 信息源
+2. 原则 #12 入口路径声明 — 5 路径维度 dry-run,标"已覆盖 / 不适用 / 留 followup"
+3. 原则 #13 状态生命周期 — 若涉及字段语义变更,5 点闭环 dry-run
+4. 实装(改 src/ 或 v181.html)
+5. Smoke + grep + 字段对齐三重验证(字段名错配类)/ 白名单 diff 验证(算法回路类)
+6. fix commit message 含原则 #12 + #13 声明 block
+7. push 工作分支(等制作人 review approve 才合 main)
+```
+
 ---
 
 ## 适用范围与例外
 
-**全适用** verbatim 搬运 / 文件抽离 / 数据补完 sub-session(本文档主目标)。
+**全适用** verbatim 搬运 / 文件抽离 / 数据补完 sub-session(本文档主目标)+ D 类 sprint fix(原则 #12 #13 专用)。
 
 **例外 / 弱化**:
-- **D 类 fix sprint**(修代码 sprint):工作流不同(改逻辑而非搬运),smoke byte-identical 不再守底,需要新验证机制(等制作人定 sprint 启动方案)
 - **接口风格段 fixup**(微调 header 注释):极小动作,不需要原则 #5-#11 全套(参考 main commit `ddf50c0`)
+- **架构债 / 注释清理 fixup**(类似 `chore: clean phase-3/dc execution drift`):不修代码逻辑、不动 smoke baseline,豁免原则 #12 #13(无 fix 行为)
 
 ---
 
-(原则集 v1.0 — phase 3 + data-completion 沉淀,后续 sub-session 实装 bug 触发新原则时追加 #12+)
+(原则集 v1.1 — phase 3 + data-completion + D 类 sprint codex review 沉淀。后续 sub-session 实装 bug 触发新原则时追加 #14+)

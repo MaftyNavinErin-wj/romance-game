@@ -136,6 +136,79 @@ D-052/D-053/D-055 集中在忠诚/挖角回路 UI 与 主tick 不一致。
 
 ---
 
+## 二.5、共性模式补充（codex review 沉淀，2026-05-06）
+
+> 来源：D 类 sprint 启动期 codex review（独立第二套眼睛），在团队原识别 5 类基础上补 5 类。每类标代表 D 类，作为 audit pass 2 的 finding 资产。
+
+### 模式 6：状态生命周期类
+**症状**：状态字段写入存在但 `reset` / `expire` / `save` / `load` 任一环缺失。回主菜单 / 加载老存档 / 永不过期 等场景下脏数据残留或 fallback 缺失。
+
+**代表 D 类**：
+- **D-120**（外交链 HIGH）`G._diploActed_${fid}` 顶层字段永不重置（玩家附庸 3 入口整局各 1 次）
+
+**潜在风险**（未审）：
+- `G._warClaimStrength` / `G._claimGentryHook` / `G._diploCD_${a}_${b}` 等顶层动态字段 save/load 闭环
+- `G._eventCatCooldown` / `G._eventFired` 等事件 cooldown 字段的 save 行为
+
+**Sprint 防御**：原则 #13（5 个生命周期点闭环）。
+
+### 模式 7：队列/承诺契约类
+**症状**：`push` 进队列的 `type` 字段与消费端 `case` / `filter` 不闭合。push 后立即被 filter 静默清除，或 push 类型在消费端无 case → 死代码 / 永久积压。
+
+**代表 D 类**：
+- **D-133**（事件链 HIGH）`B4_delayed` 承诺机制完全失效（push 后立即被 `checkEventPromises` 静默清除，`gen_referral` 死代码）
+- **D-137**（事件链 MEDIUM）`_eventQueue` + `_popEventQueue` 死代码（玩家事件永久积压）
+- **D-145**（事件链）类似模式
+
+**Sprint 防御**：建立"queue push type ↔ consumer case"对账 checker（codex 建议 checker 2 的扩展形态）。
+
+### 模式 8：多入口一致性类
+**症状**：玩家 / 传统 AI / Claude AI / 事件 / fastForward 五路径的同一动作公式不一致。某路径修了 buff、某路径漏；某路径调 hook、某路径不调；某路径有 cooldown、某路径无。
+
+**代表 D 类**：
+- **D-065**（武将链 HIGH）`poachGen` 玩家 vs `_aiDoPoach` AI 公式严重不对称（玩家 4 项 buff，AI 2 项，互不存在）
+- **D-095**（外交链 MEDIUM，跨链 close D-122）`aiDoDiplo + _execDeclareWar` 重复调 ethosShock（hub 内 + hub 外双计 → strategy +12 而非 +6，玩家 `diploWar` 路径正确）
+- **D-064**（武将链 HIGH）`_execPoach` 费用未乘 `(1 + _techPoachCost)`（Claude AI 路径漏修正）
+- **D-048**（武将链 HIGH）AI 主动背刺 + de facto 宣战背刺漏 `triggerFactionEvent('betray')`（玩家被罚 AI 不被罚）
+
+**Sprint 防御**：原则 #12（5 路径维度声明）+ 第三批 checker（_exec 四表对账 + triggerFactionEvent caller 覆盖表）。
+
+### 模式 9：eliminated/rebel guard 类
+**症状**：`process*` 主 tick 函数 / `roll*` 事件触发函数缺统一 guard 二件套：`if(fid === 'rebel' || G.factions[fid]?._eliminated) return;`。灭国势力仍走主 tick 漂移、rebel 进入正常 process 链路。
+
+**代表 D 类**：
+- **D-129**（价值观链 LOW）`processFacEthos` 不跳过 `_eliminated`（每旬冗余 `strategy -0.36 + log push`）
+- 多处分散，audit pass 2 时统一核
+
+**Sprint 防御**：建立"所有 `processXxx` / `rollXxx` 函数 guard 二件套覆盖率"checker（codex 建议 checker 3 扩展形态）。
+
+### 模式 10：投影层级类
+**症状**：聚合字段（如 `city.gentry` 城级豪族支持度）由下层字段（如 `county.loyalty` 县级忠诚度数组）每旬重新 reduce 计算。直接写聚合字段会被下旬覆盖 → 看似生效实际无效。
+
+**代表 D 类**：
+- 豪族链相关分散 finding（`county.loyalty` ↔ `city.gentry` 投影），audit pass 2 时整理
+
+**Sprint 防御**：fix 触及聚合字段时强制溯源到 source-of-truth 字段；`grep` 字段 `=` 写口确认是否在投影 reduce 路径上。
+
+---
+
+## 二.6、共性模式总览（10 类）
+
+| # | 模式 | 起源 | 代表 D 类 | Sprint 防御 |
+|---|---|---|---|---|
+| 1 | v179fix P15c 推广不彻底 | 团队原识别 | D-091 / D-104 / D-113 | 平行 bug 检查 |
+| 2 | v130 重构推广不彻底 | 团队原识别 | D-131 / D-133 / D-049 | caller 覆盖表 |
+| 3 | Claude AI 信息暴露面 / 路径错配 | 团队原识别 | D-091 / D-099 / D-100 / D-121 / D-130 / D-076 / D-016 / D-020 / D-021 / D-035 / D-064 / D-065 | _exec 四表对账 |
+| 4 | 易主路径漏钩子 | 团队原识别 | D-022~D-031（含 D-026 / D-031 HIGH）| 易主 hook 覆盖表 |
+| 5 | 核心算法回路双向不一致 | 团队原识别 | D-052 / D-053 / D-055 | UI vs 主 tick 字段对齐 |
+| **6** | **状态生命周期类** | **codex review** | **D-120** | **原则 #13(5 点闭环)** |
+| **7** | **队列/承诺契约类** | **codex review** | **D-133 / D-137 / D-145** | **queue push type ↔ consumer case checker** |
+| **8** | **多入口一致性类** | **codex review** | **D-065 / D-095 / D-064 / D-048** | **原则 #12(5 路径声明)+ checker** |
+| **9** | **eliminated/rebel guard 类** | **codex review** | **D-129 + 多处分散** | **process / roll guard 覆盖率 checker** |
+| **10** | **投影层级类** | **codex review** | **豪族链相关分散** | **聚合字段 source-of-truth 溯源** |
+
+---
+
 ## 三、MEDIUM 类 全清单（44+）
 
 代码 sprint 优先级 P1。按链汇总（详细议题见各链 walkthrough）：
