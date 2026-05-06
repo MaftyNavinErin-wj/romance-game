@@ -2141,6 +2141,8 @@ function succeedRuler(fid, deadRulerName){
   if(G.factions[fid]?.strategist === successor.name){
     G.factions[fid].strategist = null;
   }
+  // D-084 fix: 清继任者旧文/武官职（避免 ruler + 旧官职双重身份）
+  clearAllPostsByGen(successor.name);
 
   // 全势力忠诚波动
   const loyaltyPenalty = isClanSuccession ? -5 : -10;
