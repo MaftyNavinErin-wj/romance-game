@@ -2,9 +2,9 @@
 
 > 本文档收录 Project Romance 重构期间沉淀的**普适工作流原则**(适用任何 verbatim 搬运 / 文件抽离 / 数据补完工作),phase 4 / sprint / 后续抽离都应遵循。
 >
-> 来源:phase 3 期间 13 sub-session(p3.1-p3.13)沉淀 5 条原则 + refactor/data-completion S2 沉淀 1 条新原则 + D 类 sprint 启动期 codex review 沉淀 2 条新原则,共 **8 条普适原则 + 1 条 phase 3 chain 阶段专用规范**。
+> 来源:phase 3 期间 13 sub-session(p3.1-p3.13)沉淀 5 条原则 + refactor/data-completion S2 沉淀 1 条新原则 + D 类 sprint 启动期 codex review 沉淀 2 条新原则 + batch-2 D-091 漏看沉淀 1 条新原则 + 1 条 sprint gate 语义,共 **9 条普适原则 + 1 条 sprint gate 语义节 + 1 条 phase 3 chain 阶段专用规范**。
 >
-> 触发场景:任何工作满足"verbatim 搬运 + smoke byte-identical 守底"模式的 sub-session 启动前必读。**D 类 sprint 期 fix 启动前**额外读 §八 §九(原则 #12 #13)。
+> 触发场景:任何工作满足"verbatim 搬运 + smoke byte-identical 守底"模式的 sub-session 启动前必读。**D 类 sprint 期 batch 启动前**额外读 §八-§十一(原则 #12 #13 #14 + sprint gate 语义)。
 
 ---
 
@@ -21,6 +21,7 @@
 | **#11** | **新建文件时,replace v181 在前,script tag 在后** | **dc.S2** | **script tag 偏移行号导致 ranges 错位 → SyntaxError** | **§七** |
 | **#12** | **D 类 fix 必须显式声明覆盖的入口路径**(sprint 期专用)| **codex review** | **D-048 / D-049 / D-064 等 fix 玩家路径漏 AI/事件路径** | **§八** |
 | **#13** | **状态字段语义变更必须核 5 个生命周期点闭环**(sprint 期专用)| **codex review** | **D-120 顶层字段永不重置等状态生命周期不闭合** | **§九** |
+| **#14** | **sprint scout 必读 walkthrough**(sprint 期专用)| **batch-2 D-091 漏看** | **scout 凭"上层调用看起来对"判定,漏看 helper 签名 + audit pass 1 已标 D 类** | **§十** |
 
 ---
 
@@ -266,6 +267,94 @@
 
 ---
 
+## §十、原则 #14(D 类 sprint 启动起,**新增**):sprint scout 必读 walkthrough
+
+### 来源
+
+**batch-2 D-091 漏看**(2026-05-06):scout v0.1/v0.2 把 7 个 D-099 缺漏指令全部判"已实装可暴露",其中 4 个判错。最严重的是附庸 3 个 `_exec` 指令:
+
+```js
+// _exec 包装器(v181.html)看起来双参传入正确:
+function _execDemandVassal(fid, act) {
+  if (typeof diploDemandVassal === 'function') {
+    diploDemandVassal(fid, target);  // 双参!scout 看到这里就以为 OK
+    return true;
+  }
+}
+
+// 但 helper 实际签名是单参 + 硬编玩家:
+function diploDemandVassal(other) {  // 单参!
+  const fid = G.playerFac;           // 硬编玩家!
+  ...
+}
+```
+
+JS 静默忽略第二参,Claude AI 调用后 helper 用 `G.playerFac` 当 fid → **写错主体**(声称 "fid → target",实际 "玩家 → fid")。
+
+**这正是 cross_chain_d_list:88 标的 D-091 HIGH**(diplomatic_chain_walkthrough §阶段 1.1 audit pass 1 早就发现)。Scout v0.1/v0.2 没读 walkthrough,凭"上层调用看起来对"下判定,差点把 D-091 从"未修但休眠"激活成"未修且活跃"。
+
+### 操作规范
+
+**每个 sprint batch scout 时,必须执行**:
+
+1. **grep cross_chain_d_list_v1_0.md** 看本 batch 涉及的 `_exec` / 函数 / 字段是否有已标 D 类编号
+   ```sh
+   grep -E "diplomDemandVassal|_execDemandVassal|附庸" docs/cross_chain_d_list_v1_0.md
+   ```
+2. **如有命中**,读对应链的 walkthrough(`docs/audit_walkthroughs/<chain>_chain_walkthrough.md`)的相应 D 类描述段落
+3. **不能凭"上层调用看起来对"判定"已实装"** — 必须追到 helper 签名 / 实际写口 / 多入口对照
+4. Scout 报告必含 "已 grep cross_chain_d_list,命中/未命中 D 类清单" 字段(类似 §零 失误自报段)
+
+### 适用范围
+
+- **所有 sprint batch scout**(原则 #5 mini scout 的子流程)
+- **不适用**:重构期 verbatim 搬运(没有 D 类 fix 行为)
+
+### 与原则 #5 关系
+
+原则 #5 是 scout 的**整体**要求(代码块位置、跨链引用等);原则 #14 是 scout 的**审计资产校验**要求(确保不绕过 audit pass 1 已发现的 finding)。两者层叠,sprint 期同时套用。
+
+### 与原则 #12 / #13 关系
+
+原则 #12 / #13 是 **fix 阶段**(scout 之后)的入口路径 / 生命周期校验;原则 #14 是 **scout 阶段**(更早)的 D 类背景校验。**早一步发现 unsafe scope,避免 fix 阶段才暴露问题**。
+
+---
+
+## §十一、Sprint gate 证据语义(D 类 sprint 启动起,**新增**)
+
+### 来源
+
+**batch-2 codex review**(2026-05-06):scout v0.2 写"checker 1 HIGH 7 → 0,exit 0 = batch 通过"。codex 指出这是过度承诺 — 只要 cancel_supply / 附庸 3 不在本 batch 安全范围内,checker 1 不会 exit 0。
+
+### 修正语义
+
+**Sprint gate 通过证据 ≠ checker exit 0**。**Sprint gate 通过证据 = "checker finding 按 batch 范围正确降级 + 剩余 finding 显式标注 followup batch"**。
+
+### 适用范围
+
+- **所有 D 类 sprint batch**(每个 batch commit message + fix note 都按此语义写)
+- **不适用**:重构期 sub-session(smoke byte-identical 守底,语义独立)
+
+### 实操检查清单
+
+每个 sprint batch 末:
+
+1. 跑 `npm run checkers`,记录 finding 数(分类:HIGH / WARN / INFO)
+2. 对照本 batch 范围,标注每个剩余 HIGH 是否 intentional out-of-scope
+3. 在 `docs/sprint_followup.md` 显式记录每个 followup item(对应到下一 batch / 独立 epic)
+4. commit message 引用 checker 报告 commit hash + 标注本 batch HIGH 降级数字
+5. **不要**写"checker 1 exit 0 = batch 通过";**要**写"checker 1 HIGH 从 N 降到 M,剩余 M-K 个标 followup,K 个 intentional 保留(理由 ...)"
+
+### 与原则 #12 / #14 关系
+
+- 原则 #14:scout 阶段挖出 unsafe scope(避免错误暴露)
+- 原则 #12:fix 阶段声明覆盖路径(避免错误漏修)
+- 原则 #11(本节):batch 末验收时正确语义化(避免错误判定 batch 通过)
+
+三层防线串起来,sprint 工作流闭环。
+
+---
+
 ## 原则之间的执行顺序
 
 ### 重构期 / 数据搬运 sub-session 启动顺序
@@ -288,13 +377,16 @@
 ### D 类 sprint fix 启动顺序
 
 ```
-1. 原则 #5 mini scout — 定位 D 类在 src/ 的实际位置 + walkthrough 信息源
-2. 原则 #12 入口路径声明 — 5 路径维度 dry-run,标"已覆盖 / 不适用 / 留 followup"
-3. 原则 #13 状态生命周期 — 若涉及字段语义变更,5 点闭环 dry-run
-4. 实装(改 src/ 或 v181.html)
-5. Smoke + grep + 字段对齐三重验证(字段名错配类)/ 白名单 diff 验证(算法回路类)
-6. fix commit message 含原则 #12 + #13 声明 block
-7. push 工作分支(等制作人 review approve 才合 main)
+1. 原则 #5 mini scout — 定位 D 类在 src/ 的实际位置
+2. 原则 #14 scout 必读 walkthrough — grep cross_chain_d_list,命中则读对应 walkthrough
+   追 helper 签名 + 实际写口,不能凭"上层调用看起来对"判定
+3. 原则 #12 入口路径声明 — 5 路径维度 dry-run,标"已覆盖 / 不适用 / 留 followup"
+4. 原则 #13 状态生命周期 — 若涉及字段语义变更,5 点闭环 dry-run
+5. 实装(改 src/ 或 v181.html)
+6. Smoke + grep + 字段对齐三重验证(字段名错配类)/ 白名单 diff 验证(算法回路类)
+7. fix commit message 含原则 #12 + #13 声明 block + #14 walkthrough 命中情况
+8. 跑 npm run checkers,按原则 #11(sprint gate 语义)标注 finding 降级 + followup
+9. push 工作分支(等制作人 review approve 才合 main)
 ```
 
 ---
@@ -309,4 +401,4 @@
 
 ---
 
-(原则集 v1.1 — phase 3 + data-completion + D 类 sprint codex review 沉淀。后续 sub-session 实装 bug 触发新原则时追加 #14+)
+(原则集 v1.2 — phase 3 + data-completion + D 类 sprint codex review 沉淀(批次 1 #12/#13)+ batch-2 D-091 漏看(批次 2 #14 + sprint gate 语义)。后续 sub-session 实装 bug 触发新原则时追加 #15+)
