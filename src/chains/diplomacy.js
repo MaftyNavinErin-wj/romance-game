@@ -1451,11 +1451,10 @@ function _resolveVassalDiploConflicts(vassalFid, suzerainFid){
     }
 
     // 3a. 附庸与第三方交战，宗主与第三方和平 → 附庸强制停战
+    // D-113 fix: 走 _applyPeaceAgreement 统一停战入口（v179fix P15c 平行 bug 推广）
     if(vd.status === 'enemy' && sd.status !== 'enemy'){
-      [vKey, vRev].forEach(k => {
-        if(G.diplo[k]){ G.diplo[k].status = 'neutral'; G.diplo[k]._peaceTurn = G.turn; }
-      });
-      addDiplo(vassalFid, third, 5);
+      _applyPeaceAgreement(vassalFid, third);
+      addDiplo(vassalFid, third, 5); // 保留 +5 friendly bonus（称臣后跟随和平的友善加成）
       log(`🕊 ${FAC[vassalFid]?.name}称臣后，与${FAC[third]?.name}停战（随宗主外交）`,'diplo');
     }
 
