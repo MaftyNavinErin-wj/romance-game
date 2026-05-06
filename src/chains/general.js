@@ -1669,6 +1669,9 @@ function poachGen(genName){
     { const _cloned = _deepCloneGen(gen); G.generals[G.playerFac].push(_cloned); GEN_MAP[_cloned.name] = _cloned; } // ★ v155fix P0
     G.genLoyalty[genName] = 60; // 初始忠诚60
     G.loyaltyAccum[genName] = 60;
+    // D-063 fix: 补写入伙时机字段（被挖武将得 9 旬冷却保护，避免立即下野/被回挖）
+    G.genJoinTurn[genName] = G.turn;
+    G.genJoinSource[genName] = 'poach';
     delete G.recruitableGens[genName];
     setRetainers(genName, 0); // ★ v163: 叛逃/被挖角→部曲归零
     // ★ v161: 叛逃→属县家族忠诚冲击-15
@@ -2141,6 +2144,8 @@ function succeedRuler(fid, deadRulerName){
   if(G.factions[fid]?.strategist === successor.name){
     G.factions[fid].strategist = null;
   }
+  // D-084 fix: 清继任者旧文/武官职（避免 ruler + 旧官职双重身份）
+  clearAllPostsByGen(successor.name);
 
   // 全势力忠诚波动
   const loyaltyPenalty = isClanSuccession ? -5 : -10;
@@ -2281,7 +2286,11 @@ function resolvePrisoners(prisonerNames, capturerFid, isPlayer){
     } else {
       const action = aiDisposePrisoner(name, capturerFid);
       if(action === 'surrender') surrenderGen(name, capturerFid);
-      else if(action === 'execute') killGen(name, null);
+      else if(action === 'execute'){
+        // D-061 fix: 传入 killerName (capturerFid 主公) 让 killGen 内血仇/亲密度仇恨扩散触发
+        const ruler = (G.generals[capturerFid] || []).find(g => g.role === 'ruler');
+        killGen(name, ruler?.name || null);
+      }
       else releaseGen(name, capturerFid);
       reports.push({name, action});
     }
