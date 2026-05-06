@@ -1,10 +1,60 @@
-# Sprint Batch-2 Boundary Scout — D-099 Prompt 缺 7 指令
+# Sprint Batch-2 Boundary Scout — D-099 Prompt 缺指令(范围缩减版)
 
 > Sprint:`sprint/batch-2-d099-prompts`(从 main `ba4821c` 切出)
-> 状态:**Boundary scout 报告,未实装,等制作人 + codex 三方 review approve**
+> 状态:**v0.3 — codex review 后范围缩减,3 个 AI-safe 指令**
 > 工作流:sprint mode(原则 #5 mini scout + #12 入口路径声明 + 三重验证机制)
-> 风险等级:**极低**(纯 prompt doc string 修改,不动 _exec 函数体)
+> 风险等级:**仅对 AI-safe _exec 低风险**(原"纯 prompt 低风险"判定过度乐观,见 §零)
 > 来源:`tests/checkers/exec_dispatch_audit.js` checker 1 揭示 7 个 `case_no_prompt` HIGH
+
+---
+
+## 零、Scout 失误 + 范围缩减(v0.3 新增,2026-05-06)
+
+### 失误自报
+
+v0.1/v0.2 scout 把 7 个缺漏指令全部判为"已实装,可暴露",其中 4 个判错:
+
+| 指令 | 失误原因 |
+|---|---|
+| `cancel_supply` | _execCancelSupply 函数体内 `console.warn('[ClaudeAI] cancel_supply: 当前未实装')` + `return false`(scout v0.1 §二 已读到,但仍标"已实装",DP-A 提了选项但 §六 修法预览仍含其在 7 个内)|
+| `diplo_demand_vassal` / `diplo_submit_vassal` / `diplo_release_vassal` | scout 只读 `_exec*` 包装器看到 `(fid, target)` 双参传入 → 误以为 helper 接收双参。**没追下去看 helper 签名**:`function diploDemandVassal(other) { const fid = G.playerFac; ...}` — 单参 + 硬编玩家。JS 静默忽略第二参,Claude AI 触发后 helper 用 `G.playerFac` 当 fid → 写错主体。**这是 cross_chain_d_list:88 标的 D-091 HIGH**(diplomatic_chain_walkthrough §阶段 1.1 audit pass 1 早就发现)|
+
+**根因**:违反原则 #5 scout-before-extract — 没 grep `cross_chain_d_list` 确认本 batch 涉及函数是否有已标 D 类,凭"上层调用看起来对"下判定。
+
+### 沉淀
+
+新原则 #14(本 batch 修文档时同时追加到 `refactor_workflow_principles.md`):
+
+> **每个 sprint batch scout 时,必须 grep `cross_chain_d_list_v1_0.md` 看本 batch 涉及的 `_exec` / 函数是否有已标 D 类。如果有,必须读对应 walkthrough,不能凭"上层调用看起来对"判定。**
+
+### 范围缩减(codex review 修订)
+
+**本 batch 仅暴露 3 个 AI-safe 指令**(对应 7 个原 finding 的子集):
+
+| 指令 | AI-safe? | 理由 |
+|---|---|---|
+| `toggle_resupply` | ✅ | 函数体仅 flip `G._facResupply[fid]`,fid 来自参数,无硬编 G.playerFac |
+| `cancel_siege` | ✅ | `unit.status: 'siege' → 'halt'`,unit 通过 `_findUnit(fid, ...)` 定位,fid 正确 |
+| `diplo_armistice` | ✅ | helper 已 fid 参数化(L13649 `_execDiploArmistice` 内部用 fid 不用 G.playerFac)|
+
+**4 个 unsafe 指令本 batch 不暴露,标为 followup**:
+
+| 指令 | 不暴露原因 | Followup batch |
+|---|---|---|
+| `cancel_supply` | _execCancelSupply 标记未实装(`return false`)| 死代码清理 batch(独立) |
+| `diplo_demand_vassal` | helper `diploDemandVassal(other)` 单参 + `G.playerFac` 硬编 | **batch-3 D-091 HIGH 修法**(改 helper 签名 fid 参数化 + caller 校准) |
+| `diplo_submit_vassal` | 同上 D-091 模式 | batch-3 D-091 |
+| `diplo_release_vassal` | 同上 D-091 模式 | batch-3 D-091 |
+
+### 修订后的 Sprint gate 预期(codex review 修正)
+
+**原 v0.2 写**:checker 1 HIGH 7 → 0,exit 0 = batch 通过。
+
+**修订**:checker 1 HIGH 7 → **4**(剩 cancel_supply + 附庸 3 = intentional out-of-scope 标 followup),exit code **仍 1**(本 batch 不能用 checker 1 exit 0 作 gate)。
+
+→ Sprint gate 证据语义改成:**"checker finding 按 batch 范围正确降级 + 剩余 finding 显式标注 followup batch"**(本 batch 修文档时同时追加到 `refactor_workflow_principles.md`)。
+
+---
 
 ---
 
@@ -167,9 +217,11 @@ Checker 1 当前的 `promptTypeSet` 是**两个 prompt 的并集**(`collectPromp
 
 ---
 
-## 六、修法预览(等 DP 通过)
+## 六、修法预览(v0.3 范围缩减,等 DP 通过)
 
 具体 diff(待 approve):
+
+### L1085 主 prompt(`_claudeSystemPrompt`)+3 行
 
 ```diff
  - {"type":"set_camp","army_leader":"将名(中文)"} — 扎营
@@ -180,48 +232,58 @@ Checker 1 当前的 `promptTypeSet` 是**两个 prompt 的并集**(`collectPromp
  - {"type":"disband","army_leader":"将名(中文)"}
  - {"type":"set_tax","level":"none/low/norm/heavy/harsh"}
  - {"type":"set_reinforce_policy","policy":"aggr/bal/elit"}
-+- {"type":"toggle_resupply"} — 切换势力 resupply 开关(全军适用)
++- {"type":"toggle_resupply"} — 切换/flip 势力 resupply 开关(全军适用,非显式 set)
  - {"type":"set_prefect","city":"城市ID","general":"将名(中文)"}
- - ...
- - {"type":"declare_war","target":"势力ID","claim":"宣称ID或null"}
- - {"type":"propose_alliance","target":"势力ID"}
- - {"type":"break_alliance","target":"势力ID"}
- - {"type":"start_claim","target":"势力ID","claim_type":"宣称ID"}
+ ...
  - {"type":"diplo_gift","target":"势力ID","level":1} — level:1/2/3
 +- {"type":"diplo_armistice","target":"势力ID"} — 主动停战(花 1000 金,失败退 700)
-+- {"type":"diplo_demand_vassal","target":"势力ID"} — 要求他势力称臣
-+- {"type":"diplo_submit_vassal","target":"势力ID"} — 主动投靠他势力
-+- {"type":"diplo_release_vassal","target":"势力ID"} — 释放附庸
  - {"type":"research","tech":"科技ID","general":"将名(中文)"}
- - ...
 ```
 
-(行序按 dispatcher case 同分组顺序排,不打乱现有 30 个 type 顺序)
+### L567 战术 prompt(`_tacticalSystemPrompt`)+3 行(同步 AI-safe 3 个)
+
+按 L1085 风格在对应位置加 3 行(`cancel_siege` / `toggle_resupply` / `diplo_armistice`)。
+
+**不暴露**(本 batch 范围外):`cancel_supply` / `diplo_demand_vassal` / `diplo_submit_vassal` / `diplo_release_vassal` — 见 §零 followup 标注。
 
 ---
 
-## 七、风险评估
+## 七、风险评估(v0.3 修正,codex review 反馈)
 
-| 风险 | 等级 | 缓解 |
+**v0.2 判定"纯 prompt 低风险"过度乐观**。修正后只对**确认 AI-safe 的 3 个指令**低风险:
+
+| 风险 | 等级(范围缩减后) | 缓解 |
 |---|---|---|
-| smoke 行为漂移 | **极低** | 纯 doc string 修改,smoke 50 turn 默认走 rule-based AI 不读 prompt |
-| Claude AI 实际调用时新指令报错 | **低** | 7 个 _exec 函数都已实装(scout 已读函数体),dispatcher case 也注册;新加 prompt 仅"声明已存在的能力" |
-| Claude AI 输出 act schema 不匹配 | **低** | scout §二 已对照函数体读取的 act.xxx 字段,prompt schema 与函数体一致 |
-| Phase 0/1 prompt 仍活但本 batch 没修 | **中** | DP-C 决策点,待 scout L567 上下文 |
+| smoke 行为漂移(3 个 AI-safe 指令) | **极低** | 纯 doc string 修改,smoke 50 turn 走 rule-based AI 不读 prompt |
+| Claude AI 实际调用 3 个 AI-safe 指令时主体错误 | **低** | scout v0.3 §零 已 grep cross_chain_d_list 验证 3 个指令无已标 D 类;helper 签名 fid 参数化(L13649 _execDiploArmistice 函数体确认);新加 prompt 仅声明已存在的安全能力 |
+| Claude AI 输出 act schema 不匹配 | **低** | scout §二 已对照函数体读取的 `act.xxx` 字段,3 个 AI-safe 指令 schema 与函数体一致 |
+| 双 prompt 不一致(L567 战术 vs L1085 战略)| **极低** | DP-C 修两个 prompt,3 个 AI-safe 指令同步 |
+| **附庸 3 + cancel_supply 暴露后写错主体 / 触发 dead code** | **N/A** | **本 batch 不暴露,标 followup**(见 §零)|
+
+### 已知未覆盖(v0.3 followup 明确)
+
+| 项 | followup |
+|---|---|
+| cancel_supply dead code 清理 | 独立 batch(范围:删除 dispatcher case + 文档死代码记录) |
+| 附庸 3 D-091 HIGH 修复 | **batch-3 D-091**(改 helper signature `diploDemandVassal(other)` → `(fid, other)` + caller 校准 + 多入口一致性验证)|
+| L567 战术 prompt 历史 8 个其他缺漏 | 独立 batch(L567 战术 prompt 全对齐 dispatcher) |
+| Checker 1 双 prompt 不一致检测 | 独立 enhancement(扩 `collectPromptTypes` 区分两个 prompt)|
 
 ---
 
-## 八、batch 完成后预期
+## 八、batch 完成后预期(v0.3 修订)
 
 | 指标 | 起点 | 终点 |
 |---|---|---|
-| `claude_ai.js` 行数 | 1481 | ~1487(+6 行 prompt)|
+| `claude_ai.js` 行数 | 1481 | ~1487(L1085 +3 + L567 +3 = +6 行 prompt)|
 | `_exec*` 函数 | 36 | 36(不变) |
 | dispatcher case | 37 | 37(不变) |
-| prompt type | 30 | 36 (+6,DP-A 选 a 时;若 DP-A 选 b 则 +7=37)|
-| Checker 1 HIGH finding | 7(`case_no_prompt`) | 0 或 1(取决于 DP-A) |
-| Checker 1 exit code | 1 | 0(预期 — sprint gate 通过证据)|
+| L1085 主 prompt type | 30 | 33(+3 AI-safe)|
+| L567 战术 prompt type | 22 | 25(+3 AI-safe,与 L1085 同步)|
+| Checker 1 HIGH `case_no_prompt` | 7 | **4**(剩 cancel_supply + 附庸 3,intentional out-of-scope)|
+| Checker 1 exit code | 1 | **仍 1**(本 batch 不能用 exit 0 作 gate;新语义 = 降级 + followup)|
 | Smoke | byte-identical PASS | byte-identical PASS(行为不变) |
+| sprint_followup.md | 4 项历史 | **+4 项 batch-2 followup**(cancel_supply / 附庸 3 个 D-091 / L567 历史 8 / Checker 1 双 prompt 检测增强)|
 
 ---
 
@@ -235,16 +297,18 @@ Checker 1 当前的 `promptTypeSet` 是**两个 prompt 的并集**(`collectPromp
 
 ---
 
-(Scout v0.2 — §五 L567 实测完成,等 DP-A / DP-B / DP-C / DP-C.1 决策拍板)
+(Scout v0.3 — codex review approve + 主 Claude.ai 拍板,4 决策点全锁定,准备实装)
 
 ---
 
-## 决策点总结(等 review)
+## 决策点总结(v0.3 全部 approve)
 
-| DP | 内容 | 我的推荐 | 待 approve |
+| DP | 内容 | 决议 | approve |
 |---|---|---|---|
-| DP-A | `cancel_supply` 是否暴露 | (a) 不加(v159fix 标 dead 占位) | 制作人 + codex |
-| DP-B | `toggle_resupply` 参数 schema | (a) 无参数(与函数体一致) | 制作人 + codex |
-| DP-C | 两个 prompt 是否都修 | (b) 都修 | 制作人 + codex |
-| DP-C.1 | L567 战术 prompt 范围 | (iii) 同步 7 个,L567 历史 8 个缺漏留下 batch | 制作人 + codex |
-| DP-D | scout 报告本身 commit 到工作分支? | 是,作为 batch-2 的 design doc(类似 sprint_data_scout.md 模式) | 制作人 |
+| DP-A | `cancel_supply` 是否暴露 | **不加**(v159fix 占位 + checker 1 finding 留 followup) | ✅ 制作人 + codex |
+| DP-B | `toggle_resupply` 参数 schema | **无参数**,文案"切换/flip"(非"设为开启") | ✅ 制作人 + codex |
+| DP-C | 两个 prompt 是否都修 | **都修**(L1085 战略 + L567 战术) | ✅ 制作人 + codex |
+| DP-C.1 | L567 战术 prompt 范围 | **(iv) codex 修订**:仅同步 3 个 AI-safe 指令(toggle_resupply / cancel_siege / diplo_armistice),附庸 3 标 D-091 followup batch-3 | ✅ 制作人 + codex |
+| DP-D | scout 报告 commit | **是**,本文件 v0.3 commit 到 batch-2 工作分支 | ✅ 制作人 |
+| **DP-E**(v0.3 新增)| Sprint gate 证据语义 | **改成降级 + followup**(同时追加到 refactor_workflow_principles.md) | ✅ 制作人 + codex |
+| **DP-F**(v0.3 新增)| 工作流原则 #14 sprint scout 必读 walkthrough | **新增**(同时追加到 refactor_workflow_principles.md) | ✅ 制作人 |
