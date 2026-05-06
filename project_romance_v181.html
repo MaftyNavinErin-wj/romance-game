@@ -13905,6 +13905,10 @@ function _execRecruit(fid, act) {
   city.recruitedThisTurn = true;
   const squads = [{ genName, type: troopType, troops, maxTroops: troops, morale: 70 }];
   const unit = createUnit({ fac: fid, spawnCityId: cityId, squads });
+  // D-035 fix: 设 unit.level（v116 特色兵种 eliteLevel + 玩家路径同公式 v181.html:9314-9315）
+  // createUnit 默认 level=1 → AI 永远 Lv.1 出厂；玩家路径 max(eliteLevel, getInitLevel(city))
+  const _eliteLv = TROOP_TYPES[troopType]?.eliteLevel || 0;
+  unit.level = _eliteLv > 0 ? Math.max(_eliteLv, getInitLevel(city)) : getInitLevel(city);
   unit.mobilizingTurns = 3;
   unit._apRemaining = 0;
   G.units.push(unit);
