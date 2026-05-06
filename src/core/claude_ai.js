@@ -570,7 +570,9 @@ function _tacticalSystemPrompt(fid) {
 - {"type":"attack","army_leader":"将名(中文)","target_city":"城市ID"}
 - {"type":"set_camp","army_leader":"将名(中文)"}
 - {"type":"set_ambush","army_leader":"将名(中文)"}
+- {"type":"cancel_siege","army_leader":"将名(中文)"} — 取消围城转 halt
 - {"type":"set_tax","level":"none/low/norm/heavy/harsh"}
+- {"type":"toggle_resupply"} — 切换/flip 势力 resupply 开关(全军适用,非显式 set)
 - {"type":"set_prefect","city":"城市ID","general":"将名(中文)"}
 - {"type":"transfer_food","from":"城市ID","to":"城市ID"}
 - {"type":"appoint_post","general":"将名(中文)","post":"官职名(中文)"}
@@ -582,6 +584,7 @@ function _tacticalSystemPrompt(fid) {
 - {"type":"propose_alliance","target":"势力ID"}
 - {"type":"start_claim","target":"势力ID","claim_type":"宣称ID"}
 - {"type":"diplo_gift","target":"势力ID","level":1}
+- {"type":"diplo_armistice","target":"势力ID"} — 主动停战(花 1000 金,失败退 700 + rel+3)
 - {"type":"research","tech":"科技ID","general":"将名(中文)"}
 - {"type":"scheme_spy","target":"势力ID","general":"敌将名(中文)"}
 - {"type":"scheme_scout","city":"城市ID"}
@@ -1089,10 +1092,12 @@ contingency列出2-3个"如果...则..."的预案，覆盖最可能的意外情�
 - {"type":"set_camp","army_leader":"将名(中文)"} — 扎营
 - {"type":"set_ambush","army_leader":"将名(中文)"} — 设伏
 - {"type":"cancel_special","army_leader":"将名(中文)"}
+- {"type":"cancel_siege","army_leader":"将名(中文)"} — 取消围城转 halt
 - {"type":"billet","army_leader":"将名(中文)","city":"城市ID(大城)"} — 休整遣散
 - {"type":"disband","army_leader":"将名(中文)"}
 - {"type":"set_tax","level":"none/low/norm/heavy/harsh"}
 - {"type":"set_reinforce_policy","policy":"aggr/bal/elit"}
+- {"type":"toggle_resupply"} — 切换/flip 势力 resupply 开关(全军适用,非显式 set)
 - {"type":"set_prefect","city":"城市ID","general":"将名(中文)"}
 - {"type":"transfer_food","from":"城市ID","to":"城市ID"}
 - {"type":"appoint_post","general":"将名(中文)","post":"官职名(中文)"}
@@ -1105,6 +1110,7 @@ contingency列出2-3个"如果...则..."的预案，覆盖最可能的意外情�
 - {"type":"break_alliance","target":"势力ID"}
 - {"type":"start_claim","target":"势力ID","claim_type":"宣称ID"}
 - {"type":"diplo_gift","target":"势力ID","level":1} — level:1(500金)/2(1000金)/3(2000金)
+- {"type":"diplo_armistice","target":"势力ID"} — 主动停战(花 1000 金,失败退 700 + rel+3)
 - {"type":"research","tech":"科技ID","general":"将名(中文)"}
 - {"type":"scheme_drive_wolf","targetA":"势力ID","targetB":"势力ID"}
 - {"type":"scheme_two_tigers","targetA":"势力ID","targetB":"势力ID"}
