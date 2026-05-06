@@ -156,10 +156,18 @@ main                    永远可玩
 以下文件 Claude Code **只读**,不允许修改(除非制作人明确授权):
 
 - `HANDOVER_v181_v1_6.md`
-- `cross_chain_d_list_v1_0.md`
-- 8 链各自的 walkthrough(`*_chain_walkthrough_v*.md`)
-- 8 链各自的 JSON(`*_chain_v*.json`)
-- 概念图 HTML(`concept_map_v*.html`)
+- `docs/cross_chain_d_list_v1_0.md`
+- `docs/audit_walkthroughs/economy_chain_walkthrough.md`
+- `docs/audit_walkthroughs/military_chain_walkthrough.md`
+- `docs/audit_walkthroughs/general_chain_walkthrough.md`
+- `docs/audit_walkthroughs/political_chain_walkthrough.md`
+- `docs/audit_walkthroughs/diplomatic_chain_walkthrough.md`
+- `docs/audit_walkthroughs/event_chain_walkthrough.md`
+- `docs/audit_walkthroughs/ethos_chain_walkthrough.md`
+- `docs/audit_walkthroughs/gentry_chain_walkthrough.md`
+- `docs/audit_walkthroughs/concept_map_v6_4_events.html`
+- 8 链各自的 JSON(`*_chain_v*.json`,如有)
+- 其他概念图 HTML(`concept_map_v*.html`,如有)
 - `Project_Romance_GDD_*.pdf`
 - `Project_Romance_Pitch_*.pdf`
 
