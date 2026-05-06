@@ -670,15 +670,18 @@ function aiDoDiplo(fid){
         if(!isVassal(fid) && !isVassal(other)){
           const myPow = powerIndex(fid), theirPow = powerIndex(other);
           if(myPow < theirPow * 0.15 && d.rel >= 20 && Math.random() < 0.35){
-            _setVassalStatus(fid, other); // ★ v144: 统一入口，处理冲突
-            // ★ v179fix P18: 原仅 fid→other 单向 CD，宗主下旬可立即反向发起外交动作；与停战 CD 双向保持一致
-            G[`_diploCD_${fid}_${other}`] = 10;
-            G[`_diploCD_${other}_${fid}`] = 10;
-            if(fid===G.playerFac){
+            // D-104 fix: 玩家介入(交互模式)时只设 _pendingVassalOffer，等玩家选择再 mutate（v179fix P15c 平行 bug 推广）
+            // 注: _fastForward 时玩家 fac 托管 AI，走立即 mutate（与 fix 前等价，弹窗在快进期不响应）
+            if(fid===G.playerFac && !_fastForward){
               _pendingVassalOffer = { vassal:fid, suzerain:other, type:'aiForced' };
-            } else if(other===G.playerFac){
+            } else if(other===G.playerFac && !_fastForward){
               _pendingVassalOffer = { vassal:fid, suzerain:other, type:'aiSubmit' };
             } else {
+              // AI vs AI（或 _fastForward 时玩家 fac 托管 AI）无玩家介入，直接生效
+              _setVassalStatus(fid, other); // ★ v144: 统一入口，处理冲突
+              // ★ v179fix P18: 双向 CD，宗主下旬可立即反向发起外交动作
+              G[`_diploCD_${fid}_${other}`] = 10;
+              G[`_diploCD_${other}_${fid}`] = 10;
               log(`🏳 ${FAC[fid]?.name}向${FAC[other]?.name}称臣，纳入附庸`,'diplo');
             }
           }
@@ -1482,6 +1485,9 @@ function _setVassalStatus(vassalFid, suzerainFid){
 
 function acceptVassalOffer(vassal, suzerain){
   _setVassalStatus(vassal, suzerain);
+  // D-104 fix: 双向 CD（原 aiDoDiplo 直 mutate 时立即设，P15c 模式推迟到 accept 才设）
+  G[`_diploCD_${vassal}_${suzerain}`] = 10;
+  G[`_diploCD_${suzerain}_${vassal}`] = 10;
   log(`🏳 ${FAC[vassal]?.name}正式成为${FAC[suzerain]?.name}附庸`,'diplo');
   addDiplo(vassal, suzerain, 10);
   renderRight(); renderLeft();
