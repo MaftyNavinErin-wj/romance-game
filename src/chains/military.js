@@ -6710,6 +6710,8 @@ function _resolveBattleEngagement(attackers, defenders, nodeLabel, activeDuel, n
         G.diplo[bk]._betrayal = true;
         if(rev) rev._betrayal = true;
         applyReputationPenalty(atkFac0, 'betray');
+        // D-048 fix: de facto 宣战背刺也触发 betray 派系事件（与玩家 diploWar 对称）
+        if(ALL_FACS.includes(atkFac0)) triggerFactionEvent('betray', atkFac0, {});
       }
       if(G.diplo[bk]._peaceTurn != null && (G.turn - G.diplo[bk]._peaceTurn) <= 3){
         applyReputationPenalty(atkFac0, 'relapse');

@@ -643,6 +643,8 @@ function aiDoDiplo(fid){
             d._betrayal = true;
             if(G.diplo[`${other}-${fid}`]) G.diplo[`${other}-${fid}`]._betrayal = true;
             applyReputationPenalty(fid, 'betray');
+            // D-048 fix: AI 主动背刺也触发 betray 派系事件（与玩家 diploWar L431 对称）
+            if(ALL_FACS.includes(fid)) triggerFactionEvent('betray', fid, {});
           }
           if(d._peaceTurn != null && (G.turn - d._peaceTurn) <= 3){
             applyReputationPenalty(fid, 'relapse');
