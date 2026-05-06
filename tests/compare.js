@@ -3,8 +3,15 @@
 // 用法:
 //   node tests/compare.js [baseline_path] [current_path]
 // 默认:
-//   baseline = tests/baseline/v181_pre_refactor.json
+//   baseline = tests/baseline/data_completion_complete.json (最新阶段 baseline)
 //   current  = tests/current.json
+//
+// Baseline 演进顺序(每阶段完成时锁定一份,旧 baseline 保留供回归):
+//   v181_pre_refactor (重构前权威基准,phase 0)
+//     → phase1_post (phase 1 数据层抽离完成)
+//     → phase2_complete (phase 2 渲染层抽离完成)
+//     → phase3_complete (phase 3 机制 chain 抽离完成)
+//     → data_completion_complete (data-completion sprint 数据补完,**当前默认**)
 //
 // 退出码:
 //   0 = PASS(完全一致)
@@ -16,7 +23,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const BASELINE_DEFAULT = path.resolve(__dirname, 'baseline', 'phase1_post.json');
+const BASELINE_DEFAULT = path.resolve(__dirname, 'baseline', 'data_completion_complete.json');
 const CURRENT_DEFAULT  = path.resolve(__dirname, 'current.json');
 
 function diff(a, b, p, out, max) {

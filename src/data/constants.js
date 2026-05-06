@@ -34,12 +34,14 @@
 
 // ── 事件系统冷却 ──
 // 每个事件 category 触发后冷却 N 旬不再触发同 category 事件
+// ── owner: event chain ──
 const EVENT_CAT_COOLDOWN = 3;
 
 // ── 信誉度系统默认 ──
 // 当 G.reputation[fid] 未初始化时的 fallback 值(也是"中立信誉"基线)
 // 注:开局初始值 wei=45 / shu=80 / wu=60 / nanman=30,此 50 仅在 fid 不在
 //    G.reputation 时(如 rebel)或测试代码中使用
+// ── owner: diplomacy chain ──
 const REPUTATION_DEFAULT = 50;
 
 // ════════════════════════════════════════════════════════════
@@ -48,6 +50,7 @@ const REPUTATION_DEFAULT = 50;
 // ════════════════════════════════════════════════════════════
 
 // ── range A: §A+§B 杂参数 + 建筑 + 阶段 + 攻城后处置 + 宣战 + 称帝 + unit 容量 (原 L838-L984, 147 行) ──
+// ── owner: economy chain ──
 const TAX=[
   {id:'none', name:'无税', goldM:.50,moraleMod:+.8,popMod:+.0008},
   {id:'low',  name:'轻税', goldM:.75,moraleMod:+.3,popMod:+.0003},
@@ -55,12 +58,14 @@ const TAX=[
   {id:'heavy',name:'重税', goldM:1.35,moraleMod:-1.5,popMod:-.0008},
   {id:'harsh',name:'苛政', goldM:1.6,moraleMod:-4.0,popMod:-.0025},
 ];
+// ── owner: military chain ── (补员策略 policyId,processReinforcement 消费)
 const POLICY=[
   {id:'aggr',name:'激进',front:.7,rear:.3},
   {id:'bal', name:'均衡',front:.5,rear:.5},
   {id:'elit',name:'精兵',front:.3,rear:.7},
 ];
 // ★ v163: 徭役制度 — 建设加速 vs 民心+质量代价（仅有在建项目的城市生效）
+// ── owner: economy chain ── (建设加速 / 民心+质量代价)
 const CORVEE=[
   {id:'low',  name:'轻徭', buildBonus:0,    moralePen:0,    qualPen:0},
   {id:'mid',  name:'中徭', buildBonus:0.12, moralePen:-0.20,qualPen:-0.03},
@@ -68,6 +73,7 @@ const CORVEE=[
 ];
 
 // ★ v166: 迁民系统常量
+// ── owner: cross-chain (gentry + economy) ── (迁民触发豪族属县影响 + 城市人口/腐败)
 const MIGRATE_MIN_RATIO = 0.20;   // 最低迁出比例20%
 const MIGRATE_MAX_RATIO = 0.80;   // 最高迁出比例80%
 const MIGRATE_LOSS_RATE = 0.40;   // 途中损耗40%
@@ -79,6 +85,7 @@ const MIGRATE_COUNTY_SAME  = {src:-5, dst:-3};  // 同地域属县loyalty冲击
 const MIGRATE_CLAN_BASE_EXTRA = {src:-3, dst:-2}; // clan_base属县额外冲击
 const MIGRATE_ENEMY_CHECK_RANGE = 2; // 安全检查：双城Nhex内不可有敌军
 // ★ v164: 部曲绑兵种（{count,type}），billet拆双条目，征兵/重编兵种锁定
+// ── owner: military chain ── (部曲 squad 内嵌,applyLoss 保护系数)
 const RETAINER_LEVEL = 10;        // 部曲按Lv10计算
 const RETAINER_PROTECT = 0.35;    // 战损保护系数：部曲承担同比例损失×0.35
 const RETAINER_INFLUENCE_DIV = 500; // 每500部曲=+1派系影响力
@@ -108,6 +115,7 @@ const RETAINER_PRESET = {
 // 武将链 GEN2 (武将养成 STAT_GROW_CAP/THRESHOLD/APT_GROW_THRESHOLD/APT_GRADES + addStatExp/addAptExp,L919-L986) 已抽离到 src/chains/general.js
 
 // ── BUILDINGS ──
+// ── owner: cross-chain (economy + military + politics) ── (建筑数据,各 chain 消费)
 const BLDS={
   farm:    {name:'农田',  icon:'🌾',cat:'agri', levels:[{c:{gold:400,wood:200},t:2,eff:'基础粮+100'},{c:{gold:700,wood:400},t:3,eff:'基础粮+190'},{c:{gold:1200,wood:700},t:4,eff:'基础粮+270'}],restrict:[]},
   irr:     {name:'水利',  icon:'💧',cat:'agri', levels:[{c:{gold:800,wood:600},t:3,eff:'农田×1.2'},{c:{gold:1400,wood:1000},t:4,eff:'农田×1.4'},{c:{gold:2200,wood:1600},t:6,eff:'农田×1.6'}],restrict:['平原','水乡']},
@@ -135,6 +143,7 @@ const BLDS={
 /** v172: 势力演进阶段常量 */
 
 // 豪族支持度按阶段 clamp 的上下限（军阀强权保底25+不得拥戴封70；其他完全解锁）
+// ── owner: politics chain ── (stage 阶段演进系统)
 const STAGE_GENTRY_BOUNDS = {
   warlord:  { min:25, max:70 },
   regional: { min:0,  max:100 },
@@ -142,6 +151,7 @@ const STAGE_GENTRY_BOUNDS = {
 };
 
 // 晋升条件参数
+// ── owner: politics chain ──
 const STAGE_PROMO = {
   toRegional: { stateMinCities:3, stateDurationTurns:18, totalMinCities:5 },
   toRegime:   { totalMinCities:10, stateMinCities:2, requireStates:2 },
@@ -155,6 +165,7 @@ const STAGE_PROMO = {
 // ═══════════════════════════════════════
 
 /** 攻城胜利后处置选项 */
+// ── owner: military chain ── (攻城后处置主入军事,含 ethosShocks 触发 ethos)
 const SIEGE_AFTERMATH = {
   pacify:   { label:'安民', desc:'秋毫无犯，安抚百姓', goldMult:0, moraleMod:10, popMult:1.0, gentryMod:5, repCost:0, ethosShocks:{military:-6, civil:-3} },
   loot:     { label:'劫掠', desc:'纵兵劫掠，充实军资', goldMult:0.4, moraleMod:-20, popMult:0.9, gentryMod:-15, repCost:-3, ethosShocks:{military:8, civil:5} },
@@ -162,6 +173,7 @@ const SIEGE_AFTERMATH = {
 };
 
 /** 宣称类型定义 */
+// ── owner: diplomacy chain ──
 const CLAIM_TYPES = {
   imperial_decree:    { label:'奉旨讨逆', strength:'strong', prepTime:0, reqIdentity:['emperor_holder'], reqTarget:null, reqCondition:null, repCost:0, hanRoyalPenalty:true, desc:'以天子诏令讨伐不臣' },
   restore_han:        { label:'讨贼兴汉', strength:'strong', prepTime:2, reqIdentity:['han_royal'],      reqTarget:['emperor_holder','emperor'], reqCondition:null, repCost:0, desc:'以汉室正统讨伐篡逆之臣' },
@@ -174,6 +186,7 @@ const CLAIM_TYPES = {
 };
 
 /** 宣称强度→外交/内政效果表 */
+// ── owner: diplomacy chain ── (applyWarDeclarationEffects 主入参)
 const CLAIM_EFFECTS = {
   strong: { repCost:0,  thirdPartyRel:0,   gentryHook:10,  fac:{ '汉室死忠':3, '士族':1, hawk:3, dove:0, founding:1 } },
   medium: { repCost:0,  thirdPartyRel:0,   gentryHook:0,  fac:{ '汉室死忠':0, '士族':0, hawk:2, dove:-1, founding:0 } },
@@ -182,6 +195,7 @@ const CLAIM_EFFECTS = {
 };
 
 /** 称帝时一次性派系影响 */
+// ── owner: diplomacy chain ── (称帝走外交链 doEnthrone)
 const ENTHRONE_FACTION_EFFECTS = {
   warlord:        { '汉室死忠':-15, '士族':-5, hawk:3, dove:-2, founding:3, royalty:5 },
   emperor_holder: { '汉室死忠':-12, '士族':-3, hawk:3, dove:-1, founding:3, royalty:5 },
@@ -189,14 +203,17 @@ const ENTHRONE_FACTION_EFFECTS = {
 };
 
 // ★ v113: 扩编系统常量
+// ── owner: military chain ──
 const SQUAD_MAX_TROOPS = 7000;   // 单squad兵力天花板
 const UNIT_MAX_TROOPS  = 21000;  // 单部队总兵力天花板（7000×3）
 
 // 可驻扎休整的核心城市（各势力2座）
 // ★ v113: Billet重做——遣散休整保留老兵
+// ── owner: military chain ──
 const BILLET_LEVEL_THRESHOLD = 7; // 部队等级≥此值才值得billet（低于此直接裁军）
 
 // ── range B: §C TECH_TREE + TECH_PREUNLOCK + JUNS (原 L995-L1143, 149 行) ──
+// ── owner: politics chain ── (科技研究主入政治链 P1.b)
 const TECH_TREE = {
   // ── 经济枝（INT）──
   econ1:  {name:'农桑初兴',branch:'经济',icon:'🌾',prereq:[],           cost:{gold:600,wood:400},  turns:6,  stat:'int', expReward:5,
@@ -312,6 +329,7 @@ const TECH_TREE = {
 };
 
 // 开局预解锁
+// ── owner: politics chain ──
 const TECH_PREUNLOCK = {
   wei: ['mil1','econ4','pol1'],
   shu: ['train1','civ1','pol1'],
@@ -332,6 +350,7 @@ const TECH_PREUNLOCK = {
 // 地图基础设施 M0 (section header,L1404-L1408) 已抽离到 src/core/map.js (Session 3.11 Commit 1)
 
 // ─── 郡 ───
+// ── owner: cross-chain (multiple consumers) ── (郡数据,军事/政治/经济共用)
 const JUNS = {
   siyujun:    {name:'司豫郡',  fac:'wei'},
   heluojun:   {name:'河洛郡',  fac:'wei'},
@@ -348,6 +367,7 @@ const JUNS = {
 };
 
 // ── range C: §G+§H 腐败 + 派系定义 + 官职 + 朝议提案 (原 L1700-L1871, 172 行) ──
+// ── owner: economy chain ── (腐败 calcCityCorruption 主入经济链 E2)
 const CORRUPT_PER_CITY = 0.02;   // 每多1城 +2% 基础腐败率
 const CORRUPT_FREE_CITIES = 3;   // 3城以下无腐败
 const CORRUPT_CAP = 0.30;        // 基础腐败率上限30%
@@ -367,6 +387,7 @@ const CORRUPT_CAP = 0.30;        // 基础腐败率上限30%
 // 政治链 P2 (阶段演进,L4163-L4352) 已抽离到 src/chains/politics.js
 
 
+// ── owner: cross-chain (general + gentry) ── (派系定义,武将链 GEN5.b 派系系统 + 豪族链州派系映射)
 const FACTION_DEFS = [
   {id:'founding',          label:'创始团队', baseMult:1.5},
   {id:'royalty',           label:'宗亲',     baseMult:1.0},
@@ -392,6 +413,7 @@ const FACTION_DEFS = [
 
 /** 官职规模档位（按城市数 — 仅 tier3/tier2 名额，tier1 由 stage 决定）
  *  ★ v181: 拆耦合 — POST_TIERS 只管 tier3/tier2，tier1 走 STAGE_TIER1_SLOTS */
+// ── owner: politics chain ── (官职任命 D1 系统)
 const POST_TIERS = [
   {minCities:10, label:'王', mil:[6,4], civ:[6,4]},  // [tier3, tier2]
   {minCities:6,  label:'公', mil:[5,3], civ:[5,3]},
@@ -400,6 +422,7 @@ const POST_TIERS = [
 ];
 
 /** ★ v181: stage 决定的 tier1 名额（武/文）— 只有政权阶段才能任 tier1 */
+// ── owner: politics chain ──
 const STAGE_TIER1_SLOTS = {
   warlord:  {mil:0, civ:0},
   regional: {mil:0, civ:0},
@@ -408,6 +431,7 @@ const STAGE_TIER1_SLOTS = {
 
 /** ★ v181: stage 卡 label 上限 — 军阀至多"诸侯"，一方之主至多"公"，政权至"王"
  *  即使城市数推到王档，stage 不够也只能用上限的 label */
+// ── owner: politics chain ──
 const STAGE_LABEL_CAP = {
   warlord:  '诸侯',
   regional: '公',
@@ -415,6 +439,7 @@ const STAGE_LABEL_CAP = {
 };
 
 /** 武官定义 */
+// ── owner: politics chain ──
 const MIL_POSTS = {
   tier1: [
     {name:'大将军', tier:1, track:'mil', merit:60, loyalty:0.40, salary:50,
@@ -438,6 +463,7 @@ const MIL_POSTS = {
 };
 
 /** 文官定义 */
+// ── owner: politics chain ──
 const CIV_POSTS = {
   tier1: [
     {name:'丞相', tier:1, track:'civ', merit:50, loyalty:0.40, salary:45,
@@ -461,12 +487,14 @@ const CIV_POSTS = {
 };
 
 /** 所有官职平铺表（方便查找） */
+// ── owner: politics chain ── (IIFE 派生 from MIL_POSTS + CIV_POSTS)
 const ALL_POSTS = [
   ...MIL_POSTS.tier1, ...MIL_POSTS.tier2, ...MIL_POSTS.tier3,
   ...CIV_POSTS.tier1, ...CIV_POSTS.tier2, ...CIV_POSTS.tier3,
 ];
 
 /** 初始功绩值（开局势力武将） */
+// ── owner: politics chain ── (功绩属官职任命系统)
 const MERIT_INIT = {
   // 魏
   曹操:150, 张辽:95, 郭嘉:85, 夏侯惇:90, 荀彧:100, 曹仁:85, 乐进:65,
@@ -494,6 +522,7 @@ const MERIT_INIT = {
  *  ★ v181: 城市数定基础档，但 stage 设上下限 cap：
  *    warlord 至多"诸侯"；regional 至少"侯"至多"公"；regime 至少"侯"至多"王"
  *    下限存在意义：失城但 stage 不降级时，叙事上仍保持政权身份的最低尊严 */
+// ── owner: politics chain ──
 const STAGE_LABEL_FLOOR = {
   warlord:  '诸侯',
   regional: '侯',
@@ -508,12 +537,14 @@ const STAGE_LABEL_FLOOR = {
 // I3 朝议系统 — 每季度tier1/2官员提案，玩家4选2
 // ═══════════════════════════════════════════════════════
 
+// ── owner: politics chain ── (朝议 I3 提案系统)
 const COURT_PROPOSALS_MIL = [
   {id:'conscript',  name:'征兵令',   desc:'全势力征兵费-15%',          buffKey:'recruitCost', baseVal:-0.15, statScale:'com', scaleDesc:'征兵费'},
   {id:'upkeep',     name:'扩军备战', desc:'全势力部队维护费-10%',      buffKey:'upkeep',      baseVal:-0.10, statScale:'com', scaleDesc:'维护费'},
   {id:'reinforce',  name:'充员令',   desc:'全势力补员速度+10%',        buffKey:'reinforce',   baseVal:0.10,  statScale:'com', scaleDesc:'补员'},
   {id:'milBuild',   name:'军防工程', desc:'全境城墙·兵营建设成本-30%', buffKey:'milBuildCost',baseVal:-0.30, statScale:'com', scaleDesc:'军建成本'},
 ];
+// ── owner: politics chain ──
 const COURT_PROPOSALS_CIV = [
   {id:'farm',    name:'劝农令', desc:'全势力粮食产出+12%',      buffKey:'foodProd',    baseVal:0.12,  statScale:'pol', scaleDesc:'粮产'},
   {id:'trade',   name:'兴商令', desc:'全势力金币产出+10%',      buffKey:'goldProd',    baseVal:0.10,  statScale:'pol', scaleDesc:'金产'},

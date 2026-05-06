@@ -2294,8 +2294,7 @@ function resolvePrisoners(prisonerNames, capturerFid, isPlayer){
 // ════════════════════════════════════════════════════════════════════
 
 // ★ v131: D1拜将大典——多选面板
-// TODO(phase-3): _applyCeremony is 100% mechanism (verified phase 2 review),
-// will be moved to chains/ during phase 3 mechanism extraction.
+// closes phase-2 carry-over: _applyCeremony moved from src/render/ceremonies.js → here at phase 3.12 (mechanism 归位)
 function _applyCeremony(picked, fid){
   // ★ v133: 标记已封，不再触发
   if(!G._eventFired) G._eventFired={};

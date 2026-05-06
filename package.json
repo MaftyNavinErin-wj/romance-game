@@ -5,7 +5,7 @@
   "description": "Project Romance — refactor harness (smoke test only; game itself is plain HTML/JS, not npm-managed).",
   "scripts": {
     "smoke": "node tests/smoke.js",
-    "compare": "node tests/compare.js",
+    "compare": "node tests/compare.js tests/baseline/data_completion_complete.json tests/current.json",
     "test": "npm run smoke && npm run compare"
   },
   "devDependencies": {
