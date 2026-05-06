@@ -13931,6 +13931,14 @@ function _execSetCamp(fid, act) {
   if (!unit) { console.warn('[ClaudeAI] set_camp: 找不到部队', act.leader); return false; }
   if (unit.status === 'garrison') { console.warn('[ClaudeAI] set_camp: 城内驻守无需扎营', act.leader); return false; }
   if ((unit.mobilizingTurns || 0) > 0) { console.warn('[ClaudeAI] set_camp: 整备中', act.leader); return false; }
+  // D-016 fix: 扣金 + 木资源（模仿玩家 setCamp src/chains/military.js:7344-7345，原本免费扎营 exploit）
+  const fac = G.factions[fid];
+  if (!fac) return false;
+  const _cc = getCampCost(fid);
+  if ((fac.res.gold || 0) < _cc.gold) { console.warn('[ClaudeAI] set_camp: 金钱不足', _cc.gold); return false; }
+  if ((fac.res.wood || 0) < _cc.wood) { console.warn('[ClaudeAI] set_camp: 木材不足', _cc.wood); return false; }
+  safeSub(fac.res, 'gold', _cc.gold);
+  safeSub(fac.res, 'wood', _cc.wood);
   unit.status = 'camp';
   unit.hexPath = [];
   return true;
