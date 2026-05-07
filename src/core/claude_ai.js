@@ -1094,7 +1094,6 @@ contingency列出2-3个"如果...则..."的预案，覆盖最可能的意外情�
 - {"type":"set_ambush","army_leader":"将名(中文)"} — 设伏
 - {"type":"cancel_special","army_leader":"将名(中文)"}
 - {"type":"cancel_siege","army_leader":"将名(中文)"} — 取消围城转 halt
-- {"type":"billet","army_leader":"将名(中文)","city":"城市ID(大城)"} — 休整遣散
 - {"type":"disband","army_leader":"将名(中文)"}
 - {"type":"set_tax","level":"none/low/norm/heavy/harsh"}
 - {"type":"set_corvee","level":"low/mid/high"} — 徭役档位(low不征/mid加速建设但-民心/high加速更多但代价更大)
@@ -1403,14 +1402,14 @@ function executeClaudeActions(fid, actions) {
 
   // 按类型分组排序：内政→人事→科技→外交→计谋→军事（经济先行，军事殿后）
   const ORDER = {
-    build:1, set_tax:1, set_corvee:1, set_prefect:1, transfer_food:1, toggle_resupply:1, cancel_supply:1,
+    build:1, set_tax:1, set_corvee:1, set_prefect:1, transfer_food:1, toggle_resupply:1,
     appoint_post:2, dismiss_post:2, set_strategist:2, recruit_wild:2, poach:2,
     research:3,
     declare_war:4, propose_alliance:4, break_alliance:4, accept_peace:4, reject_peace:4,
     start_claim:4, diplo_gift:4, diplo_armistice:4, diplo_demand_vassal:4, diplo_submit_vassal:4, diplo_release_vassal:4,
     scheme_drive_wolf:5, scheme_two_tigers:5, scheme_spy:5, scheme_rumor:5, scheme_scout:5,
     move:6, attack:6, recruit:6, add_squad:6, disband:6, set_camp:6, set_ambush:6,
-    cancel_special:6, cancel_siege:6, billet:6, set_reinforce_policy:6,
+    cancel_special:6, cancel_siege:6, set_reinforce_policy:6,
     enthrone:7, event_choice:8, court_choice:8
   };
   const sorted = [...actions].sort((a, b) => (ORDER[a.type] || 99) - (ORDER[b.type] || 99));
@@ -1445,7 +1444,6 @@ function _execOneAction(fid, act) {
     case 'set_prefect': return _execSetPrefect(fid, act);
     case 'transfer_food': return _execTransferFood(fid, act);
     case 'toggle_resupply': return _execToggleResupply(fid, act);
-    case 'cancel_supply': return _execCancelSupply(fid, act);
     // ════ 人事 ════
     case 'appoint_post': return _execAppointPost(fid, act);
     case 'dismiss_post': return _execDismissPost(fid, act);
@@ -1479,7 +1477,6 @@ function _execOneAction(fid, act) {
     case 'set_ambush': return _execSetAmbush(fid, act);
     case 'cancel_special': return _execCancelSpecial(fid, act);
     case 'cancel_siege': return _execCancelSiege(fid, act);
-    case 'billet': return _execBillet(fid, act); // ★ v159fix: 休整遣散
     case 'set_reinforce_policy': return _execSetReinforcePolicy(fid, act); // ★ v159fix
     // ════ 特殊 ════
     case 'enthrone': return _execEnthrone(fid, act);
