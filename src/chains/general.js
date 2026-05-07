@@ -1140,18 +1140,8 @@ function _aiDoPoach(genName, fid, srcFid, cost){
   if(!gen || !fac) return;
   safeSub(fac.res, 'gold', cost);
 
-  const ruler = (G.generals[fid] || []).find(g => g.role === 'ruler');
-  const chaBonus = ruler ? (ruler.cha - 60) / 100 * 0.3 : 0;
-  const loyPenalty = (G.genLoyalty[genName] ?? 30) / 100 * 0.2;
-  const regionB = calcRegionRecruitBonus(genName, fid).bonus * 0.5;
-  const clanB = calcClanRecruitBonus(genName, fid).bonus * 0.5;
-  const gentryB = calcGentryRecruitBonus(genName, fid).bonus * 0.5;
-  const rate = Math.min(0.85, Math.max(0.2, 0.45 + chaBonus + (0.35 - loyPenalty) + regionB + clanB + gentryB));
-  // ★ v124: 投机标签被挖角成功率+20%
-  const _poachMeta = getGenMeta(genName);
-  let _poachRate = ((_poachMeta.values||[]).includes('投机')) ? Math.min(0.90, rate + 0.20) : rate;
-  // TEMPERAMENT: cunning — 被挖角成功率+5%
-  if((GEN_TAGS[genName]||{}).temperament === 'cunning') _poachRate = Math.min(0.90, _poachRate + 0.05);
+  // ★ batch-23 D-065: 改用 _calcPoachRate 共享 helper (5 项 buff 与玩家路径对称)
+  const _poachRate = _calcPoachRate(genName, fid);
 
   if(Math.random() < _poachRate){
     // ★ v119fix: 挖角前清除原势力职务 + 从部队squads移除
@@ -1609,6 +1599,35 @@ function checkLoyaltyThresholds(){
 }
 
 /**
+ * D-065 helper: 共享挖角成功率公式 (玩家 / 传统 AI / Claude AI 三路径共用)
+ * 历史 bug: 玩家公式 (poachGen) 与 AI 公式 (_aiDoPoach) 5 项 buff 不对称
+ *   - 玩家独有: _techPoach (科技) / 陈群九品 / 黄权持节
+ *   - AI 独有: 投机 +0.20 / cunning +0.05
+ * batch-23 修法: 全 5 项 buff 进 helper, clamp 统一 [0.20, 0.85] (投机/cunning 突破 85% 的特权取消)
+ */
+function _calcPoachRate(genName, byFid){
+  const ruler = (G.generals[byFid] || []).find(g => g.role === 'ruler');
+  const chaBonus = ruler ? (ruler.cha - 60) / 100 * 0.3 : 0;
+  const loyPenalty = (G.genLoyalty[genName] ?? 30) / 100 * 0.2;
+  const regionB = calcRegionRecruitBonus(genName, byFid).bonus * 0.5;
+  const clanB = calcClanRecruitBonus(genName, byFid).bonus * 0.5;
+  const gentryB = calcGentryRecruitBonus(genName, byFid).bonus * 0.5;
+  const _techPoach = getTechEffect(byFid, 'captureRateBonus'); // ★ v115 唯才是举
+  // SKILL_INLINE: jiupin_poach — 陈群九品: byFid 有陈群当官 → +5%
+  const _chenqun = (hasFacGen(byFid, '陈群') && genHasOffice('陈群', byFid)) ? 0.05 : 0;
+  // SKILL_INLINE: chijie_poach — 黄权持节: 被挖时 -20%
+  const _huangquan = (genName === '黄权') ? -0.20 : 0;
+  // ★ v124: 投机 values 武将被挖 +20%
+  const _meta = getGenMeta(genName);
+  const _toushui = ((_meta.values || []).includes('投机')) ? 0.20 : 0;
+  // TEMPERAMENT: cunning 武将被挖 +5%
+  const _cunning = ((GEN_TAGS[genName] || {}).temperament === 'cunning') ? 0.05 : 0;
+  const raw = 0.45 + chaBonus + (0.35 - loyPenalty) + regionB + clanB + gentryB
+    + _techPoach + _chenqun + _huangquan + _toushui + _cunning;
+  return Math.min(0.85, Math.max(0.20, raw));
+}
+
+/**
  * 玩家挖角操作：花钱挖角可挖角武将
  */
 function poachGen(genName){
@@ -1626,8 +1645,6 @@ function poachGen(genName){
   const lastAttempt = G._poachCooldown[genName] || 0;
   if(lastAttempt + 3 > G.turn) return showNotif(`${genName}近期已被接触过，需等${lastAttempt + 3 - G.turn}旬`, 'warn');
 
-  const meta = getGenMeta(genName);
-  const _techPoach = getTechEffect(G.playerFac, 'captureRateBonus'); // ★ v115
   const _techPoachCost = getTechEffect(G.playerFac, 'poachCostMult'); // ★ v115: 唯才是举
   const topStat = Math.max(gen.com, gen.war, gen.int, gen.pol, gen.cha);
   const cost = Math.floor((topStat >= 90 ? 3000 : 1500) * (1 + _techPoachCost));
@@ -1639,20 +1656,8 @@ function poachGen(genName){
   safeSub(pf.res, 'gold', cost);
   G._poachCooldown[genName] = G.turn;
 
-  // 成功率：基于玩家君主魅力 + 目标忠诚度 + 同乡同族同士族
-  const ruler = G.generals[G.playerFac]?.find(g => g.role === 'ruler');
-  const chaBonus = ruler ? (ruler.cha - 60) / 100 * 0.3 : 0;
-  const loyPenalty = (G.genLoyalty[genName] ?? 30) / 100 * 0.2; // 忠诚越低越容易
-  // ★ B5: 同乡/同族/同士族加成（挖角场景×0.5）
-  const regionB = calcRegionRecruitBonus(genName, G.playerFac).bonus * 0.5;
-  const clanB = calcClanRecruitBonus(genName, G.playerFac).bonus * 0.5;
-  const gentryB = calcGentryRecruitBonus(genName, G.playerFac).bonus * 0.5;
-  const rate = Math.min(0.85, Math.max(0.2, 0.45 + chaBonus + (0.35 - loyPenalty) + regionB + clanB + gentryB + _techPoach
-    // SKILL_INLINE: jiupin_poach — 陈群九品：当官时挖角率+5%
-    + (hasFacGen(G.playerFac, '陈群') && genHasOffice('陈群', G.playerFac) ? 0.05 : 0)
-    // SKILL_INLINE: chijie_poach — 黄权持节：被挖角概率-20%
-    - (genName === '黄权' ? 0.20 : 0)
-  ));
+  // ★ batch-23 D-065: 改用 _calcPoachRate 共享 helper (5 项 buff 与 AI 路径对称)
+  const rate = _calcPoachRate(genName, G.playerFac);
 
   if(Math.random() < rate){
     // 成功
