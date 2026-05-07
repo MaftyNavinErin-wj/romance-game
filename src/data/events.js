@@ -453,14 +453,11 @@ const EVENT_DEFS = [
             if(G.loyaltyAccum) G.loyaltyAccum[rName]=G.genLoyalty[rName];
             addIntimacy(rName, wName, 15);
           }},
-        { label:'② 考察再议', desc:`3旬后自动加入，初始忠诚${initLoy-10}（等久了不满）`,
-          effect(){
-            if(!G.wildPool.includes(wName)){ log(`${wName}已另投他处`,'event'); return; }
-            // 用promise机制延迟加入
-            G._eventPromises.push({genName:wName,fid,type:'B4_delayed',promisedAt:G.turn,deadline:G.turn+3,
-              _b4data:{wildName:wName,referrerName:rName,initLoy:initLoy-10}});
-          }},
-        { label:'③ 婉拒', desc:`${rName}忠-8，${wName}6旬内不再来投`,
+        // D-133 fix: ② 考察再议 (B4_delayed 3 旬后自动加入) 删除 (audit verdict=closes via deletion).
+        // 原机制 push 后立即被 checkEventPromises 静默清除 (在野武将不在 G.generals[fid]),
+        // "3 旬后自动加入"功能从 v130 引入起就完全不工作. 简化玩家选项为"立即接纳/婉拒"二选一.
+        // 若未来要实装"考察期"玩法,在此恢复 ② 选项 + hubs.js B4_delayed deadline 路径即可 (sprint 之后的 small feature 候选).
+        { label:'② 婉拒', desc:`${rName}忠-8，${wName}6旬内不再来投`,
           effect(){
             if(G.genLoyalty[rName]!==undefined) G.genLoyalty[rName]=Math.max(0,G.genLoyalty[rName]-8);
             if(G.loyaltyAccum) G.loyaltyAccum[rName]=G.genLoyalty[rName];
