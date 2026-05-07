@@ -364,6 +364,8 @@ function diploAlly(target){
     applyEthosShock(G.playerFac, 'strategy', -2, '结盟'); // ★ v151
     // ★ B1 结盟=停战（鸽派+3，鹰派-2）
     if(ALL_FACS.includes(G.playerFac)) triggerFactionEvent('truce', G.playerFac, {});
+    // D-131 fix: 接口完整性 — 双向触发 truce（避免单向漏 target 派系激活）
+    if(ALL_FACS.includes(target)) triggerFactionEvent('truce', target, {});
   } else {
     const _hjAllyFail = hasFacGen(G.playerFac,'诸葛瑾') && genHasOffice('诸葛瑾',G.playerFac) ? 5 : 0;
     addDiplo(G.playerFac,target,2 + _hjAllyFail);
@@ -438,10 +440,80 @@ function diploWar(target, claimType){
   _syncAllyWarStatus(G.playerFac, target);
   // ★ C3: 宣称效果结算（替代旧的固定鹰鸽事件）
   applyWarDeclarationEffects(G.playerFac, target, claimType || null);
+  // D-049/D-131 fix: 真正宣战路径触发 warDeclare 派系事件（接口完整性不变量）
+  if(ALL_FACS.includes(G.playerFac)) triggerFactionEvent('warDeclare', G.playerFac, {});
   const ct = claimType ? CLAIM_TYPES[claimType] : null;
   const claimLabel = ct ? `以【${ct.label}】` : '无名';
   log(`⚔️ ${claimLabel}向${FAC[target]?.name}宣战！`,'diplo');
   renderRight();
+}
+
+// ════════════════════════════
+// 外交指令执行（参数化版，不依赖G.playerFac）
+// 本节起源:v181 L13577-L13630(batch-19.1 抽离 _execDeclareWar / _execProposeAlliance, D-049/D-131 prep)
+// _exec 归位架构债 sprint 整体推进时,剩 12 个外交 _exec 将集中迁入此节
+// ════════════════════════════
+
+function _execDeclareWar(fid, act) {
+  const target = _resolveFacId(act.target);
+  if (!target || target === fid) return false;
+  const k = `${fid}-${target}`, d = G.diplo[k];
+  if (!d || d.status !== 'neutral') return false;
+  // CD检查
+  const cdKey = `_diploCD_${fid}_${target}`;
+  if (G[cdKey] && G[cdKey] > 0) return false;
+  // 宣称
+  const claimType = act.claim || null;
+  d.status = 'enemy'; d._warDeclaredTurn = G.turn;
+  const rev = G.diplo[`${target}-${fid}`];
+  if (rev) { rev.status = 'enemy'; rev._warDeclaredTurn = G.turn; }
+  addDiplo(fid, target, -15);
+  G[cdKey] = 15;
+  // 背刺/反复检测
+  if (d._brokenAllyTurn != null && (G.turn - d._brokenAllyTurn) <= 6) {
+    d._betrayal = true; if (rev) rev._betrayal = true;
+    applyReputationPenalty(fid, 'betray');
+    // D-131 fix: _execDeclareWar 漏 betray 派系事件（diploWar L431 / aiDoDiplo L647 同模式）
+    if(ALL_FACS.includes(fid)) triggerFactionEvent('betray', fid, {});
+  }
+  if (d._peaceTurn != null && (G.turn - d._peaceTurn) <= 3) applyReputationPenalty(fid, 'relapse');
+  applyWarDeclarationEffects(fid, target, claimType);
+  _syncAllyWarStatus(fid, target);
+  // D-049/D-131 fix: 真正宣战路径触发 warDeclare 派系事件（接口完整性不变量）
+  if(ALL_FACS.includes(fid)) triggerFactionEvent('warDeclare', fid, {});
+  applyEthosShock(fid, 'strategy', 6, '主动宣战');
+  const ct = claimType ? CLAIM_TYPES[claimType] : null;
+  const claimLabel = ct ? `以【${ct.label}】` : '';
+  log(`⚔️ [AI] ${FAC[fid]?.name}${claimLabel}向${FAC[target]?.name}宣战！`, 'diplo');
+  _recordWarJournal(fid, `向${FAC[target]?.name}宣战${claimLabel}`); // ★ v159fix
+  return true;
+}
+
+function _execProposeAlliance(fid, act) {
+  const target = _resolveFacId(act.target);
+  if (!target || target === fid) return false;
+  const k = `${fid}-${target}`, d = G.diplo[k];
+  if (!d || d.status !== 'neutral') return false;
+  if (d.rel < 75) return false;
+  const fac = G.factions[fid];
+  if (fac.res.gold < 500) return false;
+  safeSub(fac.res, 'gold', 500);
+  const acceptRate = Math.max(0.02, peaceWillingness(target, fid) * 0.6 - _repPenaltyFactor(fid));
+  if (Math.random() < acceptRate) {
+    d.status = 'ally';
+    const rev = G.diplo[`${target}-${fid}`];
+    if (rev) rev.status = 'ally';
+    log(`🤝 [AI] ${FAC[fid]?.name}与${FAC[target]?.name}结盟！`, 'diplo');
+    applyEthosShock(fid, 'strategy', -2, '结盟');
+    // D-131 fix: _execProposeAlliance 成功结盟漏 truce 派系事件（_applyPeaceAgreement L273-274 双向模板）
+    if(ALL_FACS.includes(fid)) triggerFactionEvent('truce', fid, {});
+    if(ALL_FACS.includes(target)) triggerFactionEvent('truce', target, {});
+  } else {
+    fac.res.gold += 250;
+    addDiplo(fid, target, 2);
+    log(`❌ [AI] ${FAC[target]?.name}暂不接受${FAC[fid]?.name}的结盟请求`, 'diplo');
+  }
+  return true;
 }
 
 // ── 外交辅助：双向更新友好度 ──
@@ -651,6 +723,8 @@ function aiDoDiplo(fid){
           }
           // ★ C3: 宣称效果结算
           applyWarDeclarationEffects(fid, other, usedClaimType);
+          // D-049/D-131 fix: 真正宣战路径触发 warDeclare 派系事件（接口完整性不变量）
+          if(ALL_FACS.includes(fid)) triggerFactionEvent('warDeclare', fid, {});
           const ct = usedClaimType ? CLAIM_TYPES[usedClaimType] : null;
           const claimLabel = ct ? `以【${ct.label}】` : '';
           const isPlayerInvolved = fid===G.playerFac || other===G.playerFac;
@@ -1362,6 +1436,9 @@ function checkDiplo(){
     if(d.status==='neutral'&&d.rel>=80){
       d.status='ally';
       if(G.diplo[`${b}-${a}`]) G.diplo[`${b}-${a}`].status='ally';
+      // D-131 fix: 自动结盟漏 truce 派系事件（_applyPeaceAgreement L273-274 双向模板）
+      if(ALL_FACS.includes(a)) triggerFactionEvent('truce', a, {});
+      if(ALL_FACS.includes(b)) triggerFactionEvent('truce', b, {});
       log(`🤝 ${FAC[a]?.name}与${FAC[b]?.name}结成同盟！`,'diplo');
     } else if(d.status==='ally'&&d.rel<30){
       d.status='neutral';
@@ -1389,6 +1466,8 @@ function checkDiplo(){
       // 盟友联动 + 宣战副作用 hub（含 ethosShock/信誉/第三方/派系/豪族）（diploWar L438+L440 模板）
       _syncAllyWarStatus(a, b);
       applyWarDeclarationEffects(a, b, null);
+      // D-049/D-131 fix: 真正宣战路径触发 warDeclare 派系事件（接口完整性不变量）
+      if(ALL_FACS.includes(a)) triggerFactionEvent('warDeclare', a, {});
       log(`⚔️ ${FAC[a]?.name}与${FAC[b]?.name}关系破裂，进入敌对！`,'diplo');
     }
   }));

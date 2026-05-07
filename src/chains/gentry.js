@@ -632,6 +632,8 @@ function _triggerGentryBetray(cityId, siegingFac){
   if(oldFac !== 'rebel' && siegingFac !== 'rebel') addDiplo(siegingFac, oldFac, -5);
   // D-031 fix: 开城易主补 _applySiegeAftermath（修补"围城方白嫖一座城无收入/处置选项"漏洞，'pacify' 安民与开城温和语义匹配）
   if(siegingFac !== 'rebel') _applySiegeAftermath(cityId, siegingFac, 'pacify');
+  // D-045/D-131 fix: 豪族开城迎降 = 攻方占城，触发 conquer 派系事件（military.js:5942 标准攻城同模式，鹰派 +3）
+  if(ALL_FACS.includes(siegingFac)) triggerFactionEvent('conquer', siegingFac, {});
 
   log(`⚠ ${cityName}豪族举事，开城迎降${siegingName}！`, 'event');
   if(oldFac === G.playerFac || siegingFac === G.playerFac){

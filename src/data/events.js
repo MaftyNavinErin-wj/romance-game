@@ -1284,6 +1284,8 @@ const EVENT_DEFS = [
             // ★ v179fix P37: 走全套无名宣战副作用（信誉-/第三方-/派系冲击/ethos shock）
             // 斩使=无理由开战，按 'none' 宣称强度惩罚；与 14282/14490/37343 路径一致
             applyWarDeclarationEffects(fid, ctx.targetFid, null);
+            // D-049/D-131 fix: 斩使立威是 de facto 宣战，触发 warDeclare 派系事件（接口完整性不变量）
+            if(ALL_FACS.includes(fid)) triggerFactionEvent('warDeclare', fid, {});
             _aiInvalidateThreatCache();
             // 全军士气+5
             G.units.filter(u=>u.fac===fid).forEach(u=>{

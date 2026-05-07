@@ -13574,60 +13574,7 @@ function _execResearch(fid, act) {
 // 外交指令执行（参数化版，不依赖G.playerFac）
 // ════════════════════════════
 
-function _execDeclareWar(fid, act) {
-  const target = _resolveFacId(act.target);
-  if (!target || target === fid) return false;
-  const k = `${fid}-${target}`, d = G.diplo[k];
-  if (!d || d.status !== 'neutral') return false;
-  // CD检查
-  const cdKey = `_diploCD_${fid}_${target}`;
-  if (G[cdKey] && G[cdKey] > 0) return false;
-  // 宣称
-  const claimType = act.claim || null;
-  d.status = 'enemy'; d._warDeclaredTurn = G.turn;
-  const rev = G.diplo[`${target}-${fid}`];
-  if (rev) { rev.status = 'enemy'; rev._warDeclaredTurn = G.turn; }
-  addDiplo(fid, target, -15);
-  G[cdKey] = 15;
-  // 背刺/反复检测
-  if (d._brokenAllyTurn != null && (G.turn - d._brokenAllyTurn) <= 6) {
-    d._betrayal = true; if (rev) rev._betrayal = true;
-    applyReputationPenalty(fid, 'betray');
-  }
-  if (d._peaceTurn != null && (G.turn - d._peaceTurn) <= 3) applyReputationPenalty(fid, 'relapse');
-  applyWarDeclarationEffects(fid, target, claimType);
-  _syncAllyWarStatus(fid, target);
-  applyEthosShock(fid, 'strategy', 6, '主动宣战');
-  const ct = claimType ? CLAIM_TYPES[claimType] : null;
-  const claimLabel = ct ? `以【${ct.label}】` : '';
-  log(`⚔️ [AI] ${FAC[fid]?.name}${claimLabel}向${FAC[target]?.name}宣战！`, 'diplo');
-  _recordWarJournal(fid, `向${FAC[target]?.name}宣战${claimLabel}`); // ★ v159fix
-  return true;
-}
-
-function _execProposeAlliance(fid, act) {
-  const target = _resolveFacId(act.target);
-  if (!target || target === fid) return false;
-  const k = `${fid}-${target}`, d = G.diplo[k];
-  if (!d || d.status !== 'neutral') return false;
-  if (d.rel < 75) return false;
-  const fac = G.factions[fid];
-  if (fac.res.gold < 500) return false;
-  safeSub(fac.res, 'gold', 500);
-  const acceptRate = Math.max(0.02, peaceWillingness(target, fid) * 0.6 - _repPenaltyFactor(fid));
-  if (Math.random() < acceptRate) {
-    d.status = 'ally';
-    const rev = G.diplo[`${target}-${fid}`];
-    if (rev) rev.status = 'ally';
-    log(`🤝 [AI] ${FAC[fid]?.name}与${FAC[target]?.name}结盟！`, 'diplo');
-    applyEthosShock(fid, 'strategy', -2, '结盟');
-  } else {
-    fac.res.gold += 250;
-    addDiplo(fid, target, 2);
-    log(`❌ [AI] ${FAC[target]?.name}暂不接受${FAC[fid]?.name}的结盟请求`, 'diplo');
-  }
-  return true;
-}
+// _execDeclareWar / _execProposeAlliance 已抽离到 src/chains/diplomacy.js (batch-19.1, D-049/D-131 prep)
 
 function _execBreakAlliance(fid, act) {
   const target = _resolveFacId(act.target);
