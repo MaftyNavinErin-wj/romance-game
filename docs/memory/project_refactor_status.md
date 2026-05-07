@@ -1,22 +1,38 @@
 ---
-name: Refactor phase status — phase 3 + dc 收官 + sprint 17 batches 完成
-description: Phase 3 + data-completion 收官 + sprint 17 batches done (main 56304dd). v181 39547 → 15656 (-60.4%). 27 src/. 9 工作流原则 + streamline 模式 trial 3. 政治 3 HIGH 全收尾 / 外交 5 修 4 / 武将 7 修 6 / 军事 6 修 4. batch-17 首次触发算法回路类 smoke FAIL acceptable.
+name: Refactor phase status — phase 3 + dc 收官 + sprint 20 batches 完成
+description: Phase 3 + data-completion 收官 + sprint 20 batches done (main 64f6d89). v181 39547 → 15601 (-60.6%). 28 src/. 工作流原则 9 + #15 接口完整性 invariant + streamline trial 3. 政治+外交 全收尾 / 武将 9/10 / 军事 4/6 / 事件 2/2. batch-20 D-053+D-133 closes via deletion (claude.ai 决策走删除).
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
-**截至 2026-05-07 的状态(每次 session 启动前请用 git log 校验,不抄)**:**重构 + 数据补完整体收官 + D 类 sprint 进行中,共 17 batches 完成 (1a / 2 / 3-6 单独 push / 7-10 streamline / 11-14 streamline / 15-17 streamline)**。
+**截至 2026-05-07 的状态(每次 session 启动前请用 git log 校验,不抄)**:**重构 + 数据补完整体收官 + D 类 sprint 进行中,共 20 batches 完成 (1a / 2 / 3-6 单独 / 7-10 / 11-14 / 15-17 streamline / 18 / 19 architectural / 20 单独 push)**。
 
-**HIGH 进度** (修 17 / 总 27):
+**HIGH 进度** (修 22 / 总 27):
 - 政治链 3 HIGH: **全收尾 ✅** (D-076 / D-077 / D-084)
-- 外交链 5 HIGH: 修 4 (D-091/D-104/D-113/D-120),剩 D-117c 新模式
-- 武将链 7 HIGH: 修 6 (D-051/D-055/D-061/D-063/D-064/D-048),剩 D-052 算法 / D-053 实装 / D-065 复杂
-- 军事链 6 HIGH: 修 4 (D-021/D-016/D-031/D-035),剩 D-020 (_execBillet 功能错位需重写) / D-026 (大乱易主)
+- 外交链 5 HIGH: **全收尾 ✅** (D-091/D-104/D-113/D-117c/D-120)
+- 武将链 10 HIGH: 修 9 (+batch-20 D-053 删除),剩 D-052 / D-065
+- 军事链 6 HIGH: 修 4,剩 D-020 / D-026
 - 价值观链 1 HIGH: 剩 D-121 (跨链复杂)
-- 事件链 2 HIGH: 剩 D-131 / D-133
+- 事件链 2 HIGH: **全收尾 ✅** (batch-19 D-131 + batch-20 D-133 删除)
 
-**v179fix P15c 三部曲已收尾**(D-091 + D-113 + D-104)。
-**Streamline 模式 trial 1+2+3 完成**(batch-7-10 / 11-14 / 15-17)。
-**batch-17 首次触发算法回路类 smoke FAIL acceptable**(sprint_followup §一 预期场景,_applySiegeAftermath cascading)。
+**batch-19 架构 robust 选项 D 重大落地 (2026-05-07)**:
+- 19.1 verbatim 抽 _execDeclareWar + _execProposeAlliance 从 v181 到 src/chains/diplomacy.js (前置抽离消除 v181 可读不可写约束)
+- 19.2 11 caller 补 triggerFactionEvent (warDeclare 5 / truce 3 双向 / betray 1 / conquer 1)
+- 19.3 tests/checkers/faction_event_invariant.js — audit §20451 自动化 checker 落地, curated whitelist + bidirectional 支持
+- 同步 close D-049 + D-131 + D-045 (跨链)
+- codex review LGTM (7 关注点 verify, 提 3 非阻塞增强建议留 followup)
+
+**batch-20 closes via deletion 模式 (2026-05-07, 跟 D-099 cancel_supply 同模式)**:
+- D-053 删 applyLoyaltyEvent city_lost/siege_broken 分支 (设计意图: 丢城忠诚通过 processLoyalty 势力衰退维度间接体现)
+- D-133 删 gen_referral ② 考察再议 + hubs.js B4_delayed 处理 (B4_delayed 从 v130 起完全失效, 死代码多年)
+- 玩家弹窗简化: gen_referral 3 项 → 2 项 (① 立即接纳 / ② 婉拒, 原 ② 考察再议删除原 ③ 婉拒 renumber 为 ②)
+- codex trial 1 NEEDS-WORK (③→② renumber UX bug) → trial 2 LGTM (renumber fixed + dead-code token in comments DEFER 接受)
+- B4_delayed 实装值得做但放 sprint 之后的 small feature 阶段, 不在 sprint 加 feature
+
+**v179fix P15c 平行 bug 三连收尾**(D-104 + D-113 + D-117c,batch-6 / 5 / 18)。
+**Streamline 模式 trial 1+2+3 完成**(batch-7-10 / 11-14 / 15-17),batch-18 / 19 走单独 push (大批 architectural 不混 streamline)。
+**batch-17 首次触发算法回路类 smoke FAIL acceptable**(sprint_followup §一 预期场景)。
+**batch-18 baseline staleness pre-existing**(eventCooldown 结构,非本 batch 引入)。
+**batch-19 cascading smoke ~13K 行 acceptable**(triggerFactionEvent → genFactionMod → 武将忠诚下游传播,sprint_followup §一 算法回路类典型)。
 
 **跳过 / 留 followup 类型**:
 - D-052 算法回路双向 4 项缺漏 (smoke baseline 不再守底, 需新验证机制)
@@ -59,8 +75,11 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 
 ## 终态(已 push 到 origin)
-- **main HEAD: `56304dd sprint(batch-15-17): 3 HIGH 集中` (origin/main)**
+- **main HEAD: `64f6d89 sprint(batch-20): D-053 + D-133 删 dead code` (origin/main)**
 - sprint 历史 (main 上):
+  - `64f6d89` sprint(batch-20): D-053+D-133 closes via deletion (净 -27 行死代码)
+  - `f6f3b9e` sprint(batch-19): D-049+D-131+D-045 architectural robust 3 sub-batch squash (抽 _exec + 11 caller + invariant checker)
+  - `6f03407` sprint(batch-18): D-117c HIGH checkDiplo 自动宣战 5 项副作用补全
   - `56304dd` sprint(batch-15-17): 3 HIGH streamline (D-031+D-035+D-048)
   - `80cc4fc` sprint(batch-11-14): 4 HIGH streamline (D-016+D-051+D-055+D-076)
   - `ea55af5` sprint(batch-7-10): 4 HIGH streamline (D-061+D-063+D-064+D-084)
@@ -93,12 +112,19 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 ## How to apply
 
 **新对话启动时**:
-1. `git log --oneline -8 main` 校验 HEAD = `ea55af5` (batch-7-10 集中 squash 后)
+1. `git log --oneline -8 main` 校验 HEAD = `64f6d89` (batch-20 单独 push 后)
 2. **重构 + dc 整体收官**, 不再做 phase 3 / dc 任何事
-3. **D 类 sprint 进行中**: 10 batches 完成 (1a / 2 / 3-6 单独 push / 7-10 streamline 集中 push)
-4. **HIGH 进度**: 外交链 5 修 4 (D-091/D-104/D-113/D-120, 剩 D-117c) / 政治 3 修 2 (D-077/D-084, 剩 D-076) / 武将 7 修 3 (D-061/D-063/D-064, 剩 D-052/D-053/D-055/D-065)
-5. **下一候选**: D-117c 外交 (新模式可能 escalate claude.ai) / D-076 政治 (派发器) / D-053 / D-055 / D-052 / D-065 武将 / D-121 价值观 / D-131 / D-133 事件
-6. 也可改向: phase 4 (渲染层第二轮, 桶 3 ~10670 行)
+3. **D 类 sprint 进行中**: 20 batches 完成
+4. **HIGH 进度**: 政治 + 外交 + 事件 全收尾 ✅ / 武将 10 修 9 / 军事 6 修 4 / 价值观 0/1
+5. **剩余 5 HIGH 全 followup 复杂类 (claude.ai 决策方向 + batch 顺序已定)**:
+   - **batch-21 D-026** 大乱占领期=12 (数值修改, 弱合法性宣称档对齐)
+   - **batch-22 D-020 + D-099** _execBillet 功能错位 + cancel_supply dead code 合并删除 (closes via deletion 模式, user 合并决定)
+   - **batch-23 D-065** 抽 _calcPoachRate 共享 helper (trial helper 模式简单先)
+   - **batch-24 D-052** 抽 _calcLoyaltyDelta 共享 helper (复杂 cascading, 复用 23 trial 模式)
+   - **batch-25 D-121** Claude AI ethos 三层暴露 (getGameState 加 ethos N×1 + prompt 简略 + _execEnthrone mandate gate)
+6. **verification harness** (claude.ai 决策): 不要 jsdom 全游戏跑, 用函数级 spy + invariant checker. D-052/D-065 都用这套
+7. 也可改向: phase 4 (渲染层第二轮, 桶 3 ~10670 行) / _exec 归位架构债 sprint (batch-19.1+batch-22 已消化外交 3/14)
+8. **invariant checker 维护**: 新增 status='enemy'/'ally'/城市易主写口时, 更新 tests/checkers/faction_event_invariant.js EXPECTED_CALLERS 表
 7. **任何 sprint batch 启动必读** `docs/refactor_workflow_principles.md` (9 原则 + sprint gate 语义节, 尤其 #12 #13 #14 + §十一)
 8. **codex review workflow** (batch-3-10 verified): 见 feedback_codex_review_workflow.md
 9. **streamline 模式** (batch-7-10 trial 1 verified): 连续简单 batch 累积 commit 留 local, 集中 codex review, user 集中验收 + 一次性 push. 见 feedback_sprint_streamline_batches.md
