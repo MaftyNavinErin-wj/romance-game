@@ -313,11 +313,12 @@ function processPlagueSpreads(){
   ensureCityNeighbors();
   const plagued = Object.values(G.cities).filter(c=>c._plague && c._plague.hopsLeft>0);
   plagued.forEach(city=>{
+    if(city.fac === 'rebel') return; // ★ batch-21 D-026: rebel 城状态冻结(疫病暂停传播,_plague 标记保留至解冻)
     if(Math.random()<0.30){
       const neighbors = G._cityNeighbors[city.id] || [];
       const targets = neighbors.filter(nid=>{
         const nc = G.cities[nid];
-        return nc && !nc._plague;
+        return nc && nc.fac !== 'rebel' && !nc._plague; // ★ batch-21 D-026: rebel 城不接收疫病
       });
       if(targets.length){
         const tid = targets[Math.floor(Math.random()*targets.length)];

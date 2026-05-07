@@ -604,6 +604,7 @@ function _aiConsiderMigration(fid){
 // ════════════════════════════════════════════════════════════════════
 
 function processCityFood(city){
+  if(city.fac === 'rebel') return; // ★ batch-21 D-026: rebel 城状态冻结
   let prod=getCityProd(city).food; // 已含科技粮产加成(getTechEffect)
   const cost=getCityFoodCost(city).total;
   // ★ D1: 官职+朝议 粮食产出buff（与科技加成独立叠加，设计意图：科技是永久基础，官职/朝议是临时加成）
@@ -643,6 +644,7 @@ function garrisonCap(city){
  *   - 叛乱后等民心回升再补，不强行维持
  */
 function processGarrisonRecovery(city){
+  if(city.fac === 'rebel') return; // ★ batch-21 D-026: rebel 城状态冻结
   const cap=garrisonCap(city);
   if(city.garrison>=cap) return; // 已满编
   const turns=getCityFoodTurns(city);
@@ -666,6 +668,7 @@ function _getDeployedGensForMorale(){
 }
 
 function processMorale(city){
+  if(city.fac === 'rebel') return; // ★ batch-21 D-026: rebel 城状态冻结
   const turns=getCityFoodTurns(city);
   const tax=TAX.find(t=>t.id===(G.factions[city.fac]?.taxId||'norm'));
   let d=0;
@@ -727,6 +730,7 @@ function getCityCap(city){
 }
 
 function processPop(city){
+  if(city.fac === 'rebel') return; // ★ batch-21 D-026: rebel 城状态冻结
   const net=getCityFoodNet(city);
   const tax=TAX.find(t=>t.id===(G.factions[city.fac]?.taxId||'norm'));
   // ★ v166: 人口始终自然增长，粮食制约通过饥荒独立生效
@@ -908,6 +912,7 @@ function processBuildQueues(){
   G.units.forEach(u=>u.squads.forEach(sq=>_deployedGensBuild.add(sq.genName)));
 
   Object.values(G.cities).forEach(city=>{
+    if(city.fac === 'rebel') return; // ★ batch-21 D-026: rebel 城状态冻结
     if(city._lastBuildFac && city._lastBuildFac !== city.fac){
       if(city.buildQueue.length > 0){
         log(`🏚 ${city.name} 易主，在建工程全部废弃`, 'economy');
@@ -1227,7 +1232,7 @@ function processTransfers(){
       const dest=G.cities[t.to];
       // ★ v155fix P1: 调粮到达时检查城市归属，城已易手则粮食丢失
       const _tFac = t.fac || G.cities[t.from]?.fac; // 旧存档兼容
-      if(dest && dest.fac === _tFac){
+      if(dest && dest.fac !== 'rebel' && _tFac !== 'rebel' && dest.fac === _tFac){ // ★ batch-21 D-026: rebel 城状态冻结(到达时 dest 已大乱则散失)
         dest.storage+=t.amount;
         log(`🚚 调粮抵达：${t.fromName}→${t.toName} +${fmt(t.amount)}石`,'transfer');
       } else {
@@ -1245,7 +1250,7 @@ function checkResupply(){
   // 执行已建立的长期补给线（静默）
   Object.entries(G.supplyLines||{}).forEach(([toId,sl])=>{
     const to=G.cities[toId],from=G.cities[sl.fromId];
-    if(!to||!from||to.fac!==from.fac||from.transferCD>0) return;
+    if(!to||!from||to.fac!==from.fac||to.fac==='rebel'||from.transferCD>0) return; // ★ batch-21 D-026: rebel 城状态冻结(残留 supply line 不在 rebel 期间触发)
     if(getCityFoodTurns(to)<18){
       const fromSurplus=from.storage>getCityFoodCost(from).total*6;
       if(fromSurplus){
