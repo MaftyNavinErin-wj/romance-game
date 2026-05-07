@@ -13463,12 +13463,6 @@ function _execToggleResupply(fid, act) {
   return true;
 }
 
-function _execCancelSupply(fid, act) {
-  // ★ v159fix: 无独立补给线取消机制，返回false避免误导Claude认为指令成功
-  console.warn('[ClaudeAI] cancel_supply: 当前未实装');
-  return false;
-}
-
 // ════════════════════════════
 // 人事指令执行
 // ════════════════════════════
@@ -13921,32 +13915,6 @@ function _execCancelSiege(fid, act) {
   const unit = _findUnit(fid, act.leader);
   if (!unit || unit.status !== 'siege') return false;
   unit.status = 'halt';
-  return true;
-}
-
-// ★ v159fix: 休整遣散（大城驻扎恢复士气，部分遣散兵员回人口）
-function _execBillet(fid, act) {
-  const unit = _findUnit(fid, act.leader);
-  if (!unit) return false;
-  const cityId = _resolveCityId(act.city);
-  const city = G.cities[cityId];
-  if (!city || city.fac !== fid) return false;
-  const cdef = CITY_MAP[cityId];
-  if (!cdef || cdef.size === 'small') return false; // 仅大/中城可休整
-  const loc = getUnitNodeId(unit);
-  if (loc !== cityId) return false; // 部队须在该城
-  // 遣散30%兵力回人口，剩余部队驻扎（自动享受城内补员+士气恢复）
-  const totalTroops = getUnitTroops(unit);
-  const disbandRatio = 0.3;
-  const disbandCount = Math.floor(totalTroops * disbandRatio);
-  unit.squads.forEach(sq => {
-    const lose = Math.floor(sq.troops * disbandRatio);
-    sq.troops = Math.max(0, sq.troops - lose);
-  });
-  city.pop += Math.floor(disbandCount * 0.6);
-  unit.status = 'garrison';
-  unit.hexPath = [];
-  log(`🏠 [AI] ${FAC[fid]?.name} ${act.leader}于${city.name}休整屯田，遣散${fmt(disbandCount)}人`, 'economy');
   return true;
 }
 
