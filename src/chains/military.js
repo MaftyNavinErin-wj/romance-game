@@ -5922,9 +5922,11 @@ function resolveSiegeBattle(attackers, defenders, city, nodeLabel){
     city.siegeDecay = 0;
     city.garrison = 0;
     // ★ v113: 占领期按宣称强度分档
+    // ★ batch-21 D-026: rebel 城收复短期消化档(3 旬,科技 occupiedMult 仍生效)
     const _warStr = G._warClaimStrength?.[`${atkFac}-${oldFac}`] || 'none';
     const _occMap = { strong: 3, medium: 12, weak: 18, none: 27 };
-    city.occupied = Math.max(1, Math.floor((_occMap[_warStr] ?? 18) * (1 + getTechEffect(atkFac, 'occupiedMult')))); // ★ v115: 士族联姻
+    const _occBase = oldFac === 'rebel' ? 3 : (_occMap[_warStr] ?? 18);
+    city.occupied = Math.max(1, Math.floor(_occBase * (1 + getTechEffect(atkFac, 'occupiedMult')))); // ★ v115: 士族联姻
     // ★ v113: 强宣称→义兵buff（9旬征兵费-30%）
     if(_warStr === 'strong') city._yibingBuff = { expiresAt: G.turn + 9 };
     city.prefect = null; // 易主时清除旧太守（敌将不能继续担任太守）

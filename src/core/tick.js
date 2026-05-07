@@ -351,7 +351,7 @@ async function nextTurn(){
     processMorale(city);
     processPop(city);
     processGarrisonRecovery(city); // 城防军自然补员
-    if(city.occupied>0) city.occupied--;
+    if(city.fac !== 'rebel' && city.occupied>0) city.occupied--; // ★ batch-21 D-026: rebel 期间 occupied 字段冻结
   });
   G._migratedThisTurn = false; // ★ v166: 重置迁民冷却
   _cleanTradeAgreements();   // ★ v165: 清理失效通商协定
