@@ -59,6 +59,8 @@
 
 **verdict**:架构债,不属于 sprint 修复目标(本来就不该实装),清理后 checker 1 finding 自然减 1。
 
+**Status (2026-05-07)**:✅ batch-22 closes via deletion(合并 D-020 一起删 dispatcher + 函数体)。Checker 1 `case_no_prompt` HIGH 从 1 → 0。
+
 #### 3.1.2 D-091 HIGH 修复(附庸 3 helper 签名错配)
 
 **位置**:`src/chains/diplomacy.js`:
@@ -84,6 +86,8 @@
 
 **症状**:战术 prompt 22 type vs dispatcher 37 case,缺 15 个。本 batch-2 同步 3 个 AI-safe,剩 12 个未补(其中 4 个是 cancel_supply + 附庸 3 已有 followup,另 8 个是 historic 缺漏:`cancel_special` / `billet` / `set_reinforce_policy` / `break_alliance` / `scheme_drive_wolf` / `scheme_two_tigers` / `scheme_rumor` / `enthrone`)。
 
+**Status (2026-05-07)**:batch-22 删除 `billet` dispatcher+prompt+`_execBillet` → 8 个剩 7 个(`cancel_special` / `set_reinforce_policy` / `break_alliance` / `scheme_drive_wolf` / `scheme_two_tigers` / `scheme_rumor` / `enthrone`)。
+
 **影响**:战略 mode Claude 知道这 8 个,战术 mode Claude 不知道,行为不对称。
 
 **Followup batch**:独立"L567 战术 prompt 全对齐 dispatcher batch"
@@ -106,6 +110,40 @@
 
 ---
 
+### 3.2 batch-22 followup(2026-05-07,实机测发现)
+
+**发现 batch**:batch-22 D-020 + D-099 cancel_supply closes via deletion(玩家测 `_confirmBillet` 路径时顺手发现)
+
+#### 3.2.1 day-1 武将部曲 type vs 初始 squad type 一致性检查(audit pass 2 candidate)
+
+**位置**:`src/data/constants.js:99` (`RETAINER_DEFAULTS`) ↔ 初始 `G.units` squad `type`
+
+**症状**:蜀国开局关羽部队 squad.type = `'light'`(轻步,符合 apt `light:'S'`),但 RETAINER_DEFAULTS 设 `'关羽':{count:1500,type:'heavy'}`。`_confirmBillet` (v181.html:10590) billet 后 pool 拆双条目:
+- 部曲条目 `type = getRetainerType(genName) || sq.type` → `'heavy'`(constants 锁)
+- 辅兵条目 `type = sq.type` → `'light'`(squad 当前)
+
+两套数据 day-1 就不一致。
+
+**预期**:武将 day-1 有部曲时,部曲 type === 该武将所在初始队 squad type(完全一致)。
+
+**Audit pass 2 任务**:
+1. 列出所有 RETAINER_DEFAULTS 有 entry 的武将(`src/data/constants.js`)
+2. 对比初始 G.units 中该武将所在 squad 的 type
+3. 不一致的逐个判定 fix 方向:
+   - constants type 错(应改) → 改 RETAINER_DEFAULTS
+   - 初始编队错(应改) → 改 initial state.js
+   - 还是设计意图(部曲 = 独立特种部曲) → 文档化 + 改 `_confirmBillet` 不拆双条目
+
+**严禁**:重构 / sprint mechanical 期主动修改;留 audit pass 2 / sprint MEDIUM 阶段。
+
+**示例已知**:
+- 关羽:apt `light:'S'` → squad.type=`'light'`,部曲 constants type=`'heavy'` ❌ 不一致(疑似 constants 错)
+- 刘备 / 张飞 / 等其他 day-1 有部曲武将待 check
+
+**优先级**:P2(audit pass 2 candidate,不阻塞 sprint;非 HIGH/exploit 类,只是数据语义不一致)
+
+---
+
 ## 四、Walkthrough 缺失(2026-05-06)
 
 **发现 batch**:batch-1a 启动 mini scout(D-095/D-122)
@@ -120,4 +158,4 @@
 
 ---
 
-(sprint_followup v1.1 — batch-1a 起开始记录;batch-2 D-099 + codex review 沉淀 4 项 followup + 原则 #14 失误自报)
+(sprint_followup v1.2 — batch-22 加 §3.2.1 day-1 部曲 type vs squad type 一致性 audit pass 2 candidate + 3.1.1/3.1.3 status 更新)
