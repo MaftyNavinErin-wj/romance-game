@@ -33,6 +33,8 @@
 //                                                                / _expireCourtDecrees / _aiCourtSelect
 //   P6 称帝子组                                  v181 L11798-L11866 canEnthrone / doEnthrone
 //                                                                / aiConsiderEnthrone
+//                                                + v181 L13936-L13940 _execEnthrone (sprint batch-25
+//                                                  D-121 carry-over, 加 mandate gate 对齐 aiConsiderEnthrone)
 //
 // ── 留 v181 ──
 //   `getGenBirthplace`(L4560,武将链 GEN_TAGS 查表,留 3.12)
@@ -43,8 +45,9 @@
 //   render Tab 函数(phase 2 原则保留 v181):
 //     `renderTechTab`(L13144) / `openTechResearchPicker`(L13263) /
 //     `confirmTechResearch`(L13308) / `renderPostTab`(L13494)
-//   `_execAppointPost / _execDismissPost / _execResearch / _execEnthrone`
-//     (在 src/core/claude_ai.js,phase 3.3 选项 A 决策不搬)
+//   `_execAppointPost / _execDismissPost / _execResearch`
+//     (在 src/core/claude_ai.js 派发, 函数体留 v181, phase 3.3 选项 A 决策不搬)
+//   注: _execEnthrone 由 sprint batch-25 D-121 抽到本 chain (P6, 加 mandate gate)
 //
 // ── 写口归属声明((a) 原则核心)──
 // **本 chain 主要写口**:
@@ -1046,4 +1049,15 @@ function aiConsiderEnthrone(fid){
   const cityAdvantageNeeded = (_ethEnt && _ethEnt.mandate >= 60) ? -2 : 0;
   if(myCities <= maxOther + cityAdvantageNeeded) return;
   if(Math.random() < chance) doEnthrone(fid);
+}
+
+/** Claude AI 称帝执行 (v181 L13936-L13940 verbatim 抽离 + D-121 mandate gate)
+ *  对齐 aiConsiderEnthrone (L1037): mandate<30 崇汉倾向拒绝称帝, 防止 Claude AI 绕过设定 */
+function _execEnthrone(fid, act) {
+  if (!canEnthrone(fid)) return false;
+  // D-121: 与 aiConsiderEnthrone mandate gate 对齐, 崇汉倾向不称帝
+  const _ethEnt = G.factions[fid]?.ethos;
+  if (_ethEnt && _ethEnt.mandate < 30) return false;
+  doEnthrone(fid);
+  return true;
 }

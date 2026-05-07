@@ -751,7 +751,7 @@ function getGameState(fid) {
     name: g.name, loyalty: G.genLoyalty[g.name] ?? 70, tag: (GEN_TAGS[g.name] || {}).origin || '?',
   }));
 
-  // ── 外交 ──
+  // ── 外交 (含 ethos 距离 — D-121 batch-25) ──
   const diplomacy = ALL_FACS.filter(f => f !== fid).map(other => {
     if (G.factions[other]?._eliminated) return null;
     const k = `${fid}-${other}`;
@@ -761,6 +761,8 @@ function getGameState(fid) {
     const { selfPow, targetPow } = effectivePowerAgainst(fid, other);
     const ratio = targetPow > 0 ? Math.round(selfPow / targetPow * 100) / 100 : 99;
     const r = { fid: other, st: d.status || 'neutral', rel: d.rel ?? 50, pow: ratio };
+    const eDist = _ethosDistance(fid, other);
+    if (eDist > 0) r.e_dist = Math.round(eDist);
     if (readyClaim) r.claim = readyClaim.type;
     if (claims.length) r.claims = claims.map(c => c.type || c.id).join(',');
     if (d._claimPrep) r.prep = `${d._claimPrep.type}(${d._claimPrep.turnsLeft})`;
@@ -889,6 +891,14 @@ function getGameState(fid) {
     myCityIds: myCities.map(c => c.id),
   };
 
+  // ── 价值观 5 维 + tier label (D-121 batch-25) ──
+  // 紧凑 string 格式: '天命15·天命有归|权柄20·兼听则明|...' 节省 token
+  const _ethosFac = fac.ethos;
+  const ethosStr = _ethosFac ? ETHOS_DIMS.map(dim => {
+    const v = Math.round(_ethosFac[dim] || 0);
+    return `${ETHOS_DIM_NAMES[dim]}${v}·${_ethosTierLabel(v, dim)}`;
+  }).join('|') : undefined;
+
   return {
     turn: G.turn, fid,
     econ: {
@@ -899,6 +909,7 @@ function getGameState(fid) {
       gnet: Math.round(totalGoldNet), fnet: Math.round(totalFoodNet),
       salary: Math.round(salary),
     },
+    ethos: ethosStr,
     cities, armies, gen_summary: genSummary, generals,
     rep: G.reputation?.[fid] ?? REPUTATION_DEFAULT,
     diplo: diplomacy, threats, tech: techState, schemes,
@@ -1011,6 +1022,11 @@ rollA = 己方总ATK/敌方总DEF, rollB = 敌方总ATK/己方总DEF。双方各
 - 结盟：需rel≥75 + 500金，成功率=对方议和意愿×0.6-信誉惩罚
 - 送礼：小礼500金(rel+8)，厚礼1000金(rel+15)，重礼2000金(rel+25)
 
+### 价值观距离 (e_dist)
+- diplo[].e_dist = 双方天命+方略两维差均值(0-100)。>50 时结盟成功率显著下降, 宣战阻力小
+- 你的快照顶层 ethos 字段是自身 5 维倾向 (天命/权柄/文治/武略/方略), 极端值会触发事件惩罚和武将忠诚波动
+- 你的政策(税率/任命/军事行动/称帝)会持续漂移 ethos, 长期方向需自洽于性格设定
+
 ### 宣称系统
 - 无宣称宣战：信誉-12（很重！）
 - 有宣称宣战：信誉0~-5（取决于宣称强度）
@@ -1118,7 +1134,7 @@ contingency列出2-3个"如果...则..."的预案，覆盖最可能的意外情�
 - {"type":"scheme_spy","target":"势力ID","general":"敌将名(中文)"}
 - {"type":"scheme_rumor","target":"势力ID","city":"城市ID"}
 - {"type":"scheme_scout","city":"城市ID"}
-- {"type":"enthrone"}
+- {"type":"enthrone"} — 称帝。硬门槛 turn≥24/城≥10/rep≥40/非附庸; 价值观门槛 mandate≥30 (崇汉倾向 mandate<30 会被拒绝)
 
 每旬输出3-8条操作。局势稳定时少操作比乱动好。thinking中应体现具体数值推算。
 
