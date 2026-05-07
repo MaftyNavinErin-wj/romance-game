@@ -1,16 +1,16 @@
 ---
-name: Refactor phase status — phase 3 + dc 收官 + sprint 20 batches 完成
-description: Phase 3 + data-completion 收官 + sprint 20 batches done (main 64f6d89). v181 39547 → 15601 (-60.6%). 28 src/. 工作流原则 9 + #15 接口完整性 invariant + streamline trial 3. 政治+外交 全收尾 / 武将 9/10 / 军事 4/6 / 事件 2/2. batch-20 D-053+D-133 closes via deletion (claude.ai 决策走删除).
+name: Refactor phase status — phase 3 + dc 收官 + sprint 21 batches 完成
+description: Phase 3 + data-completion 收官 + sprint 21 batches done (main c331d32). v181 39547 → 15601 (-60.6%). 28 src/. 工作流原则 9 + #15 接口完整性 invariant + streamline trial 3. 政治+外交+事件 全收尾 / 武将 9/10 / 军事 5/6 / 价值观 0/1. batch-21 D-026 freeze+3 旬 (设计反转: claude.ai 12 旬 → 制作人 reboot insight → claude.ai approve + lifecycle simulate 模式).
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
-**截至 2026-05-07 的状态(每次 session 启动前请用 git log 校验,不抄)**:**重构 + 数据补完整体收官 + D 类 sprint 进行中,共 20 batches 完成 (1a / 2 / 3-6 单独 / 7-10 / 11-14 / 15-17 streamline / 18 / 19 architectural / 20 单独 push)**。
+**截至 2026-05-07 的状态(每次 session 启动前请用 git log 校验,不抄)**:**重构 + 数据补完整体收官 + D 类 sprint 进行中,共 21 batches 完成 (1a / 2 / 3-6 单独 / 7-10 / 11-14 / 15-17 streamline / 18 / 19 architectural / 20 / 21 单独 push)**。
 
-**HIGH 进度** (修 22 / 总 27):
+**HIGH 进度** (修 23 / 总 27):
 - 政治链 3 HIGH: **全收尾 ✅** (D-076 / D-077 / D-084)
 - 外交链 5 HIGH: **全收尾 ✅** (D-091/D-104/D-113/D-117c/D-120)
 - 武将链 10 HIGH: 修 9 (+batch-20 D-053 删除),剩 D-052 / D-065
-- 军事链 6 HIGH: 修 4,剩 D-020 / D-026
+- 军事链 6 HIGH: 修 5 (+batch-21 D-026 freeze+3 旬),剩 D-020
 - 价值观链 1 HIGH: 剩 D-121 (跨链复杂)
 - 事件链 2 HIGH: **全收尾 ✅** (batch-19 D-131 + batch-20 D-133 删除)
 
@@ -28,6 +28,14 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - codex trial 1 NEEDS-WORK (③→② renumber UX bug) → trial 2 LGTM (renumber fixed + dead-code token in comments DEFER 接受)
 - B4_delayed 实装值得做但放 sprint 之后的 small feature 阶段, 不在 sprint 加 feature
 
+**batch-21 freeze+3 旬路线 (2026-05-07, 设计反转 case)**:
+- claude.ai 原方向 = 12 旬 (弱合法性宣称档对齐) → 制作人 insight: 大乱前 morale<20 + 触发已 9 项 reboot 代价, 应 freeze 不叠惩罚 → claude.ai approve freeze + 3 旬
+- 10 处改动 (4 文件): rebel 期间 freeze 8 字段 (民心/人口/产出/建筑/豪族/调粮/疫病) + 攻陷 oldFac==='rebel' 特例 occupied=3 + 科技 occupiedMult 仍生效
+- exploit 实测不存在: _warStr fallback 'none' = 27 旬已堵, audit pass 1 漏看 → batch-21 改"暂停状态"哲学 + 3 旬轻消化
+- codex 4 trials catch latent bugs: trial 1 (1 误报+1 真 plague) / trial 2 (occupied decay + checkResupply guard) / trial 3 (processTransfers 老存档 fallback) / trial 4 LGTM
+- **lifecycle simulate 模式首次落地**: tests/batch21_simulate.js 跑 80 旬 (force 大乱 → 9 字段 freeze verify → 真实 AI 攻陷 occupied=3 verify → 44 城无 regression). 比 smoke layer-2 更彻底, 复杂 lifecycle batch 模板, 后续 batch-22-25 可复用
+- **设计反转 protocol case**: 制作人 insight 优先级 > claude.ai 决策, scope 可能戏剧扩大 (1 行数值 → 10 处 mini-mechanism)
+
 **v179fix P15c 平行 bug 三连收尾**(D-104 + D-113 + D-117c,batch-6 / 5 / 18)。
 **Streamline 模式 trial 1+2+3 完成**(batch-7-10 / 11-14 / 15-17),batch-18 / 19 走单独 push (大批 architectural 不混 streamline)。
 **batch-17 首次触发算法回路类 smoke FAIL acceptable**(sprint_followup §一 预期场景)。
@@ -40,7 +48,7 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - D-065 玩家 vs AI 公式不对称 (复杂)
 - D-117c 外交新模式 (设计层 ambiguity)
 - D-121 价值观跨链 / D-131 / D-133 事件跨链
-- D-020 _execBillet 功能错位 / D-026 大乱易主 (军事大改)
+- D-020 _execBillet 功能错位 (军事大改)
 
 ## 整体成绩(phase 1+2+3+data-completion)
 - **v181.html: 39547 → 15656 (-23891, -60.4%)** ⭐ 突破 -60% 大关
@@ -75,8 +83,10 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 
 ## 终态(已 push 到 origin)
-- **main HEAD: `64f6d89 sprint(batch-20): D-053 + D-133 删 dead code` (origin/main)**
+- **main HEAD: `c331d32 test(sprint): batch-21 D-026 lifecycle regression simulate` (origin/main)**
 - sprint 历史 (main 上):
+  - `c331d32` test(sprint): batch-21 lifecycle simulate 模板落地 (80 旬 D-026 完整 verify)
+  - `9fd73ba` sprint(batch-21): D-026 HIGH 大乱 freeze+3 旬路线 (10 处 freeze + occupied=3 特例 + codex 4 trials)
   - `64f6d89` sprint(batch-20): D-053+D-133 closes via deletion (净 -27 行死代码)
   - `f6f3b9e` sprint(batch-19): D-049+D-131+D-045 architectural robust 3 sub-batch squash (抽 _exec + 11 caller + invariant checker)
   - `6f03407` sprint(batch-18): D-117c HIGH checkDiplo 自动宣战 5 项副作用补全
@@ -91,7 +101,7 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
   - `ba4821c` sprint(batch-1a): D-021/D-077 cross-chain close
 - refactor/data-completion HEAD: `5b61620` (保留)
 - refactor/phase-3 HEAD: `afc2b3a` (保留)
-- sprint 工作分支保留(全 push): batch-1a / 2 / 3 / 4 / 5 / 6 / 7 / 8 / 9 / 10 / 11 / 12 / 13 / 14 / 15 / 16 / 17 / checker-framework
+- sprint 工作分支保留(全 push): batch-1a / 2 / 3 / 4 / 5 / 6 / 7 / 8 / 9 / 10 / 11 / 12 / 13 / 14 / 15 / 16 / 17 / 21 / checker-framework
 - tags 全 push: phase1-baseline-archive / phase3-complete-archive / data-completion-archive
 
 ## v181 剩余 15656 行 6 桶实测分类(dc 后 grep+wc 实测, 见 docs/data_completion_summary.md §九)
@@ -112,20 +122,21 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 ## How to apply
 
 **新对话启动时**:
-1. `git log --oneline -8 main` 校验 HEAD = `64f6d89` (batch-20 单独 push 后)
+1. `git log --oneline -8 main` 校验 HEAD = `c331d32` (batch-21 + simulate 模板 push 后)
 2. **重构 + dc 整体收官**, 不再做 phase 3 / dc 任何事
-3. **D 类 sprint 进行中**: 20 batches 完成
-4. **HIGH 进度**: 政治 + 外交 + 事件 全收尾 ✅ / 武将 10 修 9 / 军事 6 修 4 / 价值观 0/1
-5. **剩余 5 HIGH 全 followup 复杂类 (claude.ai 决策方向 + batch 顺序已定)**:
-   - **batch-21 D-026** 大乱占领期=12 (数值修改, 弱合法性宣称档对齐)
+3. **D 类 sprint 进行中**: 21 batches 完成
+4. **HIGH 进度**: 政治 + 外交 + 事件 全收尾 ✅ / 武将 10 修 9 / 军事 6 修 5 / 价值观 0/1
+5. **剩余 4 HIGH 全 followup 复杂类 (claude.ai 决策方向 + batch 顺序已定)**:
    - **batch-22 D-020 + D-099** _execBillet 功能错位 + cancel_supply dead code 合并删除 (closes via deletion 模式, user 合并决定)
    - **batch-23 D-065** 抽 _calcPoachRate 共享 helper (trial helper 模式简单先)
    - **batch-24 D-052** 抽 _calcLoyaltyDelta 共享 helper (复杂 cascading, 复用 23 trial 模式)
    - **batch-25 D-121** Claude AI ethos 三层暴露 (getGameState 加 ethos N×1 + prompt 简略 + _execEnthrone mandate gate)
 6. **verification harness** (claude.ai 决策): 不要 jsdom 全游戏跑, 用函数级 spy + invariant checker. D-052/D-065 都用这套
-7. 也可改向: phase 4 (渲染层第二轮, 桶 3 ~10670 行) / _exec 归位架构债 sprint (batch-19.1+batch-22 已消化外交 3/14)
-8. **invariant checker 维护**: 新增 status='enemy'/'ally'/城市易主写口时, 更新 tests/checkers/faction_event_invariant.js EXPECTED_CALLERS 表
-7. **任何 sprint batch 启动必读** `docs/refactor_workflow_principles.md` (9 原则 + sprint gate 语义节, 尤其 #12 #13 #14 + §十一)
-8. **codex review workflow** (batch-3-10 verified): 见 feedback_codex_review_workflow.md
-9. **streamline 模式** (batch-7-10 trial 1 verified): 连续简单 batch 累积 commit 留 local, 集中 codex review, user 集中验收 + 一次性 push. 见 feedback_sprint_streamline_batches.md
-10. push 决策权属制作人 (feedback_push_authorization.md), 等明确判定再 push
+7. **lifecycle simulate 模式 (batch-21 verified)**: 复杂 freeze/lifecycle batch 用 jsdom + force 触发 + 多旬 invariant assert (tests/batch21_simulate.js 模板). 比 smoke layer-2 更彻底, batch-22-25 可复用
+8. 也可改向: phase 4 (渲染层第二轮, 桶 3 ~10670 行) / _exec 归位架构债 sprint (batch-19.1+batch-22 已消化外交 3/14)
+9. **invariant checker 维护**: 新增 status='enemy'/'ally'/城市易主写口时, 更新 tests/checkers/faction_event_invariant.js EXPECTED_CALLERS 表
+10. **任何 sprint batch 启动必读** `docs/refactor_workflow_principles.md` (9 原则 + sprint gate 语义节, 尤其 #12 #13 #14 + §十一)
+11. **codex review workflow** (batch-3-21 verified): 见 feedback_codex_review_workflow.md. batch-21 trial 1-3 NEEDS-WORK (catch 4 latent bugs) → trial 4 LGTM, 复杂 freeze 类多轮 review 是常态
+12. **streamline 模式** (batch-7-10 trial 1 verified): 连续简单 batch 累积 commit 留 local, 集中 codex review, user 集中验收 + 一次性 push. 见 feedback_sprint_streamline_batches.md
+13. **设计反转 case** (batch-21): 制作人 insight 优先级 > claude.ai 决策方向. 反转后 user 回 Claude.ai 同步 → CC 等同步完再实装. scope 可能从"1 行数值"扩到"10 处 mini-mechanism", 重新 mini scout
+14. push 决策权属制作人 (feedback_push_authorization.md), 等明确判定再 push
