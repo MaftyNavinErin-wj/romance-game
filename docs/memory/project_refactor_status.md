@@ -1,17 +1,17 @@
 ---
-name: Refactor phase status — phase 3 + dc 收官 + sprint 24 batches 完成
-description: Phase 3 + data-completion 收官 + sprint 24 batches done (main c7b2139). v181 39547 → 15569 (-60.7%). 28 src/. 工作流原则 9 + #15 接口完整性 invariant + streamline trial 3 + trial helper 模式 (batch-23+24 共 2 次). 政治+外交+事件+军事+武将 5 链全收尾 / 价值观 0/1. batch-24 D-052 calcLoyaltyDelta UI vs 主 tick 4 项缺漏统一.
+name: Refactor phase status — phase 3 + dc 收官 + sprint 25 batches 收官 (HIGH 27/27 ✅)
+description: Phase 3 + data-completion 收官 + sprint 25 batches done = HIGH sprint 收官 (main d3f7a25). 27/27 HIGH 全 close. v181 39547 → 15569 (-60.7%). 28 src/. 工作流原则 9. batch-25 D-121 Claude AI ethos 三层暴露 (战略+战术 snapshot / _execEnthrone mandate gate).
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
-**截至 2026-05-07 的状态(每次 session 启动前请用 git log 校验,不抄)**:**重构 + 数据补完整体收官 + D 类 sprint 进行中,共 24 batches 完成 (1a / 2 / 3-6 单独 / 7-10 / 11-14 / 15-17 streamline / 18 / 19 architectural / 20 / 21 / 22 / 23 / 24 单独 push)**。
+**截至 2026-05-08 的状态(每次 session 启动前请用 git log 校验,不抄)**:**重构 + 数据补完整体收官 + D 类 HIGH sprint 收官,共 25 batches 完成 (1a / 2 / 3-6 单独 / 7-10 / 11-14 / 15-17 streamline / 18 / 19 architectural / 20 / 21 / 22 / 23 / 24 / 25 单独 push)**。
 
-**HIGH 进度** (修 26 / 总 27):
+**HIGH 进度** (修 27 / 总 27 ✅ 全收尾):
 - 政治链 3 HIGH: **全收尾 ✅** (D-076 / D-077 / D-084)
 - 外交链 5 HIGH: **全收尾 ✅** (D-091/D-104/D-113/D-117c/D-120)
 - 武将链 10 HIGH: **全收尾 ✅** (+batch-24 D-052 calcLoyaltyDelta 4 项缺漏统一)
 - 军事链 6 HIGH: **全收尾 ✅** (D-016/D-020/D-021/D-026/D-031/D-035, batch-22 D-020 deletion 收尾)
-- 价值观链 1 HIGH: 剩 D-121 (跨链复杂, batch-25)
+- 价值观链 1 HIGH: **全收尾 ✅** (batch-25 D-121 Claude AI ethos 三层暴露)
 - 事件链 2 HIGH: **全收尾 ✅** (batch-19 D-131 + batch-20 D-133 删除)
 
 **batch-19 架构 robust 选项 D 重大落地 (2026-05-07)**:
@@ -69,6 +69,18 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - **trial helper 模式 2 次复用确立**: 单文件 / (target, by) 双参数 / 返回 {items, total} 或 rate. batch-25 D-121 不走此模式 (信息暴露面)
 - **武将链 10 HIGH 全收尾 ✅** (D-048/D-049/D-051/D-052/D-053/D-055/D-061/D-063/D-064/D-065 全 close)
 
+**batch-25 信息暴露面三层补全 (2026-05-08, sprint 收官 batch)**:
+- D-121 HIGH 价值观链 (sprint 唯一剩余 HIGH): Claude AI getGameState 305 行函数体零 ethos + prompt 零 ethos + _execEnthrone 绕过 mandate gate
+- 三层修法 (claude.ai 决策方向 + 制作人 token-conscious 调整):
+  1. _execEnthrone v181 L13936-13940 verbatim 抽到 src/chains/politics.js (P6, batch-19 模式) + 加 mandate<30 gate 与 aiConsiderEnthrone 对齐
+  2. getGameState 战略旬 + _buildDeltaSnapshot 战术旬都加 ethos 紧凑 string ('天命15·天命有归|...') + diplo[].e_dist
+  3. _claudeSystemPrompt 加 §四.价值观距离 3 行子节 + enthrone 操作行 mandate 提示
+- token 节省: 用紧凑 string 而非对象 (~30 token/旬 vs ~80 token), prompt 走 cache 一次性 ~200 token
+- codex trial 1 NEEDS-WORK 2 issue: (a) prompt 误导 propose_alliance 不直接读 _ethosDistance (改为准确措辞: 通过 ethos→rel 漂移间接 + 影响规则 AI 宣战意愿) (b) _buildDeltaSnapshot 战术旬遗漏 ethos (战术旬支持 declare_war/propose_alliance) → trial 2 LGTM
+- smoke vs main: byte-identical 除时间戳 (Claude AI 路径不在 smoke 范围, 无回归风险)
+- **价值观链 1 HIGH 全收尾 ✅** (D-121 close)
+- **sprint 27 HIGH 全收尾 ✅** = HIGH sprint 整体收官
+
 **v179fix P15c 平行 bug 三连收尾**(D-104 + D-113 + D-117c,batch-6 / 5 / 18)。
 **Streamline 模式 trial 1+2+3 完成**(batch-7-10 / 11-14 / 15-17),batch-18 / 19 走单独 push (大批 architectural 不混 streamline)。
 **batch-17 首次触发算法回路类 smoke FAIL acceptable**(sprint_followup §一 预期场景)。
@@ -76,7 +88,7 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 **batch-19 cascading smoke ~13K 行 acceptable**(triggerFactionEvent → genFactionMod → 武将忠诚下游传播,sprint_followup §一 算法回路类典型)。
 
 **跳过 / 留 followup 类型**:
-- D-121 价值观跨链 (剩, batch-25)
+- (无, sprint HIGH 全收尾)
 
 ## 整体成绩(phase 1+2+3+data-completion)
 - **v181.html: 39547 → 15656 (-23891, -60.4%)** ⭐ 突破 -60% 大关
@@ -110,9 +122,10 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 
 phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 
-## 终态(已 push 到 origin)
-- **main HEAD: `c7b2139 sprint(batch-24): D-052 HIGH calcLoyaltyDelta UI/主 tick 4 项缺漏统一` (origin/main)**
+## 终态(local main, 等 push 授权)
+- **main HEAD: `d3f7a25 sprint(batch-25): D-121 HIGH Claude AI ethos 暴露面三层补全` (local, ahead of origin/main 1 commit)**
 - sprint 历史 (main 上):
+  - `d3f7a25` sprint(batch-25): D-121 HIGH Claude AI ethos 三层 (战略+战术 snapshot / _execEnthrone mandate gate, **价值观链 1/1 ✅, sprint 27/27 ✅ 全收尾**)
   - `c7b2139` sprint(batch-24): D-052 HIGH calcLoyaltyDelta 4 项缺漏 (武将链 10/10 全收尾 ✅, helper 模式 2 次复用)
   - `5d3233d` sprint(batch-23): D-065 HIGH _calcPoachRate helper 抽离 (玩家/AI 5 buff 对称, clamp 统一 [0.20, 0.85])
   - `5dc8fc5` docs(sprint_followup): batch-22 §3.2.1 day-1 部曲 type vs squad type 不一致 audit pass 2 candidate
@@ -133,7 +146,7 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
   - `ba4821c` sprint(batch-1a): D-021/D-077 cross-chain close
 - refactor/data-completion HEAD: `5b61620` (保留)
 - refactor/phase-3 HEAD: `afc2b3a` (保留)
-- sprint 工作分支保留(全 push): batch-1a / 2 / 3 / 4 / 5 / 6 / 7 / 8 / 9 / 10 / 11 / 12 / 13 / 14 / 15 / 16 / 17 / 21 / 22 / 23 / 24 / checker-framework
+- sprint 工作分支保留(部分 push): batch-1a / 2 / 3 / 4 / 5 / 6 / 7 / 8 / 9 / 10 / 11 / 12 / 13 / 14 / 15 / 16 / 17 / 21 / 22 / 23 / 24 / 25 (local 等 push) / checker-framework
 - tags 全 push: phase1-baseline-archive / phase3-complete-archive / data-completion-archive
 
 ## v181 剩余 15656 行 6 桶实测分类(dc 后 grep+wc 实测, 见 docs/data_completion_summary.md §九)
@@ -154,12 +167,11 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 ## How to apply
 
 **新对话启动时**:
-1. `git log --oneline -8 main` 校验 HEAD = `c7b2139` (batch-24 D-052 push 后)
-2. **重构 + dc 整体收官**, 不再做 phase 3 / dc 任何事
-3. **D 类 sprint 进行中**: 24 batches 完成
-4. **HIGH 进度**: 政治 + 外交 + 事件 + **军事** + **武将** 5 链全收尾 ✅ / 价值观 0/1
-5. **剩余 1 HIGH (sprint 末批, claude.ai 决策方向已定)**:
-   - **batch-25 D-121** Claude AI ethos 三层暴露 (getGameState 加 ethos N×1 + prompt 简略 + _execEnthrone mandate gate)
+1. `git log --oneline -8 main` 校验 HEAD = `d3f7a25` (batch-25 D-121, 等 push)
+2. **重构 + dc + HIGH sprint 整体收官**, 27/27 HIGH 全 close
+3. **D 类 sprint**: 25 batches 完成 = HIGH sprint 收官 ✅
+4. **HIGH 进度**: 6 链全收尾 ✅ (政治+外交+事件+军事+武将+**价值观**)
+5. **下阶段候选** (制作人决): MEDIUM/LOW sprint / phase 4 渲染层 (桶 3 ~10670 行) / _exec 归位架构债 (batch-19+22+25 已消化外交 3+政治 1, 剩 ~30) / audit pass 2
 6. **verification harness** (claude.ai 决策): 不要 jsdom 全游戏跑, 用函数级 spy + invariant checker. D-052/D-065 都用这套
 7. **lifecycle simulate 模式 (batch-21 verified)**: 复杂 freeze/lifecycle batch 用 jsdom + force 触发 + 多旬 invariant assert (tests/batch21_simulate.js 模板). 比 smoke layer-2 更彻底, batch-22-25 可复用
 8. 也可改向: phase 4 (渲染层第二轮, 桶 3 ~10670 行) / _exec 归位架构债 sprint (batch-19.1+batch-22 已消化外交 3/14)

@@ -11,3 +11,4 @@
 - [Codex review workflow](feedback_codex_review_workflow.md) — sprint batch 期 CC 改 → codex.cmd review (read-only) → LGTM commit / NEEDS-WORK escalate. batch-3 trial 1 verified
 - [Sprint batch 选择不需 double check](feedback_sprint_batch_selection.md) — user 说"继续"/"启动"时 CC 直接选 next batch 进 mini scout,不列候选表(batch 框架切换可一句话说明,fix 设计层 approve 仍保留)
 - [Sprint streamline 多 batch 集中测](feedback_sprint_streamline_batches.md) — 连续简单 batch commit 留 local,集中给一份实机测 checklist,user 一次测完一次性 push 所有 batches
+- [Cross-machine memory sync](feedback_memory_sync.md) — pull 后用 cp 命令把 in-repo docs/memory/ 覆盖本机 auto-memory(in-repo 是权威, auto-memory 不跟 git 走)
