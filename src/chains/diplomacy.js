@@ -1370,6 +1370,25 @@ function checkDiplo(){
     } else if(d.status==='neutral'&&d.rel<=10){
       d.status='enemy'; d._warDeclaredTurn=G.turn;
       if(G.diplo[`${b}-${a}`]) { G.diplo[`${b}-${a}`].status='enemy'; G.diplo[`${b}-${a}`]._warDeclaredTurn=G.turn; }
+      // D-117c fix: v179fix P15c 平行 bug 推广 — 自动宣战补全 5 项副作用（同 D-104/D-113 模式）
+      // 入口覆盖：仅 checkDiplo rel≤10 自然漂移路径；D-118 中立战斗/斩使/驱虎是后续 batch
+      // 背刺检测：解盟 6 旬内 → _betrayal + 信誉惩罚 + 派系事件（diploWar L427-432 模板）
+      if(d._brokenAllyTurn != null && (G.turn - d._brokenAllyTurn) <= 6){
+        d._betrayal = true;
+        if(G.diplo[`${b}-${a}`]) G.diplo[`${b}-${a}`]._betrayal = true;
+        applyReputationPenalty(a, 'betray');
+        if(ALL_FACS.includes(a)) triggerFactionEvent('betray', a, {});
+      }
+      // 反复检测：停战 3 旬内宣战 → 信誉惩罚（diploWar L434-436 模板）
+      if(d._peaceTurn != null && (G.turn - d._peaceTurn) <= 3){
+        applyReputationPenalty(a, 'relapse');
+      }
+      // _diploCD 双向 15（_applyPeaceAgreement L263-264 / D-104 fix L1490 模板）
+      G[`_diploCD_${a}_${b}`] = 15;
+      G[`_diploCD_${b}_${a}`] = 15;
+      // 盟友联动 + 宣战副作用 hub（含 ethosShock/信誉/第三方/派系/豪族）（diploWar L438+L440 模板）
+      _syncAllyWarStatus(a, b);
+      applyWarDeclarationEffects(a, b, null);
       log(`⚔️ ${FAC[a]?.name}与${FAC[b]?.name}关系破裂，进入敌对！`,'diplo');
     }
   }));
