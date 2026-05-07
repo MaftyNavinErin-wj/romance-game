@@ -500,10 +500,18 @@ function _buildDeltaSnapshot(fid) {
     pending.push(`研究${fac._tech.current.techId}(剩${fac._tech.current.turnsLeft}旬)`);
   }
 
+  // D-121 batch-25: 战术旬也支持 declare_war/propose_alliance, 需暴露 ethos
+  const _ethosFac = fac?.ethos;
+  const ethosStr = _ethosFac ? ETHOS_DIMS.map(dim => {
+    const v = Math.round(_ethosFac[dim] || 0);
+    return `${ETHOS_DIM_NAMES[dim]}${v}·${_ethosTierLabel(v, dim)}`;
+  }).join('|') : undefined;
+
   return {
     mode: 'tactical',
     turn: G.turn, fid,
     my_cities: myCities.map(c => c.id),  // ★ v159: 己方城市ID列表（避免Claude猜错ID）
+    ethos: ethosStr,
     strategy: mem.strategy_intent || '(无)',
     stance: mem.stance || '',
     contingency: mem.contingency || {},
@@ -1023,7 +1031,7 @@ rollA = 己方总ATK/敌方总DEF, rollB = 敌方总ATK/己方总DEF。双方各
 - 送礼：小礼500金(rel+8)，厚礼1000金(rel+15)，重礼2000金(rel+25)
 
 ### 价值观距离 (e_dist)
-- diplo[].e_dist = 双方天命+方略两维差均值(0-100)。>50 时结盟成功率显著下降, 宣战阻力小
+- diplo[].e_dist = 双方天命+方略两维差均值(0-100)。>50 时背景规则 AI 宣战意愿+10%, 并长期通过 rel 漂移侵蚀结盟可行性(结盟硬门槛 rel≥75)
 - 你的快照顶层 ethos 字段是自身 5 维倾向 (天命/权柄/文治/武略/方略), 极端值会触发事件惩罚和武将忠诚波动
 - 你的政策(税率/任命/军事行动/称帝)会持续漂移 ethos, 长期方向需自洽于性格设定
 
