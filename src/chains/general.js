@@ -1344,6 +1344,17 @@ function calcLoyaltyDelta(genName, fid){
     items.push({label:`派系修正（mod ${facMod>=0?'+':''}${facMod.toFixed(1)}）`, val:facDelta}); total+=facDelta;
   }
 
+  // ★ batch-24 D-052: 补 2 项 UI 缺(主 tick processLoyalty 已有,UI 漏显示)
+  // ★ v115: 恩威并施科技 loyaltyRecovery
+  const _techLoyalty = getTechEffect(fid, 'loyaltyRecovery');
+  if(Math.abs(_techLoyalty)>=0.01){
+    items.push({label:'恩威并施(科技)', val:_techLoyalty}); total+=_techLoyalty;
+  }
+  // SKILL_INLINE: gangbi_loyalty — 刘封刚愎: 忠诚缓降 -0.1/旬
+  if(genName==='刘封'){
+    items.push({label:'刘封·刚愎', val:-0.10}); total-=0.10;
+  }
+
   // ⑨ 价值观匹配（★ v151）
   const _eth = G.factions[fid]?.ethos;
   if(_eth){
@@ -1368,102 +1379,17 @@ function processLoyalty(){
   if(!G.loyaltyAccum) G.loyaltyAccum = {};
   if(!G.recruitableGens) G.recruitableGens = {};
 
+  // ★ batch-24 D-052: 改用 calcLoyaltyDelta 共享 helper (UI vs 主 tick 公式完全对齐, 4 项双向缺漏统一)
+  // 之前 inline 公式漏 ⑥b proud 无官 -0.15 + ⑨ 价值观 ethDelta (UI 已有, 主 tick 漏跟上 v93/v151 设计)
   Object.keys(G.generals).forEach(fid => {
     const gens = G.generals[fid] || [];
     if(!gens.length) return;
-
-    const ruler = gens.find(g => g.role === 'ruler');
-    const rulerCha = ruler ? ruler.cha : 60;
-    // 校准后：君主魅力对忠诚的直接加成大幅减弱，主要作用通过招募/外交体现
-    const rulerChaBonus = (rulerCha - 60) / 10 * 0.05;
-
-    const rulerName = ruler ? ruler.name : '';
-    const rulerCompat = rulerName ? (COMPAT[rulerName] ?? 50) : 50;
-
-    // 该势力本旬欠饷比例（由 processUnitSalary 在 nextTurn 中先行写入）
-    const debtRatio = G.factions[fid]?._salaryDebt || 0;
-    const debtTurns = G.factions[fid]?._salaryDebtTurns || 0;
-
-    // ⑦预计算：本势力在役将领名单（★ v167fix #5: 只遍历本势力，敌方亲密度不算同僚）
-    const allGenNamesForLoyalty = gens.map(x => x.name);
-
     gens.forEach(g => {
       if(g.role === 'ruler') return;
-
       const name = g.name;
       if(G.loyaltyAccum[name] === undefined) G.loyaltyAccum[name] = G.genLoyalty[name] ?? 80;
-
-      const meta = getGenMeta(name);
-      const values = meta.values || [];
-      // ★ D1: hasPost now checks official post OR prefect
-      const hasPost = hasAnyPost(name, fid);
-      // ★ D1: 官职忠诚加成（tier1=0.40, tier2=0.25, tier3=0.15，替代原固定+0.20）
-      const postDef = getGenPostDef(name);
-      const postLoyaltyBonus = postDef ? postDef.loyalty : 0;
-
-      let delta = 0;
-
-      // ① 基础衰减（★ v72 调整：-0.8→-0.5，降低整体压迫感）
-      delta += -0.5;
-
-      // ② 君主魅力（微幅加成，刘备cha96 → +0.29，不足以覆盖衰减）
-      delta += rulerChaBonus;
-
-      // ③ 相性修正（与君主COMPAT差距越大扣越多）
-      const genCompat = COMPAT[name] ?? 50;
-      const compatDiff = Math.abs(genCompat - rulerCompat);
-      if(compatDiff <= 10)       delta += 0.30;
-      else if(compatDiff <= 25)  delta += 0.10;
-      else if(compatDiff <= 40)  delta += 0;
-      else if(compatDiff <= 60)  delta += -0.20;
-      else                       delta += -0.45;
-
-      // ④ 性格标签 ★ v124: 野心/投机差异化
-      if(values.includes('忠义')) delta += 0.20;
-      if(values.includes('野心')) delta += -0.40;
-      if(values.includes('投机')) delta += -0.30;
-
-      // ⑤ 官职加成（★ D1: 按tier给不同加成，太守固定+0.20）
-      if(postDef) {
-        const loyBonus = postDef.loyalty;
-        // 野心/投机标签：加成×1.5
-        const isAmbitious = values.includes('野心') || values.includes('投机');
-        delta += isAmbitious ? loyBonus * 1.5 : loyBonus;
-      } else if(hasPost) {
-        // 太守（无官职但有太守） → 沿用原+0.20
-        delta += 0.20;
-      }
-
-      // ⑥ 野心/投机 且 无官职 → 额外惩罚 ★ v124差异化
-      if(values.includes('野心') && !hasPost) delta += -0.30;
-      if(values.includes('投机') && !hasPost) delta += -0.20;
-
-      // ⑦ 同僚关系（均值/300，用预计算的名单）
-      const relVals = [];
-      allGenNamesForLoyalty.forEach(other => {
-        if(other === name) return;
-        const iv = getIntimacy(name, other);
-        if(Math.abs(iv) >= 20) relVals.push(iv);
-      });
-      if(relVals.length > 0){
-        const avg = relVals.reduce((a,b) => a+b, 0) / relVals.length;
-        delta += avg / 300;
-      }
-
-      // ⑧ 欠饷惩罚（★ v72 调整：系数1.5→1.0，欠饷经济惩罚已够重，忠诚叠加降低）
-      if(debtRatio > 0){
-        const depthMult = debtTurns >= 10 ? 2.0 : debtTurns >= 5 ? 1.5 : 1.0;
-        delta += -(debtRatio * 1.0 * depthMult);
-      }
-
-      // 累积 + clamp + 写回
-      // ★ B1→v113: 派系修正：S型曲线（中间温和，两端急剧）
-      const facMod = (G.genFactionMod && G.genFactionMod[name]) || 0;
-      const facDelta = factionModToLoyaltyDelta(facMod);
-      const _techLoyalty = getTechEffect(fid, 'loyaltyRecovery'); // ★ v115: 恩威并施
-      // SKILL_INLINE: gangbi_loyalty — 刘封刚愎：忠诚缓降-0.1/旬
-      const _liufengDrain = (name==='刘封') ? -0.10 : 0;
-      G.loyaltyAccum[name] = Math.min(100, Math.max(0, G.loyaltyAccum[name] + delta + facDelta + _techLoyalty + _liufengDrain));
+      const result = calcLoyaltyDelta(name, fid);
+      G.loyaltyAccum[name] = Math.min(100, Math.max(0, G.loyaltyAccum[name] + result.total));
       G.genLoyalty[name] = Math.round(G.loyaltyAccum[name]);
     });
   });
