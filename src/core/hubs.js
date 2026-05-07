@@ -13,7 +13,7 @@
 //     - B1_deploy / B1_office / B3_office / C2_office / C3_office / G7_deploy
 //       / G7_office  → 武将链(G.units / cities[].prefect / G.genLoyalty 等)
 //     - C4_unrest                                     → 城市链(garrison / morale / pop / gentry)
-//     - B4_delayed                                    → 武将链 + 豪族/事件(WILD_GENS / wildPool / addIntimacy)
+//   D-133 fix (batch-20): B4_delayed 死代码删除. 原 9 type → 现 7 type.
 //   写口落跨多个链 → 不属任一单链 → 收 hubs.js。
 //
 // PLAN §二偏离记录(同 phase1_summary §5.3 / phase3_1_notes §二处理方式 — 记录但不改 plan):
@@ -85,7 +85,6 @@ function checkEventPromises(){
     'G7_office': '任命官职或太守（降将试心）',
   };
   G._eventPromises.forEach(p=>{
-    if(p.type==='B4_delayed') return;
     if((p.fid||G.playerFac) !== G.playerFac) return;
     if(G.turn === p.deadline - 1) p._remindNeeded = true;
   });
@@ -162,27 +161,8 @@ function checkEventPromises(){
       }
       return;
     }
-    // B4延迟加入特殊处理
-    if(p.type==='B4_delayed' && p._b4data){
-      const d = p._b4data;
-      const fid = p.fid || G.playerFac;
-      if(G.wildPool && G.wildPool.includes(d.wildName)){
-        const gen = WILD_GENS.find(g=>g.name===d.wildName);
-        if(gen){
-          { const _cloned = _deepCloneGen(gen); G.generals[fid].push(_cloned); GEN_MAP[_cloned.name] = _cloned; } // ★ v155fix P0
-          G.genLoyalty[d.wildName] = d.initLoy;
-          if(G.loyaltyAccum) G.loyaltyAccum[d.wildName] = d.initLoy;
-          G.genChronicle[d.wildName] = G.genChronicle[d.wildName]||[];
-          addGenChronicle(d.wildName, `经${d.referrerName}引荐，考察后加入${FAC[fid]?.name||fid}。`);
-          G.wildPool = G.wildPool.filter(n=>n!==d.wildName);
-          G.genJoinTurn[d.wildName] = G.turn;
-          G.genJoinSource[d.wildName] = 'referral';
-          addIntimacy(d.referrerName, d.wildName, 15);
-          log(`🌟 ${d.wildName}考察期满，正式加入`,'event');
-        }
-      }
-      return; // B4不执行惩罚
-    }
+    // D-133 fix: B4_delayed 处理删除 (audit verdict=closes via deletion).
+    // 原"考察期满自动加入"分支永远到不了 (push 后立即被前置 !gen 静默清除),纯死代码.
     const penalty = p.penalty || 0;
     if(penalty && G.genLoyalty[p.genName]!==undefined){
       G.genLoyalty[p.genName] = Math.max(0, G.genLoyalty[p.genName] + penalty);

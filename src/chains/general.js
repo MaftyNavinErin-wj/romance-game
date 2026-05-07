@@ -1480,10 +1480,10 @@ function processLoyalty(){
 }
 
 /**
- * 事件驱动型忠诚度扣减（战败、失城等一次性大幅冲击）
+ * 事件驱动型忠诚度扣减（战败一次性大幅冲击）
  * @param {string} fid      - 受影响势力
- * @param {string} type     - 'battle_loss'|'city_lost'|'siege_broken'
- * @param {Object} context  - 附加信息（如 {cityName, lostTroops}）
+ * @param {string} type     - 'battle_loss'（仅此一种 type；audit pass 1 D-053 删 city_lost/siege_broken 死代码,丢城忠诚通过 processLoyalty 势力衰退维度间接体现）
+ * @param {Object} context  - 附加信息（如 {lostRatio}）
  */
 function applyLoyaltyEvent(fid, type, context){
   const gens = G.generals[fid] || [];
@@ -1498,15 +1498,11 @@ function applyLoyaltyEvent(fid, type, context){
     penalty = -(lostRatio * 8);  // 全军覆没 -8；损失30% → -2.4
     penalty = Math.max(-8, penalty);
     msg = `因战败，${FAC[fid]?.name||fid}诸将士气消沉，忠心有所动摇`;
-  } else if(type === 'city_lost'){
-    // 失城：固定惩罚，失重要城市（大城）更重
-    penalty = context?.isCapital ? -12 : context?.size === 'large' ? -8 : -4;
-    msg = `${context?.cityName||''}失守，${FAC[fid]?.name||fid}人心惶惶`;
-  } else if(type === 'siege_broken'){
-    // 被突围撤退：小幅惩罚
-    penalty = -3;
-    msg = `围城失败，${FAC[fid]?.name||fid}将领颇感挫败`;
   }
+  // D-053 fix: city_lost / siege_broken 分支删除 (audit verdict=closes via deletion).
+  // 历史:HANDOVER 设想"失城/破围 → 忠诚震荡",但调用方从未实装,实际是 dead code 多年.
+  // 设计意图:丢城后的忠诚下滑由 processLoyalty 内的"势力衰退"维度间接体现 (城少→势弱→人心涣散),
+  // 不需要显式事件触发. 若未来要实装显式事件,在此处恢复分支即可.
 
   if(penalty === 0) return;
 
