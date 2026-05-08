@@ -28,9 +28,10 @@
 //   GEN13 亲密度系统                   v181 L7621-L7755  (8)
 //   GEN14 伤亡 + 俘虏                  v181 L7757-L8186  (12)
 //   GEN15 _applyCeremony 归位          src/render/ceremonies.js L31-L45 (1)
-//   GEN16 AI _exec 入口                v181 L13516-L13542 (2 funcs, sprint batch-26)
+//   GEN16 AI _exec 入口                v181 L13516-L13542 + L13433-L13442 + L13505-L13513
+//                                      (4 funcs, sprint batch-26+27)
 //
-// 函数总数: 4+2+3+4+3+9+1+9+2+5+2+2+2+8+12+1+2 = **71 函数 + 11 const**
+// 函数总数: 4+2+3+4+3+9+1+9+2+5+2+2+2+8+12+1+4 = **73 函数 + 11 const**
 //
 // ── 留 v181 / 数据 sprint ──
 //   武将数据 const (留 v181 等 src/data/generals.js sprint):
@@ -43,9 +44,9 @@
 //     _showCeremonyPicker / _updateCeremonyBtn / _confirmCeremony
 //   全部 modal HTML / render Tab (无武将专属 Tab; 武将信息渲染在 renderFactionTab /
 //     openGenProfile 留 v181 / openPostAction / openPostAppoint 等)
-//   3 个武将相关 _exec (留 src/core/claude_ai.js 段 M, phase 3.3 选项 A):
-//     _execAppointPost / _execDismissPost / _execSetStrategist
-//   (RecruitWild + Poach 已抽到 GEN16, sprint batch-26)
+//   武将相关 _exec 已全数抽到 GEN16 (sprint batch-26+27):
+//     RecruitWild + Poach (batch-26) + SetPrefect + SetStrategist (batch-27)
+//   AppointPost / DismissPost 按 (a) 原则随 helper 归 politics.js (sprint batch-27)
 //
 // ── 写口归属声明((a) 原则核心)──
 // **本 chain 主要写口**:
@@ -2266,8 +2267,32 @@ function _applyCeremony(picked, fid){
 }
 
 // ════════════════════════════════════════════════════════════════════
-// ── GEN16 AI _exec 入口 (sprint batch-26 D-类架构债 sprint, v181 L13516-L13542) ──
+// ── GEN16 AI _exec 入口 (sprint batch-26+27 D-类架构债 sprint) ──
+//    招募/挖角:  v181 L13516-L13542 (batch-26)
+//    太守/军师:  v181 L13433-L13442 / L13505-L13513 (batch-27)
 // ════════════════════════════════════════════════════════════════════
+
+function _execSetPrefect(fid, act) {
+  const cityId = _resolveCityId(act.city);
+  const city = G.cities[cityId];
+  if (!city || city.fac !== fid) return false;
+  const genName = act.general || null;
+  if (genName && !_genInFac(genName, fid)) return false;
+  if (genName && _genDeployed(genName, fid)) return false;
+  setPrefect(cityId, genName);
+  return true;
+}
+
+function _execSetStrategist(fid, act) {
+  const genName = act.general || null;
+  if (genName && !_genInFac(genName, fid)) return false;
+  if (genName) {
+    const gen = (G.generals[fid] || []).find(g => g.name === genName);
+    if (!gen || gen.role === 'ruler') return false;
+  }
+  setStrategist(fid, genName);
+  return true;
+}
 
 function _execRecruitWild(fid, act) {
   const genName = act.general;

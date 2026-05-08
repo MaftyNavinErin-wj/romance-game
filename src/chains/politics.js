@@ -35,6 +35,9 @@
 //                                                                / aiConsiderEnthrone
 //                                                + v181 L13936-L13940 _execEnthrone (sprint batch-25
 //                                                  D-121 carry-over, 加 mandate gate 对齐 aiConsiderEnthrone)
+//   P7 AI _exec 入口 (官职)                       v181 L13470-L13503 _execAppointPost / _execDismissPost
+//                                                  (sprint batch-27, 随 appointGenPost / dismissGenPost
+//                                                   按 (a) 原则归政治)
 //
 // ── 留 v181 ──
 //   `getGenBirthplace`(L4560,武将链 GEN_TAGS 查表,留 3.12)
@@ -45,9 +48,10 @@
 //   render Tab 函数(phase 2 原则保留 v181):
 //     `renderTechTab`(L13144) / `openTechResearchPicker`(L13263) /
 //     `confirmTechResearch`(L13308) / `renderPostTab`(L13494)
-//   `_execAppointPost / _execDismissPost / _execResearch`
-//     (在 src/core/claude_ai.js 派发, 函数体留 v181, phase 3.3 选项 A 决策不搬)
+//   `_execResearch` (在 src/core/claude_ai.js 派发, 函数体留 v181, phase 3.3 选项 A 决策不搬)
 //   注: _execEnthrone 由 sprint batch-25 D-121 抽到本 chain (P6, 加 mandate gate)
+//   注: _execAppointPost / _execDismissPost 由 sprint batch-27 抽到本 chain (P7,
+//       按 (a) 原则随 appointGenPost / dismissGenPost helper 归政治)
 //
 // ── 写口归属声明((a) 原则核心)──
 // **本 chain 主要写口**:
@@ -1059,5 +1063,45 @@ function _execEnthrone(fid, act) {
   const _ethEnt = G.factions[fid]?.ethos;
   if (_ethEnt && _ethEnt.mandate < 30) return false;
   doEnthrone(fid);
+  return true;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ── P7 AI _exec 入口 (sprint batch-27, v181 L13470-L13503) ──
+//    官职任命 / 罢免 — 随 appointGenPost / dismissGenPost 归 politics
+// ════════════════════════════════════════════════════════════════════
+
+function _execAppointPost(fid, act) {
+  const genName = act.general;
+  const postName = act.post;
+  if (!genName || !postName) { console.warn('[ClaudeAI] appoint: 缺general或post', act); return false; }
+  if (!_genInFac(genName, fid)) { console.warn('[ClaudeAI] appoint: 武将不在势力', genName); return false; }
+  const gen = (G.generals[fid] || []).find(g => g.name === genName);
+  if (!gen || gen.role === 'ruler') { console.warn('[ClaudeAI] appoint: 武将不存在或是君主', genName); return false; }
+  const postDef = ALL_POSTS.find(p => p.name === postName);
+  if (!postDef) { console.warn('[ClaudeAI] appoint: 官职不存在', postName); return false; }
+  if ((G.genMerit[genName] || 0) < postDef.merit) { console.warn('[ClaudeAI] appoint: 功绩不足', genName, G.genMerit[genName] || 0, '<', postDef.merit); return false; }
+  if (G.genPost && G.genPost[genName]) { console.warn('[ClaudeAI] appoint: 已有官职', genName, G.genPost[genName]); return false; }
+  if (Object.values(G.cities).some(c => c.fac === fid && c.prefect === genName)) { console.warn('[ClaudeAI] appoint: 是太守', genName); return false; }
+  // ★ v158: 检查该官职名额是否已满
+  // ★ v181: 改走 getPostSlots（自动应用 stage cap tier1），不再直读 POST_TIERS
+  const allSlots = getPostSlots(fid);
+  const track = postDef.track; // 'mil' or 'civ'
+  const postTier = postDef.tier; // 1,2,3
+  const slots = track === 'mil' ? allSlots.mil : allSlots.civ;
+  const maxSlots = slots[3 - postTier] || 0; // tier1=index2, tier2=index1, tier3=index0
+  const currentHolders = Object.entries(G.genPost || {}).filter(([gn, pn]) => {
+    const pd = ALL_POSTS.find(p => p.name === pn);
+    return pd && pd.track === track && pd.tier === postTier && _genInFac(gn, fid);
+  }).length;
+  if (currentHolders >= maxSlots) { console.warn('[ClaudeAI] appoint: 名额已满', postName, `${currentHolders}/${maxSlots}`); return false; }
+  appointGenPost(genName, postName, fid);
+  return true;
+}
+
+function _execDismissPost(fid, act) {
+  const genName = act.general;
+  if (!genName || !G.genPost?.[genName]) return false;
+  dismissGenPost(genName, fid);
   return true;
 }
