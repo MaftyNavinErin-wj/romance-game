@@ -1,6 +1,6 @@
 ---
-name: Refactor phase status — HIGH 27/27 + _exec 35/35 + phase 4 sub-session 4.1-4.7 完成
-description: Phase 3 + dc + HIGH sprint (25) + _exec sprint (5) + phase 4 sub-session 4.1-4.7 完成. v181 39547 → 10507 (-73.4%). 36 src/ 文件. phase 4 进度 7/10 (剩 4.8 tabs 中-高 / 4.9 battle_modals 高 / 4.10 battle_anim 最高).
+name: Refactor phase status — HIGH 27/27 + _exec 35/35 + phase 4 sub-session 4.1-4.8 完成
+description: Phase 3 + dc + HIGH sprint (25) + _exec sprint (5) + phase 4 sub-session 4.1-4.8 完成. v181 39547 → 9001 (-77.2%). 37 src/ 文件. phase 4 进度 8/10 (剩 4.9 battle_modals 高 / 4.10 battle_anim 最高).
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -81,6 +81,21 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - v181: 11732 → 10507 (-1225, 单 sub-session 减肥最大头, 仅次于 4.5 boot_screens 1461)
 - codex review LGTM (零 finding)
 
+**phase 4 sub-session 4.8 单 codex review (2026-05-09, 中-高风险)**:
+- 4.8 tabs: 8 tab 渲染 + renderRight 容器 + tab 系统 UTILS 抽到 src/render/tabs.js (新建)
+- 3 不连续 block: R4.8.a (L1432-L2862, 主 block 8 tabs + renderRight + 6 内部 helper) + R4.8.b (L2864-L2872, UTILS 4 funcs) + R4.8.c (L8326-L8395, renderMilTab 孤悬位置)
+- 19 函数总数 (8 主渲染 + 6 helper + 4 utils + 1 milTab):
+  - 主渲染: renderTechTab/renderStatsTab/renderPostTab/renderRight/renderFactionTab/renderDipTab/renderSchemeTab/renderEthosTab + renderMilTab
+  - 6 helper: openTechResearchPicker + confirmTechResearch (Tech tab 选研究 modal) + getCourtStatusText + _buildCourtNarrative + _buildCourtWarnings + _buildCourtVacancies (Post tab 朝堂文本)
+  - 4 utils: selCity/selFac/switchTab/updateTabs (tab 系统切换入口)
+- scope 决策: 单 session 抽 (plan 备选 4.8.a/b/c 不必要). plan v0.3 估 ~3200 行高估 2 倍, scout 实测 ~1500 行
+- 邻接决策: selCity/selFac 跟 switchTab/updateTabs 同 UTILS section 模式同质, 一并抽避免 section 裂开
+- v181: 10507 → 9001 (-1506, -14.3%)
+- src/render/tabs.js: 0 → 1567
+- **codex trial 1 NEEDS-WORK P2 metadata** (函数清单 13→19, scout grep 漏列 6 内部 helper). 用 `^\s*function\s+(name1|name2|...)` 只 grep 已知名字, 没用 `^function\s+\w+` 通配, 漏看夹在 tab 间的 helper. → amend metadata fix (tabs.js header + v181 marker + commit message) → trial 2 LGTM
+- 实机测 PASS (制作人 2026-05-09, F12 console 零 error, 9 tabs 切换 + Tech 选研究 modal + city/fac 选择 全 OK)
+- **新教训**: scout grep pattern 应该用通配符 (`^function\s+\w+`) 而不是已知函数名列表, 避免漏看夹在中间的 helper. 后续 sub-session 启动 scout 时遵循
+
 **phase 4 渲染层第二轮 streamline batch 1 (sub-session 4.1-4.5, 2026-05-08)**:
 - phase 4 plan 文档化: docs/phase4_plan.md v0.1 → v0.3 (CC ↔ codex 协作 2 round, P2 smoke baseline + P3 编号 + Option B uncommitted/untracked 安全)
 - 决策 1: 接口风格 A — verbatim 直读 G (跟 chain/_exec sprint 一致)
@@ -134,9 +149,9 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 **跳过 / 留 followup 类型**:
 - (无, sprint HIGH 全收尾)
 
-## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 7/10)
-- **v181.html: 39547 → 10507 (-29040, -73.4%)** ⭐ 突破 -73% 大关 (phase 4 4.1-4.7 -4542)
-- src/: 0 → **36 文件 ~32600 行**(data 7 / render 12 / core 7 / chains 8 + 2 memory feedback)
+## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 8/10)
+- **v181.html: 39547 → 9001 (-30546, -77.2%)** ⭐ 突破 -77% 大关 (phase 4 4.1-4.8 -6048)
+- src/: 0 → **37 文件 ~34200 行**(data 7 / render 13 / core 7 / chains 8 + 2 memory feedback)
 - 抽出累计:417 函数 (phase 3) + 65 顶层 const + 5 IIFE + 1 嵌套 IIFE-helper (dc) + ...
 - 5 个 baseline 共存 (phase1_post / phase2_complete / phase3_complete / data_completion_complete)
 - 4 个 git tags: v181-pre-refactor / phase1-baseline-archive / phase3-complete-archive / data-completion-archive
@@ -166,9 +181,11 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 
 phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 
-## 终态(local main, 等 push 授权)
-- **main HEAD: `66f0fa8 phase4(4.7): recruit_modals` (local, ahead of origin/main 3 commits = 4.6 + 4.7 + memory)**
-- phase 4 历史 (main 上):
+## 终态(local working branch phase4/4.8-tabs, 等 push 授权)
+- **working branch HEAD: `0bcb2ec phase4(4.8): tabs` (local, on phase4/4.8-tabs, 1 commit ahead of main + memory update pending)**
+- **main HEAD: `1d766f9 docs(memory): phase 4 sub-session 4.6+4.7 完成 status update` (synced to origin)**
+- phase 4 历史 (main / working branch 上):
+  - `0bcb2ec` phase4(4.8): tabs.js (8 tabs + renderRight + 6 helper + 4 utils + renderMilTab, -1506) **[on phase4/4.8-tabs, 等 push]**
   - `66f0fa8` phase4(4.7): recruit_modals (征兵 + 整备 + 扩编 + 增编分队 4 cluster, -1225)
   - `3508405` phase4(4.6): diplo_modals (朝议 + 求和 + 屠城 + 附庸, -195)
   - `04a6c9c` docs(memory): phase 4 batch 1 (4.1-4.5) status update
@@ -209,7 +226,7 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 - refactor/data-completion HEAD: `5b61620` (保留)
 - refactor/phase-3 HEAD: `afc2b3a` (保留)
 - sprint 工作分支保留(部分 push): batch-1a / 2 / 3 / 4 / 5 / 6 / 7 / 8 / 9 / 10 / 11 / 12 / 13 / 14 / 15 / 16 / 17 / 21 / 22 / 23 / 24 / 25 / 26 / 27 / 28 / 29 / 30 / checker-framework
-- phase 4 工作分支保留: phase4/plan / 4.1-overlay / 4.2-map-render / 4.3-notifications-extend / 4.4-gen-profile / 4.5-boot-screens / 4.6-diplo-modals / 4.7-recruit-modals (4.1-4.5 已 push, 4.6+ 等 push)
+- phase 4 工作分支保留: phase4/plan / 4.1-overlay / 4.2-map-render / 4.3-notifications-extend / 4.4-gen-profile / 4.5-boot-screens / 4.6-diplo-modals / 4.7-recruit-modals / 4.8-tabs (4.1-4.7 已 push, 4.8 等 push)
 - tags 全 push: phase1-baseline-archive / phase3-complete-archive / data-completion-archive
 
 ## v181 剩余 15656 行 6 桶实测分类(dc 后 grep+wc 实测, 见 docs/data_completion_summary.md §九)
@@ -230,13 +247,12 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 ## How to apply
 
 **新对话启动时**:
-1. `git log --oneline -10 main` 校验 HEAD = `66f0fa8` (phase 4 sub-session 4.7 收尾, 等 push)
-2. **重构 + dc + HIGH sprint + _exec sprint 整体收官 + phase 4 7/10 完成**
-3. **sprint 累计**: 30 sprint batches + 7 phase 4 sub-sessions (剩 3 sub-session 4.8-4.10)
-4. **phase 4 进度**: 7/10 sub-session 完成. 累计 -4542 行. 剩余:
-   - 4.8 tabs 8 right tabs (🟡 中-高, scope ~3200 行, 备选拆 a/b/c)
-   - 4.9 battle_modals (🔴 高, ~2400 行, 战斗 confirm 链时序)
-   - 4.10 battle_anim (🔴 最高, ~2500 行, 战斗动画 setTimeout 链, 必须最后做 + 完整战斗实机测)
+1. `git log --oneline -10` 校验 working branch HEAD (4.8 等 push 时 = `0bcb2ec`, push 后看 main HEAD)
+2. **重构 + dc + HIGH sprint + _exec sprint 整体收官 + phase 4 8/10 完成**
+3. **sprint 累计**: 30 sprint batches + 8 phase 4 sub-sessions (剩 2 sub-session 4.9-4.10)
+4. **phase 4 进度**: 8/10 sub-session 完成. 累计 -6048 行 (实测远低于 plan 估, 4.8 实测 -1506 vs plan 估 -3200). 剩余:
+   - 4.9 battle_modals (🔴 高, plan 估 ~2400 行, 战斗 confirm 链时序)
+   - 4.10 battle_anim (🔴 最高, plan 估 ~2500 行, 战斗动画 setTimeout 链, 必须最后做 + 完整战斗实机测)
 5. **Claude AI 实机测后置 followup** (_exec sprint 未跑 Claude AI 路径, smoke 不覆盖 _claudeAI.enabled 路径)
 6. **下阶段候选** (制作人决, phase 4 完成后): MEDIUM/LOW sprint / audit pass 2 / data-completion 2
 6. **verification harness** (claude.ai 决策): 不要 jsdom 全游戏跑, 用函数级 spy + invariant checker. D-052/D-065 都用这套
