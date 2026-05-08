@@ -46,7 +46,7 @@
 
 **B(按文件类型)**:每个 sub-session 一个新 src/render/*.js 文件,渲染关注点单一(overlay / map / tabs / modals / battle_anim 等)
 
-**C(按抽离难度排序)**:**先做低风险,后做高风险**(战斗动画 4.8 + 战斗 modals 4.7 留尾,有前面 sub-session 经验后再啃)
+**C(按抽离难度排序)**:**先做低风险,后做高风险**(战斗动画 4.10 + 战斗 modals 4.9 留尾,有前面 sub-session 经验后再啃)
 
 ### 决策 3:phase4_plan.md 文档化 + CC ↔ codex 协作
 
@@ -154,13 +154,35 @@
 
 **期望**:每个 sub-session smoke vs main byte-identical(verbatim 抽离不改逻辑,跟 _exec sprint 模式一致)。
 
-**执行**:
+#### Baseline acquisition 三选一(按 sub-session 上下文选)
+
+**Option A** — 抽离改动**未 commit** + 工作分支直接从 main 创建(仅 4.1 / 启动 sub-session 适用):
 ```bash
 node tests/smoke.js && cp tests/current.json tests/sub_current.json
 git stash && node tests/smoke.js && cp tests/current.json tests/main_current.json
 git stash pop
 node tests/compare.js tests/main_current.json tests/sub_current.json
 ```
+注:`git stash` 这里能回到 main 是因为工作分支 HEAD == main HEAD(尚未 commit),uncommitted changes 是唯一 diff。
+
+**Option B** — 抽离已 commit 或工作分支 ≠ main(任何 sub-session 通用,**最鲁棒**):
+```bash
+node tests/smoke.js && cp tests/current.json tests/sub_current.json
+git checkout main && node tests/smoke.js && cp tests/current.json tests/main_current.json
+git checkout - && node tests/compare.js tests/main_current.json tests/sub_current.json
+```
+
+**Option C** — streamline 模式链式传递性(4.2~4.10 走 streamline 时,vs **prev sub-session** 即可):
+```bash
+# 假设 prev sub-session 已 verify vs main byte-identical
+node tests/smoke.js && cp tests/current.json tests/sub_current.json
+git stash && node tests/smoke.js && cp tests/current.json tests/prev_current.json
+git stash pop && node tests/compare.js tests/prev_current.json tests/sub_current.json
+# PASS = vs prev byte-identical, 传递性 = vs main byte-identical
+# commit message 标注 "经 prev sub-session 中转传递性 vs main"
+```
+
+**推荐**:启动 sub-session(4.1)用 Option A;集中 streamline 链(4.2/4.3/...)用 Option C 简单;**关键 sub-session(4.7 中,4.9/4.10 高)用 Option B 鲁棒**,直接 vs main 不依赖 prev 传递。
 
 **预期**:`PASS — 51 snapshots identical`
 
@@ -294,4 +316,13 @@ phase 4 sub-session 中,遇到以下情况立即回 Claude.ai 讨论:
 
 ---
 
-(phase4_plan v0.1 — CC 起草草稿,等 CC ↔ codex 协作迭代)
+## 十三、修订记录
+
+- **v0.1**(2026-05-08)CC 起草草稿
+- **v0.2**(2026-05-08)据 codex review 反馈修:
+  - P2 fix: 第四节 smoke baseline acquisition 拆 Option A/B/C,文档化 git stash 限制 + streamline 链式传递性
+  - P3 fix: 决策 2 文字 "4.8/4.7 留尾" → "4.10/4.9 留尾",对齐 sub-session 表
+
+---
+
+(phase4_plan v0.2 — CC ↔ codex 协作迭代,等制作人 LGTM)
