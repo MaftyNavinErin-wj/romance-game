@@ -28,8 +28,9 @@
 //   GEN13 亲密度系统                   v181 L7621-L7755  (8)
 //   GEN14 伤亡 + 俘虏                  v181 L7757-L8186  (12)
 //   GEN15 _applyCeremony 归位          src/render/ceremonies.js L31-L45 (1)
+//   GEN16 AI _exec 入口                v181 L13516-L13542 (2 funcs, sprint batch-26)
 //
-// 函数总数: 4+2+3+4+3+9+1+9+2+5+2+2+2+8+12+1 = **69 函数 + 11 const**
+// 函数总数: 4+2+3+4+3+9+1+9+2+5+2+2+2+8+12+1+2 = **71 函数 + 11 const**
 //
 // ── 留 v181 / 数据 sprint ──
 //   武将数据 const (留 v181 等 src/data/generals.js sprint):
@@ -42,9 +43,9 @@
 //     _showCeremonyPicker / _updateCeremonyBtn / _confirmCeremony
 //   全部 modal HTML / render Tab (无武将专属 Tab; 武将信息渲染在 renderFactionTab /
 //     openGenProfile 留 v181 / openPostAction / openPostAppoint 等)
-//   5 个武将相关 _exec (留 src/core/claude_ai.js 段 M, phase 3.3 选项 A):
-//     _execAppointPost / _execDismissPost / _execSetStrategist / _execRecruitWild /
-//     _execPoach
+//   3 个武将相关 _exec (留 src/core/claude_ai.js 段 M, phase 3.3 选项 A):
+//     _execAppointPost / _execDismissPost / _execSetStrategist
+//   (RecruitWild + Poach 已抽到 GEN16, sprint batch-26)
 //
 // ── 写口归属声明((a) 原则核心)──
 // **本 chain 主要写口**:
@@ -2262,4 +2263,36 @@ function _applyCeremony(picked, fid){
     u.squads.forEach(sq=>{ sq.morale=Math.min(100,sq.morale+5); });
   });
   log(`🏅 拜将大典：${picked.join('、')}受封，全军振奋`,'event');
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ── GEN16 AI _exec 入口 (sprint batch-26 D-类架构债 sprint, v181 L13516-L13542) ──
+// ════════════════════════════════════════════════════════════════════
+
+function _execRecruitWild(fid, act) {
+  const genName = act.general;
+  if (!genName) return false;
+  if (!G.wildPool.includes(genName)) return false;
+  const cdData = G.wildRecruitCD[genName];
+  if (cdData && cdData.until > G.turn) return false;
+  const failCount = cdData?.failCount || 0;
+  const cost = 1500 + failCount * 500;
+  if ((G.factions[fid].res.gold || 0) < cost) return false;
+  return _doRecruitWild(genName, fid, true);
+}
+
+function _execPoach(fid, act) {
+  const genName = act.general;
+  if (!genName) return false;
+  const rec = G.recruitableGens?.[genName];
+  if (!rec || rec.fid === fid) return false;
+  const gen = GEN_MAP[genName]; // ★ v167fix #33
+  if (!gen) return false;
+  const topStat = Math.max(gen.com, gen.war, gen.int, gen.pol, gen.cha);
+  // D-064 fix: 加 (1 + _techPoachCost) 科技修正（玩家路径 poachGen L1636 已用，AI 路径漏）
+  const _techPoachCost = getTechEffect(fid, 'poachCostMult');
+  const cost = Math.floor((topStat >= 90 ? 3000 : 1500) * (1 + _techPoachCost));
+  if ((G.factions[fid].res.gold || 0) < cost) return false;
+  _aiDoPoach(genName, fid, rec.fid, cost);
+  return true;
 }

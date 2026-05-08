@@ -13513,33 +13513,7 @@ function _execSetStrategist(fid, act) {
   return true;
 }
 
-function _execRecruitWild(fid, act) {
-  const genName = act.general;
-  if (!genName) return false;
-  if (!G.wildPool.includes(genName)) return false;
-  const cdData = G.wildRecruitCD[genName];
-  if (cdData && cdData.until > G.turn) return false;
-  const failCount = cdData?.failCount || 0;
-  const cost = 1500 + failCount * 500;
-  if ((G.factions[fid].res.gold || 0) < cost) return false;
-  return _doRecruitWild(genName, fid, true);
-}
-
-function _execPoach(fid, act) {
-  const genName = act.general;
-  if (!genName) return false;
-  const rec = G.recruitableGens?.[genName];
-  if (!rec || rec.fid === fid) return false;
-  const gen = GEN_MAP[genName]; // ★ v167fix #33
-  if (!gen) return false;
-  const topStat = Math.max(gen.com, gen.war, gen.int, gen.pol, gen.cha);
-  // D-064 fix: 加 (1 + _techPoachCost) 科技修正（玩家路径 poachGen L1636 已用，AI 路径漏）
-  const _techPoachCost = getTechEffect(fid, 'poachCostMult');
-  const cost = Math.floor((topStat >= 90 ? 3000 : 1500) * (1 + _techPoachCost));
-  if ((G.factions[fid].res.gold || 0) < cost) return false;
-  _aiDoPoach(genName, fid, rec.fid, cost);
-  return true;
-}
+// 武将链 GEN16 (AI _exec 入口 _execRecruitWild + _execPoach,L13516-L13542) 已抽离到 src/chains/general.js
 
 // ════════════════════════════
 // 科技指令执行
