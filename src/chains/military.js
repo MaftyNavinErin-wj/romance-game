@@ -14,7 +14,8 @@
 // 3. **战斗动画 / modal HTML 严格留 v181**(phase 2 原则):
 //    _drainPendingBattleAnimations + 6 _play* / _show*Confirm / confirm* /
 //    selectDuelChallenger / _battleSideHtml / _siegeArrivalChoice 等
-// 4. **9 _execXxx 留 src/core/claude_ai.js 段 M**(phase 3.3 选项 A 决策保留)
+// 4. **9 _execXxx 留 src/core/claude_ai.js 段 M**(phase 3.3 选项 A 决策,sprint batch-30 已归位 8 个到 MIL9;
+//    第 9 个 _execBillet 由 sprint batch-22 deletion 删除 D-020)
 // 5. **MIL7 战斗调度精确切片**:mechanism vs UI 拆段,实装就地用 grep -n "^}" 验证 closing
 // 6. **billetUnit / _confirmBillet 一对**:billetUnit 调 modal 入口,**留 v181**;
 //    _confirmBillet 是 modal callback,**留 v181**(整体留 v181,拆不开)
@@ -73,6 +74,9 @@
 //   M_LETS 顶层 lets(分散 declaration)    v181 各处 (4 个独立 ranges)
 //        _unitIdCounter(L2344)/ _supplyCache(L10701)/ _battleReports(L13433)/
 //        _currentBattleReport(L13435)/ _pendingBattleAnimations(L13467)
+//   MIL9 AI _exec 入口                    v181 L13395-L13536 (8 funcs, sprint batch-30)
+//        _execMove / _execRecruit / _execDisband / _execSetCamp / _execSetAmbush /
+//        _execCancelSpecial / _execCancelSiege / _execSetReinforcePolicy
 //
 // **总计 11 顶层 lets**(4 独立 ranges + 7 in-range);**~120 函数 + ~21 const**。
 //
@@ -7419,4 +7423,153 @@ function disbandUnit(uid){const u=G.units.find(x=>x.id===uid);if(!u||u.fac!==G.p
 function getUnitAtCity(unit){
   const cityId = HEX_CITY[hkey(unit.hq??0, unit.hr??0)];
   return cityId ? G.cities[cityId] : null;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ── MIL9 AI _exec 入口 (sprint batch-30 _exec 归位架构债, v181 L13395-L13536) ──
+//    8 funcs: Move / Recruit / Disband / SetCamp / SetAmbush /
+//             CancelSpecial / CancelSiege / SetReinforcePolicy
+// ════════════════════════════════════════════════════════════════════
+
+function _execMove(fid, act) {
+  const unit = _findUnit(fid, act.leader);
+  if (!unit) { console.warn('[ClaudeAI] move: 找不到部队', act.leader, `| ${FAC[fid]?.name}部队:`, G.units.filter(u=>u.fac===fid).map(u=>u.squads.map(s=>s.genName).join('+')).join(', ')); return false; }
+  if (unit.mobilizingTurns > 0) { console.warn('[ClaudeAI] move: 整备中', act.leader, unit.mobilizingTurns, '旬'); return false; }
+  const cityId = _resolveCityId(act.target);
+  if (!cityId) { console.warn('[ClaudeAI] move: 目标城市无效', act.target); return false; }
+  const cdef = CITY_MAP[cityId];
+  if (!cdef) { console.warn('[ClaudeAI] move: CITY_MAP无此城', cityId); return false; }
+  const troopType = getMainTroopType(unit);
+  const path = hexAstar(unit.hq, unit.hr, cdef.q, cdef.r, troopType, fid);
+  if (!path) { console.warn('[ClaudeAI] move: 寻路失败', act.leader, '→', cityId); return false; }
+  unit.hexPath = path.path.slice(1);
+  unit.movePath = [cityId];
+  unit.status = 'march';
+  unit._aiRole = act.type === 'attack' ? 'attack' : (act.role || 'move'); // ★ v159fix: attack type直接标记进攻意图
+  unit._aiTarget = cityId;
+  return true;
+}
+
+function _execRecruit(fid, act) {
+  // Claude指定城市和武将征兵
+  const cityId = _resolveCityId(act.city);
+  const city = G.cities[cityId];
+  if (!city || city.fac !== fid) { console.warn('[ClaudeAI] recruit: 城市无效或非己方', act.city); return false; }
+  if (city.recruitedThisTurn) { console.warn('[ClaudeAI] recruit: 本旬已征兵', act.city); return false; }
+  if (G.units.filter(u => u.fac === fid).length >= (typeof MAX_FIELD_UNITS_ABS !== 'undefined' ? MAX_FIELD_UNITS_ABS : 12)) { console.warn('[ClaudeAI] recruit: 部队数达上限'); return false; }
+  // ★ v158: 未指定武将时自动选最高统帅的闲置武将
+  let genName = act.general;
+  if (!genName) {
+    const idle = (G.generals[fid] || []).filter(g => {
+      if (g.role === 'ruler') return false;
+      if (_genDeployed(g.name, fid)) return false;
+      if (Object.values(G.cities).some(c => c.fac === fid && c.prefect === g.name)) return false;
+      if (G.factions[fid]?.strategist === g.name) return false;
+      if (G.factions[fid]?._tech?.current?.genName === g.name) return false;
+      return true;
+    }).sort((a, b) => b.com - a.com);
+    genName = idle[0]?.name;
+  }
+  if (!genName || !_genInFac(genName, fid)) { console.warn('[ClaudeAI] recruit: 无可用武将', genName); return false; }
+  if (_genDeployed(genName, fid)) { console.warn('[ClaudeAI] recruit: 武将已部署', genName); return false; }
+  // 检查太守/研究中也不能征
+  if (Object.values(G.cities).some(c => c.fac === fid && c.prefect === genName)) { console.warn('[ClaudeAI] recruit: 武将是太守', genName); return false; }
+  const tech = G.factions[fid]?._tech;
+  if (tech?.current?.genName === genName) { console.warn('[ClaudeAI] recruit: 武将在研究中', genName); return false; }
+  const troopType = act.troop_type || 'light';
+  const troops = Math.min(act.troops || 3000, Math.floor(city.pop * 0.10), 5000);
+  if (troops < 500) { console.warn('[ClaudeAI] recruit: 人口不足', city.name, city.pop); return false; }
+  const goldCost = Math.ceil(troops * 1200 / 5000);
+  const fac = G.factions[fid];
+  if (fac.res.gold < goldCost) { console.warn('[ClaudeAI] recruit: 金钱不足', fac.res.gold, '<', goldCost); return false; }
+  // 兵种资源检查
+  const matCost = calcSlotMatCost(troopType, troops);
+  if (!canAffordMat(fid, matCost)) { console.warn('[ClaudeAI] recruit: 材料不足', troopType, matCost, '| 资源:', JSON.stringify(fac.res)); return false; }
+  safeSub(fac.res, 'gold', goldCost);
+  deductMat(fid, matCost);
+  city.pop -= troops;
+  city.recruitedThisTurn = true;
+  const squads = [{ genName, type: troopType, troops, maxTroops: troops, morale: 70 }];
+  const unit = createUnit({ fac: fid, spawnCityId: cityId, squads });
+  // D-035 fix: 设 unit.level（v116 特色兵种 eliteLevel + 玩家路径同公式 v181.html:9314-9315）
+  // createUnit 默认 level=1 → AI 永远 Lv.1 出厂；玩家路径 max(eliteLevel, getInitLevel(city))
+  const _eliteLv = TROOP_TYPES[troopType]?.eliteLevel || 0;
+  unit.level = _eliteLv > 0 ? Math.max(_eliteLv, getInitLevel(city)) : getInitLevel(city);
+  unit.mobilizingTurns = 3;
+  unit._apRemaining = 0;
+  G.units.push(unit);
+  log(`⚔ [AI] ${FAC[fid]?.name} ${genName}于${city.name}征兵${fmt(troops)}${troopType}，3旬整备`, 'economy');
+  return true;
+}
+
+function _execDisband(fid, act) {
+  const unit = _findUnit(fid, act.leader);
+  if (!unit) return false;
+  const loc = getUnitNodeId(unit);
+  if (!loc) return false;
+  const city = G.cities[loc];
+  if (!city || city.fac !== fid) return false;
+  const troops = getUnitTroops(unit);
+  city.pop += Math.floor(troops * 0.6);
+  G.units = G.units.filter(u => u.id !== unit.id);
+  log(`🔻 [AI] ${FAC[fid]?.name}于${city.name}裁军${fmt(troops)}`, 'economy');
+  return true;
+}
+
+function _execSetCamp(fid, act) {
+  const unit = _findUnit(fid, act.leader);
+  if (!unit) { console.warn('[ClaudeAI] set_camp: 找不到部队', act.leader); return false; }
+  if (unit.status === 'garrison') { console.warn('[ClaudeAI] set_camp: 城内驻守无需扎营', act.leader); return false; }
+  if ((unit.mobilizingTurns || 0) > 0) { console.warn('[ClaudeAI] set_camp: 整备中', act.leader); return false; }
+  // D-016 fix: 扣金 + 木资源（模仿玩家 setCamp src/chains/military.js:7344-7345，原本免费扎营 exploit）
+  const fac = G.factions[fid];
+  if (!fac) return false;
+  const _cc = getCampCost(fid);
+  if ((fac.res.gold || 0) < _cc.gold) { console.warn('[ClaudeAI] set_camp: 金钱不足', _cc.gold); return false; }
+  if ((fac.res.wood || 0) < _cc.wood) { console.warn('[ClaudeAI] set_camp: 木材不足', _cc.wood); return false; }
+  safeSub(fac.res, 'gold', _cc.gold);
+  safeSub(fac.res, 'wood', _cc.wood);
+  unit.status = 'camp';
+  unit.hexPath = [];
+  return true;
+}
+
+function _execSetAmbush(fid, act) {
+  const unit = _findUnit(fid, act.leader);
+  if (!unit) { console.warn('[ClaudeAI] set_ambush: 找不到部队', act.leader); return false; }
+  if (unit.status === 'garrison') { console.warn('[ClaudeAI] set_ambush: 城内驻守无法设伏', act.leader); return false; }
+  if ((unit.mobilizingTurns || 0) > 0) { console.warn('[ClaudeAI] set_ambush: 整备中', act.leader); return false; }
+  const terrain = HEX_TERRAIN[hkey(unit.hq, unit.hr)];
+  if (!['forest', 'hill', 'mountain', 'swamp'].includes(terrain)) { console.warn('[ClaudeAI] set_ambush: 地形不允许', act.leader, terrain); return false; }
+  unit.status = 'ambush';
+  unit.hexPath = [];
+  return true;
+}
+
+function _execCancelSpecial(fid, act) {
+  const unit = _findUnit(fid, act.leader);
+  if (!unit) return false;
+  if (unit.status === 'camp' || unit.status === 'ambush') {
+    unit.status = 'halt';
+    return true;
+  }
+  return false;
+}
+
+function _execCancelSiege(fid, act) {
+  const unit = _findUnit(fid, act.leader);
+  if (!unit || unit.status !== 'siege') return false;
+  unit.status = 'halt';
+  return true;
+}
+
+// ★ v159fix: 补员策略设置
+function _execSetReinforcePolicy(fid, act) {
+  const policy = act.policy;
+  if (!['aggr', 'bal', 'elit'].includes(policy)) return false;
+  if (!G.factions[fid]) return false;
+  G.factions[fid].policyId = policy;
+  const labels = { aggr: '激进', bal: '均衡', elit: '精兵' };
+  log(`📋 [AI] ${FAC[fid]?.name}补员策略调整为「${labels[policy]}」`, 'economy');
+  return true;
 }
