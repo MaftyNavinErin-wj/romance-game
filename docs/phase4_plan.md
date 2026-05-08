@@ -165,12 +165,36 @@ node tests/compare.js tests/main_current.json tests/sub_current.json
 ```
 注:`git stash` 这里能回到 main 是因为工作分支 HEAD == main HEAD(尚未 commit),uncommitted changes 是唯一 diff。
 
-**Option B** — 抽离已 commit 或工作分支 ≠ main(任何 sub-session 通用,**最鲁棒**):
+**Option B** — 显式 vs main(任何 sub-session 通用,**最鲁棒**):
+
+适用场景:抽离已 commit / 工作分支 ≠ main / 高风险 sub-session 不接受传递性。
+
+**B.1**(已 commit,工作树干净):
 ```bash
 node tests/smoke.js && cp tests/current.json tests/sub_current.json
 git checkout main && node tests/smoke.js && cp tests/current.json tests/main_current.json
 git checkout - && node tests/compare.js tests/main_current.json tests/sub_current.json
 ```
+
+**B.2**(未 commit,有 uncommitted 修改 + untracked 新建 src/render/X.js)— 必须 `--include-untracked` 避免 untracked 污染 main 工作树:
+```bash
+node tests/smoke.js && cp tests/current.json tests/sub_current.json
+git stash push --include-untracked -m "phase4 baseline acquisition"
+git checkout main && node tests/smoke.js && cp tests/current.json tests/main_current.json
+git checkout - && git stash pop
+node tests/compare.js tests/main_current.json tests/sub_current.json
+```
+
+**B.3**(worktree 方式,最干净不动主工作树)— 适合长期 sub-session / 需保护主工作树状态:
+```bash
+node tests/smoke.js && cp tests/current.json tests/sub_current.json
+git worktree add /tmp/phase4-baseline main
+(cd /tmp/phase4-baseline && node tests/smoke.js && cp tests/current.json /tmp/main_current.json)
+git worktree remove /tmp/phase4-baseline
+node tests/compare.js /tmp/main_current.json tests/sub_current.json
+```
+
+**默认推荐 B.2**(简单 + 处理 uncommitted/untracked);B.3 仅在主工作树状态需保护时用。
 
 **Option C** — streamline 模式链式传递性(4.2~4.10 走 streamline 时,vs **prev sub-session** 即可):
 ```bash
@@ -322,7 +346,9 @@ phase 4 sub-session 中,遇到以下情况立即回 Claude.ai 讨论:
 - **v0.2**(2026-05-08)据 codex review 反馈修:
   - P2 fix: 第四节 smoke baseline acquisition 拆 Option A/B/C,文档化 git stash 限制 + streamline 链式传递性
   - P3 fix: 决策 2 文字 "4.8/4.7 留尾" → "4.10/4.9 留尾",对齐 sub-session 表
+- **v0.3**(2026-05-08)据 codex review round 2 反馈修:
+  - P2 round 2 fix: Option B 拆 B.1(已 commit)/ B.2(未 commit,`git stash --include-untracked` 含 src/render/X.js)/ B.3(worktree 隔离),默认推荐 B.2
 
 ---
 
-(phase4_plan v0.2 — CC ↔ codex 协作迭代,等制作人 LGTM)
+(phase4_plan v0.3 — CC ↔ codex 协作迭代 round 2,等制作人 LGTM)
