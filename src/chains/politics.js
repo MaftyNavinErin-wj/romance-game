@@ -38,6 +38,9 @@
 //   P7 AI _exec 入口 (官职)                       v181 L13470-L13503 _execAppointPost / _execDismissPost
 //                                                  (sprint batch-27, 随 appointGenPost / dismissGenPost
 //                                                   按 (a) 原则归政治)
+//   P8 AI _exec 入口 (科技)                       v181 L13464-L13481 _execResearch
+//                                                  (sprint batch-28, 随 startTechResearch / canAffordTech /
+//                                                   G.factions[fid]._tech 主写口归政治)
 //
 // ── 留 v181 ──
 //   `getGenBirthplace`(L4560,武将链 GEN_TAGS 查表,留 3.12)
@@ -48,10 +51,10 @@
 //   render Tab 函数(phase 2 原则保留 v181):
 //     `renderTechTab`(L13144) / `openTechResearchPicker`(L13263) /
 //     `confirmTechResearch`(L13308) / `renderPostTab`(L13494)
-//   `_execResearch` (在 src/core/claude_ai.js 派发, 函数体留 v181, phase 3.3 选项 A 决策不搬)
-//   注: _execEnthrone 由 sprint batch-25 D-121 抽到本 chain (P6, 加 mandate gate)
-//   注: _execAppointPost / _execDismissPost 由 sprint batch-27 抽到本 chain (P7,
-//       按 (a) 原则随 appointGenPost / dismissGenPost helper 归政治)
+//   注: 政治相关 _exec 已全数抽到 chain (sprint batch-25/27/28 累积):
+//       _execEnthrone (P6, batch-25 D-121, 加 mandate gate)
+//       _execAppointPost / _execDismissPost (P7, batch-27)
+//       _execResearch (P8, batch-28)
 //
 // ── 写口归属声明((a) 原则核心)──
 // **本 chain 主要写口**:
@@ -1104,4 +1107,28 @@ function _execDismissPost(fid, act) {
   if (!genName || !G.genPost?.[genName]) return false;
   dismissGenPost(genName, fid);
   return true;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ── P8 AI _exec 入口 (科技, sprint batch-28, v181 L13464-L13481) ──
+//    随 startTechResearch / canAffordTech / G.factions[fid]._tech 主写口归政治
+// ════════════════════════════════════════════════════════════════════
+
+function _execResearch(fid, act) {
+  const techId = act.tech;
+  const genName = act.general;
+  if (!techId || !genName) { console.warn('[ClaudeAI] research: 缺tech或general', act); return false; }
+  const tech = G.factions[fid]?._tech;
+  if (!tech) { console.warn('[ClaudeAI] research: _tech不存在', fid); return false; }
+  if (tech.current) { console.warn('[ClaudeAI] research: 已有研究进行中', tech.current.techId); return false; }
+  const def = TECH_TREE[techId];
+  if (!def) { console.warn('[ClaudeAI] research: 科技ID无效', techId); return false; }
+  if (tech.researched.has(techId)) { console.warn('[ClaudeAI] research: 已研究过', techId); return false; }
+  if (!def.prereq.every(p => tech.researched.has(p))) { console.warn('[ClaudeAI] research: 前置未满足', techId, def.prereq); return false; }
+  if (!canAffordTech(fid, techId)) { console.warn('[ClaudeAI] research: 资源不足', techId); return false; }
+  const gen = (G.generals[fid] || []).find(g => g.name === genName);
+  if (!gen) { console.warn('[ClaudeAI] research: 武将不存在', genName); return false; }
+  if (_genDeployed(genName, fid)) { console.warn('[ClaudeAI] research: 武将已部署', genName); return false; }
+  if (Object.values(G.cities).some(c => c.fac === fid && c.prefect === genName)) { console.warn('[ClaudeAI] research: 武将是太守', genName); return false; }
+  return startTechResearch(fid, techId, genName);
 }

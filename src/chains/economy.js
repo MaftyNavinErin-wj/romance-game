@@ -37,6 +37,10 @@
 //          / cancelTradeAgreement
 //   E8  物资 helpers                          v181 L13006-L13030 calcSlotMatCost / mergeMatCosts
 //                                                                / canAffordMat / deductMat
+//   E9  AI _exec 入口                         v181 L13383-L13455 _execBuild / _execSetTax /
+//                                                                _execSetCorvee / _execTransferFood /
+//                                                                _execToggleResupply
+//                                             (sprint batch-28, 5 funcs)
 //
 // ── 留 v181 ──
 //   modal/UI 紧密耦合(phase 2 原则):
@@ -50,9 +54,10 @@
 //   `createUnit`(L13033,军事链 unit creation,夹在物资 helpers 后,留 3.11)
 //   `getStrategistInt / setStrategist`(L9697-L9744,武将链军师,夹在 trade 子组中间,留 3.12)
 //   `showSiegeAftermathChoice`(L9977,豪族链 modal,夹在 trade 子组后,已留 v181)
-//   5 个 `_exec*`(`_execBuild / _execSetTax / _execSetPrefect / _execTransferFood /
-//                 _execToggleResupply / _execCancelSupply`)— 在 src/core/claude_ai.js,
-//                 phase 3.3 选项 A 决策不搬
+//   注: 经济相关 5 个 `_exec*` 已抽到 E9 (sprint batch-28, 按 (a) 原则归位):
+//       _execBuild / _execSetTax / _execSetCorvee / _execTransferFood / _execToggleResupply
+//   注: _execSetPrefect 随 setPrefect 归 general.js GEN16 (sprint batch-27)
+//   注: _execCancelSupply 由 sprint batch-22 deletion 删除 (D-099)
 //
 // ── 写口归属声明((a) 原则核心)──
 // **本 chain 主要写口**:
@@ -1690,4 +1695,81 @@ function canAffordMat(fid, matCost){
 function deductMat(fid, matCost){
   const res=G.factions[fid]?.res; if(!res) return;
   for(const[r,v] of Object.entries(matCost)) safeSub(res, r, v);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// ── E9 AI _exec 入口 (sprint batch-28 _exec 归位架构债) ──
+//    建设/赋税/徭役/调粮/补给开关 — v181 L13383-L13455 verbatim
+// ════════════════════════════════════════════════════════════════════
+
+function _execBuild(fid, act) {
+  const cityId = _resolveCityId(act.city);
+  const city = G.cities[cityId];
+  if (!city || city.fac !== fid) { console.warn('[ClaudeAI] build: 城市无效或非己方', act.city); return false; }
+  const bldId = act.building;
+  const bld = BLDS[bldId];
+  if (!bld) { console.warn('[ClaudeAI] build: 建筑ID无效', bldId); return false; }
+  const curLv = (city.buildings || {})[bldId] || 0;
+  if (curLv >= 3) { console.warn('[ClaudeAI] build: 已满级', cityId, bldId); return false; }
+  if ((city.buildQueue || []).find(q => q.id === bldId)) { console.warn('[ClaudeAI] build: 已在队列中', cityId, bldId); return false; }
+  if (bld.restrict?.length && !bld.restrict.some(req => (city.tags || []).includes(req))) { console.warn('[ClaudeAI] build: 城市类型不符', cityId, bldId, 'need:', bld.restrict, 'has:', city.tags); return false; }
+  const qCap = city.pop >= 500000 ? 4 : city.pop >= 250000 ? 3 : city.pop >= 100000 ? 2 : 1;
+  if ((city.buildQueue || []).length >= qCap) { console.warn('[ClaudeAI] build: 队列满', cityId, `${(city.buildQueue||[]).length}/${qCap}`); return false; }
+  const ts = getCityStats(city.tags || []);
+  const usedSlots = Object.keys(city.buildings || {}).length;
+  if (!city.buildings?.[bldId] && usedSlots >= ts.slots) { console.warn('[ClaudeAI] build: 槽位满', cityId, `${usedSlots}/${ts.slots}`); return false; }
+  const lvDef = bld.levels?.[curLv];
+  if (!lvDef) { console.warn('[ClaudeAI] build: 等级定义不存在', bldId, 'lv', curLv); return false; }
+  const fac = G.factions[fid];
+  const _milBldDiscount = (bld.cat === 'mil') ? (getCourtDecreeBuffs(fid).milBuildCost || 0) : 0;
+  for (const [res, amt] of Object.entries(lvDef.c)) {
+    const adj = (res === 'gold' && _milBldDiscount) ? Math.max(100, Math.floor(amt * (1 + _milBldDiscount))) : amt;
+    if ((fac.res[res] || 0) < adj) { console.warn('[ClaudeAI] build: 资源不足', cityId, bldId, res, `${Math.round(fac.res[res]||0)}<${adj}`); return false; }
+  }
+  for (const [res, amt] of Object.entries(lvDef.c)) {
+    const adj = (res === 'gold' && _milBldDiscount) ? Math.max(100, Math.floor(amt * (1 + _milBldDiscount))) : amt;
+    fac.res[res] -= adj;
+  }
+  city.buildQueue.push({ id: bldId, targetLevel: curLv + 1, turnsLeft: lvDef.t, totalTurns: lvDef.t });
+  log(`🏗 [AI] ${city.name}开始建设${bld.name}Lv${curLv + 1}（${lvDef.t}旬）`, 'economy');
+  return true;
+}
+
+function _execSetTax(fid, act) {
+  const taxId = act.level;
+  if (!TAX.find(t => t.id === taxId)) { console.warn('[ClaudeAI] set_tax: 无效税率ID', taxId, '| 合法值:', TAX.map(t=>t.id).join('/')); return false; }
+  G.factions[fid].taxId = taxId;
+  log(`📋 [AI] ${FAC[fid]?.name}赋税调整为「${TAX.find(t => t.id === taxId).name}」`, 'economy');
+  return true;
+}
+
+// D-076 fix: 补 _execSetCorvee (Claude AI 缺此 _exec 导致 AI 永远徭役=low)
+function _execSetCorvee(fid, act) {
+  const corveeId = act.level;
+  if (!CORVEE.find(c => c.id === corveeId)) { console.warn('[ClaudeAI] set_corvee: 无效徭役ID', corveeId, '| 合法值:', CORVEE.map(c=>c.id).join('/')); return false; }
+  G.factions[fid].corveeId = corveeId;
+  log(`📋 [AI] ${FAC[fid]?.name}徭役调整为「${CORVEE.find(c => c.id === corveeId).name}」`, 'economy');
+  return true;
+}
+
+function _execTransferFood(fid, act) {
+  const fromId = _resolveCityId(act.from);
+  const toId = _resolveCityId(act.to);
+  const from = G.cities[fromId], to = G.cities[toId];
+  if (!from || !to || from.fac !== fid || to.fac !== fid) return false;
+  // ★ v159fix: prompt不含amount字段，智能默认——调出源城一半存粮（上限10000，下限500）
+  const maxTransfer = Math.floor((from.storage || 0) * 0.5);
+  const amount = Math.min(act.amount || maxTransfer, from.storage || 0, 10000);
+  if (amount < 500) return false; // 太少不值得调
+  from.storage -= amount;
+  to.storage = (to.storage || 0) + amount;
+  log(`🚚 [AI] ${from.name}→${to.name} 调粮${fmt(amount)}`, 'economy');
+  return true;
+}
+
+function _execToggleResupply(fid, act) {
+  // AI势力的resupply开关（各势力独立）
+  if (!G._facResupply) G._facResupply = {};
+  G._facResupply[fid] = !G._facResupply[fid];
+  return true;
 }
