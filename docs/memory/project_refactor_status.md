@@ -1,6 +1,6 @@
 ---
-name: Refactor phase status — HIGH 27/27 + _exec 35/35 + phase 4 streamline batch 1 (4.1-4.5) 完成
-description: Phase 3 + data-completion + HIGH sprint (25) + _exec 架构债 sprint (5) + phase 4 渲染层第二轮 sub-session 4.1-4.5 streamline batch 1 完成. v181 39547 → 11927 (-69.8%). 35 src/ 文件. phase 4 plan 文档化 + CC ↔ codex 协作 v0.3 LGTM. 工作流原则 9. streamline + 集中 codex 模式 trial 2 (phase 4 4.1-4.5) 验证.
+name: Refactor phase status — HIGH 27/27 + _exec 35/35 + phase 4 sub-session 4.1-4.7 完成
+description: Phase 3 + dc + HIGH sprint (25) + _exec sprint (5) + phase 4 sub-session 4.1-4.7 完成. v181 39547 → 10507 (-73.4%). 36 src/ 文件. phase 4 进度 7/10 (剩 4.8 tabs 中-高 / 4.9 battle_modals 高 / 4.10 battle_anim 最高).
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -69,6 +69,18 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - **trial helper 模式 2 次复用确立**: 单文件 / (target, by) 双参数 / 返回 {items, total} 或 rate. batch-25 D-121 不走此模式 (信息暴露面)
 - **武将链 10 HIGH 全收尾 ✅** (D-048/D-049/D-051/D-052/D-053/D-055/D-061/D-063/D-064/D-065 全 close)
 
+**phase 4 sub-session 4.6 单 codex review (2026-05-08, 中风险首发)**:
+- 4.6 diplo_modals: 朝议 (3 funcs) + 求和 + 屠城安民 + 附庸 modal 抽到 src/render/diplo_modals.js
+- v181: 11927 → 11732 (-195)
+- codex review LGTM (零 finding, "straightforward relocation... no load-order issues")
+- streamline 模式切换: 4.1-4.5 集中 review → 4.6+ 单 sub-session review (中风险尾段)
+
+**phase 4 sub-session 4.7 单 codex review (2026-05-08, 中风险)**:
+- 4.7 recruit_modals: 征兵 + 整备 + 扩编 + 增编分队 4 modal cluster 抽到 src/render/recruit_modals.js
+- 4 lets (_rm/_rdp/_ex/_as) + 37 funcs 一起搬
+- v181: 11732 → 10507 (-1225, 单 sub-session 减肥最大头, 仅次于 4.5 boot_screens 1461)
+- codex review LGTM (零 finding)
+
 **phase 4 渲染层第二轮 streamline batch 1 (sub-session 4.1-4.5, 2026-05-08)**:
 - phase 4 plan 文档化: docs/phase4_plan.md v0.1 → v0.3 (CC ↔ codex 协作 2 round, P2 smoke baseline + P3 编号 + Option B uncommitted/untracked 安全)
 - 决策 1: 接口风格 A — verbatim 直读 G (跟 chain/_exec sprint 一致)
@@ -122,9 +134,9 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 **跳过 / 留 followup 类型**:
 - (无, sprint HIGH 全收尾)
 
-## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 batch 1)
-- **v181.html: 39547 → 11927 (-27620, -69.8%)** ⭐ 突破 -70% 大关 (phase 4 4.1-4.5 -3122)
-- src/: 0 → **34 文件 ~31000 行**(data 7 / render 10 / core 7 / chains 8 + 2 memory feedback)
+## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 7/10)
+- **v181.html: 39547 → 10507 (-29040, -73.4%)** ⭐ 突破 -73% 大关 (phase 4 4.1-4.7 -4542)
+- src/: 0 → **36 文件 ~32600 行**(data 7 / render 12 / core 7 / chains 8 + 2 memory feedback)
 - 抽出累计:417 函数 (phase 3) + 65 顶层 const + 5 IIFE + 1 嵌套 IIFE-helper (dc) + ...
 - 5 个 baseline 共存 (phase1_post / phase2_complete / phase3_complete / data_completion_complete)
 - 4 个 git tags: v181-pre-refactor / phase1-baseline-archive / phase3-complete-archive / data-completion-archive
@@ -155,8 +167,11 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 
 ## 终态(local main, 等 push 授权)
-- **main HEAD: `e020daf phase4(4.5): boot_screens` (local, ahead of origin/main 8 commits = phase4 plan 3 + 4.1-4.5 共 5 + memory 1 (本 commit))**
+- **main HEAD: `66f0fa8 phase4(4.7): recruit_modals` (local, ahead of origin/main 3 commits = 4.6 + 4.7 + memory)**
 - phase 4 历史 (main 上):
+  - `66f0fa8` phase4(4.7): recruit_modals (征兵 + 整备 + 扩编 + 增编分队 4 cluster, -1225)
+  - `3508405` phase4(4.6): diplo_modals (朝议 + 求和 + 屠城 + 附庸, -195)
+  - `04a6c9c` docs(memory): phase 4 batch 1 (4.1-4.5) status update
   - `e020daf` phase4(4.5): boot_screens (启动 / 教程 / 帮助 / 存读档 / 结局 / Claude AI UI, -1461)
   - `aebdf05` phase4(4.4): gen_profile (武将 + 官职弹窗, -305)
   - `78d19c2` phase4(4.3): notifications.js 扩展 (迁民 + 告急卡片 + closeUnitMenu + stack picker, -310)
@@ -194,7 +209,7 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 - refactor/data-completion HEAD: `5b61620` (保留)
 - refactor/phase-3 HEAD: `afc2b3a` (保留)
 - sprint 工作分支保留(部分 push): batch-1a / 2 / 3 / 4 / 5 / 6 / 7 / 8 / 9 / 10 / 11 / 12 / 13 / 14 / 15 / 16 / 17 / 21 / 22 / 23 / 24 / 25 / 26 / 27 / 28 / 29 / 30 / checker-framework
-- phase 4 工作分支保留: phase4/plan / 4.1-overlay / 4.2-map-render / 4.3-notifications-extend / 4.4-gen-profile / 4.5-boot-screens (local 等 push)
+- phase 4 工作分支保留: phase4/plan / 4.1-overlay / 4.2-map-render / 4.3-notifications-extend / 4.4-gen-profile / 4.5-boot-screens / 4.6-diplo-modals / 4.7-recruit-modals (4.1-4.5 已 push, 4.6+ 等 push)
 - tags 全 push: phase1-baseline-archive / phase3-complete-archive / data-completion-archive
 
 ## v181 剩余 15656 行 6 桶实测分类(dc 后 grep+wc 实测, 见 docs/data_completion_summary.md §九)
@@ -215,10 +230,13 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 ## How to apply
 
 **新对话启动时**:
-1. `git log --oneline -10 main` 校验 HEAD = `e020daf` (phase 4 sub-session 4.5 收尾, 等 push)
-2. **重构 + dc + HIGH sprint + _exec sprint 整体收官 + phase 4 streamline batch 1 (4.1-4.5) 完成**
-3. **sprint 累计**: 30 sprint batches + 5 phase 4 sub-sessions (剩 5 sub-session 4.6-4.10)
-4. **phase 4 进度**: 5/10 sub-session 完成. 累计 -3122 行. 剩余: 4.6 diplo_modals (中) / 4.7 recruit_modals (中) / 4.8 tabs (中-高, 备选拆 a/b/c) / 4.9 battle_modals (高) / 4.10 battle_anim (最高)
+1. `git log --oneline -10 main` 校验 HEAD = `66f0fa8` (phase 4 sub-session 4.7 收尾, 等 push)
+2. **重构 + dc + HIGH sprint + _exec sprint 整体收官 + phase 4 7/10 完成**
+3. **sprint 累计**: 30 sprint batches + 7 phase 4 sub-sessions (剩 3 sub-session 4.8-4.10)
+4. **phase 4 进度**: 7/10 sub-session 完成. 累计 -4542 行. 剩余:
+   - 4.8 tabs 8 right tabs (🟡 中-高, scope ~3200 行, 备选拆 a/b/c)
+   - 4.9 battle_modals (🔴 高, ~2400 行, 战斗 confirm 链时序)
+   - 4.10 battle_anim (🔴 最高, ~2500 行, 战斗动画 setTimeout 链, 必须最后做 + 完整战斗实机测)
 5. **Claude AI 实机测后置 followup** (_exec sprint 未跑 Claude AI 路径, smoke 不覆盖 _claudeAI.enabled 路径)
 6. **下阶段候选** (制作人决, phase 4 完成后): MEDIUM/LOW sprint / audit pass 2 / data-completion 2
 6. **verification harness** (claude.ai 决策): 不要 jsdom 全游戏跑, 用函数级 spy + invariant checker. D-052/D-065 都用这套
