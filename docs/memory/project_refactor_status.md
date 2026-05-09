@@ -1,6 +1,6 @@
 ---
-name: Refactor phase status — Phase 4 全收官 (10/10) + HIGH 27/27 + _exec 35/35
-description: Phase 3 + dc + HIGH sprint (25) + _exec sprint (5) + phase 4 全 10 sub-session 收官. v181 39547 → 4499 (-88.6%). 39 src/ 文件. **phase 4 收官 = 渲染层第二轮收官 = 重构主体收官**.
+name: Refactor phase status — Phase 4 全收官 + 桶 2 残余收尾
+description: Phase 3 + dc + HIGH sprint (25) + _exec sprint (5) + phase 4 全 10 sub-session + 桶 2 残余 (GEN_MAP + 6 squad/class funcs) 收尾. v181 39547 → 4423 (-88.8%). 39 src/ 文件. **重构主体收官**.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -80,6 +80,20 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - 4 lets (_rm/_rdp/_ex/_as) + 37 funcs 一起搬
 - v181: 11732 → 10507 (-1225, 单 sub-session 减肥最大头, 仅次于 4.5 boot_screens 1461)
 - codex review LGTM (零 finding)
+
+**桶 2 残余抽离 (2026-05-09, phase 4 收官后清理)**:
+- 7 symbol 抽到 src/chains/general.js GEN17 section: 1 let GEN_MAP + 6 funcs (getSquadClass / getUnitClassBuffs / getClassDuelWeight / genClassTagsHtml / genClassSelectorHtml / genClassBuffsHtml)
+- 2 非连续 block: v181 L904-L906 (3 行) + L915-L989 (75 行), 中间 L907-L914 已抽离 markers 留 v181 不动
+- 归属决策 (制作人 2026-05-09 approve): 全 7 symbol → general.js 单 destination
+  - GEN_MAP 是 let (initGame 重建), 不适合 data 层 "纯 const" 约定
+  - 6 funcs 是 squad/class 武将机制 + HTML helper 混合, chain 层一并装最简
+- v181: 4499 → 4423 (-76, 累计 -88.8%)
+- src/chains/general.js: 2323 → 2428 (+105: 78 verbatim + 27 GEN17 section header)
+- smoke vs main: PASS — 51 snapshots identical (Option B.2)
+- Block A (3 行) + Block B (75 行) **byte-identical** verify (diff main vs general.js GEN17 section)
+- codex trial 1 LGTM (零 finding, 36494 tokens, "Verified ... GEN_MAP as let, followed by all six expected helper functions ... load order ... no whitespace errors")
+- 不实机测 (verbatim + smoke + byte-identical 三重 verify 充分; 制作人 push)
+- **桶 2 彻底清空 ✅** (memory `project_refactor_status` "留底架构债 #3" close, 无残余)
 
 **phase 4 sub-session 4.10 单 codex review (2026-05-09, 最高风险, phase 4 收官)**:
 - 4.10 battle_anim: 战斗动画 cluster 抽到 src/render/battle_anim.js (新建)
@@ -190,9 +204,9 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 **跳过 / 留 followup 类型**:
 - (无, sprint HIGH 全收尾)
 
-## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 全收官 ✅)
-- **v181.html: 39547 → 4499 (-35048, -88.6%)** ⭐ 突破 -88% 大关 (phase 4 4.1-4.10 -10550)
-- src/: 0 → **39 文件 ~38800 行**(data 7 / render 15 / core 7 / chains 8 + 2 memory feedback)
+## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 收尾 ✅)
+- **v181.html: 39547 → 4423 (-35124, -88.8%)** ⭐ 突破 -88.8% (phase 4 -10550 + 桶 2 -76)
+- src/: 0 → **39 文件 ~38900 行**(data 7 / render 15 / core 7 / chains 8 + 2 memory feedback)
 - 抽出累计:417 函数 (phase 3) + 65 顶层 const + 5 IIFE + 1 嵌套 IIFE-helper (dc) + ...
 - 5 个 baseline 共存 (phase1_post / phase2_complete / phase3_complete / data_completion_complete)
 - 4 个 git tags: v181-pre-refactor / phase1-baseline-archive / phase3-complete-archive / data-completion-archive
@@ -223,8 +237,11 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 
 ## 终态(main 已 push, memory update 待 commit + push)
-- **main HEAD: `93ae4d1 phase4(4.10): 战斗动画 cluster (25 funcs + 1 IIFE 入口) 抽到 src/render/battle_anim.js` (synced to origin)**
-- **Phase 4 收官 = 重构主体收官** ✅
+- **main HEAD: `f8c3c18 refactor(bucket-2): GEN_MAP let + 6 squad/class funcs 抽到 src/chains/general.js` (synced to origin)**
+- **重构主体收官 + 桶 2 收尾** ✅
+- 桶 2 残余 (2026-05-09 commit):
+  - `f8c3c18` refactor(bucket-2): GEN_MAP + 6 squad/class funcs (-76, 累计 -88.8%) [refactor/bucket2-squad-class 已 push]
+  - `3868e6d` docs: phase 4 sub-session 4.10 收官 + 战斗机制 bug §5.1 §5.2 沉淀
 - phase 4 历史 (main 上):
   - `93ae4d1` phase4(4.10): battle_anim (1 let + 1 const + 11 顶层 funcs + _baCore IIFE 14 helper, -2567, -88.6% 累计) [4.10-battle-anim 已 push]
   - `e5a955a` docs(memory): phase 4 sub-session 4.9 完成 + 战斗机制 bug fix sprint 候选 沉淀
@@ -286,13 +303,13 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 ## 留底架构债(明确标注, 后续 sprint 处理)
 1. ~~**_exec 归位架构债**~~ ✅ **已收官** (sprint batch-26~30 完成, 35 dispatcher targets 全归位)
 2. **30 D 类位置文档化** (武将链, phase3_summary §九 + p3.12_notes §五): 武将链 5 batch sprint 建议
-3. **squad class 6 函数 + GEN_MAP let region** (~85 行, 桶 2 残余): 等 mechanism/render sprint 或 audit pass 2 衍生 sprint
+3. ~~**squad class 6 函数 + GEN_MAP let region**~~ ✅ **已收官** (2026-05-09 桶 2 残余抽到 general.js GEN17, commit f8c3c18)
 
 ## How to apply
 
 **新对话启动时**:
-1. `git log --oneline -10` 校验 main HEAD (4.10 后 = `93ae4d1`, 后续 memory commit 在它之上)
-2. **重构主体收官 ✅** (phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 全部完成)
+1. `git log --oneline -10` 校验 main HEAD (桶 2 后 = `f8c3c18`, 后续 memory commit 在它之上)
+2. **重构主体收官 + 桶 2 收尾 ✅** (phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 残余全部完成, v181 -88.8%)
 3. **sprint 累计**: 30 sprint batches + 10 phase 4 sub-sessions (全部完成)
 4. **phase 4 实测 vs plan**: 累计 -10550 行 (实测远低于 plan 估"突破 -80% 大关 v181 ~3000 行"). 4.10 实测 -2567 vs plan 估 ~2500 (这次比较接近)
 5. **下阶段候选** (制作人决):
