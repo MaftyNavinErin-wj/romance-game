@@ -1496,6 +1496,9 @@ function checkLoyaltyThresholds(){
         // 写入小传
         addGenChronicle(name, `因久感寒心、忠义消磨，${name}悄然离开${FAC[fid]?.full||fid}，飘零江湖。`);
         log(`⚠ ${name}因忠诚过低，已离开${FAC[fid]?.name||fid}势力，流落在野。`, 'warn');
+        // D-057 fix: 下野清派系修正缓存,避免被新势力招募后旧 genFactionMod 污染 calcLoyaltyDelta
+        if(G.genFactionMod) delete G.genFactionMod[name];
+        if(G.genFactionModLog) delete G.genFactionModLog[name];
 
         // 通知玩家
         if(fid === G.playerFac){
@@ -2059,6 +2062,9 @@ function killGen(genName, killerName){
   log('💀 ' + genName + '战死沙场', 'battle');
   // ★ v78 君主继任
   if(wasRuler && killedFid) succeedRuler(killedFid, genName);
+  // D-058 fix: 部分清(势力相关临时缓存); 战绩/经验/小传等保留作人物档案 (无复活机制)
+  if(G.genFactionMod) delete G.genFactionMod[genName];
+  if(G.genFactionModLog) delete G.genFactionModLog[genName];
 }
 
 /** ★ v78 君主继任机制
@@ -2156,6 +2162,10 @@ function surrenderGen(genName, targetFid){
     if(G.genMerit) G.genMerit[genName] = Math.floor((G.genMerit[genName]||0) * 0.5);
     clearAllPostsByGen(genName);
     log('🤝 ' + genName + ' 归降' + (FAC[targetFid]?.name||targetFid), 'battle');
+    // D-059 (1) cleanup fix: 投降后清旧派系修正缓存 (跟 D-057 同类扩展场景, 防止下旬 calcLoyaltyDelta 读到旧 mod)
+    // D-059 (2) 派系/价值观事件不修 (用户决策: 投降是个人行为, processFactionLoyalty 自然反映)
+    if(G.genFactionMod) delete G.genFactionMod[genName];
+    if(G.genFactionModLog) delete G.genFactionModLog[genName];
   }
 }
 
