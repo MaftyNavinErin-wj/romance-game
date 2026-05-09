@@ -1161,7 +1161,7 @@ function _aiDoPoach(genName, fid, srcFid, cost){
     G.loyaltyAccum[genName] = 60;
     delete G.recruitableGens[genName];
     G.genJoinTurn[genName] = G.turn;
-    G.genJoinSource[genName] = 'capture';
+    G.genJoinSource[genName] = 'poach'; // D-066 fix: 'capture'→'poach' (跟玩家 poachGen line 1606 对齐, 区别于 surrenderGen 兵败被俘的 'capture'; isNewDefector 判定不再混淆挖角/投降)
     setRetainers(genName, 0); // ★ v163: 叛逃/被挖角→部曲归零
     addDiplo(fid, srcFid, -15); // ★ v179fix P16: 原仅 G.diplo[minFid-maxFid] 单向写入；G.diplo 双键真双向，反向 key 不更新会让对方下旬外交读到旧 rel
     addGenChronicle(genName, `${FAC[fid]?.name||fid}以厚礼相邀，${genName}遂转投之。`);
