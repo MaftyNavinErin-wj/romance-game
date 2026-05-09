@@ -1,6 +1,6 @@
 ---
-name: Refactor phase status — Phase 4 全收官 + 桶 2 残余收尾
-description: Phase 3 + dc + HIGH sprint (25) + _exec sprint (5) + phase 4 全 10 sub-session + 桶 2 残余 (GEN_MAP + 6 squad/class funcs) 收尾. v181 39547 → 4423 (-88.8%). 39 src/ 文件. **重构主体收官**.
+name: Refactor phase status — Phase 4 全收官 + 桶 2 + 桶 6 _debug 收尾
+description: Phase 3 + dc + HIGH sprint (25) + _exec sprint (5) + phase 4 全 10 sub-session + 桶 2 残余 (GEN_MAP + 6 squad/class funcs) + 桶 6 _debug panel (style + IIFE) 收尾. v181 39547 → 3052 (-92.3%). 40 src/ js 文件 + 1 css. **重构主体彻底收官**.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -94,6 +94,21 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - codex trial 1 LGTM (零 finding, 36494 tokens, "Verified ... GEN_MAP as let, followed by all six expected helper functions ... load order ... no whitespace errors")
 - 不实机测 (verbatim + smoke + byte-identical 三重 verify 充分; 制作人 push)
 - **桶 2 彻底清空 ✅** (memory `project_refactor_status` "留底架构债 #3" close, 无残余)
+
+**桶 6 _debug panel 抽离 (2026-05-09, dev cluster 首次抽到 src/dev/)**:
+- v181 第二段 `<script>` L3104-L4399 (1296 行 IIFE, 52 内部 funcs) → src/dev/debug.js (1294 行 verbatim)
+- v181 `<style id="_dbg_style">` L3032-L3102 (71 行 _dbg-* 选择器) → src/dev/debug.css (69 行 verbatim)
+- v181 替换为 3 行 marker + `<link>` + `<script src>` 引用 (原位置不变, body 内 link 浏览器接受)
+- IIFE 完全自包含: L3109 `if(!location.hash || !location.hash.includes('debug')) return;` 不带 #debug 即提前 return, 主代码零反向引用
+- scout 三件验证 = 0 hits: 主 script L840-L3024 grep `_debug|_dbg` / src/ 全文 grep / tests/ 全文 grep
+- 外部接口仅 `window._debug` 命名空间 (toast/safe/setRelation 等)
+- v181: 4423 → 3052 (-1371, -31.0%, 累计 -92.3%) ⭐ 突破 -92% 大关
+- src/ 新建目录 src/dev/ (memory 桶 6 §六预留位置首次落地)
+- byte-identical verify: src/dev/debug.{css,js} 内容 vs v181 原段 diff = 0
+- smoke vs main: PASS — 51 snapshots identical (Option B.2)
+- codex trial 1 LGTM (4 finding 全 LGTM, 1 non-blocking concern: HANDOVER_v181 + CODE_MAP_v181 历史文档仍提 _debug, followup 非阻塞)
+- 实机测 PASS (制作人 2026-05-09): #debug URL 激活 panel + 不带 #debug 零角标
+- **桶 6 第二段 _debug script 收尾 ✅** (memory "v181 剩余 6 桶分类" 桶 6 第二段 1296 行已清空, 桶 6 残余仅顶层杂项 + 第一段 _debug-related 已属主 script)
 
 **phase 4 sub-session 4.10 单 codex review (2026-05-09, 最高风险, phase 4 收官)**:
 - 4.10 battle_anim: 战斗动画 cluster 抽到 src/render/battle_anim.js (新建)
@@ -204,9 +219,9 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 **跳过 / 留 followup 类型**:
 - (无, sprint HIGH 全收尾)
 
-## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 收尾 ✅)
-- **v181.html: 39547 → 4423 (-35124, -88.8%)** ⭐ 突破 -88.8% (phase 4 -10550 + 桶 2 -76)
-- src/: 0 → **39 文件 ~38900 行**(data 7 / render 15 / core 7 / chains 8 + 2 memory feedback)
+## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 _debug 收尾 ✅)
+- **v181.html: 39547 → 3052 (-36495, -92.3%)** ⭐ 突破 -92.3% (phase 4 -10550 + 桶 2 -76 + 桶 6 -1371)
+- src/: 0 → **40 js 文件 + 1 css ~40200 行**(data 7 / render 15 / core 7 / chains 8 / dev 1+1css + 2 memory feedback)
 - 抽出累计:417 函数 (phase 3) + 65 顶层 const + 5 IIFE + 1 嵌套 IIFE-helper (dc) + ...
 - 5 个 baseline 共存 (phase1_post / phase2_complete / phase3_complete / data_completion_complete)
 - 4 个 git tags: v181-pre-refactor / phase1-baseline-archive / phase3-complete-archive / data-completion-archive
@@ -237,9 +252,12 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 
 ## 终态(main 已 push, memory update 待 commit + push)
-- **main HEAD: `f8c3c18 refactor(bucket-2): GEN_MAP let + 6 squad/class funcs 抽到 src/chains/general.js` (synced to origin)**
-- **重构主体收官 + 桶 2 收尾** ✅
+- **main HEAD: `9774c38 refactor(bucket-6): _debug panel (style + IIFE) 抽到 src/dev/debug.{css,js}` (synced to origin)**
+- **重构主体彻底收官 + 桶 2 + 桶 6 _debug 收尾** ✅
+- 桶 6 _debug 抽离 (2026-05-09 commit):
+  - `9774c38` refactor(bucket-6): _debug panel (-1371, 累计 -92.3%) [refactor/bucket6-debug 已 push]
 - 桶 2 残余 (2026-05-09 commit):
+  - `b0406ab` docs(memory): 桶 2 残余收尾 status update
   - `f8c3c18` refactor(bucket-2): GEN_MAP + 6 squad/class funcs (-76, 累计 -88.8%) [refactor/bucket2-squad-class 已 push]
   - `3868e6d` docs: phase 4 sub-session 4.10 收官 + 战斗机制 bug §5.1 §5.2 沉淀
 - phase 4 历史 (main 上):
@@ -296,7 +314,7 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 - 桶 3 渲染层尾巴 L1187-L11856 散在: **~10670** (68.2%) — phase 4 主目标 (8 right tabs + 战斗动画 + modals)
 - 桶 4 _exec 派发 L13381-L14000: **620** (4.0%) — 架构债 sprint 5 batch
 - 桶 5 reset+serialize+boot L11857-L13380: **~1524** (9.7%) — 必留 v181
-- 桶 6 顶层杂项 + 第二段 _debug script: **~1656** (10.6%) — 第二段 1296 行 (_debug 调试块) 可单独抽到 src/dev/
+- 桶 6 顶层杂项 + 第二段 _debug script: **~1656** (10.6%) — ~~第二段 1296 行 (_debug 调试块) 可单独抽到 src/dev/~~ ✅ **已抽** (commit 9774c38), 残余仅顶层杂项 ~360 行
 
 注:phase3_summary §10.0 桶 6 ~7378 是 catch-all 估算, 散在 mechanism helpers 实际归桶 3, 总和一致.
 
@@ -304,12 +322,13 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 1. ~~**_exec 归位架构债**~~ ✅ **已收官** (sprint batch-26~30 完成, 35 dispatcher targets 全归位)
 2. **30 D 类位置文档化** (武将链, phase3_summary §九 + p3.12_notes §五): 武将链 5 batch sprint 建议
 3. ~~**squad class 6 函数 + GEN_MAP let region**~~ ✅ **已收官** (2026-05-09 桶 2 残余抽到 general.js GEN17, commit f8c3c18)
+4. ~~**桶 6 第二段 _debug script (1296 行) + style (71 行)**~~ ✅ **已收官** (2026-05-09 抽到 src/dev/debug.{js,css}, commit 9774c38)
 
 ## How to apply
 
 **新对话启动时**:
-1. `git log --oneline -10` 校验 main HEAD (桶 2 后 = `f8c3c18`, 后续 memory commit 在它之上)
-2. **重构主体收官 + 桶 2 收尾 ✅** (phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 残余全部完成, v181 -88.8%)
+1. `git log --oneline -10` 校验 main HEAD (桶 6 后 = `9774c38`, 后续 memory commit 在它之上)
+2. **重构主体彻底收官 + 桶 2 + 桶 6 _debug 收尾 ✅** (phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 _debug 全部完成, v181 -92.3%)
 3. **sprint 累计**: 30 sprint batches + 10 phase 4 sub-sessions (全部完成)
 4. **phase 4 实测 vs plan**: 累计 -10550 行 (实测远低于 plan 估"突破 -80% 大关 v181 ~3000 行"). 4.10 实测 -2567 vs plan 估 ~2500 (这次比较接近)
 5. **下阶段候选** (制作人决):
