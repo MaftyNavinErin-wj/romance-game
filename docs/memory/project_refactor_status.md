@@ -1,6 +1,6 @@
 ---
-name: Refactor phase status — Phase 4 + 桶 2 + 桶 6 (_debug + combat tables) 收尾
-description: Phase 3 + dc + HIGH sprint (25) + _exec sprint (5) + phase 4 全 10 sub-session + 桶 2 残余 + 桶 6 _debug panel + 桶 6 combat tables (战斗 + 相性 9 consts) 收尾. v181 39547 → 2926 (-92.6%). 40 src/ js + 1 css. **重构主体彻底收官**.
+name: Refactor phase status — Phase 4 + 桶 2 + 桶 6 + render-cache (F sub-session) 收尾
+description: Phase 3 + dc + HIGH sprint (25) + _exec sprint (5) + phase 4 全 10 sub-session + 桶 2 + 桶 6 (_debug + combat tables) + render-cache (F: 9 funcs + 9 lets) 收尾. v181 39547 → 2657 (-93.3%). 41 src/ js + 1 css. **重构主体彻底收官**.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -125,6 +125,21 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - 不实机测 (跟 bucket-2 GEN_MAP 同模式: verbatim const + smoke + byte-identical 三重 verify 充分, 制作人 push)
 - **E sub-session 收尾 ✅** (顶层杂项主菜 const block 已抽, 桶 6 残余仅 module-private state ~75 行 跟 funcs 紧耦合, 留 F/G sub-session 处理)
 
+**render-cache 抽离 (F sub-session, 2026-05-09, phase 4 标准 verbatim 整段抽)**:
+- v181 L1080-L1350 (271 行 verbatim) → src/render/render_cache.js (新建)
+- 9 funcs: renderAll / renderAllLight (orchestrator) + toggleMapStyle + 6 cache funcs (_buildStaticMapCache / _getStaticMapCache / invalidateFogCache / _getFogSvgCache / invalidateCityCache / _getCitySvgCache)
+- 9 lets: _staticMapCache / _mapShowGrid (静态地图) + _fogSvgCache / _fogCacheTurn / _fogCacheVersion (迷雾 v117fix 递增版本号) + _citySvgCache / _cityCacheTurn / _cityCacheSelCity / _cityCacheVersion (城市)
+- 中间 L1095 R4.1 overlay marker + L1096-L1101 6 行 dead 空行 verbatim 抽 (phase 4 标准模式不切片)
+- v181 替换为 1 行 marker + 加 <script src> 引用 (L840, 在 battle_anim.js 之后)
+- v181: 2926 → 2657 (-269, -9.2%, 累计 -93.3%) ⭐ 突破 -93%
+- src/render/render_cache.js: 0 → 271 (verbatim from v181 L1080-L1350)
+- byte-identical verify: render_cache.js 内容 vs v181 原段 diff = 0
+- smoke vs main: PASS — 51 snapshots identical (Option B.2)
+- codex trial 1 LGTM (1 LGTM finding 6 关注点 5 PASS + 1 minor concern: R4.1 marker 带走语义略误导但不影响行为)
+- 实机测 PASS (制作人 2026-05-09): 4 视觉路径 (toggleMapStyle 网格开关 / 读档回标题清 cache / 选城 _cityCacheSelCity rebuild / 战后 fog invalidate) 全 OK
+- F sub-session = 桶 6 主菜后续 phase 5 风格抽离, 主题独立 (SVG cache 层 + render orchestrator) 跟 map_render.js layer 不同所以新建文件
+- **F sub-session 收尾 ✅** (renderAll + 3 SVG cache 层全归位 src/render/render_cache.js)
+
 **phase 4 sub-session 4.10 单 codex review (2026-05-09, 最高风险, phase 4 收官)**:
 - 4.10 battle_anim: 战斗动画 cluster 抽到 src/render/battle_anim.js (新建)
 - 1 段连续 block: v181 L1665-L4233 (2569 行), 1 let + 1 const + 11 顶层 funcs + 1 _baCore IIFE (含 14 内部 helper) = 25 funcs + 1 IIFE 入口
@@ -234,9 +249,9 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 **跳过 / 留 followup 类型**:
 - (无, sprint HIGH 全收尾)
 
-## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 _debug + 桶 6 combat tables 收尾 ✅)
-- **v181.html: 39547 → 2926 (-36621, -92.6%)** ⭐ 突破 -92.6% (phase 4 -10550 + 桶 2 -76 + 桶 6 _debug -1371 + 桶 6 combat -126)
-- src/: 0 → **40 js 文件 + 1 css ~40300 行**(data 7 / render 15 / core 7 / chains 8 / dev 1+1css + 2 memory feedback)
+## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 + render-cache 收尾 ✅)
+- **v181.html: 39547 → 2657 (-36890, -93.3%)** ⭐ 突破 -93.3% (phase 4 -10550 + 桶 2 -76 + 桶 6 _debug -1371 + 桶 6 combat -126 + render-cache -269)
+- src/: 0 → **41 js 文件 + 1 css ~40600 行**(data 7 / render 16 / core 7 / chains 8 / dev 1+1css + 2 memory feedback)
 - 抽出累计:417 函数 (phase 3) + 65 顶层 const + 5 IIFE + 1 嵌套 IIFE-helper (dc) + ...
 - 5 个 baseline 共存 (phase1_post / phase2_complete / phase3_complete / data_completion_complete)
 - 4 个 git tags: v181-pre-refactor / phase1-baseline-archive / phase3-complete-archive / data-completion-archive
@@ -267,9 +282,12 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 
 ## 终态(main 已 push, memory update 待 commit + push)
-- **main HEAD: `8c8fac2 refactor(bucket-6): 战斗 + 相性数据 9 consts 抽到 src/data/{generals,constants}.js` (synced to origin)**
-- **重构主体彻底收官 + 桶 2 + 桶 6 (_debug + combat tables) 收尾** ✅
+- **main HEAD: `95261b4 refactor(render-cache): renderAll + 3 SVG cache 层 (9 funcs + 9 lets) 抽到 src/render/render_cache.js` (synced to origin)**
+- **重构主体彻底收官 + 桶 2 + 桶 6 + render-cache 收尾** ✅
+- render-cache (F sub-session, 2026-05-09 commit):
+  - `95261b4` refactor(render-cache): renderAll + 3 SVG cache (9 funcs + 9 lets, 271 行 verbatim → src/render/render_cache.js, -269, 累计 -93.3%) [refactor/render-cache 已 push]
 - 桶 6 combat tables (E sub-session, 2026-05-09 commit):
+  - `43012cc` docs(memory): E sub-session 收尾 status update
   - `8c8fac2` refactor(bucket-6): 战斗 + 相性 9 consts → generals.js range C + constants.js range B (-126, 累计 -92.6%) [refactor/bucket6-combat-tables 已 push]
 - 桶 6 _debug 抽离 (2026-05-09 commit):
   - `e5928e0` docs(memory): 桶 6 _debug 收尾 status update
@@ -345,8 +363,8 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 ## How to apply
 
 **新对话启动时**:
-1. `git log --oneline -10` 校验 main HEAD (桶 6 combat 后 = `8c8fac2`, 后续 memory commit 在它之上)
-2. **重构主体彻底收官 + 桶 2 + 桶 6 (_debug + combat tables) 收尾 ✅** (phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 全部完成, v181 -92.6%)
+1. `git log --oneline -10` 校验 main HEAD (render-cache 后 = `95261b4`, 后续 memory commit 在它之上)
+2. **重构主体彻底收官 + 桶 2 + 桶 6 + render-cache (F) 收尾 ✅** (phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 + F 全部完成, v181 -93.3%)
 3. **sprint 累计**: 30 sprint batches + 10 phase 4 sub-sessions (全部完成)
 4. **phase 4 实测 vs plan**: 累计 -10550 行 (实测远低于 plan 估"突破 -80% 大关 v181 ~3000 行"). 4.10 实测 -2567 vs plan 估 ~2500 (这次比较接近)
 5. **下阶段候选** (制作人决):
