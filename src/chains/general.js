@@ -2321,3 +2321,108 @@ function _execPoach(fid, act) {
   _aiDoPoach(genName, fid, rec.fid, cost);
   return true;
 }
+
+// ═══════════════════════════════════════════════════════
+// GEN17 — 桶 2 残余: GEN_MAP let + 6 squad/class funcs (2026-05-09 抽离)
+// ═══════════════════════════════════════════════════════
+//
+// 来源:project_romance_v181.html L904-L906 (GEN_MAP) + L915-L989 (6 funcs).
+// 抽离方式:verbatim relocation (跟 phase 4 一致, 决策 1 = A 风格直读 G)。
+//
+// 内容:
+//   - let GEN_MAP            (按 name 快速查将领 O(1) map, v155fix initGame 重建)
+//   - getSquadClass         (读 sq._classChoice + GEN_CLASS lookup)
+//   - getUnitClassBuffs     (汇总 4 类 buff: warriors/commanders/strategists/ministers)
+//   - getClassDuelWeight    (单挑被动选 weight, by class)
+//   - genClassTagsHtml      (类型标签 HTML, 列表 / 详情用)
+//   - genClassSelectorHtml  (多标签选择器 HTML, 编组弹窗用)
+//   - genClassBuffsHtml     (编组 buff 预览 HTML)
+//
+// 加载顺序: 必须在 src/data/generals.js 之后 (依赖 ALL_GENS / GEN_POOL_INACTIVE /
+//           GEN_CLASS / CLASS_META) — 已通过 v181 script tag 顺序保证 (data/generals.js L808
+//           在 chains/general.js L825 之前)。
+//
+// 决策(2026-05-09 制作人 approve):全 7 symbol → general.js 单 destination
+//   - GEN_MAP 是 let (initGame 重建), 不适合 data 层 "纯 const" 约定
+//   - 6 funcs 是 squad/class 武将机制 + HTML helper 混合, chain 层一并装最简
+//
+
+/** 按 name 快速查将领数据（O(1) map）— 含非活跃武将，供关系/profile查询 */
+/** ★ v155fix P0: 改为let，initGame中重建指向G.generals活跃对象，避免污染静态定义 */
+let GEN_MAP = Object.fromEntries([...ALL_GENS, ...GEN_POOL_INACTIVE].map(g=>[g.name, g]));
+
+/** 获取squad当前生效标签（多标签读_classChoice，单标签读[0]） */
+function getSquadClass(sq) {
+  if(!sq || !sq.genName) return 'warrior';
+  if(sq._classChoice && (GEN_CLASS[sq.genName]||[]).includes(sq._classChoice)) return sq._classChoice;
+  return (GEN_CLASS[sq.genName]||['warrior'])[0];
+}
+
+/** 计算一支部队的四类buff汇总 */
+function getUnitClassBuffs(unit) {
+  let warriors=0, commanders=0, strategists=0, ministers=0;
+  (unit.squads||[]).forEach(sq => {
+    if(!sq) return;
+    const cls = getSquadClass(sq);
+    if(cls==='warrior') warriors++;
+    else if(cls==='commander') commanders++;
+    else if(cls==='strategist') strategists++;
+    else if(cls==='minister') ministers++;
+  });
+  const hasCmd = commanders === 1; // ≥2失效
+  return {
+    morale: hasCmd ? 5 : 0,
+    duelPct: warriors * (hasCmd ? 0.05 : 0.03),
+    tacticPct: strategists * (hasCmd ? 0.05 : 0.03),
+    supplyRange: ministers > 0 ? (hasCmd ? 2 : 1) : 0,
+    cmdConflict: commanders >= 2,
+    warriors, commanders, strategists, ministers,
+  };
+}
+
+/** 被动单挑中，按标签修正该武将被选为单挑对象的权重 */
+function getClassDuelWeight(genName, classChoice) {
+  const cls = classChoice || (GEN_CLASS[genName]||['warrior'])[0];
+  if(cls==='commander') return 0.5;
+  if(cls==='strategist' || cls==='minister') return 0.1;
+  return 1.0; // warrior
+}
+
+/** 生成武将类型标签HTML（用于列表/详情等） */
+function genClassTagsHtml(genName) {
+  const classes = GEN_CLASS[genName] || ['warrior'];
+  return classes.map(c => {
+    const m = CLASS_META[c];
+    return `<span class="gen-class-tag ${c}" title="${m.label}">${m.icon}${m.label}</span>`;
+  }).join('');
+}
+
+/** 生成多标签选择器HTML（编组弹窗用） */
+function genClassSelectorHtml(genName, currentChoice, slotKey) {
+  const classes = GEN_CLASS[genName] || ['warrior'];
+  if(classes.length <= 1) return genClassTagsHtml(genName); // 单标签直接显示
+  const chosen = currentChoice || classes[0];
+  return `<span class="gen-class-sel">${classes.map(c => {
+    const m = CLASS_META[c];
+    return `<span class="gen-class-btn ${c}${c===chosen?' active':''}" onclick="_rmSetClass('${slotKey}','${c}')" title="${m.label}">${m.icon}${m.label}</span>`;
+  }).join('')}</span>`;
+}
+
+/** 生成编组buff预览HTML */
+function genClassBuffsHtml(mainGen, mainClass, sub1Gen, sub1Class, sub1Active, sub2Gen, sub2Class, sub2Active) {
+  // 构造虚拟unit计算buff
+  const squads = [];
+  if(mainGen) squads.push({genName:mainGen, _classChoice:mainClass});
+  if(sub1Active && sub1Gen) squads.push({genName:sub1Gen, _classChoice:sub1Class});
+  if(sub2Active && sub2Gen) squads.push({genName:sub2Gen, _classChoice:sub2Class});
+  if(squads.length === 0) return '';
+  const b = getUnitClassBuffs({squads});
+  const lines = [];
+  if(b.cmdConflict) lines.push('<span class="warn">⚠ 双统帅冲突：统帅增幅失效</span>');
+  if(b.morale > 0) lines.push(`🏴 统帅增幅：战斗士气+${b.morale}`);
+  if(b.duelPct > 0) lines.push(`⚔️ 武将×${b.warriors}${b.morale>0?'（增幅）':''}：被动单挑+${Math.round(b.duelPct*100)}%`);
+  if(b.tacticPct > 0) lines.push(`🧠 谋士×${b.strategists}${b.morale>0?'（增幅）':''}：计谋+${Math.round(b.tacticPct*100)}%`);
+  if(b.supplyRange > 0) lines.push(`📜 能臣${b.morale>0?'（增幅）':''}：补给+${b.supplyRange}格`);
+  if(lines.length === 0) return '';
+  return `<div class="rm-buffs">${lines.join('<br>')}</div>`;
+}

@@ -901,9 +901,7 @@ header{background:rgba(235,225,205,.98);border-bottom:1px solid rgba(80,65,40,.2
 
 // §D refactor(dc.S1): GENS_FULL + GEN_META + ALL_GENS + GEN_POOL_INACTIVE 已抽离到 src/data/generals.js (原 L1186-L1963)
 
-/** 按 name 快速查将领数据（O(1) map）— 含非活跃武将，供关系/profile查询 */
-/** ★ v155fix P0: 改为let，initGame中重建指向G.generals活跃对象，避免污染静态定义 */
-let GEN_MAP = Object.fromEntries([...ALL_GENS, ...GEN_POOL_INACTIVE].map(g=>[g.name, g]));
+// 武将链 GEN17 (GEN_MAP let, L904-L906) 已抽离到 src/chains/general.js (桶 2 残余)
 
 /** ★ v155fix P0: 深拷贝武将对象（含apt嵌套对象），防止浅拷贝共享apt引用 */
 // 武将链 GEN3 (helpers + 伤亡 const + loyaltyDisplay,L2061-L2092) 已抽离到 src/chains/general.js
@@ -912,81 +910,7 @@ let GEN_MAP = Object.fromEntries([...ALL_GENS, ...GEN_POOL_INACTIVE].map(g=>[g.n
 
 // §D refactor(dc.S1): FOUNDING_CORE + GEN_CLASS + CLASS_META 已抽离到 src/data/generals.js (原 L1974-L2050)
 
-/** 获取squad当前生效标签（多标签读_classChoice，单标签读[0]） */
-function getSquadClass(sq) {
-  if(!sq || !sq.genName) return 'warrior';
-  if(sq._classChoice && (GEN_CLASS[sq.genName]||[]).includes(sq._classChoice)) return sq._classChoice;
-  return (GEN_CLASS[sq.genName]||['warrior'])[0];
-}
-
-/** 计算一支部队的四类buff汇总 */
-function getUnitClassBuffs(unit) {
-  let warriors=0, commanders=0, strategists=0, ministers=0;
-  (unit.squads||[]).forEach(sq => {
-    if(!sq) return;
-    const cls = getSquadClass(sq);
-    if(cls==='warrior') warriors++;
-    else if(cls==='commander') commanders++;
-    else if(cls==='strategist') strategists++;
-    else if(cls==='minister') ministers++;
-  });
-  const hasCmd = commanders === 1; // ≥2失效
-  return {
-    morale: hasCmd ? 5 : 0,
-    duelPct: warriors * (hasCmd ? 0.05 : 0.03),
-    tacticPct: strategists * (hasCmd ? 0.05 : 0.03),
-    supplyRange: ministers > 0 ? (hasCmd ? 2 : 1) : 0,
-    cmdConflict: commanders >= 2,
-    warriors, commanders, strategists, ministers,
-  };
-}
-
-/** 被动单挑中，按标签修正该武将被选为单挑对象的权重 */
-function getClassDuelWeight(genName, classChoice) {
-  const cls = classChoice || (GEN_CLASS[genName]||['warrior'])[0];
-  if(cls==='commander') return 0.5;
-  if(cls==='strategist' || cls==='minister') return 0.1;
-  return 1.0; // warrior
-}
-
-/** 生成武将类型标签HTML（用于列表/详情等） */
-function genClassTagsHtml(genName) {
-  const classes = GEN_CLASS[genName] || ['warrior'];
-  return classes.map(c => {
-    const m = CLASS_META[c];
-    return `<span class="gen-class-tag ${c}" title="${m.label}">${m.icon}${m.label}</span>`;
-  }).join('');
-}
-
-/** 生成多标签选择器HTML（编组弹窗用） */
-function genClassSelectorHtml(genName, currentChoice, slotKey) {
-  const classes = GEN_CLASS[genName] || ['warrior'];
-  if(classes.length <= 1) return genClassTagsHtml(genName); // 单标签直接显示
-  const chosen = currentChoice || classes[0];
-  return `<span class="gen-class-sel">${classes.map(c => {
-    const m = CLASS_META[c];
-    return `<span class="gen-class-btn ${c}${c===chosen?' active':''}" onclick="_rmSetClass('${slotKey}','${c}')" title="${m.label}">${m.icon}${m.label}</span>`;
-  }).join('')}</span>`;
-}
-
-/** 生成编组buff预览HTML */
-function genClassBuffsHtml(mainGen, mainClass, sub1Gen, sub1Class, sub1Active, sub2Gen, sub2Class, sub2Active) {
-  // 构造虚拟unit计算buff
-  const squads = [];
-  if(mainGen) squads.push({genName:mainGen, _classChoice:mainClass});
-  if(sub1Active && sub1Gen) squads.push({genName:sub1Gen, _classChoice:sub1Class});
-  if(sub2Active && sub2Gen) squads.push({genName:sub2Gen, _classChoice:sub2Class});
-  if(squads.length === 0) return '';
-  const b = getUnitClassBuffs({squads});
-  const lines = [];
-  if(b.cmdConflict) lines.push('<span class="warn">⚠ 双统帅冲突：统帅增幅失效</span>');
-  if(b.morale > 0) lines.push(`🏴 统帅增幅：战斗士气+${b.morale}`);
-  if(b.duelPct > 0) lines.push(`⚔️ 武将×${b.warriors}${b.morale>0?'（增幅）':''}：被动单挑+${Math.round(b.duelPct*100)}%`);
-  if(b.tacticPct > 0) lines.push(`🧠 谋士×${b.strategists}${b.morale>0?'（增幅）':''}：计谋+${Math.round(b.tacticPct*100)}%`);
-  if(b.supplyRange > 0) lines.push(`📜 能臣${b.morale>0?'（增幅）':''}：补给+${b.supplyRange}格`);
-  if(lines.length === 0) return '';
-  return `<div class="rm-buffs">${lines.join('<br>')}</div>`;
-}
+// 武将链 GEN17 (6 squad/class funcs: getSquadClass / getUnitClassBuffs / getClassDuelWeight / genClassTagsHtml / genClassSelectorHtml / genClassBuffsHtml, L915-L989) 已抽离到 src/chains/general.js (桶 2 残余)
 
 // §E+§F refactor(dc.S2): 州体系 + 县 + _CLAN_MAP IIFE 已抽离到 src/data/state_county.js (原 L981-L1399)
 
