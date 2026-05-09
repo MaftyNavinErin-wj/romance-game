@@ -716,7 +716,7 @@ function triggerFactionEvent(eventType, fid, extra){
   if(!G.genFactionModLog) G.genFactionModLog = {}; // ★ v94: 事件日志
   const gens = (G.generals[fid] || []).filter(g => g.role !== 'ruler');
   const EVENT_LABELS = {
-    execute:'处决武将', defectorPrefect:'降将任太守', conquer:'占领新城',
+    execute:'武将身死', defectorPrefect:'降将任太守', conquer:'占领新城', // D-046 fix: '处决武将'→'武将身死' (killGen 4 路径战死/单挑死/处决/大乱共用此 eventType, 中性 label)
     truce:'停战/结盟', warDeclare:'宣战', betray:'外交背刺',
     appointPost:'任命官职', removePost:'卸任官职',
   };
