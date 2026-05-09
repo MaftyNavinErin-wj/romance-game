@@ -1,6 +1,6 @@
 ---
-name: Refactor phase status — HIGH 27/27 + _exec 35/35 + phase 4 sub-session 4.1-4.9 完成
-description: Phase 3 + dc + HIGH sprint (25) + _exec sprint (5) + phase 4 sub-session 4.1-4.9 完成. v181 39547 → 7066 (-82.1%). 38 src/ 文件. phase 4 进度 9/10 (剩 4.10 battle_anim 最高风险).
+name: Refactor phase status — Phase 4 全收官 (10/10) + HIGH 27/27 + _exec 35/35
+description: Phase 3 + dc + HIGH sprint (25) + _exec sprint (5) + phase 4 全 10 sub-session 收官. v181 39547 → 4499 (-88.6%). 39 src/ 文件. **phase 4 收官 = 渲染层第二轮收官 = 重构主体收官**.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -80,6 +80,27 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - 4 lets (_rm/_rdp/_ex/_as) + 37 funcs 一起搬
 - v181: 11732 → 10507 (-1225, 单 sub-session 减肥最大头, 仅次于 4.5 boot_screens 1461)
 - codex review LGTM (零 finding)
+
+**phase 4 sub-session 4.10 单 codex review (2026-05-09, 最高风险, phase 4 收官)**:
+- 4.10 battle_anim: 战斗动画 cluster 抽到 src/render/battle_anim.js (新建)
+- 1 段连续 block: v181 L1665-L4233 (2569 行), 1 let + 1 const + 11 顶层 funcs + 1 _baCore IIFE (含 14 内部 helper) = 25 funcs + 1 IIFE 入口
+- 1 let: _battleAnimating (anim 专属 lock)
+- 1 const: DUEL_EPITHET (16 名将称号表)
+- 11 顶层: _drainPendingBattleAnimations / _getDuelEpithet / _playDuelPreludeAnim / _baGetUnitRenderPos / _playBattleCollisionAnim / _baDrawCampPalisade / _playCampBattleAnim / _playAmbushBattleAnim / _playSiegeBattleAnim / _playNavalBattleAnim / _siegeArrivalChoice
+- 1 IIFE _baCore (14 内部 helper): SVG_NS / EASE / runTween / startTween / shouldSkip / ensureAnimLayer / spawnClashRing / spawnSlashes / spawnSparks / spawnClashMark / shakeMapSvg / spawnLossText / floatLossText / makePhantom / makeShipPhantom / spawnResultText / animateResultText / cleanupAnimLayers
+- scope 决策 (制作人 2026-05-09 approve):
+  1. _battleAnimating let 跟 anim cluster 一起抽 (反 MIL7.a 时期 "留 v181" 决策, anim 抽离后 lock semantically 应跟 anim 走)
+  2. _execInstantMarch (v181 L4252) 留 v181 (plan §11 边界, 玩家行军核心 + 下游 _collectPlayerVisibleKeys/_animateFogReveal/_checkInstantBattleTrigger 同质 map 交互 cluster 一并留)
+- v181: 7066 → 4499 (-2567, -36.3%, 累计 -88.6%) ⭐ 突破 -88% 大关
+- src/render/battle_anim.js: 0 → 2638 行
+- smoke vs main: PASS — 51 snapshots identical (Option B.2)
+- **smoke 必要不充分**: _fastForward=true 路径跳过 anim, 必须靠完整战斗实机测 verify
+- codex trial 1 LGTM (零 finding, 46585 tokens, "Verified diff shape ... script order ... boundaries: _execInstantMarch remains in v181 ... No blocking extraction, boundary, or load-order issues")
+- 实机测 PASS (制作人 2026-05-09): 野战 / 伏击 / 单挑 / 攻城 (玩家攻 AI) / 围城到达 / 战报 / 俘虏处置 全 OK
+- 实机测发现 1 个 pre-existing v181 bug (非 4.10 regression, code-level diff verify byte-identical):
+  - **AI 攻玩家城无攻城动画** — 直接弹战报. 怀疑路径: tick.js:626 fire-and-forget 不 await + battle_anim.js:165 shouldSkip _battleAnimating 检查 / fog 检查. 已记 sprint_followup §5.1, 留战斗机制 systematic bug fix sprint
+- **phase 4 全收官 ✅** (10/10 sub-session 完成)
+- **重构主体收官 ✅** (39 src/ 文件 / v181 -88.6% / phase 1+2+3+dc + HIGH/_exec sprint + phase 4 全部完成)
 
 **phase 4 sub-session 4.9 单 codex review (2026-05-09, 高风险首发)**:
 - 4.9 battle_modals: 战斗 confirm + dispose modal cluster 抽到 src/render/battle_modals.js (新建)
@@ -169,9 +190,9 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 **跳过 / 留 followup 类型**:
 - (无, sprint HIGH 全收尾)
 
-## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 9/10)
-- **v181.html: 39547 → 7066 (-32481, -82.1%)** ⭐ 突破 -82% 大关 (phase 4 4.1-4.9 -7983)
-- src/: 0 → **38 文件 ~36100 行**(data 7 / render 14 / core 7 / chains 8 + 2 memory feedback)
+## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 全收官 ✅)
+- **v181.html: 39547 → 4499 (-35048, -88.6%)** ⭐ 突破 -88% 大关 (phase 4 4.1-4.10 -10550)
+- src/: 0 → **39 文件 ~38800 行**(data 7 / render 15 / core 7 / chains 8 + 2 memory feedback)
 - 抽出累计:417 函数 (phase 3) + 65 顶层 const + 5 IIFE + 1 嵌套 IIFE-helper (dc) + ...
 - 5 个 baseline 共存 (phase1_post / phase2_complete / phase3_complete / data_completion_complete)
 - 4 个 git tags: v181-pre-refactor / phase1-baseline-archive / phase3-complete-archive / data-completion-archive
@@ -202,9 +223,12 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 
 ## 终态(main 已 push, memory update 待 commit + push)
-- **main HEAD: `758e9bf phase4(4.9): 战斗 modal cluster (17 顶层 + 3 内部) 抽到 src/render/battle_modals.js` (synced to origin)**
+- **main HEAD: `93ae4d1 phase4(4.10): 战斗动画 cluster (25 funcs + 1 IIFE 入口) 抽到 src/render/battle_anim.js` (synced to origin)**
+- **Phase 4 收官 = 重构主体收官** ✅
 - phase 4 历史 (main 上):
-  - `758e9bf` phase4(4.9): battle_modals (17 顶层 + 3 内部 helper, -1935, -82.1% 累计) [4.9-battle-modals 已 push]
+  - `93ae4d1` phase4(4.10): battle_anim (1 let + 1 const + 11 顶层 funcs + _baCore IIFE 14 helper, -2567, -88.6% 累计) [4.10-battle-anim 已 push]
+  - `e5a955a` docs(memory): phase 4 sub-session 4.9 完成 + 战斗机制 bug fix sprint 候选 沉淀
+  - `758e9bf` phase4(4.9): battle_modals (17 顶层 + 3 内部 helper, -1935) [4.9-battle-modals 已 push]
   - `0bcb2ec` phase4(4.8): tabs.js (8 tabs + renderRight + 6 helper + 4 utils + renderMilTab, -1506) [4.8-tabs 已 push]
   - `66f0fa8` phase4(4.7): recruit_modals (征兵 + 整备 + 扩编 + 增编分队 4 cluster, -1225)
   - `3508405` phase4(4.6): diplo_modals (朝议 + 求和 + 屠城 + 附庸, -195)
@@ -246,7 +270,7 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 - refactor/data-completion HEAD: `5b61620` (保留)
 - refactor/phase-3 HEAD: `afc2b3a` (保留)
 - sprint 工作分支保留(部分 push): batch-1a / 2 / 3 / 4 / 5 / 6 / 7 / 8 / 9 / 10 / 11 / 12 / 13 / 14 / 15 / 16 / 17 / 21 / 22 / 23 / 24 / 25 / 26 / 27 / 28 / 29 / 30 / checker-framework
-- phase 4 工作分支保留: phase4/plan / 4.1-overlay / 4.2-map-render / 4.3-notifications-extend / 4.4-gen-profile / 4.5-boot-screens / 4.6-diplo-modals / 4.7-recruit-modals / 4.8-tabs / 4.9-battle-modals (全 push)
+- phase 4 工作分支保留: phase4/plan / 4.1-overlay / 4.2-map-render / 4.3-notifications-extend / 4.4-gen-profile / 4.5-boot-screens / 4.6-diplo-modals / 4.7-recruit-modals / 4.8-tabs / 4.9-battle-modals / 4.10-battle-anim (全 push)
 - tags 全 push: phase1-baseline-archive / phase3-complete-archive / data-completion-archive
 
 ## v181 剩余 15656 行 6 桶实测分类(dc 后 grep+wc 实测, 见 docs/data_completion_summary.md §九)
@@ -267,12 +291,17 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 ## How to apply
 
 **新对话启动时**:
-1. `git log --oneline -10` 校验 main HEAD (4.9 后 = `758e9bf`)
-2. **重构 + dc + HIGH sprint + _exec sprint 整体收官 + phase 4 9/10 完成**
-3. **sprint 累计**: 30 sprint batches + 9 phase 4 sub-sessions (剩 1 sub-session 4.10)
-4. **phase 4 进度**: 9/10 sub-session 完成. 累计 -7983 行 (实测远低于 plan 估, 4.9 实测 -1935 vs plan 估 -2400). 剩余:
-   - 4.10 battle_anim (🔴 最高, plan 估 ~2500 行, 战斗动画 setTimeout 链, 必须最后做 + 完整战斗实机测)
-   - 4.10 边界 open question: _execInstantMarch (v181 L6187, 4.10 时讨论归 render/battle_anim.js 还是 military.js)
+1. `git log --oneline -10` 校验 main HEAD (4.10 后 = `93ae4d1`, 后续 memory commit 在它之上)
+2. **重构主体收官 ✅** (phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 全部完成)
+3. **sprint 累计**: 30 sprint batches + 10 phase 4 sub-sessions (全部完成)
+4. **phase 4 实测 vs plan**: 累计 -10550 行 (实测远低于 plan 估"突破 -80% 大关 v181 ~3000 行"). 4.10 实测 -2567 vs plan 估 ~2500 (这次比较接近)
+5. **下阶段候选** (制作人决):
+   - **战斗机制 systematic bug fix sprint** (memory project_combat_mechanism_bugfix.md, sprint_followup §五 §5.1+§5.2)
+     - §5.1 AI 攻玩家城无攻城动画 (P1, 4.10 实机测 catch 但 pre-existing v181 bug, 非 4.10 regression)
+     - §5.2 AI 不扎营 (P2, 4.9+4.10 实机测都跳过 ②营寨)
+   - MEDIUM/LOW D 类 sprint (sprint HIGH 27/27 已收, MEDIUM 44 / LOW fix 67 待启动)
+   - audit pass 2 / data-completion 2
+   - 桶 2 squad class 6 函数 + GEN_MAP let region 残余 (~85 行)
 5. **Claude AI 实机测后置 followup** (_exec sprint 未跑 Claude AI 路径, smoke 不覆盖 _claudeAI.enabled 路径)
 6. **下阶段候选** (制作人决, phase 4 完成后): MEDIUM/LOW sprint / audit pass 2 / data-completion 2
 6. **verification harness** (claude.ai 决策): 不要 jsdom 全游戏跑, 用函数级 spy + invariant checker. D-052/D-065 都用这套

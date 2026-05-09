@@ -1,7 +1,7 @@
 - [User role](user_role.md) — 用户是 Project Romance 制作人,亲自定 session 范围 + 设计 approval
 - [Project Romance overview](project_overview.md) — 三国题材策略游戏,v181 单 HTML,正在做 data/render/chains/core 四层重构
-- [Refactor phase status](project_refactor_status.md) — phase 4 sub-session 4.1-4.9 完成 (main 758e9bf). v181 -82.1% (39547→7066). 38 src/. 剩 4.10 battle_anim 最高风险
-- [战斗机制 systematic bug fix sprint 候选](project_combat_mechanism_bugfix.md) — 4.9 实机测后制作人 insight: 战斗 mechanism bug 留 sprint 处理, AI 不扎营 = 已知候选
+- [Refactor phase status](project_refactor_status.md) — **Phase 4 全收官 (10/10) ✅, 重构主体收官 ✅** (main 93ae4d1). v181 -88.6% (39547→4499). 39 src/. 下阶段候选:战斗机制 bug fix sprint / MEDIUM D 类 / audit pass 2
+- [战斗机制 systematic bug fix sprint 候选](project_combat_mechanism_bugfix.md) — sprint_followup §5.1 AI 攻玩家城无动画 (P1) + §5.2 AI 不扎营 (P2)
 - [Chain master scout](project_chain_master_scout.md) — 8 链总图 + map.js carry-over;顺序 ethos→gentry→politics→diplomacy→economy→event→military→general
 - [Chain extraction template](feedback_chain_template.md) — chain 阶段 chains/*.js 模板规范(6 项 header 必含 + 加载顺序 data/core/chains/render/inline)
 - [Phase 3 workflow: scout-before-extract](feedback_phase3_scout_first.md) — 每个 sub-session 先 scout 实测,不照 plan 字面抽

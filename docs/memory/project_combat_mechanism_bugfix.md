@@ -9,8 +9,9 @@ type: project
 **Why**:
 - 4.9 verbatim 抽离 ≠ 战斗机制设计正确性。重构期硬规则不修 D 类 / 不改逻辑,只搬运。
 - 实机测 7/8 场景 PASS 是 **抽离动作正确**(modal callback 调通 + 双方阵容 + 战报 + 俘虏处置 等流程没断),不代表战斗 **mechanism** 各路径都符合设计意图。
-- 已知 candidate(4.9 实机测过程沉淀):
-  - **AI 不扎营**:4.9 ② 营寨战 confirm 测试因 AI 不扎营无法触发,scope 跳过。AI 行为缺失候选,可能影响营寨/夜袭这条 confirm 链的实战覆盖率。
+- 已知 candidate(4.9 + 4.10 实机测过程沉淀,详见 docs/sprint_followup.md §五):
+  - **§5.1 AI 攻玩家城无攻城动画** (P1, 4.10 实机测 catch):下回合开始,玩家城被 AI 攻陷,**无攻城动画直接弹战报**。pre-existing v181 bug, **非 4.10 regression**(code-level diff verify byte-identical)。怀疑路径:tick.js:626 fire-and-forget 不 await + battle_anim.js:165 shouldSkip _battleAnimating 检查。3 个候选 fix 方向已记 sprint_followup。
+  - **§5.2 AI 不扎营** (P2, 4.9 + 4.10 都遇到):4.9 ② 营寨战 confirm + 4.10 ② 营寨动画 都因 AI 不扎营无法触发实机测,scope 跳过。AI 行为缺失候选,影响营寨/夜袭整条 confirm + anim 链的实战覆盖率。
 - 战斗 mechanism 涉及多个 chain 跨文件协作(military.js + general.js 单挑 + render/battle_modals.js modal 链 + render/battle_anim.js 动画时序),audit pass 1 时按链做的 D 类清单可能不覆盖战斗整体行为级 bug。
 
 **How to apply**:

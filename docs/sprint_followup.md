@@ -159,3 +159,46 @@
 ---
 
 (sprint_followup v1.2 — batch-22 加 §3.2.1 day-1 部曲 type vs squad type 一致性 audit pass 2 candidate + 3.1.1/3.1.3 status 更新)
+
+---
+
+## 五、战斗机制 bug 候选(战斗机制 systematic bug fix sprint, 2026-05-09 phase 4 4.10 实机测沉淀)
+
+**发现 phase**:phase 4 sub-session 4.10 (battle_anim 抽离) 实机测 + 制作人 insight (memory `project_combat_mechanism_bugfix.md`)
+
+**性质**:**pre-existing v181 bug 而非 4.10 regression**(4.10 verbatim 抽离 + smoke vs main byte-identical PASS + codex LGTM,行为应跟 main 完全一致)。但 4.10 实机测期间触发,值得记录。
+
+### §5.1 AI 攻玩家城 (玩家丢城) 无攻城动画 (2026-05-09)
+
+**症状**:下回合开始,玩家城被 AI 攻陷,**无攻城动画直接弹战报**。
+
+**触发场景**:rebel 大乱期 / 普通 AI 攻玩家城 (tick.js:133 `_pendingBattleAnimations.push({kind:'siege', ...})`)
+
+**怀疑路径**:
+- tick.js:626 `_drainPendingBattleAnimations()` fire-and-forget 不 await
+- battle_anim.js:91 等 `_pendingSiegeArrival === null` 应直接通过 (AI 攻玩家不走 arrival)
+- battle_anim.js:165 `shouldSkip` 中 `if(_battleAnimating) return true` 可疑 — 上一场动画 lock 未释放 → 下一场被跳过
+- 或 `shouldSkip` fog 检查:`anyVisible` for 城市 hex 应永远 true (玩家自己城) — 这个不应是问题
+
+**P 级**:P1 (用户体验明显缺失,但不阻塞游戏 progression)
+
+**留给 sprint**:战斗机制 systematic bug fix sprint。复现简单 (rebel 期 / 任意玩家被 AI 攻城),debug 容易 (加 console.log 跟踪 _pendingBattleAnimations queue + _battleAnimating lock 状态)。
+
+**候选 fix 方向** (sprint 启动时再设计):
+- (a) tick.js:626 改为 `await _drainPendingBattleAnimations()` (但 fire-and-forget 是 v175 设计意图, 改 await 会阻塞 nextTurn 完成)
+- (b) `shouldSkip` 内 `_battleAnimating` 检查改为 wait/retry (跟 showNextBattleReport 一样 setTimeout 200ms 重试)
+- (c) `_drainPendingBattleAnimations` 内串行 each anim, 起点确认 _battleAnimating=false 再播
+
+### §5.2 AI 不扎营 (4.9 + 4.10 实机测沉淀, 2026-05-08/09)
+
+**症状**:玩家无法看到 AI 扎营 → 营寨战 confirm + camp 动画 (`_playCampBattleAnim`) 无法触发实机测 (4.9 ② / 4.10 ② 跳过)
+
+**性质**:AI 行为缺失候选 (Claude AI 路径 / 传统 AI 路径都不见扎营行为)
+
+**P 级**:P2 (实机测 coverage 缺失, 但游戏可运转)
+
+**留给 sprint**:战斗机制 systematic bug fix sprint 启动 trace #1 (per `docs/memory/project_combat_mechanism_bugfix.md`)
+
+---
+
+(sprint_followup v1.3 — phase 4 4.10 加 §五 战斗机制 bug 候选 §5.1 + §5.2)
