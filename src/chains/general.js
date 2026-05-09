@@ -227,13 +227,15 @@ function addStatExp(genName, stat, amount){
   const cap = base + STAT_GROW_CAP;
   if(gen[stat] >= cap) return false; // 已到成长上限
   G.genStatExp[genName][stat] += amount;
-  if(G.genStatExp[genName][stat] >= STAT_GROW_THRESHOLD){
+  // D-070 fix: if → while, 单次大量经验可连升多级; gen[stat] < cap 守卫防 cap 时 log 刷屏
+  let leveled = false;
+  while(G.genStatExp[genName][stat] >= STAT_GROW_THRESHOLD && gen[stat] < cap){
     G.genStatExp[genName][stat] -= STAT_GROW_THRESHOLD;
-    gen[stat] = Math.min(cap, gen[stat] + 1);
+    gen[stat] += 1;
     log(`📈 ${genName} ${({com:'统率',war:'武力',int:'智力',pol:'政治'})[stat]}成长至 ${gen[stat]}`, 'event');
-    return true;
+    leveled = true;
   }
-  return false;
+  return leveled;
 }
 
 /**
