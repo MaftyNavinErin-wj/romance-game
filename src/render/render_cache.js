@@ -1,0 +1,271 @@
+function renderAll(){
+  hideTip(); // ★ v108: 重渲染时清除残留tooltip
+  renderLeft();renderMap();renderRight();renderTurnInfo();
+  renderOverlay();
+}
+
+/**
+ * v86: 轻量渲染——只更新部队图标层+右侧面板，跳过地形/城市/迷雾的全量重建
+ * 适用于：选中部队、移动预览、取消选中等交互操作
+ */
+function renderAllLight(){
+  hideTip(); // ★ v108: 轻量渲染也清除tooltip
+  renderUnitsOnly();renderRight();renderTurnInfo();
+}
+
+// 渲染层 R4.1 (overlay 子系统 9 funcs + 2 const + 5 lets, L1593-L1934) 已抽离到 src/render/overlay.js (Phase 4 / sub-session 4.1)
+
+
+
+
+
+
+// ─── 静态地图SVG缓存（地形+道路+州名，buildHexTerrain后不变） ───
+// ★ v122: 水墨风地图 + hex网格叠加开关
+let _staticMapCache = '';
+let _mapShowGrid = false;
+function toggleMapStyle() {
+  _mapShowGrid = !_mapShowGrid;
+  const btn = document.getElementById('ov-btn-mapstyle');
+  if(btn) {
+    btn.textContent = _mapShowGrid ? '⬡ 网格' : '🖌 水墨';
+    btn.style.background = _mapShowGrid ? 'rgba(235,225,205,.92)' : 'rgba(60,50,35,.85)';
+    btn.style.color = _mapShowGrid ? 'rgba(92,74,50,.65)' : 'rgba(230,220,195,.9)';
+  }
+  _staticMapCache = '';
+  const existingRoot = document.getElementById('mapRoot');
+  if(existingRoot) existingRoot.remove();
+  renderMap();
+}
+
+function _buildStaticMapCache() {
+  const S = HEX_SIZE;
+  let h = '';
+  const _sr = (col,row,i) => ((col*137+row*281+i*73)%997)/997;
+
+  // 底色：plain透明，其他极淡
+  const INK_FILL = {
+    plain:'rgba(0,0,0,0)', hill:'rgba(0,0,0,0)',
+    mountain:'rgba(55,40,25,.04)', forest:'rgba(30,55,25,.03)',
+    water:'rgba(40,80,130,.10)', river:'rgba(40,80,130,.06)',
+    swamp:'rgba(50,75,55,.04)', impassable:'rgba(30,22,12,.35)',
+    coastal_water:'rgba(35,70,115,.14)', deep_water:'rgba(28,55,100,.20)',
+  };
+
+  for(let col=0; col<HEX_COLS; col++){
+    for(let row=0; row<HEX_ROWS; row++){
+      const k = hkey(col,row);
+      const terrain = HEX_TERRAIN[k] || 'plain';
+      const p = hexToPixel(col,row);
+      const px = p.x.toFixed(1), py = p.y.toFixed(1);
+      const fill = INK_FILL[terrain];
+
+      if(fill && fill !== 'rgba(0,0,0,0)') {
+        h += `<path d="${HEX_PATH}" transform="translate(${px},${py})" fill="${fill}" stroke="none"/>`;
+      }
+
+      const r0 = _sr(col,row,0), r1 = _sr(col,row,1), r2 = _sr(col,row,2);
+      const r3 = _sr(col,row,3), r4 = _sr(col,row,4);
+
+      if(terrain === 'mountain'){
+        const mh = S*(.28+r0*.14), mw = S*(.32+r1*.12), ox = (r2-.5)*S*.12;
+        h += `<path d="M${-mw},${S*.2} L${ox},${-mh} L${mw},${S*.2} Z" transform="translate(${px},${py})" fill="rgba(38,28,15,.55)" stroke="rgba(25,18,8,.7)" stroke-width="${(.6+r1*.3).toFixed(2)}" stroke-linejoin="round"/>`;
+        if(r3>0.25){
+          const w2=S*(.18+r3*.08), h2=S*(.15+r4*.1), ox2=S*(.14+r2*.08);
+          h += `<path d="M${ox2-w2},${S*.2} L${ox2},${-h2} L${ox2+w2},${S*.2} Z" transform="translate(${px},${py})" fill="rgba(38,28,15,.30)" stroke="rgba(25,18,8,.40)" stroke-width="${(.4+r4*.2).toFixed(2)}" stroke-linejoin="round"/>`;
+        }
+        if(r0>0.4) h += `<circle cx="${p.x+ox}" cy="${p.y-mh+S*.08}" r="${S*.07}" fill="rgba(235,228,215,.6)" stroke="none"/>`;
+      } else if(terrain === 'forest'){
+        const ty = -S*.12-r0*S*.06;
+        h += `<ellipse cx="${p.x+(r1-.5)*S*.08}" cy="${p.y+ty}" rx="${S*(.25+r2*.08)}" ry="${S*(.20+r3*.06)}" fill="rgba(22,48,18,.45)" stroke="none"/>`;
+        h += `<ellipse cx="${p.x+S*(.10+r3*.06)}" cy="${p.y+ty+S*.06}" rx="${S*(.16+r1*.05)}" ry="${S*(.13+r2*.04)}" fill="rgba(28,55,22,.35)" stroke="none"/>`;
+        if(r2>0.4) h += `<ellipse cx="${p.x-S*(.08+r0*.05)}" cy="${p.y+ty+S*.03}" rx="${S*(.12+r4*.04)}" ry="${S*(.10+r1*.03)}" fill="rgba(18,42,15,.28)" stroke="none"/>`;
+      } else if(terrain === 'hill'){
+        const ay = S*(.04+r0*.06);
+        h += `<path d="M${-S*.28},${ay} Q${-S*.08+r1*S*.05},${-S*.12-r2*S*.08} ${S*.10},${ay}" transform="translate(${px},${py})" fill="none" stroke="rgba(60,45,25,.45)" stroke-width="${(.5+r3*.4).toFixed(2)}" stroke-linecap="round"/>`;
+        if(r4>0.3) h += `<path d="M${-S*.18},${ay+S*.07} Q${r2*S*.1},${-S*.03-r1*S*.05} ${S*.22},${ay+S*.07}" transform="translate(${px},${py})" fill="none" stroke="rgba(60,45,25,.30)" stroke-width="${(.4+r1*.25).toFixed(2)}" stroke-linecap="round"/>`;
+      } else if(terrain === 'water'){
+        const wy = (r0-.5)*S*.12;
+        h += `<path d="M${-S*.32},${wy} Q${-S*.12},${wy-S*.14} ${S*.12},${wy} Q${S*.32},${wy+S*.14} ${S*.48},${wy}" transform="translate(${(p.x-S*.08).toFixed(1)},${py})" fill="none" stroke="rgba(30,65,115,.35)" stroke-width="${(.45+r2*.25).toFixed(2)}" stroke-linecap="round"/>`;
+      } else if(terrain === 'coastal_water'){
+        const wy = (r0-.5)*S*.1;
+        h += `<path d="M${-S*.3},${wy} Q${-S*.10},${wy-S*.12} ${S*.10},${wy} Q${S*.30},${wy+S*.12} ${S*.44},${wy}" transform="translate(${(p.x-S*.06).toFixed(1)},${py})" fill="none" stroke="rgba(30,60,105,.30)" stroke-width="${(.5+r2*.2).toFixed(2)}" stroke-linecap="round"/>`;
+      } else if(terrain === 'deep_water'){
+        const wy = (r0-.5)*S*.10;
+        h += `<path d="M${-S*.35},${wy} Q${-S*.12},${wy-S*.16} ${S*.10},${wy} Q${S*.32},${wy+S*.16} ${S*.5},${wy}" transform="translate(${(p.x-S*.08).toFixed(1)},${py})" fill="none" stroke="rgba(22,50,95,.38)" stroke-width="${(.55+r1*.3).toFixed(2)}" stroke-linecap="round"/>`;
+        h += `<path d="M${-S*.22},${wy+S*.12} Q${-S*.05},${wy+S*.03} ${S*.18},${wy+S*.12}" transform="translate(${(p.x+r3*S*.08).toFixed(1)},${py})" fill="none" stroke="rgba(22,50,95,.22)" stroke-width="${(.35+r4*.15).toFixed(2)}" stroke-linecap="round"/>`;
+      } else if(terrain === 'river'){
+        const wy = (r0-.5)*S*.10;
+        h += `<path d="M${-S*.30},${wy} Q${-S*.08},${wy-S*.16} ${S*.14},${wy} Q${S*.34},${wy+S*.16} ${S*.50},${wy}" transform="translate(${(p.x-S*.1).toFixed(1)},${py})" fill="none" stroke="rgba(28,65,120,.38)" stroke-width="${(.5+r2*.3).toFixed(2)}" stroke-linecap="round"/>`;
+      } else if(terrain === 'swamp'){
+        h += `<path d="M${-S*.15},${S*.18} L${-S*.15+r1*S*.03},${-S*.05-r0*S*.08}" transform="translate(${px},${py})" fill="none" stroke="rgba(35,58,35,.40)" stroke-width="0.5" stroke-linecap="round"/>`;
+        h += `<path d="M${S*.02},${S*.20} L${S*.02+r2*S*.02},${-S*.02-r3*S*.07}" transform="translate(${px},${py})" fill="none" stroke="rgba(35,58,35,.32)" stroke-width="0.45" stroke-linecap="round"/>`;
+        if(r4>0.35) h += `<path d="M${S*.18},${S*.16} L${S*.18+r0*S*.02},${-S*.03-r4*S*.06}" transform="translate(${px},${py})" fill="none" stroke="rgba(35,58,35,.25)" stroke-width="0.4" stroke-linecap="round"/>`;
+      } else if(terrain === 'impassable'){
+        h += `<path d="M${-S*.42},${S*.2} L${-S*.1+r1*S*.06},${-S*.28-r0*S*.12} L${S*.15+r2*S*.1},${S*.05} L${S*.42},${-S*.32-r3*S*.1} L${S*.56},${S*.2}" transform="translate(${px},${py})" fill="none" stroke="rgba(25,18,8,.6)" stroke-width="${(.9+r4*.5).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"/>`;
+      }
+    }
+  }
+
+  // hex网格叠加（开关控制）
+  if(_mapShowGrid) {
+    for(let col=0; col<HEX_COLS; col++){
+      for(let row=0; row<HEX_ROWS; row++){
+        const p = hexToPixel(col,row);
+        h += `<path d="${HEX_PATH}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})" fill="none" stroke="rgba(80,65,40,.18)" stroke-width="0.35"/>`;
+      }
+    }
+  }
+
+  // 道路
+  for (const k of Object.keys(HEX_ROAD)) {
+    const {col, row} = hparse(k);
+    const p = hexToPixel(col, row);
+    h += `<path d="${HEX_PATH_INNER}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})" fill="rgba(140,120,80,.10)" stroke="none" pointer-events="none"/>`;
+  }
+  const roadLineDrawn = new Set();
+  ROADS.forEach(([aid, bid]) => {
+    const k = [aid,bid].sort().join('-');
+    if(roadLineDrawn.has(k)) return; roadLineDrawn.add(k);
+    const ca = CITY_MAP[aid], cb = CITY_MAP[bid];
+    if(!ca||!cb) return;
+    const roadHexes = hexLineDraw(ca.q, ca.r, cb.q, cb.r);
+    if(roadHexes.length < 2) return;
+    let pts = '';
+    roadHexes.forEach(rh => { const pp = hexToPixel(rh.col, rh.row); pts += `${pp.x.toFixed(1)},${pp.y.toFixed(1)} `; });
+    h += `<polyline points="${pts}" fill="none" stroke="rgba(100,82,50,.18)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`;
+    h += `<polyline points="${pts}" fill="none" stroke="rgba(80,65,38,.35)" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3,2.5" pointer-events="none"/>`;
+  });
+  // 州名水印
+  [['冀州',455,110],['司州',300,196],['兖州',526,196],['益州',127,370],
+   ['荆州',335,350],['扬州',634,360],['凉州',85,210],['并州',300,130],['徐州',622,214],
+   ['南中',162,520],['交州',431,590],['豫州',452,260]
+  ].forEach(([n,x,y]) => {
+    h += `<text x="${x}" y="${y}" text-anchor="middle" font-family="Noto Serif SC,serif" font-size="16" font-weight="700" fill="rgba(45,32,15,.16)" letter-spacing="6px" font-style="italic" pointer-events="none">${n}</text>`;
+  });
+  _staticMapCache = h;
+}
+function _getStaticMapCache() {
+  if (!_staticMapCache) _buildStaticMapCache();
+  return _staticMapCache;
+}
+
+// ─── C4 迷雾SVG缓存（避免每次renderMap重建6000+个path） ───
+let _fogSvgCache = '';
+let _fogCacheTurn = -1;
+let _fogCacheVersion = 0; // ★ v117fix: 递增版本号替代G.turn，支持同旬多次刷新
+
+function invalidateFogCache() { _fogCacheVersion++; }
+
+function _getFogSvgCache() {
+  if (_fogCacheTurn === _fogCacheVersion && _fogSvgCache) return _fogSvgCache;
+  const pFog = G.fog?.[G.playerFac];
+  if (!pFog) { _fogSvgCache = ''; _fogCacheTurn = _fogCacheVersion; return ''; }
+  let fogExplored = '', fogUnexplored = '';
+  for (let col = 0; col < HEX_COLS; col++) {
+    for (let row = 0; row < HEX_ROWS; row++) {
+      const k = hkey(col, row);
+      const level = pFog[k] ?? FOG_UNEXPLORED;
+      if (level === FOG_VISIBLE) continue;
+      if ((HEX_TERRAIN[k] || 'plain') === 'impassable') continue; // impassable始终可见
+      if ((HEX_TERRAIN[k] || 'plain') === 'deep_water') continue; // 深海始终可见
+      if ((HEX_TERRAIN[k] || 'plain') === 'coastal_water') continue; // 近海始终可见
+      const p = hexToPixel(col, row);
+      const tx = p.x.toFixed(1), ty = p.y.toFixed(1);
+      if (level === FOG_UNEXPLORED) {
+        fogUnexplored += `<path d="${HEX_PATH}" transform="translate(${tx},${ty})"/>`;
+      } else {
+        fogExplored += `<path d="${HEX_PATH}" transform="translate(${tx},${ty})"/>`;
+      }
+    }
+  }
+  let result = '';
+  if (fogUnexplored) result += `<g fill="rgba(110,100,80,.93)" stroke="rgba(95,85,68,.95)" stroke-width="0.5" pointer-events="none">${fogUnexplored}</g>`;
+  if (fogExplored) result += `<g fill="rgba(170,160,138,.48)" stroke="rgba(155,145,125,.50)" stroke-width="0.5" pointer-events="none">${fogExplored}</g>`;
+  _fogSvgCache = result;
+  _fogCacheTurn = _fogCacheVersion;
+  return result;
+}
+
+
+// ★ v115优化: 城市图标SVG按旬缓存
+let _citySvgCache = '';
+let _cityCacheTurn = -1;
+let _cityCacheSelCity = null;
+let _cityCacheVersion = 0; // ★ v117fix: 递增版本号
+function invalidateCityCache() { _cityCacheVersion++; }
+function _getCitySvgCache() {
+  if (_cityCacheTurn === _cityCacheVersion && _citySvgCache && _cityCacheSelCity === G.selCity) return _citySvgCache;
+  const FAC_DARK_FILL = {wei:'rgba(220,235,248,.92)',shu:'rgba(220,242,228,.92)',wu:'rgba(248,225,222,.92)',nanman:'rgba(248,240,215,.92)'};
+  const FAC_STROKE = {wei:'rgba(26,95,138,1)',shu:'rgba(26,122,58,1)',wu:'rgba(168,42,26,1)',nanman:'rgba(139,105,20,1)'};
+  const FAC_GLOW = {wei:'rgba(26,95,138,.15)',shu:'rgba(26,122,58,.15)',wu:'rgba(168,42,26,.15)',nanman:'rgba(139,105,20,.15)'};
+  let ch = '';
+  CITIES_DEF.forEach(def => {
+    const city = G.cities[def.id]; if (!city) return;
+    const fogLv = G.fog?.[G.playerFac] ? (G.fog[G.playerFac][hkey(def.q, def.r)] ?? FOG_UNEXPLORED) : FOG_VISIBLE;
+    let displayFac = city.fac;
+    const isExplored = fogLv === FOG_EXPLORED;
+    if (isExplored) {
+      const snap = G.fogSnap?.[G.playerFac]?.[def.id];
+      displayFac = snap ? snap.fac : 'none';
+    } else if (fogLv === FOG_UNEXPLORED) {
+      displayFac = 'none';
+    }
+    const fc = FAC[displayFac] || null;
+    const col = fc ? fc.color : '#666';
+    const darkFill = (fogLv === FOG_VISIBLE) ? (FAC_DARK_FILL[displayFac] || 'rgba(240,235,220,.92)')
+                   : isExplored ? (FAC_DARK_FILL[displayFac] || 'rgba(235,228,215,.92)')
+                   : 'rgba(220,215,200,.92)';
+    const strokeCol = (fogLv === FOG_VISIBLE) ? (FAC_STROKE[displayFac] || '#888')
+                    : isExplored ? (col + '88') : '#666';
+    const nameCol = (fogLv === FOG_VISIBLE) ? (col || '#444')
+                  : isExplored ? (col + '88') : '#999';
+    const glowCol = (fogLv === FOG_VISIBLE) ? (FAC_GLOW[displayFac] || 'rgba(80,65,40,.15)')
+                  : 'rgba(0,0,0,0)';
+    const dotCol = fc ? fc.color : '#888';
+    const isSel = G.selCity === def.id;
+    const isCap = def.isCapital;
+    const r = def.size === 'large' ? 9 : def.size === 'medium' ? 7 : 5.5;
+    const nameSize = def.size === 'large' ? 9 : def.size === 'medium' ? 8 : 7;
+    // ★ v122: 水墨城楼图标
+    const s = r * 0.65;
+    const sw = isSel ? 1.2 : 0.7;
+    ch += '<g class="city-g' + (isSel?' sel':'') + '" transform="translate(' + city.x + ',' + city.y + ')"' +
+      ' onclick="selCity(\'' + def.id + '\')" style="cursor:pointer">' +
+      '<circle r="' + (r*1.6) + '" fill="' + glowCol + '" opacity="' + (isSel?.8:.4) + '"/>' +
+      '<rect x="' + (-s*1.3) + '" y="' + (-s*1.7) + '" width="' + (s*2.6) + '" height="' + (s*2.8) + '" fill="rgba(0,0,0,0)" stroke="none"/>' +
+      '<rect x="' + (-s*1.1) + '" y="' + (s*.1) + '" width="' + (s*2.2) + '" height="' + (s*.7) + '" rx="0.5"' +
+        ' fill="' + darkFill + '" stroke="' + strokeCol + '" stroke-width="' + sw + '"/>' +
+      '<path d="M' + (-s*.3) + ',' + (s*.8) + ' L' + (-s*.3) + ',' + (s*.25) +
+        ' Q' + (-s*.3) + ',' + (-s*.05) + ' 0,' + (-s*.05) +
+        ' Q' + (s*.3) + ',' + (-s*.05) + ' ' + (s*.3) + ',' + (s*.25) +
+        ' L' + (s*.3) + ',' + (s*.8) + '"' +
+        ' fill="' + (fogLv===FOG_VISIBLE ? 'rgba(40,32,20,.3)' : 'rgba(80,70,55,.15)') + '" stroke="' + strokeCol + '" stroke-width="' + (sw*.6) + '"/>' +
+      '<rect x="' + (-s*.7) + '" y="' + (-s*.6) + '" width="' + (s*1.4) + '" height="' + (s*.7) + '" rx="0.5"' +
+        ' fill="' + darkFill + '" stroke="' + strokeCol + '" stroke-width="' + sw + '"/>' +
+      '<path d="M' + (-s*1.0) + ',' + (-s*.6) + ' L0,' + (-s*1.15) + ' L' + (s*1.0) + ',' + (-s*.6) + '"' +
+        ' fill="' + darkFill + '" stroke="' + strokeCol + '" stroke-width="' + (sw*1.1) + '" stroke-linejoin="round"/>' +
+      (isCap ? '<path d="M0,' + (-s*1.15) + ' L0,' + (-s*1.45) + '" stroke="' + strokeCol + '" stroke-width="' + (sw*.8) + '" stroke-linecap="round"/>' +
+        '<circle cy="' + (-s*1.5) + '" r="' + (s*.12) + '" fill="' + strokeCol + '"/>' : '') +
+      '<path d="M' + (-s*1.1) + ',' + (s*.1) + ' L' + (-s*1.1) + ',' + (-s*.08) +
+        ' M' + (-s*.7) + ',' + (s*.1) + ' L' + (-s*.7) + ',' + (-s*.08) +
+        ' M' + (-s*.3) + ',' + (s*.1) + ' L' + (-s*.3) + ',' + (-s*.08) +
+        ' M' + (s*.3) + ',' + (s*.1) + ' L' + (s*.3) + ',' + (-s*.08) +
+        ' M' + (s*.7) + ',' + (s*.1) + ' L' + (s*.7) + ',' + (-s*.08) +
+        ' M' + (s*1.1) + ',' + (s*.1) + ' L' + (s*1.1) + ',' + (-s*.08) +
+        '" fill="none" stroke="' + strokeCol + '" stroke-width="' + (sw*.5) + '" stroke-linecap="round"/>' +
+      '<text y="' + (r+13) + '" text-anchor="middle"' +
+        ' font-family="Noto Serif SC,serif" font-size="' + nameSize + '" font-weight="' + (isCap?700:600) + '"' +
+        ' fill="' + nameCol + '"' +
+        ' stroke="rgba(245,240,230,.9)" stroke-width="3.5" paint-order="stroke"' +
+        ' pointer-events="none">' + city.name + '</text>' +
+      (isCap ? '<text y="' + (r+23) + '" text-anchor="middle" font-size="7.5"' +
+        ' fill="' + strokeCol + '" stroke="rgba(245,240,230,.88)" stroke-width="3" paint-order="stroke"' +
+        ' pointer-events="none">都</text>' : '') +
+    '</g>';
+  });
+  _citySvgCache = ch;
+  _cityCacheTurn = _cityCacheVersion;
+  _cityCacheSelCity = G.selCity;
+  return _citySvgCache;
+}
