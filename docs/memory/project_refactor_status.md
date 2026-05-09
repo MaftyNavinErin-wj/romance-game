@@ -1,6 +1,6 @@
 ---
-name: Refactor phase status — Phase 4 + 桶 2 + 桶 6 + F/G/J render & map 簇收尾
-description: Phase 3 + dc + HIGH sprint + _exec sprint + phase 4 全 10 sub-session + 桶 2 + 桶 6 + F render-cache + G map-interaction + J map-zoom 收尾. v181 39547 → 2214 (-94.4%). 42 src/ js + 1 css. **重构主体彻底收官**.
+name: Refactor phase status — Phase 4 + 桶 2 + 桶 6 + F/G/J/H 簇收尾
+description: Phase 3 + dc + HIGH sprint + _exec sprint + phase 4 全 10 sub-session + 桶 2 + 桶 6 + F render-cache + G map-interaction + J map-zoom + H utilities 收尾. v181 39547 → 2178 (-94.5%). 42 src/ js + 1 css. **重构主体彻底收官**.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -182,6 +182,22 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - **J sub-session 收尾 ✅** (地图缩放/平移完整 cluster 含 lets+funcs+listeners 加进 map_interaction.js)
 - **重要 lesson**: dead code 判定必须全 src/ grep 不能只搜 v181 (codex catch _unitMenu 在 notifications.js consumer)
 
+**H utilities 抽离 (H sub-session, 2026-05-09, 加进 notifications.js)**:
+- v181 L1092-L1128 (37 行 verbatim) → src/render/notifications.js append
+- 3 funcs:
+  - log(msg, type) — 写 G.logs + 渲染 #elog DOM 消息日志
+  - updateFacStats() — 更新右侧势力统计面板
+  - handleKeyDown(e) — 全局键盘 dispatcher (实际只处理 Enter/Space/Escape 关闭 modal, 不是 F2)
+- v181 替换为 1 行 marker (净 -36)
+- v181: 2214 → 2178 (-36, -1.6%, 累计 -94.5%)
+- src/render/notifications.js: 399 → 438 (+39: 37 verbatim + 2 header/blank)
+- byte-identical verify: 内容 vs v181 原段 diff = 0
+- smoke vs main: PASS — 51 snapshots identical (Option B.2)
+- codex trial 1 LGTM (零 finding 零 concern, 跨链消费者全 verified, body onkeydown attribute 仍能 lookup handleKeyDown)
+- 实机测 PASS (制作人 2026-05-09)
+- 加进 notifications.js (主题 = 全局 UI helpers, log 主题完全契合)
+- **H sub-session 收尾 ✅** (全局 UI utilities 全归位 src/render/notifications.js)
+
 **phase 4 sub-session 4.10 单 codex review (2026-05-09, 最高风险, phase 4 收官)**:
 - 4.10 battle_anim: 战斗动画 cluster 抽到 src/render/battle_anim.js (新建)
 - 1 段连续 block: v181 L1665-L4233 (2569 行), 1 let + 1 const + 11 顶层 funcs + 1 _baCore IIFE (含 14 内部 helper) = 25 funcs + 1 IIFE 入口
@@ -291,9 +307,9 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 **跳过 / 留 followup 类型**:
 - (无, sprint HIGH 全收尾)
 
-## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 + F + G + J 收尾 ✅)
-- **v181.html: 39547 → 2214 (-37333, -94.4%)** ⭐ 突破 -94.4% (phase 4 -10550 + 桶 2 -76 + 桶 6 -1497 + render-cache -269 + map-interaction -324 + map-zoom -119)
-- src/: 0 → **42 js 文件 + 1 css ~41200 行**(data 7 / render 17 / core 7 / chains 8 / dev 1+1css + 2 memory feedback)
+## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 + F + G + J + H 收尾 ✅)
+- **v181.html: 39547 → 2178 (-37369, -94.5%)** ⭐ 突破 -94.5% (phase 4 -10550 + 桶 2 -76 + 桶 6 -1497 + render-cache -269 + map-interaction -324 + map-zoom -119 + h-utilities -36)
+- src/: 0 → **42 js 文件 + 1 css ~41250 行**(data 7 / render 17 / core 7 / chains 8 / dev 1+1css + 2 memory feedback)
 - 抽出累计:417 函数 (phase 3) + 65 顶层 const + 5 IIFE + 1 嵌套 IIFE-helper (dc) + ...
 - 5 个 baseline 共存 (phase1_post / phase2_complete / phase3_complete / data_completion_complete)
 - 4 个 git tags: v181-pre-refactor / phase1-baseline-archive / phase3-complete-archive / data-completion-archive
@@ -324,9 +340,12 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 
 ## 终态(main 已 push, memory update 待 commit + push)
-- **main HEAD: `fa60fac refactor(map-zoom): 地图缩放/平移 state + funcs + listeners 双 block 抽到 src/render/map_interaction.js` (synced to origin)**
-- **重构主体彻底收官 + 桶 2 + 桶 6 + F + G + J 收尾** ✅
+- **main HEAD: `34c1828 refactor(h-utilities): 全局 UI utilities (log + updateFacStats + handleKeyDown) 抽到 src/render/notifications.js` (synced to origin)**
+- **重构主体彻底收官 + 桶 2 + 桶 6 + F + G + J + H 收尾** ✅
+- h-utilities (H sub-session, 2026-05-09 commit):
+  - `34c1828` refactor(h-utilities): 3 funcs (log + updateFacStats + handleKeyDown, 37 行 verbatim → notifications.js, -36, 累计 -94.5%) [refactor/h-utilities 已 push]
 - map-zoom (J sub-session, 2026-05-09 commit):
+  - `e1f640b` docs(memory): J sub-session 收尾 status update + _unitMenu 纠正
   - `fa60fac` refactor(map-zoom): 双 block (5 lets/consts + 5 funcs + DOMContentLoaded + _onDocKeydown + listeners, 121 行 verbatim → map_interaction.js range C/D, -119, 累计 -94.4%) [refactor/map-zoom 已 push]
 - map-interaction (G sub-session, 2026-05-09 commit):
   - `c7ccff8` docs(memory): G sub-session 收尾 status update
@@ -411,8 +430,8 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 ## How to apply
 
 **新对话启动时**:
-1. `git log --oneline -10` 校验 main HEAD (map-zoom 后 = `fa60fac`, 后续 memory commit 在它之上)
-2. **重构主体彻底收官 + 桶 2 + 桶 6 + F + G + J 收尾 ✅** (phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 + F + G + J 全部完成, v181 -94.4%)
+1. `git log --oneline -10` 校验 main HEAD (h-utilities 后 = `34c1828`, 后续 memory commit 在它之上)
+2. **重构主体彻底收官 + 桶 2 + 桶 6 + F + G + J + H 收尾 ✅** (phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 + F + G + J + H 全部完成, v181 -94.5%)
 3. **sprint 累计**: 30 sprint batches + 10 phase 4 sub-sessions (全部完成)
 4. **phase 4 实测 vs plan**: 累计 -10550 行 (实测远低于 plan 估"突破 -80% 大关 v181 ~3000 行"). 4.10 实测 -2567 vs plan 估 ~2500 (这次比较接近)
 5. **下阶段候选** (制作人决):
