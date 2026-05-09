@@ -1,6 +1,6 @@
 ---
-name: Refactor phase status — Phase 4 全收官 + 桶 2 + 桶 6 _debug 收尾
-description: Phase 3 + dc + HIGH sprint (25) + _exec sprint (5) + phase 4 全 10 sub-session + 桶 2 残余 (GEN_MAP + 6 squad/class funcs) + 桶 6 _debug panel (style + IIFE) 收尾. v181 39547 → 3052 (-92.3%). 40 src/ js 文件 + 1 css. **重构主体彻底收官**.
+name: Refactor phase status — Phase 4 + 桶 2 + 桶 6 (_debug + combat tables) 收尾
+description: Phase 3 + dc + HIGH sprint (25) + _exec sprint (5) + phase 4 全 10 sub-session + 桶 2 残余 + 桶 6 _debug panel + 桶 6 combat tables (战斗 + 相性 9 consts) 收尾. v181 39547 → 2926 (-92.6%). 40 src/ js + 1 css. **重构主体彻底收官**.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -109,6 +109,21 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - codex trial 1 LGTM (4 finding 全 LGTM, 1 non-blocking concern: HANDOVER_v181 + CODE_MAP_v181 历史文档仍提 _debug, followup 非阻塞)
 - 实机测 PASS (制作人 2026-05-09): #debug URL 激活 panel + 不带 #debug 零角标
 - **桶 6 第二段 _debug script 收尾 ✅** (memory "v181 剩余 6 桶分类" 桶 6 第二段 1296 行已清空, 桶 6 残余仅顶层杂项 + 第一段 _debug-related 已属主 script)
+
+**桶 6 combat tables 抽离 (E sub-session, 2026-05-09, 顶层 const 抽离延续 dc.S1/S3)**:
+- 主 inline script L1439-L1513 (75 行武将相性 cluster) → src/data/generals.js range C
+  - APT_MULT (适性乘数) + COMPAT (65 武将相性表) + COMPAT_GROWTH_MULT (相性差距 → 亲密度增长) + INTIMACY_PRESET (史实初始亲密度 80+ 关系)
+- 主 inline script L1523-L1575 (53 行兵种克制 + 地形修正 cluster) → src/data/constants.js range B
+  - TYPE_ATK / TYPE_DEF (兵种攻防乘数, 含 11 特色兵种) + TROOP_BASE_MULT (兼容) + TYPE_MATCH_MULT (5×5 克制矩阵) + TERRAIN_TROOP_MULT (6 地形 × 5 兵种)
+- 中间 L1514-L1522 (9 行 dead docstring + GEN13/GEN14 markers) 留 v181 (audit pass 2 candidate, phase 3 抽 funcs 时遗漏的 dead 残余, 不在本 sub-session 范围)
+- v181 替换为 2 行 marker (净 -126)
+- v181: 3052 → 2926 (-126, -4.1%, 累计 -92.6%)
+- src/data/generals.js: 1123 → 1200 (+77), constants.js: 553 → 609 (+56)
+- byte-identical verify: Block 1 / Block 2 内容 vs v181 原段 diff = 0
+- smoke vs main: PASS — 51 snapshots identical (Option B.2)
+- codex trial 1 LGTM (零 finding 零 concern, 6 关注点全 PASS, 跨链消费者 chains/general/military + core/main + render/battle_modals 全 lexical lookup 无动态依赖)
+- 不实机测 (跟 bucket-2 GEN_MAP 同模式: verbatim const + smoke + byte-identical 三重 verify 充分, 制作人 push)
+- **E sub-session 收尾 ✅** (顶层杂项主菜 const block 已抽, 桶 6 残余仅 module-private state ~75 行 跟 funcs 紧耦合, 留 F/G sub-session 处理)
 
 **phase 4 sub-session 4.10 单 codex review (2026-05-09, 最高风险, phase 4 收官)**:
 - 4.10 battle_anim: 战斗动画 cluster 抽到 src/render/battle_anim.js (新建)
@@ -219,9 +234,9 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 **跳过 / 留 followup 类型**:
 - (无, sprint HIGH 全收尾)
 
-## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 _debug 收尾 ✅)
-- **v181.html: 39547 → 3052 (-36495, -92.3%)** ⭐ 突破 -92.3% (phase 4 -10550 + 桶 2 -76 + 桶 6 -1371)
-- src/: 0 → **40 js 文件 + 1 css ~40200 行**(data 7 / render 15 / core 7 / chains 8 / dev 1+1css + 2 memory feedback)
+## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 _debug + 桶 6 combat tables 收尾 ✅)
+- **v181.html: 39547 → 2926 (-36621, -92.6%)** ⭐ 突破 -92.6% (phase 4 -10550 + 桶 2 -76 + 桶 6 _debug -1371 + 桶 6 combat -126)
+- src/: 0 → **40 js 文件 + 1 css ~40300 行**(data 7 / render 15 / core 7 / chains 8 / dev 1+1css + 2 memory feedback)
 - 抽出累计:417 函数 (phase 3) + 65 顶层 const + 5 IIFE + 1 嵌套 IIFE-helper (dc) + ...
 - 5 个 baseline 共存 (phase1_post / phase2_complete / phase3_complete / data_completion_complete)
 - 4 个 git tags: v181-pre-refactor / phase1-baseline-archive / phase3-complete-archive / data-completion-archive
@@ -252,9 +267,12 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 
 ## 终态(main 已 push, memory update 待 commit + push)
-- **main HEAD: `9774c38 refactor(bucket-6): _debug panel (style + IIFE) 抽到 src/dev/debug.{css,js}` (synced to origin)**
-- **重构主体彻底收官 + 桶 2 + 桶 6 _debug 收尾** ✅
+- **main HEAD: `8c8fac2 refactor(bucket-6): 战斗 + 相性数据 9 consts 抽到 src/data/{generals,constants}.js` (synced to origin)**
+- **重构主体彻底收官 + 桶 2 + 桶 6 (_debug + combat tables) 收尾** ✅
+- 桶 6 combat tables (E sub-session, 2026-05-09 commit):
+  - `8c8fac2` refactor(bucket-6): 战斗 + 相性 9 consts → generals.js range C + constants.js range B (-126, 累计 -92.6%) [refactor/bucket6-combat-tables 已 push]
 - 桶 6 _debug 抽离 (2026-05-09 commit):
+  - `e5928e0` docs(memory): 桶 6 _debug 收尾 status update
   - `9774c38` refactor(bucket-6): _debug panel (-1371, 累计 -92.3%) [refactor/bucket6-debug 已 push]
 - 桶 2 残余 (2026-05-09 commit):
   - `b0406ab` docs(memory): 桶 2 残余收尾 status update
@@ -327,8 +345,8 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 ## How to apply
 
 **新对话启动时**:
-1. `git log --oneline -10` 校验 main HEAD (桶 6 后 = `9774c38`, 后续 memory commit 在它之上)
-2. **重构主体彻底收官 + 桶 2 + 桶 6 _debug 收尾 ✅** (phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 _debug 全部完成, v181 -92.3%)
+1. `git log --oneline -10` 校验 main HEAD (桶 6 combat 后 = `8c8fac2`, 后续 memory commit 在它之上)
+2. **重构主体彻底收官 + 桶 2 + 桶 6 (_debug + combat tables) 收尾 ✅** (phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 全部完成, v181 -92.6%)
 3. **sprint 累计**: 30 sprint batches + 10 phase 4 sub-sessions (全部完成)
 4. **phase 4 实测 vs plan**: 累计 -10550 行 (实测远低于 plan 估"突破 -80% 大关 v181 ~3000 行"). 4.10 实测 -2567 vs plan 估 ~2500 (这次比较接近)
 5. **下阶段候选** (制作人决):
