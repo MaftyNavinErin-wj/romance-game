@@ -961,18 +961,12 @@ let _unitMenu=null;
 /**
  * ★ 每旬处理城市粮食（城市级）
  */
-// ★ v150: 腐损率常量（无粮仓5%，粮仓1/2/3级: 3%/1.5%/0.5%），renderLeft与processCityFood共用
-const SPOIL_RATES = [0.050, 0.030, 0.015, 0.005];
+// SPOIL_RATES (1 const) 已抽离到 src/data/constants.js (range D, M sub-session)
 // 经济链 E4 (turn processors processCityFood / garrisonCap / processGarrisonRecovery / _getDeployedGensForMorale / processMorale / getCityCap / processPop / processFacEconomy / getPrefectBuildBuff / processBuildQueues,L5279-L5617) 已抽离到 src/chains/economy.js
 
 // 渲染层 R4.3.b (告急卡片 + 食物警报系统 _pendingCards/_shownCities + 8 funcs, L1287-L1393) 已抽离到 src/render/notifications.js (Phase 4 / sub-session 4.3)
 
-// ═══════════════════════════════════════
-// 在野武将池
-// ═══════════════════════════════════════
-const WILD_POOL_SIZE = 5;
-const WILD_POOL_INTERVAL = 5; // 每5旬刷新
-const AI_RECRUIT_INTERVAL = 3; // ★ B3: AI每3旬尝试招募
+// WILD_POOL_SIZE + WILD_POOL_INTERVAL + AI_RECRUIT_INTERVAL (3 const) 已抽离到 src/data/constants.js (range D, M sub-session)
 
 /** 获取当前所有已被任意势力招入的武将名集合 */
 // 武将链 GEN7 (招募 9 funcs,L3790-L4108) 已抽离到 src/chains/general.js

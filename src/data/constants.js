@@ -607,3 +607,14 @@ const TERRAIN_TROOP_MULT = {
   water:    { cavalry:0.00, heavy:0.00, light:1.00, archer:0.60, siege:0.00 },
   road:     { cavalry:1.00, heavy:1.00, light:1.00, archer:1.00, siege:0.90 },
 };
+
+// ── range D: 顶层杂项 const (M sub-session, 4 const, 双 block 原 v181 L964-L965 + L970-L975, 8 行 verbatim) ──
+// ── owner: cross-chain (economy SPOIL_RATES / general WILD_POOL_* + AI_RECRUIT_INTERVAL) ──
+// ★ v150: 腐损率常量（无粮仓5%，粮仓1/2/3级: 3%/1.5%/0.5%），renderLeft与processCityFood共用
+const SPOIL_RATES = [0.050, 0.030, 0.015, 0.005];
+// ═══════════════════════════════════════
+// 在野武将池
+// ═══════════════════════════════════════
+const WILD_POOL_SIZE = 5;
+const WILD_POOL_INTERVAL = 5; // 每5旬刷新
+const AI_RECRUIT_INTERVAL = 3; // ★ B3: AI每3旬尝试招募
