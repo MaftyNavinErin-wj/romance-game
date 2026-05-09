@@ -448,6 +448,9 @@ const EVENT_DEFS = [
             G.wildPool = G.wildPool.filter(n=>n!==wName);
             G.genJoinTurn[wName] = G.turn;
             G.genJoinSource[wName] = 'referral';
+            // D-072 fix: 补 origFac/origRole 缓存 (latch — 仅首次写; 推荐路径武将首次入仕势力即 fid)
+            if(!G.genOrigFac[wName]) G.genOrigFac[wName] = fid;
+            if(!G.genOrigRole[wName]) G.genOrigRole[wName] = gen.role || 'general';
             // 引荐人忠+3
             if(G.genLoyalty[rName]!==undefined) G.genLoyalty[rName]=Math.min(100,G.genLoyalty[rName]+3);
             if(G.loyaltyAccum) G.loyaltyAccum[rName]=G.genLoyalty[rName];

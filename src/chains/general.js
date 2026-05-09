@@ -1043,6 +1043,9 @@ function _doRecruitWild(genName, fid, silent){
     delete G.wildRecruitCD[genName];
     G.genJoinTurn[genName] = G.turn;
     G.genJoinSource[genName] = 'recruit';
+    // D-072 fix: 补 origFac/origRole 缓存 (latch — 仅首次写; 野招路径武将首次入仕势力即 fid)
+    if(!G.genOrigFac[genName]) G.genOrigFac[genName] = fid;
+    if(!G.genOrigRole[genName]) G.genOrigRole[genName] = gen.role || 'general';
     const timesStr = failCount > 0 ? `（历经${failCount+1}次邀请）` : '';
     if(!silent) showNotif(`${genName} 感念主公诚意，欣然出仕！${timesStr}`, 'success');
     log(`🌟 [${FAC[fid].name}] 招募在野武将 ${genName} 成功${timesStr}`, 'event');
@@ -1162,6 +1165,9 @@ function _aiDoPoach(genName, fid, srcFid, cost){
     delete G.recruitableGens[genName];
     G.genJoinTurn[genName] = G.turn;
     G.genJoinSource[genName] = 'poach'; // D-066 fix: 'capture'→'poach' (跟玩家 poachGen line 1606 对齐, 区别于 surrenderGen 兵败被俘的 'capture'; isNewDefector 判定不再混淆挖角/投降)
+    // D-072 fix: 补 origFac/origRole 缓存 (latch — 仅首次写; 挖角路径 origFac=srcFid 是被挖前所属势力)
+    if(!G.genOrigFac[genName]) G.genOrigFac[genName] = srcFid;
+    if(!G.genOrigRole[genName]) G.genOrigRole[genName] = gen.role || 'general';
     setRetainers(genName, 0); // ★ v163: 叛逃/被挖角→部曲归零
     addDiplo(fid, srcFid, -15); // ★ v179fix P16: 原仅 G.diplo[minFid-maxFid] 单向写入；G.diplo 双键真双向，反向 key 不更新会让对方下旬外交读到旧 rel
     addGenChronicle(genName, `${FAC[fid]?.name||fid}以厚礼相邀，${genName}遂转投之。`);
@@ -1612,6 +1618,9 @@ function poachGen(genName){
     // D-063 fix: 补写入伙时机字段（被挖武将得 9 旬冷却保护，避免立即下野/被回挖）
     G.genJoinTurn[genName] = G.turn;
     G.genJoinSource[genName] = 'poach';
+    // D-072 fix: 补 origFac/origRole 缓存 (latch — 仅首次写; 玩家挖角 origFac=srcFid 是被挖前所属势力)
+    if(!G.genOrigFac[genName]) G.genOrigFac[genName] = srcFid;
+    if(!G.genOrigRole[genName]) G.genOrigRole[genName] = gen.role || 'general';
     delete G.recruitableGens[genName];
     setRetainers(genName, 0); // ★ v163: 叛逃/被挖角→部曲归零
     // ★ v161: 叛逃→属县家族忠诚冲击-15
