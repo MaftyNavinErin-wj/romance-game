@@ -117,7 +117,7 @@ function renderRecruitModal(){
     _rm.sub1Active ? (TROOP_TYPES[_rm.sub1Type]?.costMult || 1.0) : 1.0,
     _rm.sub2Active ? (TROOP_TYPES[_rm.sub2Type]?.costMult || 1.0) : 1.0
   );
-  const costGold=Math.floor(1200*_rmNewTroops/5000 * (1 + _rmRcBuff) * _rmGentryMult * _rmBarrDisc * _rmYibing * _rmTechRC * _rmEliteMult);
+  const costGold = calcRecruitCost(G.playerFac, _rm.cityId, _rmNewTroops, _rmEliteMult); // D-006 fix: helper
   const _billetSavedStr = _rmBilletTotal > 0 ? ` <span style="color:#1a5f8a;font-size:9px">部曲${fmt(_rmBilletTotal)}人免费</span>` : '';
   const _barrPctStr = _rmBarrDisc < 1 ? ` <span style="color:#4caf50;font-size:9px">兵营${Math.round((_rmBarrDisc-1)*100)}%</span>` : '';
   const _gentryPctStr = _rmGentryMult !== 1 ? ` <span style="color:${_rmGentryMult<1?'#4caf50':'#c03030'};font-size:9px">豪族${_rmGentryMult<1?'':'+'}${Math.round((_rmGentryMult-1)*100)}%</span>` : '';
@@ -449,7 +449,7 @@ function confirmRecruit(){
   const _cfBilletSub1 = (_rm.sub1Active && _rm.sub1Gen) ? Math.min(_rm.sub1Troops, _getBilletRetainerTroops(_rm.sub1Gen)) : 0;
   const _cfBilletSub2 = (_rm.sub2Active && _rm.sub2Gen) ? Math.min(_rm.sub2Troops, _getBilletRetainerTroops(_rm.sub2Gen)) : 0;
   const _cfNewTroops = Math.max(0, totalTroops - _cfBilletMain - _cfBilletSub1 - _cfBilletSub2);
-  const costGold=Math.floor(1200*_cfNewTroops/5000 * (1 + _rcBuff) * _gentryRcMult * getBarracksDiscount(city) * (city._yibingBuff && city._yibingBuff.expiresAt > G.turn ? 0.70 : 1.0) * (1 + getTechEffect(G.playerFac, 'recruitCostMult')) * _eliteCM);
+  const costGold = calcRecruitCost(G.playerFac, _rm.cityId, _cfNewTroops, _eliteCM); // D-006 fix: helper
   // 计算各分队材料费用（只算新征部分）
   const matCost=mergeMatCosts(
     calcSlotMatCost(_rm.mainType, Math.max(0, _rm.mainTroops - _cfBilletMain)),
@@ -880,7 +880,7 @@ function renderExpandModal(){
   const _yibing=atCity?._yibingBuff&&atCity._yibingBuff.expiresAt>G.turn?0.70:1.0;
   const _techRC=1+getTechEffect(G.playerFac,'recruitCostMult'); // ★ v115
   const _exDispCM = TROOP_TYPES[sq.type]?.costMult || 1.0; // ★ v116
-  const costGold=Math.floor(1200*amt/5000*_gentryMult*_barrDisc*_yibing*_techRC*_exDispCM);
+  const costGold = calcRecruitCost(G.playerFac, atCity?.id, amt, _exDispCM); // D-006 fix: helper (新加 _postBuffs 给整备/扩编)
   const goldOk=fac.res.gold>=costGold;
 
   // 等级预览
@@ -979,7 +979,7 @@ function confirmExpand(){
   const _barrDisc=getBarracksDiscount(atCity);
   const _yibing=atCity?._yibingBuff&&atCity._yibingBuff.expiresAt>G.turn?0.70:1.0;
   const _exEliteCM = TROOP_TYPES[sq.type]?.costMult || 1.0; // ★ v116
-  const costGold=Math.floor(1200*amt/5000*_gentryMult*_barrDisc*_yibing*(1+getTechEffect(G.playerFac,'recruitCostMult'))*_exEliteCM); // ★ v115+v116
+  const costGold = calcRecruitCost(G.playerFac, atCity?.id, amt, _exEliteCM); // D-006 fix: helper
   if(fac.res.gold<costGold){showNotif('金钱不足','warn');return;}
   // ★ v118fix: 扩编也扣材料
   const _exMatCost = calcSlotMatCost(sq.type, amt);
@@ -1137,7 +1137,7 @@ function renderAddSquadModal() {
   const _yibing = atCity?._yibingBuff && atCity._yibingBuff.expiresAt > G.turn ? 0.70 : 1.0;
   const _techRC = 1 + getTechEffect(G.playerFac, 'recruitCostMult');
   const _eliteCM = _as.type ? (TROOP_TYPES[_as.type]?.costMult || 1.0) : 1.0;
-  const costGold = Math.floor(1200 * amt / 5000 * _gentryMult * _barrDisc * _yibing * _techRC * _eliteCM);
+  const costGold = calcRecruitCost(G.playerFac, atCity?.id, amt, _eliteCM); // D-006 fix: helper
   const goldOk = fac.res.gold >= costGold;
   const matCost = _as.type ? calcSlotMatCost(_as.type, amt) : {};
   const matOk = canAffordMat(G.playerFac, matCost);
@@ -1260,7 +1260,7 @@ function confirmAddSquad() {
   const _yibing = atCity?._yibingBuff && atCity._yibingBuff.expiresAt > G.turn ? 0.70 : 1.0;
   const _techRC = 1 + getTechEffect(G.playerFac, 'recruitCostMult');
   const _eliteCM = td?.costMult || 1.0;
-  const costGold = Math.floor(1200 * amt / 5000 * _gentryMult * _barrDisc * _yibing * _techRC * _eliteCM);
+  const costGold = calcRecruitCost(G.playerFac, atCity?.id, amt, _eliteCM); // D-006 fix: helper
   if(fac.res.gold < costGold) { showNotif('金钱不足','warn'); return; }
   const matCost = calcSlotMatCost(_as.type, amt);
   for(const [r,v] of Object.entries(matCost)) {

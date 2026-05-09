@@ -439,6 +439,34 @@ function getBarracksDiscount(city){
 }
 
 // ════════════════════════════════════════════════════════════════════
+// ── MIL1.c calcRecruitCost (D-006 fix, mode 8 多入口一致性 helper) ──
+// ════════════════════════════════════════════════════════════════════
+
+/**
+ * 征兵金费统一 helper (D-006 MEDIUM fix)
+ * 含 6 修正: 豪族 / 兵营 / 仪兵 / 科技 / 特色兵种 / 官职(_postBuffs.recruitCost)
+ * 覆盖 10 处 call site: 玩家征兵/整备/扩编/增编 modals + 传统 AI 主征兵/加分队/扩编 + Claude AI _execRecruit
+ *
+ * @param {string} fid           势力 id
+ * @param {string} cityId        城市 id
+ * @param {number} troops        新征兵数(已扣除 billet 后的纯新增)
+ * @param {number} eliteCostMult 兵种 costMult (单 type: TROOP_TYPES[t].costMult; 多 type: Math.max)
+ * @returns {number} 总金费 (Math.floor)
+ */
+function calcRecruitCost(fid, cityId, troops, eliteCostMult){
+  const city = G.cities[cityId];
+  const fac = G.factions[fid];
+  if(!city || !fac) return 0;
+  const _rcBuff   = fac._postBuffs?.recruitCost || 0;
+  const _gentry   = getGentryRecruitMult(cityId);
+  const _barrDisc = getBarracksDiscount(city);
+  const _yibing   = city._yibingBuff && city._yibingBuff.expiresAt > G.turn ? 0.70 : 1.0;
+  const _techRC   = 1 + getTechEffect(fid, 'recruitCostMult');
+  const _elite    = eliteCostMult || 1.0;
+  return Math.floor(1200 * troops / 5000 * _gentry * _barrDisc * _yibing * _techRC * _elite * (1 + _rcBuff));
+}
+
+// ════════════════════════════════════════════════════════════════════
 // ── MIL2 编制 wrapper (v181 L1380-L1398) ──
 // ════════════════════════════════════════════════════════════════════
 
@@ -2312,12 +2340,8 @@ function aiDoExpand(fid){
       const expandAmt = Math.min(squadRoom, unitRoom, 2000); // AI每次最多扩编2000
       if(expandAmt < 500) continue;
 
-      // 费用
-      const _gentryMult = getGentryRecruitMult(atCity.id);
-      const _barrDisc = getBarracksDiscount(atCity);
-      const _yibing = atCity._yibingBuff && atCity._yibingBuff.expiresAt > G.turn ? 0.70 : 1.0;
-      const _aiExEliteCM = TROOP_TYPES[sq.type]?.costMult || 1.0; // ★ v116
-      const costGold = Math.floor(1200 * expandAmt / 5000 * _gentryMult * _barrDisc * _yibing * (1 + getTechEffect(fid, 'recruitCostMult')) * _aiExEliteCM); // ★ v115+v116
+      // 费用 (D-006 fix: calcRecruitCost helper, 6 修正含 _postBuffs)
+      const costGold = calcRecruitCost(fid, atCity.id, expandAmt, TROOP_TYPES[sq.type]?.costMult || 1.0);
       if(costGold > budget || fac.res.gold < costGold) continue;
       // ★ v118fix: AI扩编也扣材料
       const _aiExMatCost = calcSlotMatCost(sq.type, expandAmt);
@@ -2427,13 +2451,8 @@ function aiDoAddSquad(fid){
       if(score > bestScore){ bestScore = score; bestType = tid; }
     }
 
-    // 费用
-    const _gentryMult = getGentryRecruitMult(atCity.id);
-    const _barrDisc = getBarracksDiscount(atCity);
-    const _yibing = atCity._yibingBuff && atCity._yibingBuff.expiresAt > G.turn ? 0.70 : 1.0;
-    const _eliteCM = TROOP_TYPES[bestType]?.costMult || 1.0;
-    const _techRC = 1 + getTechEffect(fid, 'recruitCostMult');
-    const costGold = Math.floor(1200 * amt / 5000 * _gentryMult * _barrDisc * _yibing * _techRC * _eliteCM);
+    // 费用 (D-006 fix: calcRecruitCost helper, 6 修正含 _postBuffs)
+    const costGold = calcRecruitCost(fid, atCity.id, amt, TROOP_TYPES[bestType]?.costMult || 1.0);
     if(costGold > budget || fac.res.gold < costGold) continue;
     const matCost = calcSlotMatCost(bestType, amt);
     if(!canAffordMat(fid, matCost)) continue;
@@ -2649,7 +2668,7 @@ function aiDoRecruit(fid){
   const subTroops1 = secondGen ? Math.floor(AI_RECRUIT_TROOPS_BASE * 0.8) : 0;
   const subTroops2 = thirdGen  ? Math.floor(AI_RECRUIT_TROOPS_BASE * 0.6) : 0;
   const totalNew   = mainTroops + subTroops1 + subTroops2;
-  const costGold = Math.floor(1200 * totalNew / 5000 * getGentryRecruitMult(city.id) * getBarracksDiscount(city) * (city._yibingBuff && city._yibingBuff.expiresAt > G.turn ? 0.70 : 1.0) * (1 + getTechEffect(fid, 'recruitCostMult'))); // ★ v115
+  const costGold = calcRecruitCost(fid, city.id, totalNew, 1.0); // D-006 fix: pre-pick budget check (elite=1.0, 含 _postBuffs)
   // ★ v108: 移除征兵粮食初始消耗（持续军粮由processUnitFood处理）
   if(costGold > budget) return;
   if(fac.res.gold < costGold) return;
@@ -2715,7 +2734,7 @@ function aiDoRecruit(fid){
   // ★ v116: 特色兵种costMult——重算gold（有elite类型时加成）
   const _hasEliteType = bestTypes.some(t => TROOP_TYPES[t]?.elite);
   const _eliteCostMult = _hasEliteType ? Math.max(...bestTypes.map(t => TROOP_TYPES[t]?.costMult || 1.0)) : 1.0;
-  const finalCostGold = Math.floor(costGold * _eliteCostMult);
+  const finalCostGold = calcRecruitCost(fid, city.id, totalNew, _eliteCostMult); // D-006 fix: 含 _postBuffs + _eliteCM (替代 Math.floor(costGold * eliteCM))
   // ★ v118fix: AI征兵也扣材料（铁/木/马）
   const _aiMatCost = mergeMatCosts(
     calcSlotMatCost(bestTypes[0], mainTroops),
@@ -7479,7 +7498,7 @@ function _execRecruit(fid, act) {
   const troopType = act.troop_type || 'light';
   const troops = Math.min(act.troops || 3000, Math.floor(city.pop * 0.10), 5000);
   if (troops < 500) { console.warn('[ClaudeAI] recruit: 人口不足', city.name, city.pop); return false; }
-  const goldCost = Math.ceil(troops * 1200 / 5000);
+  const goldCost = calcRecruitCost(fid, cityId, troops, TROOP_TYPES[troopType]?.costMult || 1.0); // D-006 fix: 6 修正 (此前裸价)
   const fac = G.factions[fid];
   if (fac.res.gold < goldCost) { console.warn('[ClaudeAI] recruit: 金钱不足', fac.res.gold, '<', goldCost); return false; }
   // 兵种资源检查
