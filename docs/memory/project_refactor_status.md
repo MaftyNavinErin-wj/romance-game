@@ -220,6 +220,22 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - M 顶层散件 (SPOIL_RATES / WILD_POOL_* / _fastForward 等) 跳过本 batch, 留下次处理 (跨 chain 复杂)
 - **I+K 收尾 ✅** (玩家 billet 入口 + audit/check 全归位)
 
+**M-misc 顶层 const 抽离 (M sub-session, 2026-05-09, 双 block 加进 constants.js)**:
+- v181 L964-L965 (Block A, 2 行) + L970-L975 (Block B, 6 行) → constants.js range D
+- 4 const:
+  - SPOIL_RATES (腐损率, 经济链 + renderLeft 共用)
+  - WILD_POOL_SIZE / WILD_POOL_INTERVAL (在野武将池规模 + 5 旬刷新)
+  - AI_RECRUIT_INTERVAL (AI 3 旬尝试招募)
+- 中间 L966-L969 (经济链 E4 + R4.3.b markers + 空行) 留 v181
+- v181 替换为 2 行 marker (净 -6)
+- v181: 1799 → 1793 (-6, 累计 -95.5%)
+- src/data/constants.js: 609 → 620 (+11)
+- byte-identical + smoke vs main: PASS — 51 snapshots identical
+- codex trial 1 LGTM (零 finding 5 关注点全 PASS, 跨链消费者全 verified: economy.js / tick.js / general.js / ui_panels.js)
+- 不实机测 (verbatim const, 同 bucket-2 / bucket-6 combat / dc.S3 模式)
+- 跳过: _fastForward/_ffTurns (跨 chain 复杂) / _unitMenu (notifications.js consumer) / SAVE_*/_store (跟 _serializeG 必留)
+- **M sub-session 收尾 ✅** (顶层杂项 const 抽离 batch 主菜)
+
 **phase 4 sub-session 4.10 单 codex review (2026-05-09, 最高风险, phase 4 收官)**:
 - 4.10 battle_anim: 战斗动画 cluster 抽到 src/render/battle_anim.js (新建)
 - 1 段连续 block: v181 L1665-L4233 (2569 行), 1 let + 1 const + 11 顶层 funcs + 1 _baCore IIFE (含 14 内部 helper) = 25 funcs + 1 IIFE 入口
@@ -329,9 +345,9 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 **跳过 / 留 followup 类型**:
 - (无, sprint HIGH 全收尾)
 
-## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 + F+G+J+H+I+K 收尾 ✅)
-- **v181.html: 39547 → 1799 (-37748, -95.5%)** ⭐ 突破 -95.5% (phase 4 -10550 + 桶 2 -76 + 桶 6 -1497 + F render-cache -269 + G map-interaction -324 + J map-zoom -119 + H utilities -36 + I billet -78 + K audit -301)
-- src/: 0 → **43 js 文件 + 1 css ~41600 行**(data 7 / render 17 / core 7 / chains 8 / dev 2+1css + 2 memory feedback)
+## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 + F+G+J+H+I+K+M 收尾 ✅)
+- **v181.html: 39547 → 1793 (-37754, -95.5%)** ⭐ 突破 -95.5% (phase 4 -10550 + 桶 2 -76 + 桶 6 -1497 + F render-cache -269 + G map-interaction -324 + J map-zoom -119 + H utilities -36 + I billet -78 + K audit -301 + M misc -6)
+- src/: 0 → **43 js 文件 + 1 css ~41610 行**(data 7 / render 17 / core 7 / chains 8 / dev 2+1css + 2 memory feedback)
 - 抽出累计:417 函数 (phase 3) + 65 顶层 const + 5 IIFE + 1 嵌套 IIFE-helper (dc) + ...
 - 5 个 baseline 共存 (phase1_post / phase2_complete / phase3_complete / data_completion_complete)
 - 4 个 git tags: v181-pre-refactor / phase1-baseline-archive / phase3-complete-archive / data-completion-archive
@@ -362,9 +378,12 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 
 ## 终态(main 已 push, memory update 待 commit + push)
-- **main HEAD: `18e9fbc refactor(K-audit): runIntegrityAudit + checkElimination 抽到 src/dev/audit.js` (synced to origin)**
-- **重构主体彻底收官 + 桶 2 + 桶 6 + F + G + J + H + I + K 收尾** ✅
+- **main HEAD: `7644cdb refactor(M-misc): 顶层杂项 4 consts (SPOIL_RATES + WILD_POOL_*) 抽到 src/data/constants.js range D` (synced to origin)**
+- **重构主体彻底收官 + 桶 2 + 桶 6 + F + G + J + H + I + K + M 收尾** ✅
+- M-misc (M sub-session, 2026-05-09 commit):
+  - `7644cdb` refactor(M-misc): 4 consts 双 block (SPOIL_RATES + WILD_POOL_SIZE + WILD_POOL_INTERVAL + AI_RECRUIT_INTERVAL, 8 行 verbatim → constants.js range D, -6) [refactor/M-misc-const 已 push]
 - streamline batch I+K (2026-05-09 commits):
+  - `136c340` docs(memory): I+K 收尾 status update
   - `18e9fbc` refactor(K-audit): 2 funcs (runIntegrityAudit + checkElimination, 303 行 verbatim → src/dev/audit.js 新建, -301, 累计 -95.5%) [refactor/streamline-IK 已 push]
   - `080f057` refactor(I-billet): 2 funcs (billetUnit + _confirmBillet, 79 行 verbatim → military.js MIL10, -78)
 - h-utilities (H sub-session, 2026-05-09 commit):
@@ -456,8 +475,8 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 ## How to apply
 
 **新对话启动时**:
-1. `git log --oneline -10` 校验 main HEAD (streamline IK 后 = `18e9fbc`, 后续 memory commit 在它之上)
-2. **重构主体彻底收官 + 桶 2 + 桶 6 + F + G + J + H + I + K 收尾 ✅** (phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 + F + G + J + H + I + K 全部完成, v181 -95.5%)
+1. `git log --oneline -10` 校验 main HEAD (M-misc 后 = `7644cdb`, 后续 memory commit 在它之上)
+2. **重构主体彻底收官 + 桶 2 + 桶 6 + F + G + J + H + I + K + M 收尾 ✅** (phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 + F + G + J + H + I + K + M 全部完成, v181 -95.5%)
 3. **sprint 累计**: 30 sprint batches + 10 phase 4 sub-sessions (全部完成)
 4. **phase 4 实测 vs plan**: 累计 -10550 行 (实测远低于 plan 估"突破 -80% 大关 v181 ~3000 行"). 4.10 实测 -2567 vs plan 估 ~2500 (这次比较接近)
 5. **下阶段候选** (制作人决):
