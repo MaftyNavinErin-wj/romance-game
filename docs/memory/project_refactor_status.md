@@ -1,10 +1,43 @@
 ---
-name: Refactor phase status — Phase 4 + 桶 2 + 桶 6 + F/G/J/H/I/K 簇收尾
-description: Phase 3 + dc + HIGH sprint + _exec sprint + phase 4 全 10 sub-session + 桶 2 + 桶 6 + F render-cache + G map-interaction + J map-zoom + H utilities + IK streamline (billet+audit) 收尾. v181 39547 → 1799 (-95.5%). 43 src/ js + 1 css. **重构主体彻底收官**.
+name: Refactor phase status — Phase 4 + 桶 2 + 桶 6 + F/G/J/H/I/K + B sprint 启动
+description: Phase 3 + dc + HIGH sprint + _exec sprint + phase 4 全 10 sub-session + 桶 2 + 桶 6 + F render-cache + G map-interaction + J map-zoom + H utilities + IK streamline (billet+audit) 收尾. v181 39547 → 1799 (-95.5%). 43 src/ js + 1 css. **重构主体彻底收官**. **B sprint (MEDIUM/LOW D 类) 启动: 批 1 D-006 + 批 2 D-070/046/066/067/054/057+058+059.1/072 共 8 D 类 close**.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
-**截至 2026-05-08 的状态(每次 session 启动前请用 git log 校验,不抄)**:**重构 + 数据补完整体收官 + D 类 HIGH sprint 收官 + _exec 架构债 sprint 收官,共 30 batches 完成 (1a / 2 / 3-6 单独 / 7-10 / 11-14 / 15-17 streamline / 18 / 19 architectural / 20 / 21 / 22 / 23 / 24 / 25 单独 push / 26-30 _exec streamline)**。
+**截至 2026-05-10 的状态(每次 session 启动前请用 git log 校验,不抄)**:**重构 + 数据补完整体收官 + D 类 HIGH sprint 收官 + _exec 架构债 sprint 收官 + phase 4 + 桶 2/6 + F/G/J/H/I/K/M 全收尾 + B sprint 批 1 (D-006) + 批 2 (7 D 类 streamline) 完成**。
+
+**B sprint 进度** (启动 2026-05-10, 经济链 + 武将链 sprint scope 基本扫完):
+- **批 1 D-006 MED 经济链** (commit f0e1218, sprint/B-D006-recruit-helper):
+  - calcRecruitCost helper 抽到 military.js MIL1.c, 含 6 修正 (豪族/兵营/仪兵/科技/特色兵种/官职 _postBuffs)
+  - 10 处 call site 全统一 (recruit_modals.js 6 处 玩家征兵+整备+扩编+增编 + military.js 4 处 AI 主征兵+加分队+扩编+Claude AI _execRecruit)
+  - mode 8 多入口一致性 fix, 跟 batch-23 _calcPoachRate / batch-24 calcLoyaltyDelta 同模式
+  - 行为变化: AI 任命 大将军/前将军 _postBuffs.recruitCost (-8%/-6%) 此前漏应用本 fix 激活, 玩家整备/扩编/增编 4 modal 也补 _postBuffs (内部不一致清理)
+  - smoke vs main: 50+ cascading (3 AI 势力 res.gold 偏高 + 武将 loyalty 下游传播 + 13 eventCooldown pre-existing batch-18 staleness)
+  - codex trial 1 LGTM (零 finding 3 非阻塞 concern)
+  - 经济链 sprint scope 全收尾 (14 D 类只 D-006 是 fix verdict, 其他 dismissed/defer/verified 不动)
+- **批 2 streamline 7 D 类 (commits 871de09 → eb66c02, sprint/B-D070-statexp-while → sprint/B-D072-orig-fields)**:
+  - D-070 LOW addStatExp if→while + cap 守卫 (general.js, 1 函数 5 行)
+  - D-046 LOW EVENT_LABELS.execute '处决武将'→'武将身死' (general.js, 1 行 label, killGen 4 路径中性叙事)
+  - D-066 MED _aiDoPoach genJoinSource 'capture'→'poach' 对齐玩家 poachGen (general.js:1164, 区别 surrenderGen 真投降 'capture')
+  - D-067 LOW 下野 wildPool push cap 5 硬编码 → WILD_POOL_SIZE const (general.js:1482)
+  - D-054 LOW 下野时池满 shift() 顶替最旧, 消除 5 旬窗口期 (general.js:1482-1486, walkthrough 主张方案 a)
+  - D-057+058+059.1 MED+部分 3 路径补 genFactionMod/Log cleanup 二件套 (下野/killGen/surrenderGen)
+  - D-072 MED 4 路径补 genOrigFac/genOrigRole latch (野招/AI挖角/玩家挖角/推荐, general.js + events.js)
+  - codex trial 1 NEEDS-WORK catch D-045 dup → drop D-045 commit → 余 7 batch LGTM
+- **D-045 stale 教训** (codex catch):
+  - d-list 标 D-045 待修, 但 batch-19 (commit f6f3b9e, 2026-05-07) 同步 close (gentry.js:637 已有 triggerFactionEvent('conquer', siegingFac) 注释 'D-045/D-131 fix')
+  - CC 按 d-list 字面 scout 漏看 batch-19 close 事实 → 加 line 626 dup 触发, 鹰派双计 +6
+  - codex catch P1 → CC drop commit + 删误命名分支
+  - **新原则候选**: sprint batch 启动 mini scout 时, d-list verdict 须跟 memory `project_refactor_status.md` 交叉核 batch 已 close 列表 (尤其 batch-19/20 architectural / 跨链 close), 不能字面照 scout
+
+**武将链 sprint scope 状态** (除 1 design 待 user, 其他全收尾 ✅):
+- 已修 LOW: D-046 / D-054 / D-067 / D-070 ✅
+- 已修 MED: D-066 / D-072 ✅
+- 已修 partial: D-058 / D-059 ✅
+- 已修 fix verdict: D-057 ✅
+- D-045: batch-19 已 close ✅ (stale d-list 教训)
+- D-068 MED wildPool 3 cap 不一致: **设计问题** (5/8/无限统一?待 user approve)
+- 不修: D-047 / D-050 / D-060 / D-062 / D-069 / D-073
 
 **HIGH 进度** (修 27 / 总 27 ✅ 全收尾):
 - 政治链 3 HIGH: **全收尾 ✅** (D-076 / D-077 / D-084)
