@@ -397,3 +397,42 @@ function onStackPickerSelect(unitId, e){
   }
   renderAllLight();
 }
+
+// ── H sub-session: 全局 UI utilities (log + updateFacStats + handleKeyDown, 原 v181 L1092-L1128, 37 行 verbatim) ──
+function log(msg,type=''){
+  G.logs.unshift({msg,type});
+  if(G.logs.length>8) G.logs.pop();
+  const el=document.getElementById('elog');
+  el.innerHTML=G.logs.slice(0,5).map((e,i)=>`<span class="ev ${e.type}" style="opacity:${1-i*.18}">${e.msg}</span>`).join('<span style="color:rgba(80,65,40,.12);margin:0 6px">·</span>');
+}
+
+function updateFacStats(){
+  Object.keys(G.factions).forEach(fid=>{
+    const cities=Object.values(G.cities).filter(c=>c.fac===fid);
+    G.factions[fid].cityCount=cities.length;
+    const garrisonTotal=cities.reduce((s,c)=>s+c.garrison,0);
+    const fieldTotal=G.units.filter(u=>u.fac===fid).reduce((s,u)=>s+getUnitTroops(u),0);
+    G.factions[fid].totalTroops=garrisonTotal+fieldTotal;
+    G.factions[fid].totalPop=cities.reduce((s,c)=>s+c.pop,0);
+  });
+}
+
+/** v85: 全局键盘事件处理（body onkeydown） */
+function handleKeyDown(e){
+  // Enter/Space → 关闭当前战报弹窗
+  if(e.key === 'Enter' || e.key === ' '){
+    const bm = document.getElementById('battleModal');
+    if(bm && bm.style.display === 'flex'){ e.preventDefault(); closeBattleModal(); return; }
+  }
+  // Escape → 关闭各种弹窗
+  if(e.key === 'Escape'){
+    const bm = document.getElementById('battleModal');
+    if(bm && bm.style.display === 'flex'){ closeBattleModal(); return; }
+    const bcm = document.getElementById('battleConfirmModal');
+    if(bcm && bcm.style.display === 'flex') return; // 战前确认不允许Escape跳过
+    const gm = document.getElementById('genericModal');
+    if(gm && gm.style.display !== 'none'){ closeModal(); return; }
+    const rm = document.getElementById('recruitModal');
+    if(rm && rm.style.display === 'flex'){ closeRecruitModal(); return; }
+  }
+}

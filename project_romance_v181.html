@@ -1089,43 +1089,7 @@ const AI_RECRUIT_INTERVAL = 3; // ★ B3: AI每3旬尝试招募
 // 渲染层 R4.8.b (UTILS section: selCity/selFac/switchTab/updateTabs, L2864-L2872, 4 funcs) 已抽离到 src/render/tabs.js (Phase 4 / sub-session 4.8)
 
 
-function log(msg,type=''){
-  G.logs.unshift({msg,type});
-  if(G.logs.length>8) G.logs.pop();
-  const el=document.getElementById('elog');
-  el.innerHTML=G.logs.slice(0,5).map((e,i)=>`<span class="ev ${e.type}" style="opacity:${1-i*.18}">${e.msg}</span>`).join('<span style="color:rgba(80,65,40,.12);margin:0 6px">·</span>');
-}
-
-function updateFacStats(){
-  Object.keys(G.factions).forEach(fid=>{
-    const cities=Object.values(G.cities).filter(c=>c.fac===fid);
-    G.factions[fid].cityCount=cities.length;
-    const garrisonTotal=cities.reduce((s,c)=>s+c.garrison,0);
-    const fieldTotal=G.units.filter(u=>u.fac===fid).reduce((s,u)=>s+getUnitTroops(u),0);
-    G.factions[fid].totalTroops=garrisonTotal+fieldTotal;
-    G.factions[fid].totalPop=cities.reduce((s,c)=>s+c.pop,0);
-  });
-}
-
-/** v85: 全局键盘事件处理（body onkeydown） */
-function handleKeyDown(e){
-  // Enter/Space → 关闭当前战报弹窗
-  if(e.key === 'Enter' || e.key === ' '){
-    const bm = document.getElementById('battleModal');
-    if(bm && bm.style.display === 'flex'){ e.preventDefault(); closeBattleModal(); return; }
-  }
-  // Escape → 关闭各种弹窗
-  if(e.key === 'Escape'){
-    const bm = document.getElementById('battleModal');
-    if(bm && bm.style.display === 'flex'){ closeBattleModal(); return; }
-    const bcm = document.getElementById('battleConfirmModal');
-    if(bcm && bcm.style.display === 'flex') return; // 战前确认不允许Escape跳过
-    const gm = document.getElementById('genericModal');
-    if(gm && gm.style.display !== 'none'){ closeModal(); return; }
-    const rm = document.getElementById('recruitModal');
-    if(rm && rm.style.display === 'flex'){ closeRecruitModal(); return; }
-  }
-}
+// 全局 UI utilities (log + updateFacStats + handleKeyDown, 37 行) 已抽离到 src/render/notifications.js (H sub-session)
 
 // ═══════════════════════════════════════
 // v1.0 战斗系统
