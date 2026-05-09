@@ -1,6 +1,6 @@
 ---
-name: Refactor phase status — Phase 4 + 桶 2 + 桶 6 + render-cache (F) + map-interaction (G) 收尾
-description: Phase 3 + dc + HIGH sprint (25) + _exec sprint (5) + phase 4 全 10 sub-session + 桶 2 + 桶 6 (_debug + combat tables) + render-cache (F) + map-interaction (G: 10 funcs) 收尾. v181 39547 → 2333 (-94.1%). 42 src/ js + 1 css. **重构主体彻底收官**.
+name: Refactor phase status — Phase 4 + 桶 2 + 桶 6 + F/G/J render & map 簇收尾
+description: Phase 3 + dc + HIGH sprint + _exec sprint + phase 4 全 10 sub-session + 桶 2 + 桶 6 + F render-cache + G map-interaction + J map-zoom 收尾. v181 39547 → 2214 (-94.4%). 42 src/ js + 1 css. **重构主体彻底收官**.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -161,6 +161,27 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - 新建文件, 主题独立 (map/unit 交互 controller 层), 跟 map_render.js (view 实现) 同主题但 layer 不同
 - **G sub-session 收尾 ✅** (玩家鼠标交互 controller 全归位 src/render/map_interaction.js)
 
+**map-zoom 抽离 (J sub-session, 2026-05-09, 双 block 加进 map_interaction.js)**:
+- v181 L931-L935 (5 行 module-private state) → map_interaction.js range C: _mapScale/_mapTx/_mapTy/_MAP_SCALE_MIN/_MAP_SCALE_MAX/_mapDrag
+- v181 L1595-L1710 (116 行 funcs cluster) → map_interaction.js range D:
+  - 5 funcs: _clampMapTransform / resetMapView / _applyMapTransformOnly / _debouncedMapRender / zoomMap
+  - DOMContentLoaded handler (滚轮缩放 + 左键拖拽 + 中键阻止默认 + 嵌套 _onDocMouseMove/_onDocMouseUp + window._mapDocMouseMove/Up 暴露给 backToTitle 清理)
+  - 1 let _suppressNextClick (拖拽后抑制 click)
+  - 1 let _zoomRenderTimer (debounce 渲染)
+  - _onDocKeydown function (Esc/+/-/0 键盘事件)
+  - document.addEventListener('keydown', _onDocKeydown) listener install
+- v181 L932 (原 L936) `let _unitMenu = null;` 留 v181 — codex catch: **不是 dead code**, src/render/notifications.js:321 closeUnitMenu() 仍在消费. 留 v181 是正确做法 (我之前 commit message 误标 "audit pass 2 candidate" 为误判, 此处纠正)
+- v181 替换为 2 行 marker (净 -119)
+- v181: 2333 → 2214 (-119, -5.1%, 累计 -94.4%)
+- src/render/map_interaction.js: 326 → 451 (+125: 121 verbatim + 4 header/blank)
+- byte-identical verify: Block A / Block B 内容 vs v181 原段 diff = 0
+- smoke vs main: PASS — 51 snapshots identical (Option B.2)
+- codex trial 1 LGTM (1 LGTM finding + 2 concern: _unitMenu 不是 dead code 纠正 / smoke 玩家交互盲区)
+- 实机测 PASS (制作人 2026-05-09): 滚轮缩放 / 左键拖拽 / 中键 / 键盘 +/-/0 / backToTitle cleanup 全 OK
+  - 制作人观察 Esc 取消选中似乎不触发 — 但他没用过这功能, smoke vs main PASS 证明跟 v181 行为一致, 即使原本不工作也是 pre-existing 不是本次抽离造成
+- **J sub-session 收尾 ✅** (地图缩放/平移完整 cluster 含 lets+funcs+listeners 加进 map_interaction.js)
+- **重要 lesson**: dead code 判定必须全 src/ grep 不能只搜 v181 (codex catch _unitMenu 在 notifications.js consumer)
+
 **phase 4 sub-session 4.10 单 codex review (2026-05-09, 最高风险, phase 4 收官)**:
 - 4.10 battle_anim: 战斗动画 cluster 抽到 src/render/battle_anim.js (新建)
 - 1 段连续 block: v181 L1665-L4233 (2569 行), 1 let + 1 const + 11 顶层 funcs + 1 _baCore IIFE (含 14 内部 helper) = 25 funcs + 1 IIFE 入口
@@ -270,9 +291,9 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 **跳过 / 留 followup 类型**:
 - (无, sprint HIGH 全收尾)
 
-## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 + F + G 收尾 ✅)
-- **v181.html: 39547 → 2333 (-37214, -94.1%)** ⭐ 突破 -94.1% (phase 4 -10550 + 桶 2 -76 + 桶 6 _debug -1371 + 桶 6 combat -126 + render-cache -269 + map-interaction -324)
-- src/: 0 → **42 js 文件 + 1 css ~41000 行**(data 7 / render 17 / core 7 / chains 8 / dev 1+1css + 2 memory feedback)
+## 整体成绩(phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 + F + G + J 收尾 ✅)
+- **v181.html: 39547 → 2214 (-37333, -94.4%)** ⭐ 突破 -94.4% (phase 4 -10550 + 桶 2 -76 + 桶 6 -1497 + render-cache -269 + map-interaction -324 + map-zoom -119)
+- src/: 0 → **42 js 文件 + 1 css ~41200 行**(data 7 / render 17 / core 7 / chains 8 / dev 1+1css + 2 memory feedback)
 - 抽出累计:417 函数 (phase 3) + 65 顶层 const + 5 IIFE + 1 嵌套 IIFE-helper (dc) + ...
 - 5 个 baseline 共存 (phase1_post / phase2_complete / phase3_complete / data_completion_complete)
 - 4 个 git tags: v181-pre-refactor / phase1-baseline-archive / phase3-complete-archive / data-completion-archive
@@ -303,9 +324,12 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 
 ## 终态(main 已 push, memory update 待 commit + push)
-- **main HEAD: `f91dd33 refactor(map-interaction): map/unit 交互 10 funcs 抽到 src/render/map_interaction.js` (synced to origin)**
-- **重构主体彻底收官 + 桶 2 + 桶 6 + F + G 收尾** ✅
+- **main HEAD: `fa60fac refactor(map-zoom): 地图缩放/平移 state + funcs + listeners 双 block 抽到 src/render/map_interaction.js` (synced to origin)**
+- **重构主体彻底收官 + 桶 2 + 桶 6 + F + G + J 收尾** ✅
+- map-zoom (J sub-session, 2026-05-09 commit):
+  - `fa60fac` refactor(map-zoom): 双 block (5 lets/consts + 5 funcs + DOMContentLoaded + _onDocKeydown + listeners, 121 行 verbatim → map_interaction.js range C/D, -119, 累计 -94.4%) [refactor/map-zoom 已 push]
 - map-interaction (G sub-session, 2026-05-09 commit):
+  - `c7ccff8` docs(memory): G sub-session 收尾 status update
   - `f91dd33` refactor(map-interaction): map/unit 交互 10 funcs (326 行 verbatim → src/render/map_interaction.js, -324, 累计 -94.1%) [refactor/map-interaction 已 push]
 - render-cache (F sub-session, 2026-05-09 commit):
   - `0edfaef` docs(memory): F sub-session 收尾 status update
@@ -387,8 +411,8 @@ phase 4 / sprint 启动 session 必读. 后续新原则触发时追加 #15+.
 ## How to apply
 
 **新对话启动时**:
-1. `git log --oneline -10` 校验 main HEAD (map-interaction 后 = `f91dd33`, 后续 memory commit 在它之上)
-2. **重构主体彻底收官 + 桶 2 + 桶 6 + F + G 收尾 ✅** (phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 + F + G 全部完成, v181 -94.1%)
+1. `git log --oneline -10` 校验 main HEAD (map-zoom 后 = `fa60fac`, 后续 memory commit 在它之上)
+2. **重构主体彻底收官 + 桶 2 + 桶 6 + F + G + J 收尾 ✅** (phase 1+2+3+dc + HIGH sprint + _exec sprint + phase 4 10/10 + 桶 2 + 桶 6 + F + G + J 全部完成, v181 -94.4%)
 3. **sprint 累计**: 30 sprint batches + 10 phase 4 sub-sessions (全部完成)
 4. **phase 4 实测 vs plan**: 累计 -10550 行 (实测远低于 plan 估"突破 -80% 大关 v181 ~3000 行"). 4.10 实测 -2567 vs plan 估 ~2500 (这次比较接近)
 5. **下阶段候选** (制作人决):
