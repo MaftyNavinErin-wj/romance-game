@@ -551,3 +551,59 @@ const COURT_PROPOSALS_CIV = [
   {id:'morale',  name:'安民策', desc:'全势力民心回复+0.5/旬',   buffKey:'morale',      baseVal:0.50,  statScale:'pol', scaleDesc:'民心'},
   {id:'recruit', name:'招贤令', desc:'在野武将投效概率+25%',     buffKey:'recruitWild', baseVal:0.25,  statScale:'pol', scaleDesc:'招贤'},
 ];
+
+// ── range B: 兵种克制 + 地形修正 (TYPE_ATK + TYPE_DEF + TROOP_BASE_MULT + TYPE_MATCH_MULT + TERRAIN_TROOP_MULT, 原 v181 L1523-L1575, 53 行) ──
+// ── owner: military chain ── (战斗公式消费, combat helpers 引用)
+// ═══════════════════════════════════════════════════════
+// ⚔️ 兵种克制系统（A1）
+// ═══════════════════════════════════════════════════════
+
+// ① 兵种攻击/防御基础乘数（天然攻守特性）
+// 攻：进攻能力倾向；防：承伤能力倾向
+const TYPE_ATK = {
+  cavalry: 1.12,
+  light:   1.00,
+  heavy:   0.88,
+  archer:  1.06,
+  siege:   0.48,
+  // ★ v116: 特色兵种（基础类型+15%左右）
+  danyang:  1.15, xiliang: 1.28, hubao:    1.30,
+  wudu:     1.22, beiwei:  1.04, rattan:   0.82,
+  qiangbing:1.12, danqi:   1.24, baier:    1.02,
+  xianzhen: 1.10, piliche: 0.68,
+};
+const TYPE_DEF = {
+  cavalry: 1.10,   // ★ v78: 骑兵攻防俱佳，DEF提升(原0.88)
+  light:   1.00,
+  heavy:   1.12,
+  archer:  0.94,
+  siege:   0.48,
+  // ★ v116: 特色兵种
+  danyang:  1.15, xiliang: 1.24, hubao:    1.26,
+  wudu:     1.06, beiwei:  1.30, rattan:   1.40,
+  qiangbing:1.10, danqi:   1.20, baier:    1.28,
+  xianzhen: 1.24, piliche: 0.62,
+};
+// 向后兼容：TROOP_BASE_MULT保留为ATK（旧代码引用降级到ATK）
+const TROOP_BASE_MULT = TYPE_ATK;
+
+// ② 克制乘数表 [进攻方兵种][防御方兵种]
+// ★ v78调参：骑兵碾弓兵(1.35)，重步正面克骑(1.08)，弓兵射骑降低(0.75)
+// 克制链：骑兵→弓兵→重步→轻步→骑兵（简化），骑兵碾弓兵/轻步，重步正面硬克骑兵
+const TYPE_MATCH_MULT = {
+  cavalry: { cavalry:1.00, light:1.16, heavy:0.95, archer:1.35, siege:1.15 },
+  light:   { cavalry:0.88, light:1.00, heavy:0.97, archer:1.05, siege:1.05 },
+  heavy:   { cavalry:1.08, light:1.08, heavy:1.00, archer:0.92, siege:1.00 },
+  archer:  { cavalry:0.75, light:0.97, heavy:1.02, archer:1.00, siege:1.05 },
+  siege:   { cavalry:0.55, light:0.60, heavy:0.60, archer:0.65, siege:1.00 },
+};
+
+// ③ 地形修正（light全地形=1.00，不受影响）
+const TERRAIN_TROOP_MULT = {
+  plain:    { cavalry:1.00, heavy:1.00, light:1.00, archer:1.00, siege:0.90 },
+  hill:     { cavalry:0.85, heavy:1.05, light:1.00, archer:1.10, siege:0.80 },
+  mountain: { cavalry:0.65, heavy:1.10, light:1.00, archer:1.15, siege:0.70 },
+  forest:   { cavalry:0.80, heavy:0.90, light:1.00, archer:0.85, siege:0.75 },
+  water:    { cavalry:0.00, heavy:0.00, light:1.00, archer:0.60, siege:0.00 },
+  road:     { cavalry:1.00, heavy:1.00, light:1.00, archer:1.00, siege:0.90 },
+};
