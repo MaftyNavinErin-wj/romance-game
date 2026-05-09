@@ -1479,7 +1479,7 @@ function checkLoyaltyThresholds(){
           const wg = WILD_GENS.find(x => x.name === name);
           if(wg){ wg.defectedFrom = fid; wg.defectedTurn = G.turn; wg.minTurn = G.turn; }
         }
-        if(!G.wildPool.includes(name) && G.wildPool.length < 5) G.wildPool.push(name);
+        if(!G.wildPool.includes(name) && G.wildPool.length < WILD_POOL_SIZE) G.wildPool.push(name); // D-067 fix: 5 硬编码 → WILD_POOL_SIZE const (constants.js:618)
 
         // 从可挖角列表移除
         delete G.recruitableGens[name];
