@@ -324,3 +324,128 @@ function handleCityClick(cityId){
     updateTabs(); renderAll();
   }
 }
+
+// ── range C: 地图缩放/平移 module-private state (5 lets/consts, 原 v181 L931-L935) ──
+// ── 地图缩放平移状态 ──────────────────────────────────
+let _mapScale = 1.0;
+let _mapTx = 0, _mapTy = 0;
+const _MAP_SCALE_MIN = 0.5, _MAP_SCALE_MAX = 4.0;
+let _mapDrag = null;
+
+// ── range D: 地图缩放/平移 funcs + DOMContentLoaded handler + _onDocKeydown + addEventListener (5 funcs + 1 listener install + 1 let _suppressNextClick + 1 let _zoomRenderTimer, 原 v181 L1595-L1710) ──
+// ── 地图缩放/平移辅助 ──────────────────────────────────
+function _clampMapTransform(){
+  const visW=960, visH=740;
+  const mapW=960*_mapScale, mapH=740*_mapScale;
+  const pad=80;
+  _mapTx=Math.min(pad, Math.max(visW-mapW-pad, _mapTx));
+  _mapTy=Math.min(pad, Math.max(visH-mapH-pad, _mapTy));
+}
+function resetMapView(){
+  _mapScale=1.2; _mapTx=-100; _mapTy=-50;
+  renderMap(); renderOverlay();
+}
+// ★ v102: 缩放/拖拽性能优化——只更新transform属性，debounce全量渲染
+let _zoomRenderTimer = null;
+function _applyMapTransformOnly(){
+  const root = document.getElementById('mapRoot');
+  if(root) root.setAttribute('transform',`translate(${_mapTx.toFixed(1)},${_mapTy.toFixed(1)}) scale(${_mapScale.toFixed(4)})`);
+}
+function _debouncedMapRender(){
+  if(_zoomRenderTimer) clearTimeout(_zoomRenderTimer);
+  _zoomRenderTimer = setTimeout(()=>{ _zoomRenderTimer=null; renderMap(); renderOverlay(); }, 180);
+}
+function zoomMap(delta, cx, cy){
+  const oldScale=_mapScale;
+  _mapScale=Math.max(_MAP_SCALE_MIN, Math.min(_MAP_SCALE_MAX, _mapScale*(1+delta)));
+  _mapTx=cx-(_mapScale/oldScale)*(cx-_mapTx);
+  _mapTy=cy-(_mapScale/oldScale)*(cy-_mapTy);
+  _clampMapTransform();
+  _applyMapTransformOnly();
+  _debouncedMapRender();
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const mapWrap=document.querySelector('.map-wrap');
+  if(!mapWrap) return;
+
+  // 滚轮缩放
+  mapWrap.addEventListener('wheel',e=>{
+    e.preventDefault();
+    const svg=document.getElementById('mapSvg');
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX; pt.y = e.clientY;
+    const ctm = svg.getScreenCTM();
+    if(!ctm) return;
+    const svgPt = pt.matrixTransform(ctm.inverse());
+    zoomMap(e.deltaY<0?0.12:-0.12, svgPt.x, svgPt.y);
+  },{passive:false});
+
+  // 左键拖拽地图（mousedown后记录起始，mousemove判断是否触发拖拽）
+  let _dragStarted=false, _dragMoved=false;
+  mapWrap.addEventListener('mousedown',e=>{
+    if(e.button!==0&&e.button!==1) return;
+    const svg=document.getElementById('mapSvg');
+    const ctm = svg.getScreenCTM();
+    if(!ctm) return;
+    // 拖拽只需相对位移，记录 client→SVG 的缩放因子
+    // getScreenCTM 的 a/d 分量 = SVG单位/屏幕像素 的缩放
+    _mapDrag={
+      startX:e.clientX, startY:e.clientY,
+      startTx:_mapTx, startTy:_mapTy,
+      scaleX:1/ctm.a, scaleY:1/ctm.d,
+      moved:false
+    };
+    _dragStarted=true; _dragMoved=false;
+    if(e.button===1) e.preventDefault();
+  });
+  // ★ v154fix M3: 具名函数引用，支持backToTitle中removeEventListener
+  function _onDocMouseMove(e){
+    if(!_mapDrag) return;
+    const dx=(e.clientX-_mapDrag.startX)*_mapDrag.scaleX;
+    const dy=(e.clientY-_mapDrag.startY)*_mapDrag.scaleY;
+    // 移动超过5px才判断为拖拽（避免误触点击）
+    if(!_mapDrag.moved && Math.hypot(dx,dy)<5) return;
+    _mapDrag.moved=true; _dragMoved=true;
+    _mapTx=_mapDrag.startTx+dx;
+    _mapTy=_mapDrag.startTy+dy;
+    _clampMapTransform();
+    mapWrap.style.cursor='grabbing';
+    _applyMapTransformOnly();
+    _debouncedMapRender();
+  }
+  function _onDocMouseUp(e){
+    if(_mapDrag){
+      const wasDrag=_mapDrag.moved;
+      _mapDrag=null; _dragStarted=false;
+      mapWrap.style.cursor='';
+      // ★ v102: 拖拽结束立即做一次全量渲染（确保反缩放文字正确）
+      if(wasDrag){ _suppressNextClick=true; if(_zoomRenderTimer){clearTimeout(_zoomRenderTimer);_zoomRenderTimer=null;} renderMap(); renderOverlay(); }
+    }
+  }
+  document.addEventListener('mousemove', _onDocMouseMove);
+  document.addEventListener('mouseup', _onDocMouseUp);
+  // 存储引用供backToTitle清理
+  window._mapDocMouseMove = _onDocMouseMove;
+  window._mapDocMouseUp = _onDocMouseUp;
+  // 中键拖拽阻止默认滚动
+  mapWrap.addEventListener('mousedown',e=>{ if(e.button===1) e.preventDefault(); });
+});
+
+let _suppressNextClick=false;
+
+// ★ v154fix M3: 具名keydown函数，支持backToTitle清理
+function _onDocKeydown(e){
+  if(e.key==='Escape'){
+    if(document.getElementById('saveOverlay')){closeSaveLoadPanel();return;}
+    if(document.getElementById('genProfileModal')?.style.display==='flex'){closeGenProfile();return;}
+    if(_stackPickerOpen){ closeStackPicker(); return; }
+    if(G.selUnitId){G.selUnitId=null;clearMovePreview();renderAllLight();}
+    else if(G.selCity){G.selCity=null;renderAllLight();}
+  }
+  if(e.target!==document.body) return;
+  if(e.key==='='||e.key==='+') zoomMap(0.15, 390, 310);
+  if(e.key==='-') zoomMap(-0.15, 390, 310);
+  if(e.key==='0') resetMapView();
+}
+document.addEventListener('keydown', _onDocKeydown);
