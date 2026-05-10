@@ -441,6 +441,22 @@ const VERIFIES = [
 
   // ── 战斗机制 sprint (sprint_followup §五) ──────────────────────────
   {
+    id: 'D-anim-2',
+    name: 'virtualGarrison.fac 用 report.defFac 而非 city.fac (§5.1 真 root cause)',
+    fn(G, win){
+      const src = require('fs').readFileSync(
+        require('path').resolve(__dirname, '..', 'src', 'render', 'battle_anim.js'),
+        'utf8'
+      );
+      const block = src.match(/virtualGarrison = \{[\s\S]{0,400}\}/);
+      if(!block) return { passed: false, detail: 'virtualGarrison block not found' };
+      if(block[0].indexOf('report.defFac') < 0){
+        return { passed: false, detail: 'fac 字段未用 report.defFac (city.fac 战胜后已变 atkFac)' };
+      }
+      return { passed: true };
+    },
+  },
+  {
     id: 'D-camp-1',
     name: '_aiChooseDefensePosture halt 前评估 camp +10% DEF 胜率 (§5.2 P2 fix)',
     fn(G, win){

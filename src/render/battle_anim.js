@@ -2023,9 +2023,13 @@ async function _playSiegeBattleAnim(report, attackers, defenders, posSnap, city)
     if(!defenders || defenders.length === 0){
       const garrisonTroops = (city.garrison > 0) ? city.garrison
         : (report.defLost > 0 ? Math.max(500, Math.round(report.defLost * 0.3)) : 500);
+      // D-anim-2 fix (sprint_followup §5.1 P1 真 root cause): 用 report.defFac (战前守方 fac, resolveBattle L6852 已记录) 而非 city.fac
+      // city.fac 在攻城胜利后已被 resolveSiegeBattle (military.js:5967) 改成 atkFac, virtualGarrison 跟着变 AI 方
+      // 导致 _baCore.shouldSkip hasPlayer 检查 (line 186) defenders.some(u.fac===G.playerFac) 返回 false → 误判 'AI vs AI no player' → 跳过 anim
+      // user 实测复现: AI 攻玩家南阳/徐州城, defenders 空 (玩家城无野战驻军), 构造 virtualGarrison 用 city.fac (已变 AI) → anim 跳过
       virtualGarrison = {
         id: '_anim_garrison_' + city.id,
-        fac: city.fac,
+        fac: report.defFac || city.fac, // D-anim-2 fix
         hq: city.q, hr: city.r,
         _isVirtualGarrison: true,
         squads: [{ genName: (city.name||'城')+'守军', troops: garrisonTroops, morale: 60 }],
