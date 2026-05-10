@@ -1279,8 +1279,24 @@ const EVENT_DEFS = [
             addDiplo(fid, ctx.targetFid, -60);
             // 立即进入战争状态
             const k1=`${fid}-${ctx.targetFid}`, k2=`${ctx.targetFid}-${fid}`;
-            if(G.diplo[k1]) { G.diplo[k1].status='enemy'; G.diplo[k1]._warDeclaredTurn=G.turn; }
-            if(G.diplo[k2]) { G.diplo[k2].status='enemy'; G.diplo[k2]._warDeclaredTurn=G.turn; }
+            const d1 = G.diplo[k1], d2 = G.diplo[k2];
+            if(d1) { d1.status='enemy'; d1._warDeclaredTurn=G.turn; }
+            if(d2) { d2.status='enemy'; d2._warDeclaredTurn=G.turn; }
+            // D-115 fix: 背刺反复检测 (跟 diploWar L436-L444 / _execDeclareWar L480-L486 / aiDoDiplo L721-L730 模板一致)
+            if(d1 && d1._brokenAllyTurn != null && (G.turn - d1._brokenAllyTurn) <= 6){
+              d1._betrayal = true;
+              if(d2) d2._betrayal = true;
+              applyReputationPenalty(fid, 'betray');
+              if(ALL_FACS.includes(fid)) triggerFactionEvent('betray', fid, {});
+            }
+            if(d1 && d1._peaceTurn != null && (G.turn - d1._peaceTurn) <= 3){
+              applyReputationPenalty(fid, 'relapse');
+            }
+            // D-115 fix: _diploCD 双向 15 (倒计时模式, 跟三入口宣战一致; D-114 改 Claude AI 接管入口打补丁衰减保留老存档兼容)
+            G[`_diploCD_${fid}_${ctx.targetFid}`] = 15;
+            G[`_diploCD_${ctx.targetFid}_${fid}`] = 15;
+            // D-115 fix: _syncAllyWarStatus 盟友联动 (跟三入口宣战一致)
+            _syncAllyWarStatus(fid, ctx.targetFid);
             // ★ v179fix P37: 走全套无名宣战副作用（信誉-/第三方-/派系冲击/ethos shock）
             // 斩使=无理由开战，按 'none' 宣称强度惩罚；与 14282/14490/37343 路径一致
             applyWarDeclarationEffects(fid, ctx.targetFid, null);
