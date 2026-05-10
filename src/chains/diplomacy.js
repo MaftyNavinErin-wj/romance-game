@@ -238,6 +238,8 @@ function acceptPeaceOffer(from){
 function rejectPeaceOffer(from){
   // ★ v179fix P15c: 仅 -5 rel，不再 rollback（mutation 已推迟，没有什么可回滚）
   addDiplo(G.playerFac, from, -5);
+  // D-105 trial 3 P2 fix (codex catch): 玩家拒绝时 AI 退 700 金 (跟 aiDoDiplo otherWill 不通过 / _execDiploArmistice 失败一致, 避免 AI 被白扣 1000 金)
+  if(G.factions[from]) G.factions[from].res.gold = (G.factions[from].res.gold || 0) + 700;
   log(`❌ 拒绝${FAC[from]?.name}求和，战争继续`, 'diplo');
   closeModal();
   _checkPendingCourtAfterPopup(); // ★ I3
@@ -781,6 +783,12 @@ function aiDoDiplo(fid){
       const _stratPeaceBonus = _ethPeace ? (_ethPeace.strategy / 100) * 0.08 : 0;
       const peaceThreshold = 0.80 + ((_pPeace.diploAggro || 0.5) - 0.5) * 0.30 + _stratPeaceBonus;
       if(will >= peaceThreshold){
+        const fac = G.factions[fid];
+        // D-105 fix: AI 求和加 1000 金校验 + 扣款 (对齐玩家 startArmistice L329 / Claude AI _execDiploArmistice L1787 模式)
+        // D-105 trial 2 P2 fix (codex catch): _pendingPeaceOffer 是单 slot, 同旬多 AI 求玩家时后者覆盖前者. 改 guard: 若 other===playerFac 且 slot 已占用, 本旬本势力跳过 (不扣钱不发起), 让现有 pending 优先处理
+        if(other === G.playerFac && _pendingPeaceOffer) return;
+        if(fac.res.gold < 1000) return; // 钱不够不发起求和
+        safeSub(fac.res, 'gold', 1000);
         const otherWill = peaceWillingness(other, fid);
         // 双方都有一定意愿才能达成（避免单方面乞和被忽视）
         if(Math.random() < otherWill * 0.8){
@@ -792,6 +800,10 @@ function aiDoDiplo(fid){
             _applyPeaceAgreement(fid, other);
             log(`🕊 ${FAC[fid]?.name}与${FAC[other]?.name}达成停战协议`,'diplo');
           }
+        } else {
+          // D-105 fix: 求和被拒, 退 700 金 + rel+3 (对齐 _execDiploArmistice L1795-L1796)
+          fac.res.gold += 700;
+          addDiplo(fid, other, 3);
         }
       }
     }
