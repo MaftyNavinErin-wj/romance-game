@@ -1,12 +1,25 @@
 ---
-name: Refactor phase status — Phase 4 + 桶 2 + 桶 6 + F/G/J/H/I/K + B sprint 启动
-description: Phase 3 + dc + HIGH sprint + _exec sprint + phase 4 全 10 sub-session + 桶 2 + 桶 6 + F render-cache + G map-interaction + J map-zoom + H utilities + IK streamline (billet+audit) 收尾. v181 39547 → 1799 (-95.5%). 43 src/ js + 1 css. **重构主体彻底收官**. **B sprint (MEDIUM/LOW D 类) 启动: 批 1 D-006 + 批 2 D-070/046/066/067/054/057+058+059.1/072 共 8 D 类 close**.
+name: Refactor phase status — Phase 4 + 桶 2 + 桶 6 + F/G/J/H/I/K + B sprint 政治链收尾
+description: Phase 3 + dc + HIGH sprint + _exec sprint + phase 4 全 10 sub-session + 桶 2 + 桶 6 + F render-cache + G map-interaction + J map-zoom + H utilities + IK streamline (billet+audit) 收尾. v181 39547 → 1799 (-95.5%). 43 src/ js + 1 css. **重构主体彻底收官**. **B sprint (MEDIUM/LOW D 类): 批 1 D-006 + 批 2 D-070/046/066/067/054/057+058+059.1/072 + 批 3+4 D-090/D-088 共 10 D 类 close. 经济链 / 武将链 / 政治链 sprint scope 全收尾**.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 **截至 2026-05-10 的状态(每次 session 启动前请用 git log 校验,不抄)**:**重构 + 数据补完整体收官 + D 类 HIGH sprint 收官 + _exec 架构债 sprint 收官 + phase 4 + 桶 2/6 + F/G/J/H/I/K/M 全收尾 + B sprint 批 1 (D-006) + 批 2 (7 D 类 streamline) 完成**。
 
-**B sprint 进度** (启动 2026-05-10, 经济链 + 武将链 sprint scope 基本扫完):
+**B sprint 进度** (启动 2026-05-10, 经济链 + 武将链 + 政治链 sprint scope 全收尾):
+- **批 3+4 政治链 streamline 2 LOW** (commits 9a0e0d2 + 2557b62 已 push origin/main):
+  - D-090 LOW setStrategist 同人重复任命守卫 (general.js:1745, 加 prev===genName guard 避免 -2/+5 net +3 忠诚 exploit)
+  - D-088 LOW 朝议 selectCount UX 修正 (diplo_modals.js L43/L67 玩家路径 + politics.js _aiCourtSelect AI 路径对称化):
+    - N=2 提案改 selectCount=1 (玩家选 1 of 2 + AI top-1, 不再强求 2/2 无意义点选)
+    - N=3+ 不变 (玩家选 2 + AI top-2)
+    - N=1 autoPass 不变
+    - codex trial 1 P2 catch _aiCourtSelect 漏改 → trial 2 LGTM (玩家/AI 对称化)
+  - 实机测: D-088 用 F12 console showCourtCouncil 注入 mock 提案 (开局所有势力满官 N=4, N=2 路径自然不触发, console 是唯一可行测法), Test A/B/C 全 PASS
+  - D-090 不实机测 (玩家 UI 按钮 toggle 自然防, smoke vs main byte-identical 守底, 跟 batch-14 D-051 / batch-23 D-065 同模式)
+  - **D-087 stale 教训重演**: walkthrough 标 D-087 MEDIUM fix, scout 时按字面看, 但 batch-14 commit message 显式标 "同源 D-051 close D-087", D-087 已收尾。mini scout 阶段查 git log 找 D-051 发现 batch-14 b289739 close D-087, 避免重复 commit (跟 D-045 stale 同模式)
+  - **政治链 sprint scope 全收尾 ✅** (3 HIGH + D-087 MED + D-088/D-090 LOW 全 close, 余 D-079/D-081/D-082/D-086 no-fix + D-078/D-080/D-085/D-089 defer 架构债 + D-083 verified-with-notes)
+
+**B sprint 启动期 progress (经济 + 武将 sprint scope 基本扫完, 历史)**:
 - **批 1 D-006 MED 经济链** (commit f0e1218, sprint/B-D006-recruit-helper):
   - calcRecruitCost helper 抽到 military.js MIL1.c, 含 6 修正 (豪族/兵营/仪兵/科技/特色兵种/官职 _postBuffs)
   - 10 处 call site 全统一 (recruit_modals.js 6 处 玩家征兵+整备+扩编+增编 + military.js 4 处 AI 主征兵+加分队+扩编+Claude AI _execRecruit)
