@@ -649,6 +649,17 @@ function _syncAllyWarStatus(aggressor, target){
 // ── D2 AI 外交决策 aiDoDiplo (v181 L10018-L10160) ──
 // ════════════════════════════════════════════════════════════════════
 
+/** D-114 fix: Claude AI 接管时跳过 aiDoDiplo, 但 _diploCD 仍需衰减;
+ *  单独 helper 跟 aiDoDiplo L658 衰减逻辑同步, tick.js Claude AI 成功路径调用.
+ *  保留倒计时模式 (= N 非 G.turn + N) 老存档兼容. */
+function _decayDiploCDForFac(fid){
+  ALL_FACS.forEach(other => {
+    if(other === fid) return;
+    const cdKey = `_diploCD_${fid}_${other}`;
+    if(G[cdKey] && G[cdKey] > 0) G[cdKey]--;
+  });
+}
+
 function aiDoDiplo(fid){
   const others = ALL_FACS.filter(f=>f!==fid);
   others.forEach(other=>{

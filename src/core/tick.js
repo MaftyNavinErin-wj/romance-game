@@ -206,6 +206,10 @@ async function runAI(){
           console.log(`[ClaudeAI] ${FAC[fid]?.name} 执行结果: ${stats.executed}成功, ${stats.skipped}跳过`, stats.errors.length ? stats.errors : '');
           if(stats.executed > 0){
             log(`🤖 [Claude] ${FAC[fid]?.name}：${stats.executed}条指令执行`, 'event');
+            // D-114 fix: Claude AI 接管时跳过下面的 aiDoDiplo, 手动衰减 _diploCD (跟 aiDoDiplo L658 同模式)
+            // 频率: 每 3 旬一次 (跟 aiDoDiplo 调用频率一致, diploOffset 三家错峰)
+            const _diploOff = {wei:0, shu:1, wu:2, nanman:1}[fid] || 0;
+            if(((G.turn - 1) + _diploOff) % 3 === 0) _decayDiploCDForFac(fid);
             continue; // 成功，跳过规则AI
           }
         }
