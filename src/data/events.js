@@ -2020,7 +2020,8 @@ const EVENT_DEFS = [
             if(fid===G.playerFac && canEnthrone(fid)){
               showNotif('群臣劝进，称帝条件已备！可前往外交面板行大礼','good');
             }
-            log(`📜 ${ctx.genName}上劝进表，主公从善如流，天下侧目`,'event');
+            // D-143 fix: AI 触发时'主公'语气困惑, 用势力名 (FAC[fid]?.name)
+            log(`📜 ${ctx.genName}上劝进表，${FAC[fid]?.name||fid}从善如流，天下侧目`,'event');
           }},
         { label:'② 三辞不受', desc:`天命-3，尊汉派系+2，warlord派系-2`,
           effect(){
@@ -2037,7 +2038,7 @@ const EVENT_DEFS = [
                 G.genFactionMod[g.name] = Math.max(-20,Math.min(20,(G.genFactionMod[g.name]||0)-2));
               }
             });
-            log(`📜 ${ctx.genName}上劝进表，主公三辞不受`,'event');
+            log(`📜 ${ctx.genName}上劝进表，${FAC[fid]?.name||fid}三辞不受`,'event');
           }},
       ];
     },
@@ -2085,8 +2086,9 @@ const EVENT_DEFS = [
                 G.genFactionMod[g.name] = Math.max(-20,Math.min(20,(G.genFactionMod[g.name]||0)-3));
               }
             });
-            log(`👑 ${ctx.genName}谏言还政天子，主公作还政姿态，天下士人归心`,'event');
-            showNotif('还政姿态！天命-10 信誉+5','good');
+            // D-143 fix: '主公'→势力名 + showNotif gate (return_emperor playerOnly:false)
+            log(`👑 ${ctx.genName}谏言还政天子，${FAC[fid]?.name||fid}作还政姿态，天下士人归心`,'event');
+            if(fid === G.playerFac) showNotif('还政姿态！天命-10 信誉+5','good');
           }},
         { label:'② 斥退不听', desc:`天命+3，尊汉派系-3｜进一步篡汉`,
           effect(){
@@ -2099,7 +2101,7 @@ const EVENT_DEFS = [
                 G.genFactionMod[g.name] = Math.max(-20,Math.min(20,(G.genFactionMod[g.name]||0)-3));
               }
             });
-            log(`👑 ${ctx.genName}谏言还政天子，主公斥退不听`,'event');
+            log(`👑 ${ctx.genName}谏言还政天子，${FAC[fid]?.name||fid}斥退不听`,'event');
           }},
       ];
     },
