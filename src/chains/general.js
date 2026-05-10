@@ -1743,6 +1743,8 @@ function setStrategist(fid, genName){
   // ★ v179fix P49: 归属性防御 — 防止 stale ctx 把不在该势力的武将设为军师
   if(genName && !_genInFac(genName, fid)) return;
   const prev = G.factions[fid].strategist;
+  // D-090 fix: 同人重复任命守卫 — 避免 -2 (prev) + 5 (genName) net +3 忠诚 exploit
+  if(genName && prev === genName) return;
   if(prev){
     if(G.genLoyalty[prev] !== undefined){
       G.genLoyalty[prev] = Math.max(0, (G.genLoyalty[prev]||60) - 2);
