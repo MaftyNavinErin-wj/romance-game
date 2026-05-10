@@ -7542,6 +7542,8 @@ function _execDisband(fid, act) {
   if (!city || city.fac !== fid) return false;
   const troops = getUnitTroops(unit);
   city.pop += Math.floor(troops * 0.6);
+  // D-015 fix: 清亲卫 (跟玩家 disbandUnit L7448 对齐, 玩家/AI 对称); 否则 AI 裁军后亲卫数 ghost 残留 (武将名下 retainers 永不归零)
+  unit.squads.forEach(sq => setRetainers(sq.genName, 0));
   G.units = G.units.filter(u => u.id !== unit.id);
   log(`🔻 [AI] ${FAC[fid]?.name}于${city.name}裁军${fmt(troops)}`, 'economy');
   return true;

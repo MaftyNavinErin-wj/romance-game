@@ -316,6 +316,35 @@ const VERIFIES = [
       return { passed: true };
     },
   },
+
+  // ── B sprint 军事链 (批 8) ───────────────────────────────────────
+  {
+    id: 'B-D015',
+    name: '_execDisband 清亲卫 (玩家/AI 对称, AI 裁军不留 ghost retainers)',
+    fn(G, win){
+      // 找 wei 的一支部队 + 武将
+      const fid = 'wei';
+      const u = G.units.find(u2 => u2.fac === fid && u2.squads && u2.squads.length > 0);
+      if(!u) return { passed: false, detail: 'wei 无部队 (initGame 应有)' };
+      const sq = u.squads[0];
+      // 设亲卫 = 50, 把 unit 移到城市 (确保 _execDisband 城市判定通过)
+      win.setRetainers(sq.genName, 50);
+      const loc = win.getUnitNodeId(u);
+      const city = G.cities[loc];
+      if(!city || city.fac !== fid){
+        // 把 unit 强行 garrison 到 wei 城
+        const myCity = Object.values(G.cities).find(c => c.fac === fid);
+        if(!myCity) return { passed: false, detail: 'wei 无城市' };
+        u.hq = myCity.hq; u.hr = myCity.hr;
+        u.status = 'garrison';
+      }
+      win._execDisband(fid, { leader: sq.genName });
+      const retA = win.getRetainers(sq.genName);
+      return retA === 0
+        ? { passed: true }
+        : { passed: false, detail: 'retainers '+sq.genName+' = '+retA+' (expected 0)' };
+    },
+  },
 ];
 
 // ═══════════════════════════════════════════════════════════════════
