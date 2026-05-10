@@ -447,6 +447,9 @@ function diploWar(target, claimType){
     applyReputationPenalty(G.playerFac, 'relapse');
   }
   _diploMarkActed(target);
+  // D-092 fix: 玩家 diploWar 也写 _diploCD 双向 15 (对齐 _execDeclareWar L478 / aiDoDiplo L719 / checkDiplo D-117c L1471 三入口); 倒计时模式跟原系统一致 (D-114 改 Claude AI 接管入口打补丁衰减, 保留老存档兼容)
+  G[`_diploCD_${G.playerFac}_${target}`] = 15;
+  G[`_diploCD_${target}_${G.playerFac}`] = 15;
   _syncAllyWarStatus(G.playerFac, target);
   // ★ C3: 宣称效果结算（替代旧的固定鹰鸽事件）
   applyWarDeclarationEffects(G.playerFac, target, claimType || null);
