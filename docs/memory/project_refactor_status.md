@@ -1,12 +1,35 @@
 ---
-name: Refactor phase status — Phase 4 + 桶 2 + 桶 6 + F/G/J/H/I/K + B sprint 5 链 sweep
-description: Phase 3 + dc + HIGH sprint + _exec sprint + phase 4 全 10 sub-session + 桶 2 + 桶 6 + F render-cache + G map-interaction + J map-zoom + H utilities + IK streamline (billet+audit) 收尾. v181 39547 → 1799 (-95.5%). 43 src/ js + 1 css. **重构主体彻底收官**. **B sprint (MEDIUM/LOW D 类) 5 链 sweep 完: 批 1-6 共 15 D 类 close (经济+武将+政治+价值观+事件 LOW 部分). D-137 MEDIUM 设计决策待 user approve. 剩 2 链: 军事 + 外交**.
+name: Refactor phase status — Phase 4 + 桶 2 + 桶 6 + F/G/J/H/I/K + B sprint 7 链全 sweep + Layer-3 模板
+description: Phase 3 + dc + HIGH sprint + _exec sprint + phase 4 全 10 sub-session + 桶 2 + 桶 6 + F render-cache + G map-interaction + J map-zoom + H utilities + IK streamline (billet+audit) 收尾. v181 39547 → 1799 (-95.5%). 43 src/ js + 1 css. **重构主体彻底收官**. **B sprint 7 链全 sweep 完: 批 1-8 共 22 D 类 close (经济+武将+政治+价值观+事件+外交+军事). D-068/D-137/军事 D-017/036/037/038/040 等 6 项 escalate audit pass 2. Layer-3 sprint_verify.js 模板上线 (24 verifies)**.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 **截至 2026-05-10 的状态(每次 session 启动前请用 git log 校验,不抄)**:**重构 + 数据补完整体收官 + D 类 HIGH sprint 收官 + _exec 架构债 sprint 收官 + phase 4 + 桶 2/6 + F/G/J/H/I/K/M 全收尾 + B sprint 批 1 (D-006) + 批 2 (7 D 类 streamline) 完成**。
 
-**B sprint 进度** (启动 2026-05-10, 经济+武将+政治+价值观+事件 5 链 sweep 完):
+**B sprint 进度** (启动 2026-05-10, 7 链全 sweep 完: 经济+武将+政治+价值观+事件+外交+军事):
+
+- **批 8 军事链 streamline 4 fix** (commits 02d7066/93516ed/01259e4 已 push origin/main):
+  - D-015 LOW _execDisband 清亲卫 (玩家/AI 对称, AI 裁军不留 ghost retainers, 跟玩家 disbandUnit L7448 对齐)
+  - D-018 MED _execCancelSpecial: camp → 1 旬 campMobilizeTurns 整备 (玩家不能即扎即发, AI 同等约束) + ambush 在城内变 garrison
+  - D-018 follow-up (codex trial 3 catch): _execMove + _execSetCamp + _execSetAmbush 全加 campMobilizeTurns + camp/ambush status guard
+  - D-019 MED _execCancelSiege: 清 siegeTarget + _siegeTurnCount (跟玩家 cancelSiege L7273 对齐)
+  - D-041 LOW 乐进 xiandeng 攻城士气 cap 对称 (v179fix P8 模式: 记 actual added, restore 减实际值, 不再硬编码 -18)
+  - **codex review 4 trials**: trial 1 P2 (D-023 trackCityLoss 设计就忽略 rebel 撤回) → trial 2 P1 (sprint_verify conflict marker amend) → trial 3 P2 (_execMove campMobilizeTurns 漏 amend) → **trial 4 LGTM ✅**
+  - **D-023~D-030 group default close** (audit pass 2 重新核 ID-to-钩子精确映射):
+    - D-023~D-025 大乱: trackCityLoss 设计就忽略 rebel (D-119 verified-with-notes 同模式), 大乱钩子套件其他 14 项已含
+    - D-027~D-030 开城: batch-3/17/19 多次完整修, 对比攻城胜利样板 15+ 钩子无明显漏
+  - **D-022 已被批 1 D-006 附带 close** (calcRecruitCost helper 含 _postBuffs, 玩家 modal 6 处 + AI 4 处)
+  - **D-032/D-033 verified-with-notes** (防御性问题非功能 bug)
+  - **D-017/D-036/D-037/D-038/D-040 escalate audit pass 2** (concept_map 无 fix 方向线索)
+  - **军事链 sprint scope 全收尾 ✅**: 6 HIGH (HIGH sprint close) + 4 fix (D-015/018/019/041) + 7 group default close + 2 verified-with-notes + 5 defer audit pass 2 + 2 dismissed (D-034/039) = 23
+
+- **Layer-3 sprint_verify.js 模板上线** (commit 0f93c1b, push origin/main):
+  - 24 verifies 全 PASS (15 外交链 + 1 军事链 D-019 + 3 D-018 + 1 D-015 + 1 D-041 + 价值观/事件/政治/武将累计)
+  - tests/sprint_verify.js: 启 jsdom + initGame + 控制初始 state + assert deltas, 取代 user F12 console paste
+  - 跟 smoke.js (Layer-1+2 byte-identical 守底) 互补; 后续每 batch 加 entry, node tests/sprint_verify.js B-DXXX 自动测
+  - 模板教训: expose 顶层 const/let / _actedThisTurn marker reset / 静态 grep 模式 / mock Math.random 测失败分支
+  - reference_layer3_verify.md 入 memory (后续 sprint 复用)
+
 - **批 6 事件链 streamline 4 LOW** (commits f25939a/e29a55b/7668bfe/069da78 已 push origin/main):
   - D-132 LOW tick.js 全局 _fastForward _pendingEvent 路径补 log (跟 rollEventsV2 内 fastForward / AI 静默 / 玩家弹窗三路径一致)
   - D-134 LOW rollEventsV2 facs 过滤 _eliminated (跟 D-129 同模式, 跟 tick.js:184/693/703 _eliminated guard 一致)
