@@ -489,7 +489,7 @@ function _execDeclareWar(fid, act) {
   _syncAllyWarStatus(fid, target);
   // D-049/D-131 fix: 真正宣战路径触发 warDeclare 派系事件（接口完整性不变量）
   if(ALL_FACS.includes(fid)) triggerFactionEvent('warDeclare', fid, {});
-  applyEthosShock(fid, 'strategy', 6, '主动宣战');
+  // D-095/D-122 fix: 删重复 ethosShock 'strategy' +6 — applyWarDeclarationEffects:1319 内部已调一次, 此处删避免双计 strategy +12
   const ct = claimType ? CLAIM_TYPES[claimType] : null;
   const claimLabel = ct ? `以【${ct.label}】` : '';
   log(`⚔️ [AI] ${FAC[fid]?.name}${claimLabel}向${FAC[target]?.name}宣战！`, 'diplo');
@@ -742,8 +742,8 @@ function aiDoDiplo(fid){
             log(`⚔️ ${FAC[fid]?.name}${claimLabel}与${FAC[other]?.name}爆发战争`,'diplo');
           }
           _syncAllyWarStatus(fid, other);
-          // ★ v151: AI宣战价值观冲击
-          applyEthosShock(fid, 'strategy', 6, '主动宣战');
+          // D-095/D-122 fix: 删重复 ethosShock 'strategy' +6 — applyWarDeclarationEffects:1319 内部已调一次, 此处删避免双计 strategy +12
+          // mandate 维度的 strong/weak/none 强度差异是本路径独有 (与 _execDeclareWar / 玩家 diploWar 不同), applyWarDeclarationEffects 内不分 strength → 保留
           if(ct){
             if(ct.strength === 'strong') applyEthosShock(fid, 'mandate', -5, '正义宣称');
             else if(ct.strength === 'weak') applyEthosShock(fid, 'mandate', 3, '弱宣称开战');
