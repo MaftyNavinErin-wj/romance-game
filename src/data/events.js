@@ -460,12 +460,12 @@ const EVENT_DEFS = [
         // 原机制 push 后立即被 checkEventPromises 静默清除 (在野武将不在 G.generals[fid]),
         // "3 旬后自动加入"功能从 v130 引入起就完全不工作. 简化玩家选项为"立即接纳/婉拒"二选一.
         // 若未来要实装"考察期"玩法,在此恢复 ② 选项 + hubs.js B4_delayed deadline 路径即可 (sprint 之后的 small feature 候选).
-        { label:'② 婉拒', desc:`${rName}忠-8，${wName}6旬内不再来投`,
+        // D-145 fix: 删 desc '6旬内不再来投' + effect 死冷却 key (key 'gen_referral_'+wName 跟 def.id 'gen_referral' 不匹配, 写后永不读, grep 全 src/ 0 read site).
+        // 若未来要实装"婉拒武将冷却"机制, 在 condition 里加读端 (e.g. if(G._eventCooldown['gen_referral_'+candidate.name]) 跳过该武将).
+        { label:'② 婉拒', desc:`${rName}忠-8`,
           effect(){
             if(G.genLoyalty[rName]!==undefined) G.genLoyalty[rName]=Math.max(0,G.genLoyalty[rName]-8);
             if(G.loyaltyAccum) G.loyaltyAccum[rName]=G.genLoyalty[rName];
-            // 设冷却阻止该武将再触发
-            G._eventCooldown['gen_referral_'+wName] = 6;
           }},
       ];
     },
