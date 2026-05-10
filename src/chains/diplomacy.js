@@ -508,6 +508,9 @@ function _execProposeAlliance(fid, act) {
   const k = `${fid}-${target}`, d = G.diplo[k];
   if (!d || d.status !== 'neutral') return false;
   if (d.rel < 75) return false;
+  // D-096 fix: CD 检查 (避免一旬反复尝试结盟); 倒计时模式跟 _execDeclareWar L471 / aiDoDiplo L658 一致
+  const cdKey = `_diploCD_${fid}_${target}`;
+  if (G[cdKey] && G[cdKey] > 0) return false;
   const fac = G.factions[fid];
   if (fac.res.gold < 500) return false;
   safeSub(fac.res, 'gold', 500);
@@ -524,6 +527,8 @@ function _execProposeAlliance(fid, act) {
   } else {
     fac.res.gold += 250;
     addDiplo(fid, target, 2);
+    // D-096 fix: 失败设 5 旬 CD (避免本旬反复尝试; 5 旬轻于宣战 15 旬, 跟 _execProposeAlliance 二次成本 250 金 + rel +2 性质相符); 倒计时模式
+    G[cdKey] = 5;
     log(`❌ [AI] ${FAC[target]?.name}暂不接受${FAC[fid]?.name}的结盟请求`, 'diplo');
   }
   return true;
