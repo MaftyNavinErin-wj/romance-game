@@ -14,3 +14,4 @@
 - [Sprint streamline 多 batch 集中测](feedback_sprint_streamline_batches.md) — 连续简单 batch commit 留 local,集中给一份实机测 checklist,user 一次测完一次性 push 所有 batches
 - [Cross-machine memory sync](feedback_memory_sync.md) — pull 后用 cp 命令把 in-repo docs/memory/ 覆盖本机 auto-memory(in-repo 是权威, auto-memory 不跟 git 走)
 - [_exec sprint codex review streamline](feedback_exec_sprint_streamline.md) — _exec 归位 5 batch 同质, 默认集中 codex review 一次, 异常 batch 单独 escalate
+- [Layer-3 sprint_verify 模板](reference_layer3_verify.md) — tests/sprint_verify.js 自动 verify 模板, 替代 F12 console paste, 后续 sprint 复用
