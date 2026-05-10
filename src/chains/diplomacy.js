@@ -1768,7 +1768,8 @@ function _execBreakAlliance(fid, act) {
   d.status = 'neutral'; d._brokenAllyTurn = G.turn;
   const rev = G.diplo[`${target}-${fid}`];
   if (rev) { rev.status = 'neutral'; rev._brokenAllyTurn = G.turn; }
-  addDiplo(fid, target, -10);
+  // D-109 fix: _execBreakAlliance 解盟 rel -10 → -20 (对齐玩家 breakAlliance L414 -20, 解盟惩罚玩家/AI 一致)
+  addDiplo(fid, target, -20);
   log(`💔 [AI] ${FAC[fid]?.name}解除与${FAC[target]?.name}的联盟`, 'diplo');
   return true;
 }
