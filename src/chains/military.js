@@ -6728,8 +6728,13 @@ function _resolveBattleEngagement(attackers, defenders, nodeLabel, activeDuel, n
     if(G.diplo[bk] && G.diplo[bk].status === 'neutral'){
       // 中立状态下发生战斗 → 自动转为敌对（de facto宣战）
       G.diplo[bk].status = 'enemy';
+      // D-118 fix: _warDeclaredTurn 双向写 (跟三入口宣战 / 斩使一致)
+      G.diplo[bk]._warDeclaredTurn = G.turn;
       const rev = G.diplo[`${defFac}-${atkFac0}`];
-      if(rev) rev.status = 'enemy';
+      if(rev) {
+        rev.status = 'enemy';
+        rev._warDeclaredTurn = G.turn;
+      }
       // C3 反复/背刺检测（与 diploWar 相同逻辑）
       if(G.diplo[bk]._brokenAllyTurn != null && (G.turn - G.diplo[bk]._brokenAllyTurn) <= 6){
         G.diplo[bk]._betrayal = true;
@@ -6741,7 +6746,14 @@ function _resolveBattleEngagement(attackers, defenders, nodeLabel, activeDuel, n
       if(G.diplo[bk]._peaceTurn != null && (G.turn - G.diplo[bk]._peaceTurn) <= 3){
         applyReputationPenalty(atkFac0, 'relapse');
       }
+      // D-118 fix: _diploCD 双向 15 (倒计时模式, 跟三入口宣战/斩使一致; D-114 改 Claude AI 接管入口打补丁衰减保留老存档兼容)
+      G[`_diploCD_${atkFac0}_${defFac}`] = 15;
+      G[`_diploCD_${defFac}_${atkFac0}`] = 15;
       _syncAllyWarStatus(atkFac0, defFac);
+      // D-118 fix: applyWarDeclarationEffects 全套副作用 (信誉/第三方/派系/ethos), 跟三入口一致 (de facto = 无名宣战, claimType=null)
+      applyWarDeclarationEffects(atkFac0, defFac, null);
+      // D-118 fix: warDeclare 派系事件 (跟三入口宣战 + 斩使 D-049/D-131 fix 一致)
+      if(ALL_FACS.includes(atkFac0)) triggerFactionEvent('warDeclare', atkFac0, {});
       log(`⚔️ ${FAC[atkFac0]?.name}对${FAC[defFac]?.name}动兵，双方进入敌对状态`, 'diplo');
     }
 
