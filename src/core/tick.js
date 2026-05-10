@@ -588,6 +588,8 @@ async function nextTurn(){
       G._eventCooldown[_ffEvt.def.id] = _ffEvt.def.cooldown;
       G._eventCatCooldown[_ffEvt.def.category] = EVENT_CAT_COOLDOWN;
       if(_ffEvt.def.oneTime){ if(!G._eventFired) G._eventFired={}; G._eventFired[_ffEvt.def.id]=G.turn; }
+      // D-132 fix: 全局快进路径补 log, 跟 rollEventsV2 内 fastForward (event.js:427) / AI 静默 (line 405) / 玩家弹窗 (resolveEventChoice line 465) 三路径一致
+      log(`${_ffEvt.def.icon} ${_ffEvt.ctx.city?.name||_ffEvt.ctx.genName||_ffEvt.ctx.facLabel||_ffEvt.ctx.complainerName||''}${_ffEvt.def.name}`,'event');
       G._pendingEvent = null;
       document.getElementById('eventModal').style.display = 'none';
     }
