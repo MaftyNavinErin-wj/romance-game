@@ -946,6 +946,37 @@ function _aiChooseDefensePosture(unit, fid, threatEnemies) {
   const fieldWR = fuzzyEstimateWinRate(defenders, threatEnemies, fid);
   if (fieldWR >= threshold) return 'halt'; // 正面能打
 
+  // ── 1.5 扎营评估 (D-camp-1 fix sprint_followup §5.2):
+  // 野战打不过, 但加 camp DEF +10% 加成 (resolveCampBattle L4645) 能打过 → 优先扎营硬扛
+  // 否则 camp 是 ambush 之后的 fallback, 几乎不触发 (50 旬 smoke 0 次)
+  // 设计: halt 之前先评估"扎营加成下能否打过", user-approved 2026-05-10
+  const _campFac = G.factions[fid];
+  if (_campFac && (_campFac.res.gold || 0) >= CAMP_COST.gold && (_campFac.res.wood || 0) >= CAMP_COST.wood) {
+    const ter = getTerrainAt(unit.hq??0, unit.hr??0) || 'plain';
+    // D-camp-1 trial 2 (codex P2): 陆逊 huoying_def 技能让 camp DEF +10% 失效 (resolveCampBattle L4645 _campDefMult=1.00)
+    // D-camp-1 trial 3 (codex P2): 攻方 INT > 守方 INT + 10 → 选 mode=raid (military.js:6239 同模式) → DEF +10% 不适用 (raid 反惩罚 morale)
+    // 估算时若任一条件成立 → 不加 boost, 避免误估收益让 AI 错选 camp 跳过 ambush
+    const _luxunInThreats = threatEnemies.some(u => u.squads && u.squads.some(sq => sq.genName === '陆逊'));
+    const _atkMaxInt = getMaxInt(threatEnemies);
+    const _defMaxInt = getMaxInt([unit]);
+    const _modeRaidLikely = (_atkMaxInt - _defMaxInt) > 10;
+    const _campDEFMult = (_luxunInThreats || _modeRaidLikely) ? 1.00 : 1.10;
+    const myATKv = calcUnitATK(unit, threatEnemies, ter);
+    const myDEFv = calcUnitDEF(unit, ter) * _campDEFMult; // camp DEF +10% (除非陆逊在威胁方)
+    const enemyATKv = threatEnemies.reduce((s, u) => s + calcUnitATK(u, [unit], ter), 0);
+    const enemyDEFv = threatEnemies.reduce((s, u) => s + calcUnitDEF(u, ter), 0);
+    const rollBase_me = myATKv / Math.max(1, enemyDEFv);
+    const rollBase_en = enemyATKv / Math.max(1, myDEFv);
+    let campWins = 0;
+    for (let _s = 0; _s < 30; _s++) {
+      const rMe = rollBase_me * (0.50 + Math.random());
+      const rEn = rollBase_en * (0.50 + Math.random());
+      if (rMe >= rEn) campWins++;
+    }
+    const campWR = campWins / 30;
+    if (campWR >= threshold) return 'camp'; // 加 camp 加成能打过 → 优先扎营
+  }
+
   // ── 2. 伏击评估 ──
   const ambushHex = _aiFindAmbushHex(unit, threatEnemies[0], unit._aiTarget, fid);
   if (ambushHex) {

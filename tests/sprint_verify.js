@@ -438,6 +438,41 @@ const VERIFIES = [
         : { passed: false, detail: '缺: '+missing.join(' / ') };
     },
   },
+
+  // ── 战斗机制 sprint (sprint_followup §五) ──────────────────────────
+  {
+    id: 'D-camp-1',
+    name: '_aiChooseDefensePosture halt 前评估 camp +10% DEF 胜率 (§5.2 P2 fix)',
+    fn(G, win){
+      const src = require('fs').readFileSync(
+        require('path').resolve(__dirname, '..', 'src', 'chains', 'military.js'),
+        'utf8'
+      );
+      const block = src.match(/function _aiChooseDefensePosture[\s\S]{0,4000}/);
+      if(!block) return { passed: false, detail: '_aiChooseDefensePosture not found' };
+      const checks = [
+        ["if (fieldWR >= threshold) return 'halt'", '原 halt 优先级保留'],
+        ['_campDEFMult', 'camp DEF mult (含陆逊+raid 双降级 codex trial 1+3 P2)'],
+        ['_luxunInThreats', '陆逊 huoying_def 检测 (codex trial 1 P2)'],
+        ['_modeRaidLikely', '敌方 raid 模式检测 (intDiff > 10) codex trial 3 P2'],
+        ["if (campWR >= threshold) return 'camp'", 'camp 优先于 ambush 触发'],
+        ['CAMP_COST.gold', '资源校验'],
+      ];
+      const missing = checks.filter(([k]) => block[0].indexOf(k) < 0).map(([,n]) => n);
+      const idxField = block[0].indexOf("fieldWR >= threshold");
+      const idxCamp  = block[0].indexOf("campWR >= threshold");
+      const idxAmbush = block[0].indexOf('// ── 2. 伏击评估');
+      if(idxField < 0 || idxCamp < 0 || idxAmbush < 0){
+        return { passed: false, detail: '关键 anchor 找不到' };
+      }
+      if(!(idxField < idxCamp && idxCamp < idxAmbush)){
+        return { passed: false, detail: '顺序错: 期望 fieldWR < campWR < ambush' };
+      }
+      return missing.length === 0
+        ? { passed: true }
+        : { passed: false, detail: '缺: '+missing.join(' / ') };
+    },
+  },
 ];
 
 // ═══════════════════════════════════════════════════════════════════
