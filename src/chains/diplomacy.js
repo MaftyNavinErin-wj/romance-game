@@ -431,7 +431,8 @@ function diploWar(target, claimType){
     G.diplo[`${target}-${G.playerFac}`].status='enemy';
     G.diplo[`${target}-${G.playerFac}`]._warDeclaredTurn = G.turn;
   }
-  addDiplo(G.playerFac,target,-20);
+  // D-093 fix: 玩家 diploWar 数值 -20 → -15 (对齐 _execDeclareWar L477 / aiDoDiplo L718 / checkDiplo D-117c L1471 三入口, 统一三入口宣战 rel 衰减)
+  addDiplo(G.playerFac,target,-15);
   // C3 背刺检测：解盟6旬内宣战
   if(d._brokenAllyTurn != null && (G.turn - d._brokenAllyTurn) <= 6){
     d._betrayal = true;
