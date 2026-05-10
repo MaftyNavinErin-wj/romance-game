@@ -7466,6 +7466,10 @@ function _execMove(fid, act) {
   const unit = _findUnit(fid, act.leader);
   if (!unit) { console.warn('[ClaudeAI] move: 找不到部队', act.leader, `| ${FAC[fid]?.name}部队:`, G.units.filter(u=>u.fac===fid).map(u=>u.squads.map(s=>s.genName).join('+')).join(', ')); return false; }
   if (unit.mobilizingTurns > 0) { console.warn('[ClaudeAI] move: 整备中', act.leader, unit.mobilizingTurns, '旬'); return false; }
+  // D-018 follow-up fix (codex trial 3 catch): 拔营整备中 (campMobilizeTurns>0) / camp / ambush 状态都不能 move
+  // 否则 Claude AI 同 batch cancel_special + move 绕过 1 旬整备约束 (玩家 startMoveFromPanel L7288 已有 status check)
+  if ((unit.campMobilizeTurns || 0) > 0) { console.warn('[ClaudeAI] move: 拔营中', act.leader, unit.campMobilizeTurns, '旬'); return false; }
+  if (unit.status === 'camp' || unit.status === 'ambush') { console.warn('[ClaudeAI] move: 扎营/伏击中需先 cancel_special', act.leader, unit.status); return false; }
   const cityId = _resolveCityId(act.target);
   if (!cityId) { console.warn('[ClaudeAI] move: 目标城市无效', act.target); return false; }
   const cdef = CITY_MAP[cityId];
@@ -7554,6 +7558,8 @@ function _execSetCamp(fid, act) {
   if (!unit) { console.warn('[ClaudeAI] set_camp: 找不到部队', act.leader); return false; }
   if (unit.status === 'garrison') { console.warn('[ClaudeAI] set_camp: 城内驻守无需扎营', act.leader); return false; }
   if ((unit.mobilizingTurns || 0) > 0) { console.warn('[ClaudeAI] set_camp: 整备中', act.leader); return false; }
+  // D-018 follow-up fix: 拔营中不能再 set_camp (玩家 setCamp 走 startCamp 路径有 status check, AI 路径补齐)
+  if ((unit.campMobilizeTurns || 0) > 0) { console.warn('[ClaudeAI] set_camp: 拔营中', act.leader); return false; }
   // D-016 fix: 扣金 + 木资源（模仿玩家 setCamp src/chains/military.js:7344-7345，原本免费扎营 exploit）
   const fac = G.factions[fid];
   if (!fac) return false;
@@ -7572,6 +7578,8 @@ function _execSetAmbush(fid, act) {
   if (!unit) { console.warn('[ClaudeAI] set_ambush: 找不到部队', act.leader); return false; }
   if (unit.status === 'garrison') { console.warn('[ClaudeAI] set_ambush: 城内驻守无法设伏', act.leader); return false; }
   if ((unit.mobilizingTurns || 0) > 0) { console.warn('[ClaudeAI] set_ambush: 整备中', act.leader); return false; }
+  // D-018 follow-up fix: 拔营中不能 set_ambush (同 _execSetCamp / _execMove 模式)
+  if ((unit.campMobilizeTurns || 0) > 0) { console.warn('[ClaudeAI] set_ambush: 拔营中', act.leader); return false; }
   const terrain = HEX_TERRAIN[hkey(unit.hq, unit.hr)];
   if (!['forest', 'hill', 'mountain', 'swamp'].includes(terrain)) { console.warn('[ClaudeAI] set_ambush: 地形不允许', act.leader, terrain); return false; }
   unit.status = 'ambush';
@@ -7582,8 +7590,17 @@ function _execSetAmbush(fid, act) {
 function _execCancelSpecial(fid, act) {
   const unit = _findUnit(fid, act.leader);
   if (!unit) return false;
-  if (unit.status === 'camp' || unit.status === 'ambush') {
-    unit.status = 'halt';
+  // D-018 fix: 取消扎营/埋伏走玩家 cancelSpecialStatus L7425+ 同模式 (玩家/AI 对称)
+  if (unit.status === 'camp') {
+    // 拔营需 1 旬整备 (玩家不能即扎即发, AI 也应受同等约束)
+    if ((unit.campMobilizeTurns || 0) > 0) return false; // 已在拔营中
+    unit.campMobilizeTurns = CAMP_MOBILIZE_TURNS;
+    return true;
+  }
+  if (unit.status === 'ambush') {
+    // 埋伏立即解除 — 在城内变 garrison, 否则 halt (玩家 L7438-7439 模板)
+    const curNode = getUnitNodeId(unit);
+    unit.status = G.cities[curNode] ? 'garrison' : 'halt';
     return true;
   }
   return false;
@@ -7593,6 +7610,9 @@ function _execCancelSiege(fid, act) {
   const unit = _findUnit(fid, act.leader);
   if (!unit || unit.status !== 'siege') return false;
   unit.status = 'halt';
+  // D-019 fix: 清围城目标 + 旬数 (跟玩家 cancelSiege L7277-7278 对齐, 否则下次再围城时旧 siege 进度残留)
+  unit.siegeTarget = null;
+  unit._siegeTurnCount = 0;
   return true;
 }
 

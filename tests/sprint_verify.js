@@ -322,20 +322,17 @@ const VERIFIES = [
     id: 'B-D015',
     name: '_execDisband 清亲卫 (玩家/AI 对称, AI 裁军不留 ghost retainers)',
     fn(G, win){
-      // 找 wei 的一支部队 + 武将
       const fid = 'wei';
       const u = G.units.find(u2 => u2.fac === fid && u2.squads && u2.squads.length > 0);
       if(!u) return { passed: false, detail: 'wei 无部队 (initGame 应有)' };
       const sq = u.squads[0];
-      // 设亲卫 = 50, 把 unit 移到城市 (确保 _execDisband 城市判定通过)
       win.setRetainers(sq.genName, 50);
       const loc = win.getUnitNodeId(u);
       const city = G.cities[loc];
       if(!city || city.fac !== fid){
-        // 把 unit 强行 garrison 到 wei 城
         const myCity = Object.values(G.cities).find(c => c.fac === fid);
         if(!myCity) return { passed: false, detail: 'wei 无城市' };
-        u.hq = myCity.hq; u.hr = myCity.hr;
+        u.hq = myCity.q; u.hr = myCity.r;
         u.status = 'garrison';
       }
       win._execDisband(fid, { leader: sq.genName });
@@ -343,6 +340,77 @@ const VERIFIES = [
       return retA === 0
         ? { passed: true }
         : { passed: false, detail: 'retainers '+sq.genName+' = '+retA+' (expected 0)' };
+    },
+  },
+  {
+    id: 'B-D019',
+    name: '_execCancelSiege 清 siegeTarget + _siegeTurnCount (玩家/AI 对称)',
+    fn(G, win){
+      const fid = 'wei';
+      const u = G.units.find(u2 => u2.fac === fid);
+      if(!u) return { passed: false, detail: 'wei 无部队' };
+      u.status = 'siege';
+      u.siegeTarget = 'mock_city';
+      u._siegeTurnCount = 5;
+      win._execCancelSiege(fid, { leader: u.squads[0]?.genName });
+      const fails = [];
+      if(u.status !== 'halt') fails.push('status='+u.status+' (expected halt)');
+      if(u.siegeTarget !== null) fails.push('siegeTarget='+u.siegeTarget+' (expected null)');
+      if(u._siegeTurnCount !== 0) fails.push('_siegeTurnCount='+u._siegeTurnCount+' (expected 0)');
+      return fails.length === 0 ? { passed: true } : { passed: false, detail: fails.join(', ') };
+    },
+  },
+  {
+    id: 'B-D018-camp',
+    name: '_execCancelSpecial camp → 1 旬整备 (玩家不能即扎即发, AI 同等约束)',
+    fn(G, win){
+      const fid = 'wei';
+      const u = G.units.find(u2 => u2.fac === fid);
+      if(!u) return { passed: false, detail: 'wei 无部队' };
+      u.status = 'camp';
+      u.campMobilizeTurns = 0;
+      win._execCancelSpecial(fid, { leader: u.squads[0]?.genName });
+      if(u.campMobilizeTurns !== win.CAMP_MOBILIZE_TURNS){
+        return { passed: false, detail: 'campMobilizeTurns='+u.campMobilizeTurns+' (expected '+win.CAMP_MOBILIZE_TURNS+')' };
+      }
+      return { passed: true };
+    },
+  },
+  {
+    id: 'B-D018-ambush',
+    name: '_execCancelSpecial ambush 在城内变 garrison (玩家路径对齐)',
+    fn(G, win){
+      const fid = 'wei';
+      const u = G.units.find(u2 => u2.fac === fid);
+      if(!u) return { passed: false, detail: 'wei 无部队' };
+      const myCity = Object.values(G.cities).find(c => c.fac === fid);
+      if(!myCity) return { passed: false, detail: 'wei 无城市' };
+      u.hq = myCity.q; u.hr = myCity.r;
+      u.status = 'ambush';
+      win._execCancelSpecial(fid, { leader: u.squads[0]?.genName });
+      return u.status === 'garrison'
+        ? { passed: true }
+        : { passed: false, detail: 'status='+u.status+' (expected garrison since on city)' };
+    },
+  },
+  {
+    id: 'B-D018-execmove-guard',
+    name: '_execMove 拔营中拒绝 + camp/ambush 状态拒绝 (D-018 follow-up codex catch)',
+    fn(G, win){
+      const fid = 'wei';
+      const u = G.units.find(u2 => u2.fac === fid);
+      if(!u) return { passed: false, detail: 'wei 无部队' };
+      // 测 1: campMobilizeTurns > 0 拒绝
+      u.status = 'halt';
+      u.campMobilizeTurns = 1;
+      const r1 = win._execMove(fid, { leader: u.squads[0]?.genName, target: '洛阳' });
+      if(r1 !== false) return { passed: false, detail: 'campMobilizeTurns>0 时 _execMove 应 return false' };
+      // 测 2: status='camp' 拒绝
+      u.campMobilizeTurns = 0;
+      u.status = 'camp';
+      const r2 = win._execMove(fid, { leader: u.squads[0]?.genName, target: '洛阳' });
+      if(r2 !== false) return { passed: false, detail: 'status=camp 时 _execMove 应 return false' };
+      return { passed: true };
     },
   },
 ];
@@ -398,6 +466,7 @@ async function main(){
     window.FAC = FAC;
     window.GEN_TAGS = (typeof GEN_TAGS !== 'undefined') ? GEN_TAGS : {};
     window.REPUTATION_DEFAULT = (typeof REPUTATION_DEFAULT !== 'undefined') ? REPUTATION_DEFAULT : 50;
+    window.CAMP_MOBILIZE_TURNS = (typeof CAMP_MOBILIZE_TURNS !== 'undefined') ? CAMP_MOBILIZE_TURNS : 1;
     // (function 顶层声明默认就是 window.<name>, 不需要 expose)
   `;
   win.document.head.appendChild(exposeScript);
