@@ -358,7 +358,8 @@ function rollEventsV2(){
   if(!G._eventCatCooldown) G._eventCatCooldown={};
   if(!G._eventQueue) G._eventQueue=[];
 
-  const facs = ALL_FACS;
+  // D-134 fix: 灭国势力跳过事件 roll, 跟 D-129 processFacEthos / tick.js:184/693/703 _eliminated guard 同模式
+  const facs = ALL_FACS.filter(f => !G.factions[f]?._eliminated);
   const triggered = []; // [{def, fid, ctx, forPlayer}]
 
   EVENT_DEFS.forEach(def=>{
