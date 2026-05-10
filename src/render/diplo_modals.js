@@ -40,7 +40,8 @@
 
 function showCourtCouncil(proposals){
   if(!proposals || !proposals.length) return;
-  const selectCount = proposals.length >= 2 ? 2 : 1;
+  // D-088 fix: 仅 3+ 提案时强制选 2; 2 提案时改为选 1 (避免 UI 强求点选两次, 玩家无真实选择)
+  const selectCount = proposals.length >= 3 ? 2 : 1;
   const autoPass = proposals.length === 1;
 
   // ★ I3 fix: 仅1个提案时自动通过，不弹弹窗（仅日志通知）
@@ -64,7 +65,7 @@ function showCourtCouncil(proposals){
 
   function render(){
     let html = `<div style="font-size:11px;color:rgba(44,36,22,.55);margin-bottom:14px;text-align:center">
-      ${proposals.length}位重臣各呈一策，请择二而行。
+      ${proposals.length}位重臣各呈一策，请择${selectCount===1?'一':'二'}而行。
     </div><div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:18px">`;
     proposals.forEach((p, i) => {
       const sel = selected.includes(i);

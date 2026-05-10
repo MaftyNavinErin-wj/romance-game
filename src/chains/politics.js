@@ -949,7 +949,8 @@ function _expireCourtDecrees(){
 
 /** AI自动选朝议提案（选对当前局势最有利的） */
 function _aiCourtSelect(fid, proposals){
-  if(proposals.length <= 2){
+  // D-088 fix: 路径对称化 — AI 跟玩家走相同 selectCount (N=1 全选 / N=2 取 1 / N=3+ 取 2)
+  if(proposals.length <= 1){
     return proposals.map((_,i)=>i);
   }
   const fac = G.factions[fid];
@@ -980,7 +981,9 @@ function _aiCourtSelect(fid, proposals){
     return {i, s};
   });
   scores.sort((a,b)=>b.s-a.s);
-  return [scores[0].i, scores[1].i];
+  // D-088 fix: selectCount 跟玩家路径一致 (N≥3 取 2, N=2 取 1)
+  const selectCount = proposals.length >= 3 ? 2 : 1;
+  return scores.slice(0, selectCount).map(x=>x.i);
 }
 
 // ════════════════════════════════════════════════════════════════════
