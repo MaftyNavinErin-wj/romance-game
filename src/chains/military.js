@@ -5840,11 +5840,15 @@ function resolveSiegeBattle(attackers, defenders, city, nodeLabel){
   });
 
   // SKILL_INLINE: xiandeng — 乐进先登：攻城临时士气+18，战后恢复
+  // D-041 fix: 跟张辽威风 weifeng L5034 v179fix P8 cap 对称模式 — 记录 actual added, 战后减实际加的量
+  // 否则 morale 接近 100 时, 战前 +18 cap to 100 (实际加 <18), 战后 -18 → 永久衰减 1-15
   const _lejinMoraleAdded = [];
   if(hasGenInUnits('乐进', attackers)){
     attackers.forEach(u => u.squads.forEach(sq => {
+      const before = sq.morale;
       sq.morale = Math.min(100, sq.morale + 18);
-      _lejinMoraleAdded.push(sq);
+      const added = sq.morale - before;
+      if(added > 0) _lejinMoraleAdded.push({sq, added});
     }));
   }
 
@@ -5911,9 +5915,9 @@ function resolveSiegeBattle(attackers, defenders, city, nodeLabel){
   defenders.forEach(u => u.squads.forEach(sq => {
     delete sq._defBonus;
   }));
-  // SKILL_INLINE: xiandeng restore
-  _lejinMoraleAdded.forEach(sq => {
-    sq.morale = Math.max(10, sq.morale - 18);
+  // SKILL_INLINE: xiandeng restore (D-041 fix: 还原"实加量"而非硬编码 18, 跟张辽威风 L5128 同模式)
+  _lejinMoraleAdded.forEach(({sq, added}) => {
+    sq.morale = Math.max(10, sq.morale - added);
   });
 
   const losers  = battleReport.atkWins ? defenders : attackers;

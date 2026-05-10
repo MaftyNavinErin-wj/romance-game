@@ -413,6 +413,31 @@ const VERIFIES = [
       return { passed: true };
     },
   },
+  {
+    id: 'B-D041',
+    name: '乐进 xiandeng 攻城士气 cap 对称 (静态 grep verify v179fix P8 模式)',
+    fn(G, win){
+      const src = require('fs').readFileSync(
+        require('path').resolve(__dirname, '..', 'src', 'chains', 'military.js'),
+        'utf8'
+      );
+      const block = src.match(/SKILL_INLINE: xiandeng[\s\S]{0,800}/);
+      if(!block) return { passed: false, detail: 'xiandeng block not found' };
+      const checks = [
+        ['const before', '记录战前 morale (v179fix P8 模式)'],
+        ['const added', '记录实际增加值'],
+        ['_lejinMoraleAdded.push({sq, added})', 'push 含 added'],
+      ];
+      const missing = checks.filter(([k]) => block[0].indexOf(k) < 0).map(([,n]) => n);
+      const restoreBlock = src.match(/xiandeng restore[\s\S]{0,400}/);
+      if(restoreBlock && restoreBlock[0].indexOf('sq.morale - added') < 0){
+        missing.push('restore 用 added 实际值 (非硬编码 18)');
+      }
+      return missing.length === 0
+        ? { passed: true }
+        : { passed: false, detail: '缺: '+missing.join(' / ') };
+    },
+  },
 ];
 
 // ═══════════════════════════════════════════════════════════════════
