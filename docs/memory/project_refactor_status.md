@@ -1,12 +1,29 @@
 ---
-name: Refactor phase status — Phase 4 + 桶 2 + 桶 6 + F/G/J/H/I/K + B sprint 政治链收尾
-description: Phase 3 + dc + HIGH sprint + _exec sprint + phase 4 全 10 sub-session + 桶 2 + 桶 6 + F render-cache + G map-interaction + J map-zoom + H utilities + IK streamline (billet+audit) 收尾. v181 39547 → 1799 (-95.5%). 43 src/ js + 1 css. **重构主体彻底收官**. **B sprint (MEDIUM/LOW D 类): 批 1 D-006 + 批 2 D-070/046/066/067/054/057+058+059.1/072 + 批 3+4 D-090/D-088 共 10 D 类 close. 经济链 / 武将链 / 政治链 sprint scope 全收尾**.
+name: Refactor phase status — Phase 4 + 桶 2 + 桶 6 + F/G/J/H/I/K + B sprint 5 链 sweep
+description: Phase 3 + dc + HIGH sprint + _exec sprint + phase 4 全 10 sub-session + 桶 2 + 桶 6 + F render-cache + G map-interaction + J map-zoom + H utilities + IK streamline (billet+audit) 收尾. v181 39547 → 1799 (-95.5%). 43 src/ js + 1 css. **重构主体彻底收官**. **B sprint (MEDIUM/LOW D 类) 5 链 sweep 完: 批 1-6 共 15 D 类 close (经济+武将+政治+价值观+事件 LOW 部分). D-137 MEDIUM 设计决策待 user approve. 剩 2 链: 军事 + 外交**.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 **截至 2026-05-10 的状态(每次 session 启动前请用 git log 校验,不抄)**:**重构 + 数据补完整体收官 + D 类 HIGH sprint 收官 + _exec 架构债 sprint 收官 + phase 4 + 桶 2/6 + F/G/J/H/I/K/M 全收尾 + B sprint 批 1 (D-006) + 批 2 (7 D 类 streamline) 完成**。
 
-**B sprint 进度** (启动 2026-05-10, 经济链 + 武将链 + 政治链 sprint scope 全收尾):
+**B sprint 进度** (启动 2026-05-10, 经济+武将+政治+价值观+事件 5 链 sweep 完):
+- **批 6 事件链 streamline 4 LOW** (commits f25939a/e29a55b/7668bfe/069da78 已 push origin/main):
+  - D-132 LOW tick.js 全局 _fastForward _pendingEvent 路径补 log (跟 rollEventsV2 内 fastForward / AI 静默 / 玩家弹窗三路径一致)
+  - D-134 LOW rollEventsV2 facs 过滤 _eliminated (跟 D-129 同模式, 跟 tick.js:184/693/703 _eliminated guard 一致)
+  - D-143 LOW events.js quanjin_biao + return_emperor 4 处 log '主公' → FAC[fid]?.name 势力名 + return_emperor ① showNotif 加 fid===G.playerFac gate (event playerOnly:false, AI 触发不弹给玩家)
+  - D-145 LOW events.js gen_referral 婉拒 G._eventCooldown['gen_referral_'+wName]=6 死冷却 key 删 (key 跟 def.id 不匹配, 写后永不读, grep 全 src/ 0 read site) + desc '6旬不再来投' 假承诺 desc 改为只描述真实效果
+  - codex 集中 trial 1 LGTM (零 finding 零 concern)
+  - 实机测真实情况: D-129/D-132/D-134 _eliminated/快进 latch 触发苛刻 smoke 50 旬 5 势力没死 byte-identical 是空 verification, D-143 触发条件苛刻 (oneTime + mandate gate), D-145 gen_referral 普通玩游戏可遇但 desc 改字看一眼即 verify, **不实机测 push**, 后续玩游戏自然遇到时 latent verify
+  - **诚实教训**: 之前对"smoke vs main byte-identical = 守底"过度自信, 实际 byte-identical 仅排除回归不证 fix 生效。latch 类 fix (_eliminated guard) smoke 不触发情况下 byte-identical 是空 verification, code review + pattern 一致性是主要 verify 手段
+  - **D-137 MEDIUM 设计决策升级**: _popEventQueue 0 caller 死代码, 修法时机 3 选 (A 弹窗即 pop / B 下旬开头 pop / C popup chain), 原代码 line 471-472 注释 '不立即弹出，让玩家喘口气，下旬处理' 暗示 B/C, 但 fix 方向是设计决策超出 '自动化往前推' scope, **escalate user approve, 留下次 batch 实装**
+  - **事件链 sprint scope 余下**: D-130/D-138/D-144 defer 架构债 / D-135/D-136/D-139/D-140/D-141 verified-with-notes / D-142 verified — 加 D-137 待 approve 决策
+
+- **批 5 价值观链 streamline 1 LOW** (commit 2a24c79 已 push origin/main):
+  - D-129 LOW processFacEthos 灭国势力跳过守卫 (ethos.js:107 加 || G.factions[fid]?._eliminated, 跟 tick.js:184 _eliminated guard 同模式)
+  - codex trial 1 LGTM (零 finding 零 concern, 'matching existing elimination semantics ... without breaking active faction processing')
+  - 不实机测 (单点机制守卫, 跟 batch-14 D-051 / batch-23 D-065 / 批 3 D-090 同模式)
+  - **价值观链 sprint scope 全收尾 ✅**: 1 HIGH (D-121 batch-25 close) + 1 MED 跨链 (D-122 留外交链 sprint) + 1 LOW (D-129 本批 close) + 余 D-123 defer / D-124/126/127 verified-with-notes / D-125/128 no-fix
+
 - **批 3+4 政治链 streamline 2 LOW** (commits 9a0e0d2 + 2557b62 已 push origin/main):
   - D-090 LOW setStrategist 同人重复任命守卫 (general.js:1745, 加 prev===genName guard 避免 -2/+5 net +3 忠诚 exploit)
   - D-088 LOW 朝议 selectCount UX 修正 (diplo_modals.js L43/L67 玩家路径 + politics.js _aiCourtSelect AI 路径对称化):
