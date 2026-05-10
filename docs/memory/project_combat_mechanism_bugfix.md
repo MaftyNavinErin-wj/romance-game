@@ -1,8 +1,43 @@
 ---
-name: 战斗机制 systematic bug fix sprint 候选
-description: 制作人 2026-05-09 留 insight: 战斗机制是重要环节, 4.9 重构后估计仍有很多 bug 和细化空间, 后续作 systematic bug fix sprint 的重要环节
+name: 战斗机制 systematic bug fix sprint — 批 1 收尾 (§5.1 + §5.2 close)
+description: 制作人 2026-05-09 留 insight + 2026-05-11 启动 batch 1: D-anim-2 (§5.1 真 root cause) + D-camp-1 (§5.2 AI 扎营) close. 教训: race 静态推断错, F12 console log 实测才能找真 root cause
 type: project
 ---
+
+## 批 1 收尾 (2026-05-11)
+
+**§5.1 P1 close** ✅ — AI 攻玩家城无攻城动画 (commit 91680d5):
+- **真 root cause**: virtualGarrison.fac 用 stale `city.fac` (战胜后已变 atkFac), shouldSkip 误判 'AI vs AI no player'
+- **修法**: virtualGarrison.fac = report.defFac (战前守方 fac, resolveBattle L6852 set, 不受 city.fac mutation 影响)
+- **教训**:
+  - **D-anim-1 race lock 推断错** — boolean lock + promise share 都不是 root cause (race 理论存在但实测无关)
+  - 没 user F12 console log 实测前纯静态分析推断 root cause **两次错推**
+  - 战斗机制 sprint 必须 user 协作 reproduce + 复制 console log 才能定位真 bug
+- **stale state 模式** (audit pass 2 候选): city.fac 在攻城胜利后改成 atkFac, 全 anim/UI 路径凡依赖原 fac 的应用 report 字段 (battle_anim 4 类 anim 全核)
+
+**§5.2 P2 close** ✅ — AI 不扎营 (commit 60a1f97):
+- **root cause**: _aiChooseDefensePosture 优先级 halt > ambush > camp(fallback), 50 旬 smoke AI 扎营 0 次 (设计副作用非 bug)
+- **user-approved 修法**: halt check 之后, ambush 评估前, 加 camp boost 评估 — 加 +10% DEF 能过 threshold + 资源够 → 优先扎营
+- **架构鲁棒性**: 双降级处理 — 陆逊 huoying_def (camp DEF =1.00) + 攻方 INT 优势 raid 模式 (intDiff>10) → _campDEFMult=1.00
+- **codex 4 trials catch**: trial 1 漏陆逊 → trial 2 boolean lock 误 → trial 3 漏 raid 模式 → trial 4 LGTM
+
+## 批 1 工作流沉淀
+
+- **debug log batch 模式**: bug 静态推断不出真 root cause 时, 加 console.log batch 让 user F12 复现, 收集 console 输出 → 定位 root cause → 真 fix → cleanup log batch
+- **战斗机制 sprint 节奏**: 单 fix → user 实机测 → 出问题 amend OR 加 debug log → 下一 batch
+- **codex review 重要性**: 战斗机制 sprint 4 trials catch 多个 P2 (AI 模式 / save 兼容 / race / 边界), 单 trial 不够
+
+## 批 1 后续候选 (留下次)
+
+- audit pass 2: 全 anim/UI 路径核 stale state (city.fac / city.prefect / 等战后 mutate 字段)
+- AI 玩游戏自然观察 D-camp-1 fix 后是否真扎营 + 营寨战 anim 是否触发
+- §5.3+: 自然玩到的新战斗 bug
+
+---
+
+(以下为初始 sprint 启动期 context, 2026-05-09 沉淀)
+
+
 **事实**:phase 4 sub-session 4.9 (battle_modals 抽离) 实机测后,制作人留下 insight:
 > "整个战斗机制是重要环节,估计还有很多 bug 和需要细化的。但目前从重构角度看应该 ok,后面的 bug 是后面再系统性修了"
 

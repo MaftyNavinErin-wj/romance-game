@@ -1,6 +1,6 @@
 ---
-name: Refactor phase status — Phase 4 + 桶 2 + 桶 6 + F/G/J/H/I/K + B sprint 7 链全 sweep + Layer-3 模板
-description: Phase 3 + dc + HIGH sprint + _exec sprint + phase 4 全 10 sub-session + 桶 2 + 桶 6 + F render-cache + G map-interaction + J map-zoom + H utilities + IK streamline (billet+audit) 收尾. v181 39547 → 1799 (-95.5%). 43 src/ js + 1 css. **重构主体彻底收官**. **B sprint 7 链全 sweep 完: 批 1-8 共 22 D 类 close (经济+武将+政治+价值观+事件+外交+军事). D-068/D-137/军事 D-017/036/037/038/040 等 6 项 escalate audit pass 2. Layer-3 sprint_verify.js 模板上线 (24 verifies)**.
+name: Refactor phase status — B sprint 收官 + 战斗机制 sprint 批 1 (§5.1+§5.2 close)
+description: 重构主体收官 + B sprint 7 链全 sweep (22 D 类) + Layer-3 模板. 战斗机制 sprint 批 1 close 2 个 P1/P2: D-anim-2 (virtualGarrison.fac 真 root cause) + D-camp-1 (AI 扎营). 教训: race 静态推断错 2 次, F12 console log 实测才定位真 bug.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
