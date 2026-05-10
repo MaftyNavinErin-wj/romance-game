@@ -84,23 +84,29 @@ let _battleAnimating = false;
  * @returns {Promise<void>}
  */
 async function _drainPendingBattleAnimations(){
-  if(_fastForward){ _pendingBattleAnimations = []; return; }
+  console.log('[debug-anim] drain enter, queue.length=' + _pendingBattleAnimations.length + ' _battleAnimating=' + _battleAnimating + ' _fastForward=' + _fastForward);
+  if(_fastForward){ _pendingBattleAnimations = []; console.log('[debug-anim] drain skip: _fastForward=true'); return; }
   // ★ v175: 等待阻塞性弹窗（事件 modal、围城到达等）关闭再播动画
   // 否则事件 modal 还在，动画在背后跑，视觉上互相干扰
   let _waitCycles = 0;
   while((G._pendingEvent || _pendingSiegeArrival) && _waitCycles < 600){  // 最多等 60s
+    if(_waitCycles === 0) console.log('[debug-anim] drain WAIT: _pendingEvent=' + !!G._pendingEvent + ' _pendingSiegeArrival=' + !!_pendingSiegeArrival);
     await sleep(100);
     _waitCycles++;
   }
+  if(_waitCycles > 0) console.log('[debug-anim] drain WAIT done after ' + _waitCycles + ' cycles');
   while(_pendingBattleAnimations.length){
     const req = _pendingBattleAnimations.shift();
+    console.log('[debug-anim] drain shift req.kind=' + req.kind + ' city=' + (req.city?.name||'?') + ' _battleAnimating=' + _battleAnimating);
     try {
       if(req.kind === 'camp' && typeof _playCampBattleAnim === 'function'){
         await _playCampBattleAnim(req.report, req.attackers, req.defenders, req.posSnap);
       } else if(req.kind === 'ambush' && typeof _playAmbushBattleAnim === 'function'){
         await _playAmbushBattleAnim(req.report, req.attackers, req.defenders, req.posSnap);
       } else if(req.kind === 'siege' && typeof _playSiegeBattleAnim === 'function'){
+        console.log('[debug-anim] calling _playSiegeBattleAnim, attackers.length=' + req.attackers.length + ' defenders.length=' + req.defenders.length + ' city.name=' + req.city?.name);
         await _playSiegeBattleAnim(req.report, req.attackers, req.defenders, req.posSnap, req.city);
+        console.log('[debug-anim] _playSiegeBattleAnim returned, _battleAnimating=' + _battleAnimating);
       } else if(req.kind === 'naval' && typeof _playNavalBattleAnim === 'function'){
         await _playNavalBattleAnim(req.report, req.attackers, req.defenders, req.posSnap);
       }
@@ -109,6 +115,7 @@ async function _drainPendingBattleAnimations(){
       console.error('[drainAnim] kind=' + req.kind + ' failed:', e);
     }
   }
+  console.log('[debug-anim] drain exit');
 }
 
 // ═════════════════════════════════════════════════════════════
@@ -161,12 +168,15 @@ const _baCore = (() => {
    * @returns {boolean} true = 应该跳过（不播动画，直接 return）
    */
   function shouldSkip(attackers, defenders, report, posSnap){
-    if(_fastForward) return true;
-    if(_battleAnimating) return true;
-    if(!attackers || !defenders || attackers.length === 0 || defenders.length === 0) return true;
+    if(_fastForward){ console.log('[debug-anim] shouldSkip TRUE: _fastForward'); return true; }
+    if(_battleAnimating){ console.log('[debug-anim] shouldSkip TRUE: _battleAnimating already true'); return true; }
+    if(!attackers || !defenders || attackers.length === 0 || defenders.length === 0){
+      console.log('[debug-anim] shouldSkip TRUE: empty sides, atk=' + (attackers?.length||0) + ' def=' + (defenders?.length||0));
+      return true;
+    }
     // AI vs AI：双方都非玩家方 → 不播
     const hasPlayer = attackers.some(u => u.fac === G.playerFac) || defenders.some(u => u.fac === G.playerFac);
-    if(!hasPlayer) return true;
+    if(!hasPlayer){ console.log('[debug-anim] shouldSkip TRUE: AI vs AI no player'); return true; }
     // 迷雾：至少一个参战 unit 战前位置在玩家 VISIBLE hex
     const pFog = G.fog?.[G.playerFac];
     if(pFog){
@@ -177,9 +187,10 @@ const _baCore = (() => {
         const hr = snap ? snap.hr : (u.hr??0);
         return pFog[hkey(hq, hr)] === FOG_VISIBLE;
       });
-      if(!anyVisible) return true;
+      if(!anyVisible){ console.log('[debug-anim] shouldSkip TRUE: no unit in player FOG_VISIBLE hex'); return true; }
     }
-    if(!document.getElementById('mapRoot')) return true;
+    if(!document.getElementById('mapRoot')){ console.log('[debug-anim] shouldSkip TRUE: mapRoot not found'); return true; }
+    console.log('[debug-anim] shouldSkip FALSE: anim should play');
     return false;
   }
 
