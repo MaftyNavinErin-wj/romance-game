@@ -104,7 +104,8 @@ function _ethosDistance(fid1, fid2){
 
 /** ★ v151: 每旬价值观漂移（在nextTurn中调用） */
 function processFacEthos(fid){
-  if(fid === 'rebel') return;
+  // D-129 fix: 灭国势力跳过, 避免每旬冗余 strategy -0.15 漂移 + _ethosLog push 浪费
+  if(fid === 'rebel' || G.factions[fid]?._eliminated) return;
   const eth = G.factions[fid]?.ethos;
   if(!eth) return;
   const gens = G.generals[fid] || [];
