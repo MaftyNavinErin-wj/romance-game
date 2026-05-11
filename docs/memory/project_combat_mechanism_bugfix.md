@@ -1,7 +1,24 @@
 ---
-name: 战斗机制 systematic bug fix sprint — 批 1 收尾 (§5.1 + §5.2 close)
-description: 制作人 2026-05-09 留 insight + 2026-05-11 启动 batch 1: D-anim-2 (§5.1 真 root cause) + D-camp-1 (§5.2 AI 扎营) close. 教训: race 静态推断错, F12 console log 实测才能找真 root cause
+name: 战斗机制 systematic bug fix sprint — 批 1 close + 2026-05-11 audit pass 2 S1
+description: 批 1 close §5.1 + §5.2 (2026-05-11). 同日 audit pass 2 S1 扫 city.fac + 武将状态 stale state 模式: 1 真 bug 候选 §5.3 (battle_anim L2278 isPlayer 同 §5.1 模式漏改) + §5.4 verified-with-notes 集合. S2 候选: city.prefect/garrison/billetPool 同模式
 type: project
+---
+
+## 2026-05-11 audit pass 2 S1 (2 字段: city.fac + 武将状态)
+
+**S1 收益**:
+- **§5.3 真 bug 候选 P2** (sprint_followup): `battle_anim.js:2278` virtualGarrison 守军飘字 `isPlayer = (city.fac === G.playerFac)` 跟 §5.1 同函数同模式漏改. 玩家被攻陷时飘字色错 (敌方红 而非玩家绿). Fix 1 行: `isPlayer = (report.defFac === G.playerFac)`. 留下次 sprint
+- **§5.4 verified-with-notes 集合** (sprint_followup): 4 个 city.* read 站 (battle_anim L2013/2255 + battle_modals L707/1359) 技术 stale 但实际无害 (设计意图 / 战前 confirm / 不依赖 mutate 字段)
+- **武将状态 (字段 2) audit**: `gen.facId` 不存在 (G.generals 数组 + GEN_MAP 静态 helper); killGen/poachGen/surrenderGen 是数组 splice 但 GEN_MAP 永远可读 → robust by design, 无 stale state 风险
+
+**S1 审计教训**:
+- §5.1 fix 漏了同函数另一处 (L2278) 同模式 read — 单点 fix 时应 grep 同函数全字段 read 站避免漏
+- city.* mutation 集中 3 处 (military.js:5967 / gentry.js:588 / event.js:241), 但 mutation 同时**附带** mutate 6 字段 (city.prefect/garrison/siegeDecay/billetPool/occupied/_supplyRestoreTurns/_yibingBuff) — S2 扫这些字段同模式
+
+**S2 audit 候选** (后续 session):
+- city.prefect / city.garrison / city.billetPool / city.siegeDecay 同模式 read 站
+- _pendingBattleAnimations 异步 drain 期间 stale state 通用扫描
+
 ---
 
 ## 批 1 收尾 (2026-05-11)

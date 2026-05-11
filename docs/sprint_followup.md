@@ -199,6 +199,59 @@
 
 **留给 sprint**:战斗机制 systematic bug fix sprint 启动 trace #1 (per `docs/memory/project_combat_mechanism_bugfix.md`)
 
+### §5.3 virtualGarrison 守军损失飘字 isPlayer 用 stale city.fac (2026-05-11 audit pass 2 S1)
+
+**症状**:玩家被 AI 攻陷时,virtualGarrison 飘字色应玩家色 (绿) 但变敌方色 (红)
+
+**触发场景**:AI 攻玩家城 + 玩家城无野战驻军 (defenders=[],走 virtualGarrison 路径) + atkWins=true
+
+**Root cause**: `src/render/battle_anim.js:2278` `_playSiegeBattleAnim` Ph4 飘字阶段
+```js
+if(virtualGarrison && (report.defLost||0) > 0){
+  const isPlayer = (city.fac === G.playerFac);  // ⚠️ city.fac 已被 resolveSiegeBattle (military.js:5967) 改成 atkFac
+  ...
+  const txt = _baCore.spawnLossText(animG, cityCX, startY, report.defLost, isPlayer, invS);
+}
+```
+- 攻方胜利 → city.fac 已 mutate 成 atkFac → 玩家被攻陷时 city.fac !== G.playerFac → isPlayer=false → 飘字色用敌方色
+
+**性质**:**§5.1 真 root cause 同模式** — virtualGarrison.fac (L2021) 已 fix 用 report.defFac, 但同函数 L2278 飘字判断**漏改**
+
+**P 级**:P2 (UI 视觉色错, 不影响 gameplay 流程)
+
+**修法 (1 行 fix, 跟 §5.1 同模式)**:
+```js
+const isPlayer = (report.defFac === G.playerFac); // §5.1 同模式 fix
+```
+
+**留给 sprint**:战斗机制 sprint 批 2 候选 (与 §5.1 同源, 1 行 fix, sprint_verify entry 复用 D-anim-2 模式)
+
+### §5.4 city.* stale state 同函数读其他点 audit (2026-05-11 audit pass 2 S1)
+
+**总览**:S1 扫 `city.fac` 全 13 个 read site (mutation 3 处: military.js:5967 攻城胜利 / gentry.js:588 豪族开城 / event.js:241 大乱),只 §5.3 是真 bug;其他 read 点 verified-with-notes 不修。
+
+**verified-with-notes 清单**(技术上 stale 但实际无害):
+
+| Site | 字段 | 不是 bug 的原因 |
+|---|---|---|
+| `battle_anim.js:2013` | city.garrison | 注释 L2008-2009 已显式说明:atkWins 走 else 分支用 report.defLost 推算; defWins 走 if 分支 city.garrison 没 mutate |
+| `battle_anim.js:2255` | city.fac (defFac→defColor) | defColor 只在 atkWins=false 路径用 (L2260 '退敌' 文字色), 此分支 city.fac 没 mutate |
+| `battle_modals.js:707` | city.garrison | _showSiegeDefendConfirm 是**战前**弹窗 (玩家守城 confirm), city.garrison 还没 mutate |
+| `battle_modals.js:1359` | G.cities[u._lastSiegeTarget] | 撤退路径只读 city 位置 (q/r), 不读 fac/garrison |
+
+**字段 2 武将状态 mutation pattern audit**:
+- `gen.facId` 字段不存在 (武将归属用 G.generals[fid] 数组组织, 通过 getGenFaction helper 解算)
+- killGen / poachGen / surrenderGen mutate 是 **G.generals 数组 splice**,但武将基本信息 (name/war/int/cha/role) 在 GEN_MAP 静态数据**永远可读**
+- 战后 anim/UI 读武将信息 robust by design (非 stale state 模式)
+
+**S1 audit 范围全收尾 ✅**(2 个字段 city.fac + 武将状态)
+
+**S2 audit 候选 (后续 session)**:
+- `city.prefect` stale state read (mutation 同 city.fac 3 处 + general.js 多处)
+- `city.garrison` mutation 完整 read site 扫
+- `city.billetPool` / `city.siegeDecay` / `city.morale` 同模式
+- `_pendingBattleAnimations` 异步 drain 期间的 stale state pattern 通用扫描
+
 ---
 
-(sprint_followup v1.3 — phase 4 4.10 加 §五 战斗机制 bug 候选 §5.1 + §5.2)
+(sprint_followup v1.4 — 2026-05-11 audit pass 2 S1 加 §5.3 真 bug 候选 + §5.4 verified-with-notes 集合)
