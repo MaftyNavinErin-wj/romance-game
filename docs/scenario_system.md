@@ -130,7 +130,7 @@ const SCENARIO_214 = {
       // 挟天子
       emperor: true,
       // 起手已研究科技
-      techPreunlock: ['t1','t2','...'],
+      techPreunlock: ['mil1','econ4','pol1'],   // 1a 阶段真值; tech id 须 ∈ TECH_TREE (validator G.6)
       // AI 性格(参数化,§10 cleanup 解放 hardcoded)
       aiPersonality: { atkThreshold:0.50, siegeThreshold:0.50, diploAggro:0.65, deployBias:+0.15, budgetBias:+0.10 },
       // 创业班底(显示 + 内部 boost)
@@ -146,10 +146,10 @@ const SCENARIO_214 = {
     // ...
   ],
 
-  // ── 城市(必列全 CITY_BASE 全部 49 城)──
+  // ── 城市(必列全 CITY_BASE; 1a 阶段 45 城, 1f 扩 4 → 49 城)──
   cities: {
     xuchang: { fac:'wei', pop:425000, troops:4000, isCapital:true },
-    // ... 全 49 城
+    // ... 全 45 城 (阶段 1a) / 49 城 (阶段 1f 之后)
   },
 
   // ── 武将(只列出场,unavailable 不列;validator 用 GEN_BASE.birthYear/deathYear filter)──

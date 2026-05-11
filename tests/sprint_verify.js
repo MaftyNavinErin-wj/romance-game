@@ -1084,7 +1084,7 @@ const VERIFIES = [
   {
     // codex P2: aiPersonality 5 required keys + per-key legal ranges (G.6 spec)
     id: 'scenario-1a2-factions-ai-personality-schema',
-    name: 'SCENARIO_214.factions[fid].aiPersonality 5 keys + 范围 (atk/siege/diplo 0..1, deploy/budget -1..+1)',
+    name: 'SCENARIO_214.factions[fid].aiPersonality 5 keys + 范围 (atk/siege/diplo 0..1, deploy/budget -1..+1) + 禁 legacy/unknown keys',
     fn(G, win){
       const fsM = require('fs'), pathM = require('path');
       const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
@@ -1092,6 +1092,7 @@ const VERIFIES = [
       const errs = [];
       const REQ_01 = ['atkThreshold','siegeThreshold','diploAggro'];
       const REQ_PM = ['deployBias','budgetBias'];
+      const ALL_REQ = new Set([...REQ_01, ...REQ_PM]);
       for(const [fid, f] of Object.entries(S.factions || {})){
         const ai = f.aiPersonality;
         if(!ai || typeof ai !== 'object'){ errs.push(`${fid}.aiPersonality missing`); continue; }
@@ -1104,6 +1105,10 @@ const VERIFIES = [
           if(!(k in ai)) errs.push(`${fid}.aiPersonality.${k} missing`);
           else if(typeof ai[k] !== 'number' || ai[k] < -1 || ai[k] > 1)
             errs.push(`${fid}.aiPersonality.${k}=${ai[k]} out of [-1,+1]`);
+        }
+        // codex trial 2 P3: reject extra/legacy keys (e.g. aggression/expansion 旧 schema)
+        for(const k of Object.keys(ai)){
+          if(!ALL_REQ.has(k)) errs.push(`${fid}.aiPersonality.${k} unknown key (legacy / typo / schema drift)`);
         }
       }
       return errs.length ? { passed: false, detail: errs.slice(0,8).join(' / ') } : { passed: true };
