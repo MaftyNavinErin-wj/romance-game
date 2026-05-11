@@ -120,6 +120,42 @@ type: project
 - verified-with-notes 4 (§5.4) + robust 字段 11 (§5.5+§5.6) + 16 queue 总表 (§5.7+§5.8)
 - 整体战斗机制架构 robust by design, 唯一 stale 源已锁定且模式已抽象 (3 类跨 chain robust 模式)
 
+## 2026-05-11 §5.10 P2 真 bug fix close (commit 76f6f18, 方案 A robust)
+
+**fix**: _battleSnap 扩 troops snapshot + makePhantom 接 presetTroops 参数
+
+**user 选 robust 方案 A** (相对于 B 方案 phantom 创建后 swap 旗帜):
+- 跨 anim 类型一致原则: phantom 旗帜永远显示战前 troops (snapshot-based)
+- Phase 4 wipe 判定仍读 live (战后) — 设计意图正确
+- 防 future caller 引入新 anim 类型触发同 stale state bug
+
+**改动面 (15 处)**:
+- battle_anim.js makePhantom + makeShipPhantom signature 加 presetTroops 参数, 内部优先读 presetTroops, fallback live (向后兼容)
+- 14 处 posSnap 创建加 troops 字段: getUnitTroops(u)
+  - battle_modals.js 6 处 (_ambushPosSnap/_campPosSnap/_siegePosSnap×3/_sortiePosSnap/_battlePosSnap)
+  - military.js 6 处 (_siegePosSnap×2/_campSnap×2/_ambushPosSnap/_engagePosSnap)
+  - tick.js 1 处 (_siegePosSnap rebel)
+  - battle_anim.js 1 处 (_siegeArrivalChoice _siegePosSnap, codex trial 1 P2 catch)
+- 6 处 makePhantom call 传 posSnap?.[unit.id]?.troops
+- battle_modals.js 1314/1315 default fallback 也加 troops (defensive)
+
+**workflow streamline**:
+- codex trial 1 NEEDS-WORK P2: catch _siegeArrivalChoice 漏 (我 grep `{hq: u.hq, hr: u.hr}` 漏了 battle_anim.js)
+- trial 2 LGTM
+- sprint_verify D-§5.10-phantom-snap PASS + smoke byte-identical 守底
+- 26/26 sprint_verify all PASS
+
+**§5.1 + §5.7 + §5.10 三层 stale state 防御组合** (沉淀):
+- §5.1 anim 端 read snap 字段而非 live state (defensive at site)
+- §5.7 source 端 resolveBattle default set atkFac/defFac (defensive at source)
+- §5.10 snap 端含 troops (snapshot 字段扩展)
+
+**留 user 实机测**:
+- Test A: 单挑野战 — phantom 应"战前到碰撞, 碰撞后变战后"
+- Test B: 攻城战 / Test C: 营寨战 / Test D: 伏击战 / Test E: 水战 — phantom 战前
+
+---
+
 ## 2026-05-11 user 实机反馈 — §5.10 phantom 真 bug + Test 2 模拟上线
 
 **user 实机测 4 项反馈**:
