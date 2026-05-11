@@ -1004,7 +1004,7 @@ function _doRecruitWild(genName, fid, silent){
     G.genChronicle[genName] = [];
     // ★ v125: 在野武将招募后生成小传（与开局小传同一套身份标签逻辑）
     {
-      const _facName = FAC[fid]?.name || fid;
+      const _facName = getFactionDef(fid)?.name || fid;
       const _meta = getGenMeta(genName) || {};
       const _tags = GEN_TAGS[genName] || {};
       const _identParts = [];
@@ -1048,14 +1048,14 @@ function _doRecruitWild(genName, fid, silent){
     if(!G.genOrigRole[genName]) G.genOrigRole[genName] = gen.role || 'general';
     const timesStr = failCount > 0 ? `（历经${failCount+1}次邀请）` : '';
     if(!silent) showNotif(`${genName} 感念主公诚意，欣然出仕！${timesStr}`, 'success');
-    log(`🌟 [${FAC[fid].name}] 招募在野武将 ${genName} 成功${timesStr}`, 'event');
+    log(`🌟 [${getFactionDef(fid).name}] 招募在野武将 ${genName} 成功${timesStr}`, 'event');
     return true;
   } else {
     const newFailCount = failCount + 1;
     G.wildRecruitCD[genName] = { until: G.turn + 3, failCount: newFailCount };
     const nextCost = baseCost + newFailCount * 500;
     if(!silent) showNotif(`${genName} 婉拒邀请（第${newFailCount}次），3旬后可再请，下次需${nextCost}金`, 'warn');
-    log(`💨 [${FAC[fid].name}] 招募 ${genName} 失败（第${newFailCount}次），耗金${cost}`, 'event');
+    log(`💨 [${getFactionDef(fid).name}] 招募 ${genName} 失败（第${newFailCount}次），耗金${cost}`, 'event');
     return false;
   }
 }
@@ -1170,12 +1170,12 @@ function _aiDoPoach(genName, fid, srcFid, cost){
     if(!G.genOrigRole[genName]) G.genOrigRole[genName] = gen.role || 'general';
     setRetainers(genName, 0); // ★ v163: 叛逃/被挖角→部曲归零
     addDiplo(fid, srcFid, -15); // ★ v179fix P16: 原仅 G.diplo[minFid-maxFid] 单向写入；G.diplo 双键真双向，反向 key 不更新会让对方下旬外交读到旧 rel
-    addGenChronicle(genName, `${FAC[fid]?.name||fid}以厚礼相邀，${genName}遂转投之。`);
+    addGenChronicle(genName, `${getFactionDef(fid)?.name||fid}以厚礼相邀，${genName}遂转投之。`);
     // ★ v161: 叛逃→属县家族忠诚冲击-15
     applyFamilyLoyaltyShock(srcFid, (GEN_TAGS[genName]||{}).clan, -15);
-    log(`🎯 [AI] ${FAC[fid]?.name} 成功挖角 ${genName}（原属${FAC[srcFid]?.name}），外交-15`, 'diplo');
+    log(`🎯 [AI] ${getFactionDef(fid)?.name} 成功挖角 ${genName}（原属${getFactionDef(srcFid)?.name}），外交-15`, 'diplo');
   } else {
-    log(`❌ [AI] ${FAC[fid]?.name} 挖角 ${genName} 失败，耗金${cost}`, 'event');
+    log(`❌ [AI] ${getFactionDef(fid)?.name} 挖角 ${genName} 失败，耗金${cost}`, 'event');
   }
 }
 
@@ -1201,8 +1201,8 @@ function checkIntimacyThresholds(){
       G.intimacyNotified[key+'_pos'] = true;
       const facA = Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(g=>g.name===nameA))||'';
       const facB = Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(g=>g.name===nameB))||'';
-      const colA = FAC[facA]?.color||'#6b5530';
-      const colB = FAC[facB]?.color||'#6b5530';
+      const colA = getFactionDef(facA)?.color||'#6b5530';
+      const colB = getFactionDef(facB)?.color||'#6b5530';
       _showIntimacyAlert(nameA, nameB, val, 'bond', colA, colB);
       return; // 每旬最多弹一条，避免一旬多条叠弹
     }
@@ -1210,8 +1210,8 @@ function checkIntimacyThresholds(){
       G.intimacyNotified[key+'_neg'] = true;
       const facA = Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(g=>g.name===nameA))||'';
       const facB = Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(g=>g.name===nameB))||'';
-      const colA = FAC[facA]?.color||'#6b5530';
-      const colB = FAC[facB]?.color||'#6b5530';
+      const colA = getFactionDef(facA)?.color||'#6b5530';
+      const colB = getFactionDef(facB)?.color||'#6b5530';
       _showIntimacyAlert(nameA, nameB, val, 'rival', colA, colB);
       return;
     }
@@ -1423,7 +1423,7 @@ function applyLoyaltyEvent(fid, type, context){
     const lostRatio = context?.lostRatio || 0.3;  // 0~1
     penalty = -(lostRatio * 8);  // 全军覆没 -8；损失30% → -2.4
     penalty = Math.max(-8, penalty);
-    msg = `因战败，${FAC[fid]?.name||fid}诸将士气消沉，忠心有所动摇`;
+    msg = `因战败，${getFactionDef(fid)?.name||fid}诸将士气消沉，忠心有所动摇`;
   }
   // D-053 fix: city_lost / siege_broken 分支删除 (audit verdict=closes via deletion).
   // 历史:HANDOVER 设想"失城/破围 → 忠诚震荡",但调用方从未实装,实际是 dead code 多年.
@@ -1500,8 +1500,8 @@ function checkLoyaltyThresholds(){
         clearAllPostsByGen(name); // ★ v119fix: 下野时也清除官职
         if(G.factions[fid]?.strategist === name) G.factions[fid].strategist = null; // ★ v119fix: 下野时清除军师
         // 写入小传
-        addGenChronicle(name, `因久感寒心、忠义消磨，${name}悄然离开${FAC[fid]?.full||fid}，飘零江湖。`);
-        log(`⚠ ${name}因忠诚过低，已离开${FAC[fid]?.name||fid}势力，流落在野。`, 'warn');
+        addGenChronicle(name, `因久感寒心、忠义消磨，${name}悄然离开${getFactionDef(fid)?.full||fid}，飘零江湖。`);
+        log(`⚠ ${name}因忠诚过低，已离开${getFactionDef(fid)?.name||fid}势力，流落在野。`, 'warn');
         // D-057 fix: 下野清派系修正缓存,避免被新势力招募后旧 genFactionMod 污染 calcLoyaltyDelta
         if(G.genFactionMod) delete G.genFactionMod[name];
         if(G.genFactionModLog) delete G.genFactionModLog[name];
@@ -1627,8 +1627,8 @@ function poachGen(genName){
     applyFamilyLoyaltyShock(srcFid, (GEN_TAGS[genName]||{}).clan, -15);
     // 外交惩罚（双向） ★ v149fix: 原只更新单方向，改用addDiplo确保双向同步
     addDiplo(G.playerFac, srcFid, -15);
-    addGenChronicle(genName, `经人游说，${genName}转投${FAC[G.playerFac]?.full||G.playerFac}，初心忠诚待观。`);
-    log(`✅ 成功挖角 ${genName}（${Math.round(rate*100)}%），其已加入${FAC[G.playerFac]?.name}！（与${FAC[srcFid]?.name}外交-15）`, 'diplo');
+    addGenChronicle(genName, `经人游说，${genName}转投${getFactionDef(G.playerFac)?.full||G.playerFac}，初心忠诚待观。`);
+    log(`✅ 成功挖角 ${genName}（${Math.round(rate*100)}%），其已加入${getFactionDef(G.playerFac)?.name}！（与${getFactionDef(srcFid)?.name}外交-15）`, 'diplo');
     showNotif(`${genName} 已加入我方！`, 'ok');
     renderAllLight();
   } else {
@@ -1766,9 +1766,9 @@ function setStrategist(fid, genName){
       if(_apOrigin === 'gentry') applyEthosShock(fid, 'power', -2, '任命士族军师');
       else if(_apOrigin === 'humble' || _apOrigin === 'clan') applyEthosShock(fid, 'power', 2, '任命寒门/宗亲军师');
     }
-    log(`📜 ${FAC[fid]?.name}任命 ${genName} 为军师`, 'fac');
+    log(`📜 ${getFactionDef(fid)?.name}任命 ${genName} 为军师`, 'fac');
   } else {
-    log(`📜 ${FAC[fid]?.name}撤销军师任命`, 'fac');
+    log(`📜 ${getFactionDef(fid)?.name}撤销军师任命`, 'fac');
   }
   // ★ v73 卸任军师 → 原军师同派系凝聚感 -1
   if(prev && prev !== genName && getScenarioFactions().includes(fid)){
@@ -2126,9 +2126,9 @@ function succeedRuler(fid, deadRulerName){
   });
 
   // 小传
-  addGenChronicle(successor.name, `${deadRulerName}薨逝，${successor.name}${isClanSuccession?'以宗亲之身':'受众臣推举'}继位为${FAC[fid].full}之主。`);
+  addGenChronicle(successor.name, `${deadRulerName}薨逝，${successor.name}${isClanSuccession?'以宗亲之身':'受众臣推举'}继位为${getFactionDef(fid).full}之主。`);
 
-  log(`📜 ${successor.name}继位为${FAC[fid].full}之主${isClanSuccession?'（宗亲继任）':'（非宗亲继任）'}，全势力忠诚${loyaltyPenalty}`, 'diplomacy');
+  log(`📜 ${successor.name}继位为${getFactionDef(fid).full}之主${isClanSuccession?'（宗亲继任）':'（非宗亲继任）'}，全势力忠诚${loyaltyPenalty}`, 'diplomacy');
 }
 
 /** 武将归降（劝降成功） */
@@ -2168,11 +2168,11 @@ function surrenderGen(genName, targetFid){
       if(origFid) G.genOrigFac[genName]  = origFid;
     }
     if(!G.genChronicle[genName]) G.genChronicle[genName] = [];
-    addGenChronicle(genName, `兵败被俘，归降${FAC[targetFid]?.full||targetFid}，另谋新主。`);
+    addGenChronicle(genName, `兵败被俘，归降${getFactionDef(targetFid)?.full||targetFid}，另谋新主。`);
     // ★ D1: 跳槽功绩减半 + 清除旧官职
     if(G.genMerit) G.genMerit[genName] = Math.floor((G.genMerit[genName]||0) * 0.5);
     clearAllPostsByGen(genName);
-    log('🤝 ' + genName + ' 归降' + (FAC[targetFid]?.name||targetFid), 'battle');
+    log('🤝 ' + genName + ' 归降' + (getFactionDef(targetFid)?.name||targetFid), 'battle');
     // D-059 (1) cleanup fix: 投降后清旧派系修正缓存 (跟 D-057 同类扩展场景, 防止下旬 calcLoyaltyDelta 读到旧 mod)
     // D-059 (2) 派系/价值观事件不修 (用户决策: 投降是个人行为, processFactionLoyalty 自然反映)
     if(G.genFactionMod) delete G.genFactionMod[genName];
@@ -2189,7 +2189,7 @@ function releaseGen(genName, releaserFid){
     if(genData && !(G.generals[origFid]||[]).some(g=>g.name===genName)){
       { const _cloned = _deepCloneGen(genData); G.generals[origFid].push(_cloned); GEN_MAP[_cloned.name] = _cloned; } // ★ v155fix P0
     }
-    addGenChronicle(genName, `被俘后蒙释，重归${FAC[origFid]?.full||origFid}麾下，感念恩德。`);
+    addGenChronicle(genName, `被俘后蒙释，重归${getFactionDef(origFid)?.full||origFid}麾下，感念恩德。`);
   } else {
     if(!G.wildPool.includes(genName)) G.wildPool.push(genName);
     if(!G.genChronicle[genName]) G.genChronicle[genName] = [];
@@ -2199,7 +2199,7 @@ function releaseGen(genName, releaserFid){
   if(releaserRuler){
     addIntimacy(genName, releaserRuler.name, 25);  // 双向+25（同一个亲密度值，加一次）
   }
-  log('🕊 ' + genName + ' 被' + (FAC[releaserFid]?.name||releaserFid) + '释放', 'battle');
+  log('🕊 ' + genName + ' 被' + (getFactionDef(releaserFid)?.name||releaserFid) + '释放', 'battle');
 }
 
 /** AI处置俘虏：始终优先尝试劝降（无成本），死敌才考虑处决 */

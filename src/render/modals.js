@@ -103,7 +103,7 @@ function openPrefectModal(cityId){
   const city = G.cities[cityId];
   if(!city) return;
   const fid = G.playerFac;
-  const fc = FAC[fid];
+  const fc = getFactionDef(fid);
   const gens = (G.generals[fid]||[]).filter(g => g.role !== 'ruler');
   const deployed = new Set();
   G.units.forEach(u => u.squads.forEach(sq => deployed.add(sq.genName)));
@@ -153,7 +153,7 @@ function openStrategistModal(){
   const fid = G.playerFac;
   const gens = (G.generals[fid]||[]).filter(g=>g.role!=='ruler');
   const cur = G.factions[fid]?.strategist;
-  const facColor = FAC[fid]?.color || '#6b5530';
+  const facColor = getFactionDef(fid)?.color || '#6b5530';
   const rows = gens.map(g=>{
     const isCur = g.name===cur;
     const intLabel = `int:${g.int}`;
@@ -183,10 +183,10 @@ function openStrategistModal(){
 
 // ── 外交弹窗 ──
 function _showEnvoyIntelModal(targetFid, intelText){
-  const col = FAC[targetFid]?.color || '#6b5530';
+  const col = getFactionDef(targetFid)?.color || '#6b5530';
   const html = `<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(20,16,10,.55);z-index:500;display:flex;align-items:center;justify-content:center" id="_envoyModal" onclick="if(event.target===this)this.remove()">
     <div style="background:rgba(245,238,225,.97);border:2px solid ${col};border-radius:5px;padding:20px 24px;max-width:420px;width:90%;box-shadow:0 4px 20px rgba(0,0,0,.25)">
-      <div style="font-family:'Noto Serif SC',serif;font-size:13px;color:${col};font-weight:600;margin-bottom:12px;border-bottom:1px solid rgba(80,65,40,.15);padding-bottom:8px">🏛 通使·${FAC[targetFid]?.full}情报</div>
+      <div style="font-family:'Noto Serif SC',serif;font-size:13px;color:${col};font-weight:600;margin-bottom:12px;border-bottom:1px solid rgba(80,65,40,.15);padding-bottom:8px">🏛 通使·${getFactionDef(targetFid)?.full}情报</div>
       <div style="font-size:11px;color:rgba(92,74,50,.80);line-height:1.9;white-space:pre-line">${intelText}</div>
       <div style="text-align:center;margin-top:16px">
         <button onclick="document.getElementById('_envoyModal').remove()" style="padding:5px 24px;font-size:11px;background:rgba(80,65,40,.12);color:rgba(92,74,50,.8);border:1px solid rgba(80,65,40,.2);border-radius:3px;cursor:pointer">知悉</button>

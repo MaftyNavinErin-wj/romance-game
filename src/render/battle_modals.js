@@ -1878,7 +1878,7 @@ function showNextPrisonerModal(){
   const origFid = Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(x=>x.name===name));
   const origFacAlive = origFid && (G.generals[origFid]||[]).length > 0;
   const surrenderRate = Math.round(calcSurrenderRate(capturerFid, name)*100);
-  const origFacStr = origFid ? (FAC[origFid]?.full||origFid) : '无主';
+  const origFacStr = origFid ? (getFactionDef(origFid)?.full||origFid) : '无主';
   const noFacNote = !origFacAlive
     ? '<span style="color:#f0a040;font-size:9px">（原势力已灭，劝降+20%）</span>' : '';
   const woundedNote = isGenWounded(name)
@@ -1906,7 +1906,7 @@ function showNextPrisonerModal(){
         <span style="font-size:9px;margin-left:16px">一国之君，宁死不事二主</span>
       </button>`
     : `<button onclick="playerDisposePrisoner('surrender')" style="padding:9px;background:rgba(60,180,60,.12);border:1px solid rgba(60,180,60,.4);color:#60c060;border-radius:2px;cursor:pointer;font-family:'Noto Serif SC',serif;font-size:11px;text-align:left">
-        🤝 <b>劝降</b> — 招募入${FAC[capturerFid]?.name||capturerFid}军<br>
+        🤝 <b>劝降</b> — 招募入${getFactionDef(capturerFid)?.name||capturerFid}军<br>
         <span style="font-size:9px;color:rgba(60,180,60,.65);margin-left:16px">成功率 ${surrenderRate}%（失败则自行离去）</span>
       </button>`;
 

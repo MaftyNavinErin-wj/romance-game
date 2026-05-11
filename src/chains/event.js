@@ -403,7 +403,7 @@ function rollEventsV2(){
     G._eventCatCooldown[t.def.category] = EVENT_CAT_COOLDOWN;
     // ★ v131: 一次性事件标记
     if(t.def.oneTime){ if(!G._eventFired) G._eventFired={}; G._eventFired[t.def.id]=G.turn; }
-    log(`${t.def.icon} ${t.ctx.city?.name||t.ctx.genName||t.ctx.facLabel||t.ctx.complainerName||''}${t.def.name}（${FAC[t.fid]?.name||t.fid}）`,'event');
+    log(`${t.def.icon} ${t.ctx.city?.name||t.ctx.genName||t.ctx.facLabel||t.ctx.complainerName||''}${t.def.name}（${getFactionDef(t.fid)?.name||t.fid}）`,'event');
   });
 
   // 玩家势力：每旬最多1个弹窗，其余排队到下旬

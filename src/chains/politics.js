@@ -270,7 +270,7 @@ function processTechResearch() {
         addStatExp(cur.genName, def.stat, def.expReward);
       }
       const techName = def?.name || cur.techId;
-      log(`🔬 [${FAC[fid]?.name||fid}] ${techName}研究完成！（${cur.genName}主持）`, 'event');
+      log(`🔬 [${getFactionDef(fid)?.name||fid}] ${techName}研究完成！（${cur.genName}主持）`, 'event');
       if (fid === G.playerFac) {
         showNotif(`${techName} 研究完成！`, 'info');
       }
@@ -304,7 +304,7 @@ function startTechResearch(fid, techId, genName) {
   for (const [r, v] of Object.entries(def.cost)) safeSub(res, r, v);
 
   tech.current = { techId, genName, turnsLeft: def.turns, turnsTotal: def.turns };
-  log(`🔬 [${FAC[fid]?.name||fid}] 开始研究${def.name}（${genName}主持，${def.turns}旬）`, 'event');
+  log(`🔬 [${getFactionDef(fid)?.name||fid}] 开始研究${def.name}（${genName}主持，${def.turns}旬）`, 'event');
   return true;
 }
 
@@ -462,7 +462,7 @@ function promoteStage(fid){
     _facInfluenceCacheTurn = -1;
   }
   // 日志与通知
-  const facName = FAC[fid]?.name || fid;
+  const facName = getFactionDef(fid)?.name || fid;
   const oldLabel = STAGE_NAMES[oldStage] || oldStage;
   const newLabel = STAGE_NAMES[promo.nextStage] || promo.nextStage;
   const anchorLabel = promo.anchorState ? `，根据地：${STATE_NAMES[promo.anchorState]}` : '';
@@ -623,10 +623,10 @@ function getGenPostDef(genName){
 // ════════════════════════════════════════════════════════════════════
 
 /** ★ v179fix P14: 势力当前君主——单一读取入口
- *  读 G.factionRulers，旧存档 / 引擎初始化早期回退到 FAC[fid].ruler 剧本初值 */
+ *  读 G.factionRulers，旧存档 / 引擎初始化早期回退到 getFactionDef(fid).ruler 剧本初值 */
 function getFactionRuler(fid){
   if(!fid) return null;
-  return (G.factionRulers && G.factionRulers[fid]) || FAC[fid]?.ruler || null;
+  return (G.factionRulers && G.factionRulers[fid]) || getFactionDef(fid)?.ruler || null;
 }
 /** ★ v179fix P14: 势力君主继任——单一写入入口 */
 function setFactionRuler(fid, name){
@@ -1029,13 +1029,13 @@ function doEnthrone(fid){
     const otherIsEmperor = getFactionIdentity(other)?.type === 'emperor';
     addDiplo(fid, other, otherIsEmperor ? -25 : -15);
     // ★ v152: 有人称帝→汉室正统性崩塌→所有其他势力mandate被推高
-    applyEthosShock(other, 'mandate', 12, `${FAC[fid]?.name||fid}称帝·汉统动摇`);
+    applyEthosShock(other, 'mandate', 12, `${getFactionDef(fid)?.name||fid}称帝·汉统动摇`);
   });
   // 派系影响
   const facKey = oldType === 'han_royal' ? 'han_royal' : (oldType === 'emperor_holder' ? 'emperor_holder' : 'warlord');
   const fx = ENTHRONE_FACTION_EFFECTS[facKey];
   if(fx && getScenarioFactions().includes(fid)) _applyClaimFactionEffects(fid, fx);
-  log(`👑 ${FAC[fid]?.name}${getFactionRuler(fid)}称帝！天下震动`, 'diplo');
+  log(`👑 ${getFactionDef(fid)?.name}${getFactionRuler(fid)}称帝！天下震动`, 'diplo');
   applyEthosShock(fid, 'mandate', 28, '称帝'); // ★ v151
   // 派系事件通知
   getScenarioFactions().forEach(f => {

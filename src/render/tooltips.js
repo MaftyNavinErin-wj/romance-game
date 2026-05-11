@@ -870,7 +870,7 @@ function showDiploBreakdown(e, otherFid){
   const sm = {ally:'同盟', neutral:'中立', enemy:'敌对', vassal:'附庸'};
   const sc = {ally:'#1a7a3a', neutral:'#6b5530', enemy:'#c03030', vassal:'#8060c0'};
 
-  let html = `<div class="bd-title">📜 对${FAC[otherFid]?.name} · 外交关系</div>`;
+  let html = `<div class="bd-title">📜 对${getFactionDef(otherFid)?.name} · 外交关系</div>`;
   html += `<div class="bd-row"><span class="bd-label">当前友好度</span><span class="bd-val" style="font-weight:700;color:${rel>=70?'#1a7a3a':rel>=40?'#6b5530':'#c03030'}">${Math.round(rel)}</span></div>`;
   html += `<div class="bd-row"><span class="bd-label">当前状态</span><span class="bd-val" style="color:${sc[d.status]||'#6b5530'}">${sm[d.status]||d.status}</span></div>`;
 
@@ -1275,12 +1275,12 @@ function showUnitTip(e,unitId){
         const sEnemy = u.fac !== G.playerFac && !canSeeFactionData(G.playerFac, u.fac);
         const sInt = sEnemy ? getScoutINT(u) : 99;
         const sName = sEnemy ? fuzzyGenDisplay(u, sInt) : u.squads[0]?.genName+'部';
-        return `<span style="color:${FAC[u.fac]?.color}">${sName}</span>`;
+        return `<span style="color:${getFactionDef(u.fac)?.color}">${sName}</span>`;
       }).join('、')}
     </div>
     <div style="font-size:8px;color:rgba(92,74,50,.35);margin-top:2px">点击旗帜可展开选择菜单</div>`:'';
 
-  tip.innerHTML=`<div style="font-family:'Noto Serif SC',serif;color:${FAC[unit.fac]?.color};margin-bottom:4px;font-size:12px">${titleName}</div>
+  tip.innerHTML=`<div style="font-family:'Noto Serif SC',serif;color:${getFactionDef(unit.fac)?.color};margin-bottom:4px;font-size:12px">${titleName}</div>
     ${statusLine}
     ${supplyLine}
     ${squadLines}${troopLine}

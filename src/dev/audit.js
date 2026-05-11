@@ -273,7 +273,7 @@ function checkElimination(){
         }
       });
 
-      const facName = FAC[fid]?.full || fid;
+      const facName = getFactionDef(fid)?.full || fid;
       log(`💀 ${facName}已覆灭！城池尽失，兵马殆尽。`, 'event');
 
       if(fid === G.playerFac){
@@ -293,10 +293,10 @@ function checkElimination(){
       G._victoryShown = true;
       if(winner === G.playerFac){
         if(!_fastForward) setTimeout(() => showGameEndOverlay(true), 1200);
-        else log(`🏆 天下一统！${FAC[winner]?.full}称霸四海！`, 'event');
+        else log(`🏆 天下一统！${getFactionDef(winner)?.full}称霸四海！`, 'event');
       } else {
         if(!_fastForward) setTimeout(() => showGameEndOverlay(false, winner), 1200);
-        else log(`💀 ${FAC[winner]?.full}统一天下，你的势力已成历史尘埃。`, 'event');
+        else log(`💀 ${getFactionDef(winner)?.full}统一天下，你的势力已成历史尘埃。`, 'event');
       }
     }
   }

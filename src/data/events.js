@@ -424,7 +424,7 @@ const EVENT_DEFS = [
       return false;
     },
     narrative(ctx){
-      const facName = FAC[ctx.fid]?.name||ctx.fid;
+      const facName = getFactionDef(ctx.fid)?.name||ctx.fid;
       return `${ctx.wildName}闻${ctx.referrerName}在${facName}帐下，慕名来投。${ctx.referrerName}亲自引荐——"此人与我有旧，才堪大用，请主公纳之。"`;
     },
     choices(ctx){
@@ -444,7 +444,7 @@ const EVENT_DEFS = [
             G.genLoyalty[wName] = initLoy;
             if(G.loyaltyAccum) G.loyaltyAccum[wName] = initLoy;
             G.genChronicle[wName] = G.genChronicle[wName]||[];
-            addGenChronicle(wName, `经${rName}引荐，投奔${FAC[fid]?.name||fid}。`);
+            addGenChronicle(wName, `经${rName}引荐，投奔${getFactionDef(fid)?.name||fid}。`);
             G.wildPool = G.wildPool.filter(n=>n!==wName);
             G.genJoinTurn[wName] = G.turn;
             G.genJoinSource[wName] = 'referral';
@@ -1246,7 +1246,7 @@ const EVENT_DEFS = [
         if(!d) continue;
         if(d.status === 'enemy') continue; // 战争中不来使者
         if(d.rel < 30 || d.rel > 60) continue; // 好感30~60
-        const facName = FAC[of_]?.name||of_;
+        const facName = getFactionDef(of_)?.name||of_;
         // 根据AI人格差异化话术
         const pers = AI_PERSONALITY[of_] || AI_PERSONALITY.wei;
         let pitch;
@@ -1344,8 +1344,8 @@ const EVENT_DEFS = [
           const allyEnemyRel = G.diplo?.[`${allyF}-${enemyF}`]?.rel ?? 50;
           const allyMeRel = G.diplo?.[`${allyF}-${fid}`]?.rel ?? 50;
           if(allyEnemyRel < 20 && allyMeRel > 30){
-            const enemyName = FAC[enemyF]?.name||enemyF;
-            const allyName = FAC[allyF]?.name||allyF;
+            const enemyName = getFactionDef(enemyF)?.name||enemyF;
+            const allyName = getFactionDef(allyF)?.name||allyF;
             // 找军师叙事
             let advisor = null;
             const fac = G.factions[fid];
@@ -1828,7 +1828,7 @@ const EVENT_DEFS = [
       return {genName: scholar.name, int: scholar.int, pol: scholar.pol, enemyFid: enemy};
     },
     narrative(ctx){
-      const enemyName = FAC[ctx.enemyFid]?.full || FAC[ctx.enemyFid]?.name || ctx.enemyFid;
+      const enemyName = getFactionDef(ctx.enemyFid)?.full || getFactionDef(ctx.enemyFid)?.name || ctx.enemyFid;
       return `${ctx.genName}进言："${enemyName}倒行逆施，天下共知。臣愿执笔撰写檄文，昭告其罪于四海，以正视听、振我军威！"`;
     },
     choices(ctx){
@@ -1859,8 +1859,8 @@ const EVENT_DEFS = [
                   if(G.genFactionModLog[g.name].length > 8) G.genFactionModLog[g.name].shift();
                 }
               });
-              addGenChronicle(name, `撰檄文声讨${FAC[ctx.enemyFid]?.name||ctx.enemyFid}，文采斐然，天下传诵。`);
-              log(`📜 ${name}檄文声讨${FAC[ctx.enemyFid]?.name||ctx.enemyFid}大获成功！全军士气振奋。`,'event');
+              addGenChronicle(name, `撰檄文声讨${getFactionDef(ctx.enemyFid)?.name||ctx.enemyFid}，文采斐然，天下传诵。`);
+              log(`📜 ${name}檄文声讨${getFactionDef(ctx.enemyFid)?.name||ctx.enemyFid}大获成功！全军士气振奋。`,'event');
               showNotif(`${name}檄文大获成功！士气+5 信誉+3`,'good');
               applyEthosShock(fid,'strategy',3,'檄文成功'); applyEthosShock(fid,'mandate',2,'檄文正名');
             } else {
@@ -1881,8 +1881,8 @@ const EVENT_DEFS = [
               });
               if(G.genLoyalty[name]!==undefined) G.genLoyalty[name]=Math.max(0,G.genLoyalty[name]-3);
               if(G.loyaltyAccum) G.loyaltyAccum[name]=G.genLoyalty[name];
-              addGenChronicle(name, `撰檄文声讨${FAC[ctx.enemyFid]?.name||ctx.enemyFid}，文辞不佳，反遭嘲讽。`);
-              log(`📜 ${name}檄文声讨失败，文辞拙劣，反遭${FAC[ctx.enemyFid]?.name||ctx.enemyFid}嘲讽。`,'event');
+              addGenChronicle(name, `撰檄文声讨${getFactionDef(ctx.enemyFid)?.name||ctx.enemyFid}，文辞不佳，反遭嘲讽。`);
+              log(`📜 ${name}檄文声讨失败，文辞拙劣，反遭${getFactionDef(ctx.enemyFid)?.name||ctx.enemyFid}嘲讽。`,'event');
               showNotif(`${name}檄文失败…信誉-2`,'warn');
             }
           }},
@@ -2036,8 +2036,8 @@ const EVENT_DEFS = [
             if(fid===G.playerFac && canEnthrone(fid)){
               showNotif('群臣劝进，称帝条件已备！可前往外交面板行大礼','good');
             }
-            // D-143 fix: AI 触发时'主公'语气困惑, 用势力名 (FAC[fid]?.name)
-            log(`📜 ${ctx.genName}上劝进表，${FAC[fid]?.name||fid}从善如流，天下侧目`,'event');
+            // D-143 fix: AI 触发时'主公'语气困惑, 用势力名 (getFactionDef(fid)?.name)
+            log(`📜 ${ctx.genName}上劝进表，${getFactionDef(fid)?.name||fid}从善如流，天下侧目`,'event');
           }},
         { label:'② 三辞不受', desc:`天命-3，尊汉派系+2，warlord派系-2`,
           effect(){
@@ -2054,7 +2054,7 @@ const EVENT_DEFS = [
                 G.genFactionMod[g.name] = Math.max(-20,Math.min(20,(G.genFactionMod[g.name]||0)-2));
               }
             });
-            log(`📜 ${ctx.genName}上劝进表，${FAC[fid]?.name||fid}三辞不受`,'event');
+            log(`📜 ${ctx.genName}上劝进表，${getFactionDef(fid)?.name||fid}三辞不受`,'event');
           }},
       ];
     },
@@ -2103,7 +2103,7 @@ const EVENT_DEFS = [
               }
             });
             // D-143 fix: '主公'→势力名 + showNotif gate (return_emperor playerOnly:false)
-            log(`👑 ${ctx.genName}谏言还政天子，${FAC[fid]?.name||fid}作还政姿态，天下士人归心`,'event');
+            log(`👑 ${ctx.genName}谏言还政天子，${getFactionDef(fid)?.name||fid}作还政姿态，天下士人归心`,'event');
             if(fid === G.playerFac) showNotif('还政姿态！天命-10 信誉+5','good');
           }},
         { label:'② 斥退不听', desc:`天命+3，尊汉派系-3｜进一步篡汉`,
@@ -2117,7 +2117,7 @@ const EVENT_DEFS = [
                 G.genFactionMod[g.name] = Math.max(-20,Math.min(20,(G.genFactionMod[g.name]||0)-3));
               }
             });
-            log(`👑 ${ctx.genName}谏言还政天子，${FAC[fid]?.name||fid}斥退不听`,'event');
+            log(`👑 ${ctx.genName}谏言还政天子，${getFactionDef(fid)?.name||fid}斥退不听`,'event');
           }},
       ];
     },

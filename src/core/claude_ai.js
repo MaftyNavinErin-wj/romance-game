@@ -149,7 +149,7 @@ function _updateIntelHistory(fid) {
       if (city && city.fac !== fid) {
         ih.lostCities.push({ city: cid, turn: G.turn, toFac: city.fac });
         if (ih.lostCities.length > 10) ih.lostCities.shift();
-        _recordWarJournal(fid, `失守${city.name || cid}(被${FAC[city.fac]?.name || city.fac}夺取)`); // ★ v159fix
+        _recordWarJournal(fid, `失守${city.name || cid}(被${getFactionDef(city.fac)?.name || city.fac}夺取)`); // ★ v159fix
       }
     });
   }
@@ -183,10 +183,10 @@ function _buildIntelWarnings(fid) {
     const recent = trend[trend.length - 1].total;
     const prev = trend[trend.length - 3].total;
     if (prev > 5000 && recent < prev * 0.65) {
-      const facName = FAC[ef]?.name || ef;
+      const facName = getFactionDef(ef)?.name || ef;
       warnings.push(`${facName}方向可见兵力从约${prev}降至约${recent}，可能在调兵或另辟战场`);
     } else if (prev > 0 && recent > prev * 1.5 && recent - prev > 5000) {
-      const facName = FAC[ef]?.name || ef;
+      const facName = getFactionDef(ef)?.name || ef;
       warnings.push(`${facName}方向可见兵力从约${prev}增至约${recent}，可能在集结进攻`);
     }
   });
@@ -196,7 +196,7 @@ function _buildIntelWarnings(fid) {
   recentLost.forEach(lc => {
     if (G.turn - lc.turn <= 5) {
       const cname = G.cities[lc.city]?.name || lc.city;
-      const facName = FAC[lc.toFac]?.name || lc.toFac;
+      const facName = getFactionDef(lc.toFac)?.name || lc.toFac;
       warnings.push(`${facName}第${lc.turn}旬夺取${cname}，可能以此为跳板继续推进`);
     }
   });
@@ -557,7 +557,7 @@ function _tacticalSystemPrompt(fid) {
     wu: '孙权：平衡守成，善外交周旋。',
     nanman: '孟获：蛮族勇武，短期突袭为主。',
   };
-  return `你是三国策略游戏中【${FAC[fid]?.full || fid}】的决策者。${personality[fid] || ''}
+  return `你是三国策略游戏中【${getFactionDef(fid)?.full || fid}】的决策者。${personality[fid] || ''}
 
 当前是**战术执行旬**——你已有既定战略，本旬的任务是沿着计划推进下一步。
 
@@ -944,7 +944,7 @@ function _claudeSystemPrompt(fid) {
     nanman: '孟获：蛮族勇武，资源有限。倾向劫掠获资，短期突袭为主，不擅长长期围城。信誉低(30)，无外交顾虑。',
   };
 
-  return `你是三国策略游戏中【${FAC[fid]?.full || fid}】的最高决策者。你精通本游戏的全部数值系统，能进行精确的战力推算和经济规划。
+  return `你是三国策略游戏中【${getFactionDef(fid)?.full || fid}】的最高决策者。你精通本游戏的全部数值系统，能进行精确的战力推算和经济规划。
 
 ## 一、战斗力计算（核心公式）
 
@@ -1219,13 +1219,13 @@ async function callClaudeAPI(fid) {
     if (!state) return null;
     sysPrompt = _claudeSystemPrompt(fid);
     userMsg = `当前局势：\n${JSON.stringify(state, null, 0)}\n\n这是战略评估旬，请进行全局分析并输出决策（严格JSON，含strategy_intent和contingency）。`;
-    console.log(`[ClaudeAI] ${FAC[fid]?.name} ★战略旬★ 完整快照`);
+    console.log(`[ClaudeAI] ${getFactionDef(fid)?.name} ★战略旬★ 完整快照`);
   } else {
     // 战术旬：delta快照 + 精简prompt
     const delta = _buildDeltaSnapshot(fid);
     sysPrompt = _tacticalSystemPrompt(fid);
     userMsg = `本旬状态：\n${JSON.stringify(delta, null, 0)}\n\n请输出本旬执行指令（严格JSON）。`;
-    console.log(`[ClaudeAI] ${FAC[fid]?.name} 战术旬 delta快照`);
+    console.log(`[ClaudeAI] ${getFactionDef(fid)?.name} 战术旬 delta快照`);
   }
 
   const endpoint = _claudeAI.endpoint || 'https://api.anthropic.com/v1/messages';
@@ -1293,10 +1293,10 @@ function _parseOpenAIResponse(data, fid) {
       if (parsed.strategy_intent) { mem.strategy_intent = parsed.strategy_intent; mem.intent_set_turn = G.turn; }
       if (parsed.stance) mem.stance = parsed.stance;
       if (parsed.contingency && typeof parsed.contingency === 'object') mem.contingency = parsed.contingency;
-      console.log(`[ClaudeAI] ${FAC[fid]?.name} 战略意图: ${mem.strategy_intent}`);
+      console.log(`[ClaudeAI] ${getFactionDef(fid)?.name} 战略意图: ${mem.strategy_intent}`);
     }
-    console.log(`[ClaudeAI] ${FAC[fid]?.name} 思考:`, parsed.thinking);
-    console.log(`[ClaudeAI] ${FAC[fid]?.name} 指令(${(parsed.actions||[]).length}条):`, parsed.actions);
+    console.log(`[ClaudeAI] ${getFactionDef(fid)?.name} 思考:`, parsed.thinking);
+    console.log(`[ClaudeAI] ${getFactionDef(fid)?.name} 指令(${(parsed.actions||[]).length}条):`, parsed.actions);
     console.log(`[ClaudeAI] token: ${data.usage?.total_tokens || '?'}, 累计=${_claudeAI._totalTokens}`);
     return parsed;
   } catch (e) {
@@ -1364,10 +1364,10 @@ function _parseClaudeResponse(data, fid) {
       if (parsed.contingency && typeof parsed.contingency === 'object') {
         mem.contingency = parsed.contingency;
       }
-      console.log(`[ClaudeAI] ${FAC[fid]?.name} 战略意图: ${mem.strategy_intent}`);
+      console.log(`[ClaudeAI] ${getFactionDef(fid)?.name} 战略意图: ${mem.strategy_intent}`);
     }
-    console.log(`[ClaudeAI] ${FAC[fid]?.name} 思考:`, parsed.thinking);
-    console.log(`[ClaudeAI] ${FAC[fid]?.name} 指令(${(parsed.actions||[]).length}条):`, parsed.actions);
+    console.log(`[ClaudeAI] ${getFactionDef(fid)?.name} 思考:`, parsed.thinking);
+    console.log(`[ClaudeAI] ${getFactionDef(fid)?.name} 指令(${(parsed.actions||[]).length}条):`, parsed.actions);
     console.log(`[ClaudeAI] token: in=${data.usage?.input_tokens}, out=${data.usage?.output_tokens}, 累计=${_claudeAI._totalTokens}`);
     return parsed;
   } catch (e) {
@@ -1379,7 +1379,7 @@ function _parseClaudeResponse(data, fid) {
 /** ── 控制台测试入口 ── */
 async function testClaudeAI(fid, useApiKey) {
   fid = fid || 'wei';
-  console.log(`\n${'='.repeat(60)}\n[ClaudeAI TEST] ${FAC[fid]?.full || fid}\n${'='.repeat(60)}`);
+  console.log(`\n${'='.repeat(60)}\n[ClaudeAI TEST] ${getFactionDef(fid)?.full || fid}\n${'='.repeat(60)}`);
   const state = getGameState(fid);
   console.log('[ClaudeAI] 快照:', JSON.stringify(state, null, 2));
   console.log(`[ClaudeAI] ~${Math.round(JSON.stringify(state).length / 4)} tokens`);
@@ -1393,7 +1393,7 @@ async function testClaudeAI(fid, useApiKey) {
     console.error('[ClaudeAI] ❌ 调用失败');
     return null;
   }
-  console.log(`\n${'─'.repeat(40)}\n[ClaudeAI] ✅ ${FAC[fid]?.name}决策:`);
+  console.log(`\n${'─'.repeat(40)}\n[ClaudeAI] ✅ ${getFactionDef(fid)?.name}决策:`);
   console.log(`思考: ${result.thinking}`);
   (result.actions || []).forEach((a, i) => console.log(`  ${i + 1}. ${JSON.stringify(a)}`));
   console.log(`累计: ${_claudeAI._callCount}次, ${_claudeAI._totalTokens}tokens`);
@@ -1449,7 +1449,7 @@ function executeClaudeActions(fid, actions) {
       console.warn(`[ClaudeAI] 指令异常:`, act, e);
     }
   }
-  console.log(`[ClaudeAI] ${FAC[fid]?.name} 执行结果: ${stats.executed}成功, ${stats.skipped}跳过`, stats.errors.length ? stats.errors : '');
+  console.log(`[ClaudeAI] ${getFactionDef(fid)?.name} 执行结果: ${stats.executed}成功, ${stats.skipped}跳过`, stats.errors.length ? stats.errors : '');
   return stats;
 }
 

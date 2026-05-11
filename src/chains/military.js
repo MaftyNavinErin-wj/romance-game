@@ -6057,7 +6057,7 @@ function resolveSiegeBattle(attackers, defenders, city, nodeLabel){
           if(Math.random() < captureRate){
             const rpts = resolvePrisoners([sq.genName], atkFac, atkFac===G.playerFac);
             if(rpts.length) breakoutReports.forEach(r=>{});  // 已有报告，不额外记录
-            log('⛓ ' + sq.genName + '被' + (FAC[atkFac]?.name||atkFac) + '俘获', 'battle');
+            log('⛓ ' + sq.genName + '被' + (getFactionDef(atkFac)?.name||atkFac) + '俘获', 'battle');
           }
         });
       }
@@ -6793,7 +6793,7 @@ function _resolveBattleEngagement(attackers, defenders, nodeLabel, activeDuel, n
       applyWarDeclarationEffects(atkFac0, defFac, null);
       // D-118 fix: warDeclare 派系事件 (跟三入口宣战 + 斩使 D-049/D-131 fix 一致)
       if(getScenarioFactions().includes(atkFac0)) triggerFactionEvent('warDeclare', atkFac0, {});
-      log(`⚔️ ${FAC[atkFac0]?.name}对${FAC[defFac]?.name}动兵，双方进入敌对状态`, 'diplo');
+      log(`⚔️ ${getFactionDef(atkFac0)?.name}对${getFactionDef(defFac)?.name}动兵，双方进入敌对状态`, 'diplo');
     }
 
     // Fix1：守方有宗主时，宗主自动联动参战（无论攻守方初始是否enemy）
@@ -6806,7 +6806,7 @@ function _resolveBattleEngagement(attackers, defenders, nodeLabel, activeDuel, n
         const srev = G.diplo[`${defSuzerain}-${atkFac0}`];
         if(srev) srev.status = 'enemy';
         addDiplo(atkFac0, defSuzerain, -15);
-        log(`⚔️ ${FAC[defSuzerain]?.name}因${FAC[defFac]?.name}遭攻，对${FAC[atkFac0]?.name}宣战`, 'diplo');
+        log(`⚔️ ${getFactionDef(defSuzerain)?.name}因${getFactionDef(defFac)?.name}遭攻，对${getFactionDef(atkFac0)?.name}宣战`, 'diplo');
       }
     }
     // Fix1：攻方有宗主时，同步宗主也对守方进入敌对
@@ -6819,7 +6819,7 @@ function _resolveBattleEngagement(attackers, defenders, nodeLabel, activeDuel, n
         const arev = G.diplo[`${defFac}-${atkSuzerain}`];
         if(arev) arev.status = 'enemy';
         addDiplo(atkSuzerain, defFac, -15);
-        log(`⚔️ ${FAC[atkSuzerain]?.name}随附庸${FAC[atkFac0]?.name}对${FAC[defFac]?.name}宣战`, 'diplo');
+        log(`⚔️ ${getFactionDef(atkSuzerain)?.name}随附庸${getFactionDef(atkFac0)?.name}对${getFactionDef(defFac)?.name}宣战`, 'diplo');
       }
     }
   }
@@ -7503,7 +7503,7 @@ function getUnitAtCity(unit){
 
 function _execMove(fid, act) {
   const unit = _findUnit(fid, act.leader);
-  if (!unit) { console.warn('[ClaudeAI] move: 找不到部队', act.leader, `| ${FAC[fid]?.name}部队:`, G.units.filter(u=>u.fac===fid).map(u=>u.squads.map(s=>s.genName).join('+')).join(', ')); return false; }
+  if (!unit) { console.warn('[ClaudeAI] move: 找不到部队', act.leader, `| ${getFactionDef(fid)?.name}部队:`, G.units.filter(u=>u.fac===fid).map(u=>u.squads.map(s=>s.genName).join('+')).join(', ')); return false; }
   if (unit.mobilizingTurns > 0) { console.warn('[ClaudeAI] move: 整备中', act.leader, unit.mobilizingTurns, '旬'); return false; }
   // D-018 follow-up fix (codex trial 3 catch): 拔营整备中 (campMobilizeTurns>0) / camp / ambush 状态都不能 move
   // 否则 Claude AI 同 batch cancel_special + move 绕过 1 旬整备约束 (玩家 startMoveFromPanel L7288 已有 status check)
@@ -7572,7 +7572,7 @@ function _execRecruit(fid, act) {
   unit.mobilizingTurns = 3;
   unit._apRemaining = 0;
   G.units.push(unit);
-  log(`⚔ [AI] ${FAC[fid]?.name} ${genName}于${city.name}征兵${fmt(troops)}${troopType}，3旬整备`, 'economy');
+  log(`⚔ [AI] ${getFactionDef(fid)?.name} ${genName}于${city.name}征兵${fmt(troops)}${troopType}，3旬整备`, 'economy');
   return true;
 }
 
@@ -7588,7 +7588,7 @@ function _execDisband(fid, act) {
   // D-015 fix: 清亲卫 (跟玩家 disbandUnit L7448 对齐, 玩家/AI 对称); 否则 AI 裁军后亲卫数 ghost 残留 (武将名下 retainers 永不归零)
   unit.squads.forEach(sq => setRetainers(sq.genName, 0));
   G.units = G.units.filter(u => u.id !== unit.id);
-  log(`🔻 [AI] ${FAC[fid]?.name}于${city.name}裁军${fmt(troops)}`, 'economy');
+  log(`🔻 [AI] ${getFactionDef(fid)?.name}于${city.name}裁军${fmt(troops)}`, 'economy');
   return true;
 }
 
@@ -7662,7 +7662,7 @@ function _execSetReinforcePolicy(fid, act) {
   if (!G.factions[fid]) return false;
   G.factions[fid].policyId = policy;
   const labels = { aggr: '激进', bal: '均衡', elit: '精兵' };
-  log(`📋 [AI] ${FAC[fid]?.name}补员策略调整为「${labels[policy]}」`, 'economy');
+  log(`📋 [AI] ${getFactionDef(fid)?.name}补员策略调整为「${labels[policy]}」`, 'economy');
   return true;
 }
 
@@ -7686,7 +7686,7 @@ function billetUnit(uid){
     const travelT = dist <= 5 ? 0 : Math.ceil((dist - 5) / 5);
     const travelStr = travelT > 0 ? `行程${travelT}旬` : '即到';
     return `<div onclick="_confirmBillet('${uid}','${cid}')" style="cursor:pointer;padding:8px 12px;border-bottom:1px solid rgba(80,65,40,.07);display:flex;justify-content:space-between;align-items:center" onmouseover="this.style.background='rgba(80,65,40,.06)'" onmouseout="this.style.background='none'">
-      <div><span style="color:${FAC[u.fac]?.color||'#ccc'}">${c.name}</span>${def?.isCapital?'<span style="color:var(--ink-l);font-size:9px;margin-left:2px">★</span>':''}
+      <div><span style="color:${getFactionDef(u.fac)?.color||'#ccc'}">${c.name}</span>${def?.isCapital?'<span style="color:var(--ink-l);font-size:9px;margin-left:2px">★</span>':''}
         <span style="font-size:9px;color:rgba(92,74,50,.35);margin-left:4px">${poolCount?'已有'+poolCount+'支休整':'空'}</span></div>
       <span style="font-size:9px;color:rgba(92,74,50,.35)">${dist}格 · ${travelStr}</span>
     </div>`;

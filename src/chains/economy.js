@@ -598,7 +598,7 @@ function _aiConsiderMigration(fid){
 
     // 通知（对玩家可见的AI迁民）
     if(getCityFogLevel(G.playerFac, city.id) === FOG_VISIBLE || getCityFogLevel(G.playerFac, bestDst) === FOG_VISIBLE){
-      showNotif(`${FAC[fid]?.name||fid}将${city.name}人口迁往${dst.name}`, 'info');
+      showNotif(`${getFactionDef(fid)?.name||fid}将${city.name}人口迁往${dst.name}`, 'info');
     }
     break; // AI每旬最多迁一城
   }
@@ -1363,7 +1363,7 @@ function aiDoTradeAgreement(fid){
   G._tradeAgreements.push({ factions: [fid, best.fid], since: G.turn });
   const dk2 = fid < best.fid ? `${fid}-${best.fid}` : `${best.fid}-${fid}`;
   addDiplo(fid, best.fid, 5);
-  log(`🤝 ${FAC[fid]?.name}与${FAC[best.fid]?.name}缔结通商协定`, 'diplo');
+  log(`🤝 ${getFactionDef(fid)?.name}与${getFactionDef(best.fid)?.name}缔结通商协定`, 'diplo');
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -1510,18 +1510,18 @@ function _cleanTradeAgreements(){
     const citiesA = Object.values(G.cities).filter(c => c.fac === fa).length;
     const citiesB = Object.values(G.cities).filter(c => c.fac === fb).length;
     if(citiesA === 0 || citiesB === 0){
-      log(`📦 ${FAC[fa]?.name}与${FAC[fb]?.name}通商协定因势力覆灭而终止`, 'diplo');
+      log(`📦 ${getFactionDef(fa)?.name}与${getFactionDef(fb)?.name}通商协定因势力覆灭而终止`, 'diplo');
       return false;
     }
     // 外交状态检查
     const dk = fa < fb ? `${fa}-${fb}` : `${fb}-${fa}`;
     const d = G.diplo[dk];
     if(!d || d.status === 'enemy'){
-      log(`📦 ${FAC[fa]?.name}与${FAC[fb]?.name}通商协定因战争而中断`, 'diplo');
+      log(`📦 ${getFactionDef(fa)?.name}与${getFactionDef(fb)?.name}通商协定因战争而中断`, 'diplo');
       return false;
     }
     if(d.rel < TRADE_AGR_REL_BREAK){
-      log(`📦 ${FAC[fa]?.name}与${FAC[fb]?.name}通商协定因关系恶化（好感${Math.floor(d.rel)}）而终止`, 'diplo');
+      log(`📦 ${getFactionDef(fa)?.name}与${getFactionDef(fb)?.name}通商协定因关系恶化（好感${Math.floor(d.rel)}）而终止`, 'diplo');
       return false;
     }
     return true;
@@ -1566,7 +1566,7 @@ function diploTradeAgreement(target){
   const myIncome = calcTradeAgrIncome(fid);
   const otherCities = Object.values(G.cities).filter(c => c.fac === target).length;
   const thisCities = Object.values(G.cities).filter(c => c.fac === fid).length;
-  log(`🤝 与${FAC[target]?.name}缔结通商协定！花费${TRADE_AGR_COST}金，预计每旬互利：我方+${Math.floor(otherCities * TRADE_AGR_PER_CITY)}金，对方+${Math.floor(thisCities * TRADE_AGR_PER_CITY)}金`, 'diplo');
+  log(`🤝 与${getFactionDef(target)?.name}缔结通商协定！花费${TRADE_AGR_COST}金，预计每旬互利：我方+${Math.floor(otherCities * TRADE_AGR_PER_CITY)}金，对方+${Math.floor(thisCities * TRADE_AGR_PER_CITY)}金`, 'diplo');
   invalidateLeftCache(); renderAllLight(); // ★ v167fix #36
 }
 
@@ -1581,7 +1581,7 @@ function cancelTradeAgreement(target){
   // 信誉惩罚（复用现有信誉度系统）
   if(!G.reputation) G.reputation={wei:45,shu:80,wu:60,nanman:30};
   G.reputation[fid] = Math.max(0, (G.reputation[fid]||REPUTATION_DEFAULT) - 3);
-  log(`❌ 中止与${FAC[target]?.name}的通商协定（好感-8，信誉-3）`, 'diplo');
+  log(`❌ 中止与${getFactionDef(target)?.name}的通商协定（好感-8，信誉-3）`, 'diplo');
   invalidateLeftCache(); renderAllLight(); // ★ v167fix #36
 }
 
@@ -1628,7 +1628,7 @@ function buildBld(cityId,bldId){
 function setTax(id){
   G.factions[G.playerFac].taxId=id;
   renderLeft();
-  log(`📋 ${FAC[G.playerFac]?.name}赋税调整为「${TAX.find(t=>t.id===id).name}」`,'economy');
+  log(`📋 ${getFactionDef(G.playerFac)?.name}赋税调整为「${TAX.find(t=>t.id===id).name}」`,'economy');
 }
 
 function setPolicy(id){
@@ -1739,7 +1739,7 @@ function _execSetTax(fid, act) {
   const taxId = act.level;
   if (!TAX.find(t => t.id === taxId)) { console.warn('[ClaudeAI] set_tax: 无效税率ID', taxId, '| 合法值:', TAX.map(t=>t.id).join('/')); return false; }
   G.factions[fid].taxId = taxId;
-  log(`📋 [AI] ${FAC[fid]?.name}赋税调整为「${TAX.find(t => t.id === taxId).name}」`, 'economy');
+  log(`📋 [AI] ${getFactionDef(fid)?.name}赋税调整为「${TAX.find(t => t.id === taxId).name}」`, 'economy');
   return true;
 }
 
@@ -1748,7 +1748,7 @@ function _execSetCorvee(fid, act) {
   const corveeId = act.level;
   if (!CORVEE.find(c => c.id === corveeId)) { console.warn('[ClaudeAI] set_corvee: 无效徭役ID', corveeId, '| 合法值:', CORVEE.map(c=>c.id).join('/')); return false; }
   G.factions[fid].corveeId = corveeId;
-  log(`📋 [AI] ${FAC[fid]?.name}徭役调整为「${CORVEE.find(c => c.id === corveeId).name}」`, 'economy');
+  log(`📋 [AI] ${getFactionDef(fid)?.name}徭役调整为「${CORVEE.find(c => c.id === corveeId).name}」`, 'economy');
   return true;
 }
 

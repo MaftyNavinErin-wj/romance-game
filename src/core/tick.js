@@ -190,7 +190,7 @@ async function runAI(){
     if(_claudeAI.enabled && fid !== G.playerFac && _facCityCount >= 2){
       _updateIntelHistory(fid); // ★ v159: 更新情报历史（在getGameState前）
       const isStrat = _isStrategicTurn(fid);
-      console.log(`[ClaudeAI] 🔄 ${FAC[fid]?.name} 开始Claude决策（${_facCityCount}城, ${isStrat ? '★战略旬★' : '战术旬'}）...`);
+      console.log(`[ClaudeAI] 🔄 ${getFactionDef(fid)?.name} 开始Claude决策（${_facCityCount}城, ${isStrat ? '★战略旬★' : '战术旬'}）...`);
       try {
         const result = await Promise.race([
           callClaudeAPI(fid),
@@ -203,9 +203,9 @@ async function runAI(){
             _recordActionSummary(fid, stats._executedActions);
           }
           if (isStrat) _claudeAI._lastStrategicTurn[fid] = G.turn;
-          console.log(`[ClaudeAI] ${FAC[fid]?.name} 执行结果: ${stats.executed}成功, ${stats.skipped}跳过`, stats.errors.length ? stats.errors : '');
+          console.log(`[ClaudeAI] ${getFactionDef(fid)?.name} 执行结果: ${stats.executed}成功, ${stats.skipped}跳过`, stats.errors.length ? stats.errors : '');
           if(stats.executed > 0){
-            log(`🤖 [Claude] ${FAC[fid]?.name}：${stats.executed}条指令执行`, 'event');
+            log(`🤖 [Claude] ${getFactionDef(fid)?.name}：${stats.executed}条指令执行`, 'event');
             // D-114 fix: Claude AI 接管时跳过下面的 aiDoDiplo, 手动衰减 _diploCD (跟 aiDoDiplo L658 同模式)
             // 频率: 每 3 旬一次 (跟 aiDoDiplo 调用频率一致, diploOffset 三家错峰)
             const _diploOff = {wei:0, shu:1, wu:2, nanman:1}[fid] || 0;
@@ -218,7 +218,7 @@ async function runAI(){
         console.warn(`[ClaudeAI] ${fid} fallback到规则AI:`, e.message);
       }
     } else if(_claudeAI.enabled && fid !== G.playerFac && _facCityCount < 2){
-      console.log(`[ClaudeAI] ⏭ ${FAC[fid]?.name} 跳过（仅${_facCityCount}城，走规则AI）`);
+      console.log(`[ClaudeAI] ⏭ ${getFactionDef(fid)?.name} 跳过（仅${_facCityCount}城，走规则AI）`);
     }
     // ── 0. G2P3: 计算本旬预算分配（军事/基建）──
     _aiCalcBudget(fid);
@@ -262,23 +262,23 @@ async function runAI(){
 
     // ── 4c. ★ v111: AI 任命太守+封官（每6旬，与外交错峰） ──
     if(G.turn % 6 === ({wei:2, shu:4, wu:0, nanman:3}[fid] || 0)) {
-      try { aiDoAppointments(fid); } catch(e) { console.error('[v111] aiDoAppointments crashed for', fid, e); log(`⚠️ AI异常: ${FAC[fid]?.name||fid} 官职任命模块`, 'warn'); }
+      try { aiDoAppointments(fid); } catch(e) { console.error('[v111] aiDoAppointments crashed for', fid, e); log(`⚠️ AI异常: ${getFactionDef(fid)?.name||fid} 官职任命模块`, 'warn'); }
     }
 
     // ── 5. G2P2: AI 防守响应（在进攻规划之前，确保防守优先） ──
-    try { aiDefendResponse(fid); } catch(e) { console.error('[G2P2] aiDefendResponse crashed for', fid, e); log(`⚠️ AI异常: ${FAC[fid]?.name||fid} 防守响应模块`, 'warn'); }
+    try { aiDefendResponse(fid); } catch(e) { console.error('[G2P2] aiDefendResponse crashed for', fid, e); log(`⚠️ AI异常: ${getFactionDef(fid)?.name||fid} 防守响应模块`, 'warn'); }
 
     // ── 6. G2: AI 战略决策（目标选择+部队分配） ──
-    try { aiSelectTargets(fid); } catch(e) { console.error('[G2] aiSelectTargets crashed for', fid, e); log(`⚠️ AI异常: ${FAC[fid]?.name||fid} 战略决策模块`, 'warn'); }
+    try { aiSelectTargets(fid); } catch(e) { console.error('[G2] aiSelectTargets crashed for', fid, e); log(`⚠️ AI异常: ${getFactionDef(fid)?.name||fid} 战略决策模块`, 'warn'); }
 
     // ── 7. G2: AI 执行层（行军/集结/围城判断） ──
-    try { aiExecuteOrders(fid); } catch(e) { console.error('[G2] aiExecuteOrders crashed for', fid, e); log(`⚠️ AI异常: ${FAC[fid]?.name||fid} 行军执行模块`, 'warn'); }
+    try { aiExecuteOrders(fid); } catch(e) { console.error('[G2] aiExecuteOrders crashed for', fid, e); log(`⚠️ AI异常: ${getFactionDef(fid)?.name||fid} 行军执行模块`, 'warn'); }
 
     // ── 8. ★ GT2: AI 围城守方博弈（在攻城决策前判断是否出城） ──
-    try { aiDefenderDecision(fid); } catch(e) { console.error('[GT2] aiDefenderDecision crashed for', fid, e); log(`⚠️ AI异常: ${FAC[fid]?.name||fid} 守城决策模块`, 'warn'); }
+    try { aiDefenderDecision(fid); } catch(e) { console.error('[GT2] aiDefenderDecision crashed for', fid, e); log(`⚠️ AI异常: ${getFactionDef(fid)?.name||fid} 守城决策模块`, 'warn'); }
 
     // ── 9. G2: AI 攻城决策（用胜率替代随机） ──
-    try { aiDoSiege(fid); } catch(e) { console.error('[G2] aiDoSiege crashed for', fid, e); log(`⚠️ AI异常: ${FAC[fid]?.name||fid} 攻城决策模块`, 'warn'); }
+    try { aiDoSiege(fid); } catch(e) { console.error('[G2] aiDoSiege crashed for', fid, e); log(`⚠️ AI异常: ${getFactionDef(fid)?.name||fid} 攻城决策模块`, 'warn'); }
 
     // ── 7. ★ v104: AI人才招募（在野+挖角统一，每3旬，与外交错峰） ──
     const recruitOffset = {wei:1, shu:2, wu:0, nanman:1}[fid] || 0;
@@ -568,7 +568,7 @@ async function nextTurn(){
       if(!G.genAptExp[pg.name]) G.genAptExp[pg.name] = {};
       if(!G.genFactionMod[pg.name]) G.genFactionMod[pg.name] = 0;
       // 小传
-      const facN = FAC[fid]?.name || fid;
+      const facN = getFactionDef(fid)?.name || fid;
       addGenChronicle(pg.name, `${facN}迎来新锐——${pg.name}前来效力。`);
       // 通知
       if(fid === G.playerFac){
@@ -668,7 +668,7 @@ async function nextTurn(){
       if(pending.length > 1) G._pendingEnvoyIntel.push(...pending.slice(1).map(x=>({...x,turn:x.turn}))); // 剩余下旬继续弹
       const intel = _buildEnvoyIntel(G.playerFac, p.targetFid);
       setTimeout(()=>{ try{_showEnvoyIntelModal(p.targetFid, intel);}catch(e){console.error('弹窗链异常:envoy',e);} }, 800);
-      log(`📜 通使${FAC[p.targetFid]?.full}的使者归来，带回情报。`,'diplo');
+      log(`📜 通使${getFactionDef(p.targetFid)?.full}的使者归来，带回情报。`,'diplo');
     }
   }
 }

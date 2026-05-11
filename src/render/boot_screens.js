@@ -1093,9 +1093,9 @@ function closeSaveLoadPanel(){
 /** 胜利/失败全屏遮罩 */
 function showGameEndOverlay(isVictory, winnerFid){
   const fid = isVictory ? G.playerFac : (winnerFid || G.playerFac);
-  const facColor = FAC[fid]?.color || '#2c2416';
-  const facName = FAC[fid]?.full || '?';
-  const playerFacName = FAC[G.playerFac]?.full || '?';
+  const facColor = getFactionDef(fid)?.color || '#2c2416';
+  const facName = getFactionDef(fid)?.full || '?';
+  const playerFacName = getFactionDef(G.playerFac)?.full || '?';
 
   // 统计数据
   const turnCount = G.turn;
@@ -1109,7 +1109,7 @@ function showGameEndOverlay(isVictory, winnerFid){
   // 淘汰记录
   const elimRecords = getScenarioFactions()
     .filter(f => f !== (isVictory ? G.playerFac : winnerFid) && G.factions[f]?._eliminatedTurn)
-    .map(f => `${FAC[f]?.name||f} 覆灭于第${G.factions[f]._eliminatedTurn}旬`)
+    .map(f => `${getFactionDef(f)?.name||f} 覆灭于第${G.factions[f]._eliminatedTurn}旬`)
     .join('　·　');
 
   const overlay = document.createElement('div');
@@ -1239,7 +1239,7 @@ function _resolveCityId(name) {
 }
 function _resolveFacId(name) {
   if (G.factions[name]) return name;
-  const entry = Object.entries(FAC).find(([k, v]) => v.name === name || v.full === name);
+  const entry = Object.entries(getAllFactions()).find(([k, v]) => v.name === name || v.full === name);
   return entry ? entry[0] : null;
 }
 function _findUnit(fid, leaderName) {
@@ -1506,8 +1506,8 @@ async function pingClaudeAPI() {
     } else {
       const aiFacs = getScenarioFactions().filter(f => f !== G.playerFac && !G.factions[f]?._eliminated);
       const eligible = aiFacs.filter(f => CITIES_DEF.filter(c => G.cities[c.id]?.fac === f).length >= 2);
-      console.log(`   当前AI势力: ${aiFacs.map(f=>FAC[f]?.name).join(', ')}`);
-      console.log(`   满足2城门槛: ${eligible.map(f=>FAC[f]?.name).join(', ') || '(无——全部单城，不会调API)'}`);
+      console.log(`   当前AI势力: ${aiFacs.map(f=>getFactionDef(f)?.name).join(', ')}`);
+      console.log(`   满足2城门槛: ${eligible.map(f=>getFactionDef(f)?.name).join(', ') || '(无——全部单城，不会调API)'}`);
       if (eligible.length === 0) console.warn('⚠️ 所有AI势力都是单城，Claude AI不会被调用。这是v158单城门槛的预期行为。');
     }
 

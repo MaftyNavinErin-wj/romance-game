@@ -176,7 +176,7 @@
   // 势力下拉选项
   function _dbgFacOptions(){
     return getScenarioFactions().map(function(f){
-      return '<option value="'+f+'">'+(FAC[f]?.name||f)+'</option>';
+      return '<option value="'+f+'">'+(getFactionDef(f)?.name||f)+'</option>';
     }).join('');
   }
 
@@ -273,7 +273,7 @@
       _dbgSafe(function(){
         if(a === b) throw new Error('两势力相同');
         _dbgSetRelation(a, b, status, rel);
-      }, FAC[a]?.name+'↔'+FAC[b]?.name+'='+status+'/'+rel);
+      }, getFactionDef(a)?.name+'↔'+getFactionDef(b)?.name+'='+status+'/'+rel);
     };
 
     document.getElementById('_dbg_rs_warall').onclick = function(){
@@ -321,7 +321,7 @@
     if(!u){
       selInfo = '<div class="dbg-info">请先在地图选中部队(瞬移/编辑用)</div>';
     } else {
-      const facName = FAC[u.fac]?.name || u.fac;
+      const facName = getFactionDef(u.fac)?.name || u.fac;
       const troops = (u.squads||[]).reduce(function(s,sq){return s+(sq.troops||0);}, 0);
       const maxT = (u.squads||[]).reduce(function(s,sq){return s+(sq.maxTroops||0);}, 0);
       const main = u.squads?.[0]?.genName || '?';
@@ -387,7 +387,7 @@
     const opts = G.units.filter(function(u){
       return excludeFac ? u.fac !== excludeFac : true;
     }).map(function(u){
-      const facName = FAC[u.fac]?.name || u.fac;
+      const facName = getFactionDef(u.fac)?.name || u.fac;
       const main = u.squads?.[0]?.genName || '?';
       const troops = (u.squads||[]).reduce(function(s,sq){return s+(sq.troops||0);}, 0);
       return '<option value="'+u.id+'">['+facName+'] '+main+' ('+troops+', '+u.status+')</option>';
@@ -947,14 +947,14 @@
     // 各势力存亡
     const facStatus = getScenarioFactions().map(function(f){
       const fac = G.factions?.[f];
-      const name = FAC[f]?.name || f;
+      const name = getFactionDef(f)?.name || f;
       if(!fac) return name+'(?)';
       return name+(fac._eliminated ? '(亡)' : '(存)');
     }).join(' ');
     lines.push('势力: '+facStatus);
     // 选定势力详情
     const fac = G.factions?.[fid];
-    const facName = FAC[fid]?.name || fid;
+    const facName = getFactionDef(fid)?.name || fid;
     if(fac){
       const cityCount = Object.values(G.cities||{}).filter(function(c){ return c.fac === fid; }).length;
       const gens = G.generals?.[fid] || [];
@@ -1027,7 +1027,7 @@
           if(choices[idx]?.disabled) idx = choices.findIndex(function(c){return !c.disabled;});
           if(idx >= 0 && choices[idx]) choices[idx].effect();
         }
-      }, '触发 '+def.name+' ('+(FAC[fid]?.name||fid)+')');
+      }, '触发 '+def.name+' ('+(getFactionDef(fid)?.name||fid)+')');
     };
     document.getElementById('_dbg_ev_diag').onclick = function(){
       if(typeof EVENT_DEFS === 'undefined'){ _dbgToast('EVENT_DEFS不存在'); return; }
@@ -1052,7 +1052,7 @@
     const box = document.getElementById('_dbg_ev_diag_box');
     if(!box) return;
     const probe = _dbgProbeCondition(def, fid, 100);
-    const facName = FAC[fid]?.name || fid;
+    const facName = getFactionDef(fid)?.name || fid;
     let txt = '── '+(def.icon||'')+' '+(def.name||def.id)+' ['+def.id+'] @ '+facName+' ──\n\n';
     if(isFromFailedFire) txt += '❌ 刚才那次触发失败。\n\n';
     // 试探结果
@@ -1198,7 +1198,7 @@
       const meta = {
         turn: G.turn,
         fac: G.playerFac,
-        facName: FAC[G.playerFac]?.name || G.playerFac,
+        facName: getFactionDef(G.playerFac)?.name || G.playerFac,
         cityCount: cityCount,
         savedAt: new Date().toISOString(),
         version: 175,
@@ -1271,7 +1271,7 @@
       _deserializeG(obj.data);
       if(typeof renderAll === 'function') renderAll();
       if(typeof invalidateFogCache === 'function') invalidateFogCache();
-      _dbgToast('✓ 载入: 第'+obj.turn+'旬 '+(FAC[obj.fac]?.name||obj.fac));
+      _dbgToast('✓ 载入: 第'+obj.turn+'旬 '+(getFactionDef(obj.fac)?.name||obj.fac));
     } catch(e){
       console.error('[Debug] import:', e);
       _dbgToast('✗ 导入失败: '+e.message, 4000);

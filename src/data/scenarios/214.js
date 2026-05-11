@@ -16,7 +16,7 @@
 //   initialUnits[]           — 起手野战 squad spec: {fac, city, squads:[{genName,type,troops,maxTroops,morale}]}
 //
 // 来源:阶段 1a.2 由 tools/extract_scenario_214.js 自动抽取
-//   - factions: FAC[fid].ruler + PLAYABLE_FACS + FAC_IDENTITY + ETHOS_INIT
+//   - factions: getFactionDef(fid).ruler + PLAYABLE_FACS + FAC_IDENTITY + ETHOS_INIT
 //               + G.factions[fid].res + G.reputation + G.emperor + TECH_PREUNLOCK
 //               + AI_PERSONALITY + FOUNDING_CORE
 //   - diplo:    DIPLO_INIT(一向,materialize 时双向 mirror)

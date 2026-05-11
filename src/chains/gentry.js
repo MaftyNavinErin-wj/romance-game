@@ -582,7 +582,7 @@ function _triggerGentryBetray(cityId, siegingFac){
   if(!city) return;
   const oldFac = city.fac;
   const cityName = CITY_MAP[cityId]?.name || cityId;
-  const siegingName = FAC[siegingFac]?.name || siegingFac;
+  const siegingName = getFactionDef(siegingFac)?.name || siegingFac;
 
   // 城市易手
   city.fac = siegingFac;

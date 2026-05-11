@@ -229,7 +229,7 @@ function _clearSiegeOnPeace(fid1, fid2){
 function acceptPeaceOffer(from){
   // ★ v179fix P15c: 玩家接受 AI 求和——此前 mutation 已推迟到这里
   _applyPeaceAgreement(G.playerFac, from);
-  log(`🕊 接受${FAC[from]?.name}求和，双方停战`, 'diplo');
+  log(`🕊 接受${getFactionDef(from)?.name}求和，双方停战`, 'diplo');
   closeModal();
   renderRight();
   _checkPendingCourtAfterPopup(); // ★ I3
@@ -240,7 +240,7 @@ function rejectPeaceOffer(from){
   addDiplo(G.playerFac, from, -5);
   // D-105 trial 3 P2 fix (codex catch): 玩家拒绝时 AI 退 700 金 (跟 aiDoDiplo otherWill 不通过 / _execDiploArmistice 失败一致, 避免 AI 被白扣 1000 金)
   if(G.factions[from]) G.factions[from].res.gold = (G.factions[from].res.gold || 0) + 700;
-  log(`❌ 拒绝${FAC[from]?.name}求和，战争继续`, 'diplo');
+  log(`❌ 拒绝${getFactionDef(from)?.name}求和，战争继续`, 'diplo');
   closeModal();
   _checkPendingCourtAfterPopup(); // ★ I3
 }
@@ -318,7 +318,7 @@ function diploGift(target, level){
   _diploMarkActed(target);
   const lvLabel=['','小礼','厚礼','重礼'][level];
   const repNote = gainFinal < baseGains[level] ? `（声誉低折扣）` : '';
-  log(`🎁 遣使送${lvLabel}予${FAC[target]?.name}，友好度+${gainFinal}${repNote}`,'diplo');
+  log(`🎁 遣使送${lvLabel}予${getFactionDef(target)?.name}，友好度+${gainFinal}${repNote}`,'diplo');
   renderRight();
 }
 
@@ -337,13 +337,13 @@ function diploArmistice(target){
   if(Math.random() < acceptRate){
     // ★ v179fix P15c: 停战成功，全部副作用走 helper
     _applyPeaceAgreement(G.playerFac, target);
-    log(`🕊 与${FAC[target]?.name}达成停战协议，转为中立`,'diplo');
+    log(`🕊 与${getFactionDef(target)?.name}达成停战协议，转为中立`,'diplo');
   } else {
     // 停战失败：退700金，稍微改善关系
     fac.res.gold+=700;
     const _hjFail = hasFacGen(G.playerFac,'诸葛瑾') && genHasOffice('诸葛瑾',G.playerFac) ? 5 : 0;
     addDiplo(G.playerFac,target,3 + _hjFail);
-    log(`❌ ${FAC[target]?.name}拒绝停战，退还700金（关系小幅改善）`,'diplo');
+    log(`❌ ${getFactionDef(target)?.name}拒绝停战，退还700金（关系小幅改善）`,'diplo');
   }
   renderRight();
 }
@@ -369,7 +369,7 @@ function diploAlly(target){
     if(hasFacGen(G.playerFac,'诸葛瑾') && genHasOffice('诸葛瑾',G.playerFac)){
       addDiplo(G.playerFac,target,5);
     }
-    log(`🤝 与${FAC[target]?.name}正式结盟！`,'diplo');
+    log(`🤝 与${getFactionDef(target)?.name}正式结盟！`,'diplo');
     applyEthosShock(G.playerFac, 'strategy', -2, '结盟'); // ★ v151
     // ★ B1 结盟=停战（鸽派+3，鹰派-2）
     if(getScenarioFactions().includes(G.playerFac)) triggerFactionEvent('truce', G.playerFac, {});
@@ -378,7 +378,7 @@ function diploAlly(target){
   } else {
     const _hjAllyFail = hasFacGen(G.playerFac,'诸葛瑾') && genHasOffice('诸葛瑾',G.playerFac) ? 5 : 0;
     addDiplo(G.playerFac,target,2 + _hjAllyFail);
-    log(`❌ ${FAC[target]?.name}暂不接受结盟，关系小幅改善`,'diplo');
+    log(`❌ ${getFactionDef(target)?.name}暂不接受结盟，关系小幅改善`,'diplo');
   }
   renderRight();
 }
@@ -419,7 +419,7 @@ function diploBreakAlliance(target){
     if(G.diplo[key]) G.diplo[key]._brokenAllyTurn = G.turn;
   });
   _diploMarkActed(target);
-  log(`💔 解除与${FAC[target]?.name}的盟约，关系转为中立`,'diplo');
+  log(`💔 解除与${getFactionDef(target)?.name}的盟约，关系转为中立`,'diplo');
   renderRight();
 }
 
@@ -457,7 +457,7 @@ function diploWar(target, claimType){
   if(getScenarioFactions().includes(G.playerFac)) triggerFactionEvent('warDeclare', G.playerFac, {});
   const ct = claimType ? CLAIM_TYPES[claimType] : null;
   const claimLabel = ct ? `以【${ct.label}】` : '无名';
-  log(`⚔️ ${claimLabel}向${FAC[target]?.name}宣战！`,'diplo');
+  log(`⚔️ ${claimLabel}向${getFactionDef(target)?.name}宣战！`,'diplo');
   renderRight();
 }
 
@@ -497,8 +497,8 @@ function _execDeclareWar(fid, act) {
   // D-095/D-122 fix: 删重复 ethosShock 'strategy' +6 — applyWarDeclarationEffects:1319 内部已调一次, 此处删避免双计 strategy +12
   const ct = claimType ? CLAIM_TYPES[claimType] : null;
   const claimLabel = ct ? `以【${ct.label}】` : '';
-  log(`⚔️ [AI] ${FAC[fid]?.name}${claimLabel}向${FAC[target]?.name}宣战！`, 'diplo');
-  _recordWarJournal(fid, `向${FAC[target]?.name}宣战${claimLabel}`); // ★ v159fix
+  log(`⚔️ [AI] ${getFactionDef(fid)?.name}${claimLabel}向${getFactionDef(target)?.name}宣战！`, 'diplo');
+  _recordWarJournal(fid, `向${getFactionDef(target)?.name}宣战${claimLabel}`); // ★ v159fix
   return true;
 }
 
@@ -519,7 +519,7 @@ function _execProposeAlliance(fid, act) {
     d.status = 'ally';
     const rev = G.diplo[`${target}-${fid}`];
     if (rev) rev.status = 'ally';
-    log(`🤝 [AI] ${FAC[fid]?.name}与${FAC[target]?.name}结盟！`, 'diplo');
+    log(`🤝 [AI] ${getFactionDef(fid)?.name}与${getFactionDef(target)?.name}结盟！`, 'diplo');
     applyEthosShock(fid, 'strategy', -2, '结盟');
     // D-131 fix: _execProposeAlliance 成功结盟漏 truce 派系事件（_applyPeaceAgreement L273-274 双向模板）
     if(getScenarioFactions().includes(fid)) triggerFactionEvent('truce', fid, {});
@@ -529,7 +529,7 @@ function _execProposeAlliance(fid, act) {
     addDiplo(fid, target, 2);
     // D-096 fix: 失败设 5 旬 CD (避免本旬反复尝试; 5 旬轻于宣战 15 旬, 跟 _execProposeAlliance 二次成本 250 金 + rel +2 性质相符); 倒计时模式
     G[cdKey] = 5;
-    log(`❌ [AI] ${FAC[target]?.name}暂不接受${FAC[fid]?.name}的结盟请求`, 'diplo');
+    log(`❌ [AI] ${getFactionDef(target)?.name}暂不接受${getFactionDef(fid)?.name}的结盟请求`, 'diplo');
   }
   return true;
 }
@@ -630,7 +630,7 @@ function _syncAllyWarStatus(aggressor, target){
       G.diplo[k1]._warDeclaredTurn = G.turn; // ★ v123
       if(G.diplo[k2]) { G.diplo[k2].status='enemy'; G.diplo[k2]._warDeclaredTurn = G.turn; }
       addDiplo(ally, target, -15);
-      log(`⚔️ ${FAC[ally]?.name}随${FAC[aggressor]?.name}对${FAC[target]?.name}宣战`,'diplo');
+      log(`⚔️ ${getFactionDef(ally)?.name}随${getFactionDef(aggressor)?.name}对${getFactionDef(target)?.name}宣战`,'diplo');
     }
     // ally状态：盟友间不因第三方战争自动翻脸，rel受损即可
     else if(G.diplo[k1] && G.diplo[k1].status==='ally'){
@@ -645,7 +645,7 @@ function _syncAllyWarStatus(aggressor, target){
       G.diplo[k1]._warDeclaredTurn = G.turn; // ★ v123
       if(G.diplo[k2]) { G.diplo[k2].status='enemy'; G.diplo[k2]._warDeclaredTurn = G.turn; }
       addDiplo(ally, aggressor, -15);
-      log(`⚔️ ${FAC[ally]?.name}随${FAC[target]?.name}对${FAC[aggressor]?.name}宣战`,'diplo');
+      log(`⚔️ ${getFactionDef(ally)?.name}随${getFactionDef(target)?.name}对${getFactionDef(aggressor)?.name}宣战`,'diplo');
     }
     else if(G.diplo[k1] && G.diplo[k1].status==='ally'){
       addDiplo(ally, aggressor, -8);
@@ -758,9 +758,9 @@ function aiDoDiplo(fid){
           const claimLabel = ct ? `以【${ct.label}】` : '';
           const isPlayerInvolved = fid===G.playerFac || other===G.playerFac;
           if(isPlayerInvolved){
-            log(`⚔️ ${FAC[fid]?.name}${claimLabel}向${FAC[other]?.name}宣战！`,'diplo');
+            log(`⚔️ ${getFactionDef(fid)?.name}${claimLabel}向${getFactionDef(other)?.name}宣战！`,'diplo');
           } else {
-            log(`⚔️ ${FAC[fid]?.name}${claimLabel}与${FAC[other]?.name}爆发战争`,'diplo');
+            log(`⚔️ ${getFactionDef(fid)?.name}${claimLabel}与${getFactionDef(other)?.name}爆发战争`,'diplo');
           }
           _syncAllyWarStatus(fid, other);
           // D-095/D-122 fix: 删重复 ethosShock 'strategy' +6 — applyWarDeclarationEffects:1319 内部已调一次, 此处删避免双计 strategy +12
@@ -787,7 +787,7 @@ function aiDoDiplo(fid){
               // ★ v179fix P18: 双向 CD，宗主下旬可立即反向发起外交动作
               G[`_diploCD_${fid}_${other}`] = 10;
               G[`_diploCD_${other}_${fid}`] = 10;
-              log(`🏳 ${FAC[fid]?.name}向${FAC[other]?.name}称臣，纳入附庸`,'diplo');
+              log(`🏳 ${getFactionDef(fid)?.name}向${getFactionDef(other)?.name}称臣，纳入附庸`,'diplo');
             }
           }
         }
@@ -817,7 +817,7 @@ function aiDoDiplo(fid){
             _pendingPeaceOffer = { from: fid, to: other };
           } else {
             _applyPeaceAgreement(fid, other);
-            log(`🕊 ${FAC[fid]?.name}与${FAC[other]?.name}达成停战协议`,'diplo');
+            log(`🕊 ${getFactionDef(fid)?.name}与${getFactionDef(other)?.name}达成停战协议`,'diplo');
           }
         } else {
           // D-105 fix: 求和被拒, 退 700 金 + rel+3 (对齐 _execDiploArmistice L1795-L1796)
@@ -865,8 +865,8 @@ function stratDriveWolf(targetA, targetB){
       G.diplo[kAB].status='enemy'; G.diplo[kAB]._warDeclaredTurn=G.turn; if(G.diplo[kBA]) { G.diplo[kBA].status='enemy'; G.diplo[kBA]._warDeclaredTurn=G.turn; }
       addDiplo(targetA,targetB,-15);
       _syncAllyWarStatus(targetA,targetB);
-      log(`🐯 驱虎吞狼！${FAC[targetA]?.name}向${FAC[targetB]?.name}宣战`,'diplo');
-    } else { log(`🐯 驱虎吞狼成功，但${FAC[targetA]?.name}与${FAC[targetB]?.name}已是敌对`,'diplo'); }
+      log(`🐯 驱虎吞狼！${getFactionDef(targetA)?.name}向${getFactionDef(targetB)?.name}宣战`,'diplo');
+    } else { log(`🐯 驱虎吞狼成功，但${getFactionDef(targetA)?.name}与${getFactionDef(targetB)?.name}已是敌对`,'diplo'); }
   } else {
     fac.res.gold += 750; // 失败退半数
     log(`❌ 驱虎吞狼失败，退750金`,'diplo');
@@ -887,7 +887,7 @@ function stratTwoTigers(targetA, targetB){
   const rate = _strategyRate(fid, 0.50);
   if(Math.random()<rate){
     addDiplo(targetA, targetB, -20);
-    log(`⚔️ 二虎竞食！${FAC[targetA]?.name}与${FAC[targetB]?.name}关系 -20`,'diplo');
+    log(`⚔️ 二虎竞食！${getFactionDef(targetA)?.name}与${getFactionDef(targetB)?.name}关系 -20`,'diplo');
   } else {
     fac.res.gold += 400;
     log(`❌ 二虎竞食失败，退400金`,'diplo');
@@ -919,9 +919,9 @@ function stratSpy(target, genName){
       const fled = G.genLoyalty[victim.name] < 10 && Math.random()<0.4;
       if(fled){
         G.generals[target] = (G.generals[target]||[]).filter(g=>g.name!==victim.name);
-        log(`🕵 反间计！${FAC[target]?.name} ${victim.name} 忠诚骤降，愤而下野`,'diplo');
+        log(`🕵 反间计！${getFactionDef(target)?.name} ${victim.name} 忠诚骤降，愤而下野`,'diplo');
       } else {
-        log(`🕵 反间计！${FAC[target]?.name} ${victim.name} 忠诚 -15（现${Math.round(G.genLoyalty[victim.name]??0)}）`,'diplo');
+        log(`🕵 反间计！${getFactionDef(target)?.name} ${victim.name} 忠诚 -15（现${Math.round(G.genLoyalty[victim.name]??0)}）`,'diplo');
       }
     }
   } else {
@@ -947,7 +947,7 @@ function stratRumor(target, cityId){
   const rate = _strategyRate(fid, 0.45);
   if(Math.random()<rate){
     city.morale = Math.max(0, (city.morale||50) - 20);
-    log(`📢 谣言四起！${FAC[target]?.name} ${city.name} 民心 -20（现${Math.round(city.morale)}）`,'diplo');
+    log(`📢 谣言四起！${getFactionDef(target)?.name} ${city.name} 民心 -20（现${Math.round(city.morale)}）`,'diplo');
   } else {
     fac.res.gold += 300;
     log(`❌ 谣言失败，退300金`,'diplo');
@@ -1073,7 +1073,7 @@ function _buildEnvoyIntel(fid, targetFid){
     moveDesc = `主力部队集结于${cityName}方向。`;
   }
 
-  return `📜 使者归报：\n\n${FAC[targetFid]?.full}当前拥城${tCities.length}座。${tDesc}，${gDesc}，${fDesc}。\n${moveDesc}`;
+  return `📜 使者归报：\n\n${getFactionDef(targetFid)?.full}当前拥城${tCities.length}座。${tDesc}，${gDesc}，${fDesc}。\n${moveDesc}`;
 }
 
 /** 显示通使情报弹窗 */
@@ -1113,13 +1113,13 @@ function stratEnvoy(targetFid){
     if(!G._pendingEnvoyIntel) G._pendingEnvoyIntel = [];
     G._pendingEnvoyIntel.push({targetFid, turn:G.turn});
 
-    log(`🏛 通使${FAC[targetFid]?.full}成功！友好度+${relGain}，使者已派出，静候回报……`,'diplo');
+    log(`🏛 通使${getFactionDef(targetFid)?.full}成功！友好度+${relGain}，使者已派出，静候回报……`,'diplo');
   } else {
     // 失败
     const _refund = Math.floor(_cost / 2);
     fac.res.gold += _refund;
     addDiplo(fid, targetFid, -5);
-    log(`❌ 通使${FAC[targetFid]?.full}失败——使者受冷遇，友好度-5，退${_refund}金`,'diplo');
+    log(`❌ 通使${getFactionDef(targetFid)?.full}失败——使者受冷遇，友好度-5，退${_refund}金`,'diplo');
   }
 
   G.strategyCD[fid].envoy = 8;
@@ -1191,7 +1191,7 @@ function applyReputationPenalty(fid, reason){
   if(isPlayer){
     log(`⚠️ ${labels[reason]}，声誉 -${pen}（现为 ${Math.round(G.reputation[fid])}）`,'diplo');
   } else {
-    log(`⚠️ ${FAC[fid]?.name}${labels[reason]}，声誉 -${pen}（现为 ${Math.round(G.reputation[fid])}）`,'diplo');
+    log(`⚠️ ${getFactionDef(fid)?.name}${labels[reason]}，声誉 -${pen}（现为 ${Math.round(G.reputation[fid])}）`,'diplo');
   }
 }
 
@@ -1403,7 +1403,7 @@ function checkEmperorCapture(cityId, oldFac, newFac){
   if(getFactionIdentity(newFac)?.type !== 'emperor'){
     setFactionIdentity(newFac, 'type', 'emperor_holder');
   }
-  log(`👑 天子易主！${FAC[newFac]?.name}迎奉天子于${CITY_MAP[cityId]?.name||cityId}`, 'diplo');
+  log(`👑 天子易主！${getFactionDef(newFac)?.name}迎奉天子于${CITY_MAP[cityId]?.name||cityId}`, 'diplo');
 }
 
 /** 血仇触发（创始/宗亲被对方处决时调用） */
@@ -1415,7 +1415,7 @@ function checkBloodFeud(deadGenName, deadFid, killerFid){
   if(sen !== 'founding' && !isClan) return;
   const key = `${deadFid}-${killerFid}`;
   G.feuds[key] = { reason:`${deadGenName}被处决`, turn:G.turn };
-  if(deadFid === G.playerFac) log(`🩸 血仇！${deadGenName}遇害，与${FAC[killerFid]?.name}结下不共戴天之仇`, 'diplo');
+  if(deadFid === G.playerFac) log(`🩸 血仇！${deadGenName}遇害，与${getFactionDef(killerFid)?.name}结下不共戴天之仇`, 'diplo');
 }
 
 /** 血仇消退（每旬检查，60旬后消失） */
@@ -1479,11 +1479,11 @@ function checkDiplo(){
       // D-131 fix: 自动结盟漏 truce 派系事件（_applyPeaceAgreement L273-274 双向模板）
       if(getScenarioFactions().includes(a)) triggerFactionEvent('truce', a, {});
       if(getScenarioFactions().includes(b)) triggerFactionEvent('truce', b, {});
-      log(`🤝 ${FAC[a]?.name}与${FAC[b]?.name}结成同盟！`,'diplo');
+      log(`🤝 ${getFactionDef(a)?.name}与${getFactionDef(b)?.name}结成同盟！`,'diplo');
     } else if(d.status==='ally'&&d.rel<30){
       d.status='neutral';
       if(G.diplo[`${b}-${a}`]) G.diplo[`${b}-${a}`].status='neutral';
-      log(`💔 ${FAC[a]?.name}与${FAC[b]?.name}同盟破裂`,'diplo');
+      log(`💔 ${getFactionDef(a)?.name}与${getFactionDef(b)?.name}同盟破裂`,'diplo');
     } else if(d.status==='neutral'&&d.rel<=10){
       d.status='enemy'; d._warDeclaredTurn=G.turn;
       if(G.diplo[`${b}-${a}`]) { G.diplo[`${b}-${a}`].status='enemy'; G.diplo[`${b}-${a}`]._warDeclaredTurn=G.turn; }
@@ -1508,7 +1508,7 @@ function checkDiplo(){
       applyWarDeclarationEffects(a, b, null);
       // D-049/D-131 fix: 真正宣战路径触发 warDeclare 派系事件（接口完整性不变量）
       if(getScenarioFactions().includes(a)) triggerFactionEvent('warDeclare', a, {});
-      log(`⚔️ ${FAC[a]?.name}与${FAC[b]?.name}关系破裂，进入敌对！`,'diplo');
+      log(`⚔️ ${getFactionDef(a)?.name}与${getFactionDef(b)?.name}关系破裂，进入敌对！`,'diplo');
     }
   }));
 
@@ -1548,7 +1548,7 @@ function checkDiplo(){
       [`${a}-${b}`,`${b}-${a}`].forEach(k=>{
         if(G.diplo[k]){ G.diplo[k].status='neutral'; delete G.diplo[k].suzerain; }
       });
-      log(`🔓 ${FAC[a]?.name}脱离${FAC[b]?.name}，宣布独立！`,'diplo');
+      log(`🔓 ${getFactionDef(a)?.name}脱离${getFactionDef(b)?.name}，宣布独立！`,'diplo');
     }
   }));
 
@@ -1584,13 +1584,13 @@ function _resolveVassalDiploConflicts(vassalFid, suzerainFid){
     // 1. 附庸旧同盟 → 解除转中立
     if(vd.status === 'ally'){
       [vKey, vRev].forEach(k => { if(G.diplo[k]) G.diplo[k].status = 'neutral'; });
-      log(`📜 ${FAC[vassalFid]?.name}称臣后，与${FAC[third]?.name}的同盟自动解除`,'diplo');
+      log(`📜 ${getFactionDef(vassalFid)?.name}称臣后，与${getFactionDef(third)?.name}的同盟自动解除`,'diplo');
     }
 
     // 2. 附庸的子附庸 → 解放自由（转中立）
     if(vd.status === 'vassal' && vd.suzerain === vassalFid){
       [vKey, vRev].forEach(k => { if(G.diplo[k]){ G.diplo[k].status = 'neutral'; delete G.diplo[k].suzerain; } });
-      log(`🔓 ${FAC[third]?.name}因宗主${FAC[vassalFid]?.name}称臣，恢复独立`,'diplo');
+      log(`🔓 ${getFactionDef(third)?.name}因宗主${getFactionDef(vassalFid)?.name}称臣，恢复独立`,'diplo');
     }
 
     // 3a. 附庸与第三方交战，宗主与第三方和平 → 附庸强制停战
@@ -1598,7 +1598,7 @@ function _resolveVassalDiploConflicts(vassalFid, suzerainFid){
     if(vd.status === 'enemy' && sd.status !== 'enemy'){
       _applyPeaceAgreement(vassalFid, third);
       addDiplo(vassalFid, third, 5); // 保留 +5 friendly bonus（称臣后跟随和平的友善加成）
-      log(`🕊 ${FAC[vassalFid]?.name}称臣后，与${FAC[third]?.name}停战（随宗主外交）`,'diplo');
+      log(`🕊 ${getFactionDef(vassalFid)?.name}称臣后，与${getFactionDef(third)?.name}停战（随宗主外交）`,'diplo');
     }
 
     // 3b. 宗主与第三方交战，附庸与第三方和平 → 附庸跟随宣战
@@ -1607,7 +1607,7 @@ function _resolveVassalDiploConflicts(vassalFid, suzerainFid){
         if(G.diplo[k]){ G.diplo[k].status = 'enemy'; G.diplo[k]._warDeclaredTurn = G.turn; }
       });
       addDiplo(vassalFid, third, -10);
-      log(`⚔️ ${FAC[vassalFid]?.name}随宗主${FAC[suzerainFid]?.name}对${FAC[third]?.name}宣战`,'diplo');
+      log(`⚔️ ${getFactionDef(vassalFid)?.name}随宗主${getFactionDef(suzerainFid)?.name}对${getFactionDef(third)?.name}宣战`,'diplo');
     }
   });
   // ★ 不处理旧宗主：调用方应确保vassalFid是自由身才能称臣
@@ -1628,7 +1628,7 @@ function acceptVassalOffer(vassal, suzerain){
   // D-104 fix: 双向 CD（原 aiDoDiplo 直 mutate 时立即设，P15c 模式推迟到 accept 才设）
   G[`_diploCD_${vassal}_${suzerain}`] = 10;
   G[`_diploCD_${suzerain}_${vassal}`] = 10;
-  log(`🏳 ${FAC[vassal]?.name}正式成为${FAC[suzerain]?.name}附庸`,'diplo');
+  log(`🏳 ${getFactionDef(vassal)?.name}正式成为${getFactionDef(suzerain)?.name}附庸`,'diplo');
   addDiplo(vassal, suzerain, 10);
   renderRight(); renderLeft();
   _checkPendingCourtAfterPopup(); // ★ I3
@@ -1636,7 +1636,7 @@ function acceptVassalOffer(vassal, suzerain){
 
 function rejectVassalOffer(vassal, suzerain){
   addDiplo(vassal, suzerain, -10);
-  log(`❌ ${FAC[suzerain]?.name}拒绝${FAC[vassal]?.name}称臣请求`,'diplo');
+  log(`❌ ${getFactionDef(suzerain)?.name}拒绝${getFactionDef(vassal)?.name}称臣请求`,'diplo');
   renderRight();
   _checkPendingCourtAfterPopup(); // ★ I3
 }
@@ -1648,7 +1648,7 @@ function playerReleaseVassal(fid, other){
     if(G.diplo[k]){ G.diplo[k].status='neutral'; delete G.diplo[k].suzerain; }
   });
   addDiplo(other, fid, 5); // 解放恩情，rel小幅回升
-  log(`🔓 ${FAC[fid]?.name}释放${FAC[other]?.name}，恢复独立`,'diplo');
+  log(`🔓 ${getFactionDef(fid)?.name}释放${getFactionDef(other)?.name}，恢复独立`,'diplo');
   renderRight();
 }
 
@@ -1684,12 +1684,12 @@ function requestVassalIndependence(suzerainFid){
       if(G.diplo[k]){ G.diplo[k].status='neutral'; delete G.diplo[k].suzerain; }
     });
     addDiplo(fid, suzerainFid, -5); // 独立导致关系小幅下降
-    log(`🔓 ${FAC[suzerainFid]?.name}同意${FAC[fid]?.name}解除附庸，恢复独立`,'diplo');
-    showNotif(`${FAC[suzerainFid]?.name}同意解除附庸！`,'ok');
+    log(`🔓 ${getFactionDef(suzerainFid)?.name}同意${getFactionDef(fid)?.name}解除附庸，恢复独立`,'diplo');
+    showNotif(`${getFactionDef(suzerainFid)?.name}同意解除附庸！`,'ok');
   } else {
     addDiplo(fid, suzerainFid, -8); // 拒绝+关系恶化
-    log(`❌ ${FAC[suzerainFid]?.name}拒绝${FAC[fid]?.name}的独立请求`,'diplo');
-    showNotif(`${FAC[suzerainFid]?.name}拒绝了独立请求，关系恶化`,'warn');
+    log(`❌ ${getFactionDef(suzerainFid)?.name}拒绝${getFactionDef(fid)?.name}的独立请求`,'diplo');
+    showNotif(`${getFactionDef(suzerainFid)?.name}拒绝了独立请求，关系恶化`,'warn');
   }
   G[`_diploActed_${fid}`] = true; // 本旬外交行动已用
   renderRight();
@@ -1721,12 +1721,12 @@ function diploDemandVassal(fid, other){
   if(accepted){
     _setVassalStatus(other, fid);
     addDiplo(other, fid, 5);
-    log(`🏳 ${FAC[other]?.name}臣服于${FAC[fid]?.name}，纳为附庸`,'diplo');
-    showNotif(`${FAC[other]?.name}接受称臣！`,'ok');
+    log(`🏳 ${getFactionDef(other)?.name}臣服于${getFactionDef(fid)?.name}，纳为附庸`,'diplo');
+    showNotif(`${getFactionDef(other)?.name}接受称臣！`,'ok');
   } else {
     addDiplo(other, fid, -15); // 要求称臣被拒，关系大幅恶化
-    log(`❌ ${FAC[other]?.name}拒绝向${FAC[fid]?.name}称臣，关系恶化`,'diplo');
-    showNotif(`${FAC[other]?.name}拒绝称臣，关系恶化`,'warn');
+    log(`❌ ${getFactionDef(other)?.name}拒绝向${getFactionDef(fid)?.name}称臣，关系恶化`,'diplo');
+    showNotif(`${getFactionDef(other)?.name}拒绝称臣，关系恶化`,'warn');
   }
   renderRight();
 }
@@ -1757,12 +1757,12 @@ function diploSubmitVassal(fid, other){
   if(accepted){
     _setVassalStatus(fid, other);
     addDiplo(fid, other, 10);
-    log(`🏳 ${FAC[fid]?.name}向${FAC[other]?.name}称臣，成为附庸`,'diplo');
-    showNotif(`已向${FAC[other]?.name}称臣`,'ok');
+    log(`🏳 ${getFactionDef(fid)?.name}向${getFactionDef(other)?.name}称臣，成为附庸`,'diplo');
+    showNotif(`已向${getFactionDef(other)?.name}称臣`,'ok');
   } else {
     addDiplo(fid, other, -5); // 被拒绝称臣，轻微关系恶化
-    log(`❌ ${FAC[other]?.name}拒绝接纳${FAC[fid]?.name}为附庸`,'diplo');
-    showNotif(`${FAC[other]?.name}拒绝了称臣请求`,'warn');
+    log(`❌ ${getFactionDef(other)?.name}拒绝接纳${getFactionDef(fid)?.name}为附庸`,'diplo');
+    showNotif(`${getFactionDef(other)?.name}拒绝了称臣请求`,'warn');
   }
   renderRight();
 }
@@ -1790,7 +1790,7 @@ function _execBreakAlliance(fid, act) {
   if (rev) { rev.status = 'neutral'; rev._brokenAllyTurn = G.turn; }
   // D-109 fix: _execBreakAlliance 解盟 rel -10 → -20 (对齐玩家 breakAlliance L414 -20, 解盟惩罚玩家/AI 一致)
   addDiplo(fid, target, -20);
-  log(`💔 [AI] ${FAC[fid]?.name}解除与${FAC[target]?.name}的联盟`, 'diplo');
+  log(`💔 [AI] ${getFactionDef(fid)?.name}解除与${getFactionDef(target)?.name}的联盟`, 'diplo');
   return true;
 }
 
@@ -1807,7 +1807,7 @@ function _execDiploGift(fid, act) {
   const gain = Math.max(1, Math.round((baseGains[level] || 5) * _repGiftMult(fid) * (1 + _geBuff)));
   safeSub(fac.res, 'gold', cost);
   addDiplo(fid, target, gain);
-  log(`🎁 [AI] ${FAC[fid]?.name}遣使送礼予${FAC[target]?.name}，友好度+${gain}`, 'diplo');
+  log(`🎁 [AI] ${getFactionDef(fid)?.name}遣使送礼予${getFactionDef(target)?.name}，友好度+${gain}`, 'diplo');
   return true;
 }
 
@@ -1823,12 +1823,12 @@ function _execDiploArmistice(fid, act) {
   if (Math.random() < acceptRate) {
     // ★ v179fix P15c: 全部副作用走 helper（Claude AI 主动停战已付出 1000 金代价，对玩家也直接生效，不弹模态）
     _applyPeaceAgreement(fid, target);
-    log(`🕊 [AI] ${FAC[fid]?.name}与${FAC[target]?.name}达成停战`, 'diplo');
-    _recordWarJournal(fid, `与${FAC[target]?.name}达成停战`); // ★ v159fix
+    log(`🕊 [AI] ${getFactionDef(fid)?.name}与${getFactionDef(target)?.name}达成停战`, 'diplo');
+    _recordWarJournal(fid, `与${getFactionDef(target)?.name}达成停战`); // ★ v159fix
   } else {
     fac.res.gold += 700;
     addDiplo(fid, target, 3);
-    log(`❌ [AI] ${FAC[target]?.name}拒绝${FAC[fid]?.name}的停战请求`, 'diplo');
+    log(`❌ [AI] ${getFactionDef(target)?.name}拒绝${getFactionDef(fid)?.name}的停战请求`, 'diplo');
   }
   return true;
 }
@@ -1839,7 +1839,7 @@ function _execStartClaim(fid, act) {
   if (!target) { console.warn('[ClaudeAI] start_claim: 目标势力无效', act.target); return false; }
   if (!claimType || !CLAIM_TYPES[claimType]) { console.warn('[ClaudeAI] start_claim: 宣称类型无效', claimType); return false; }
   startClaimPrep(fid, target, claimType);
-  log(`📜 [AI] ${FAC[fid]?.name}开始准备对${FAC[target]?.name}的宣称【${CLAIM_TYPES[claimType].label}】`, 'diplo');
+  log(`📜 [AI] ${getFactionDef(fid)?.name}开始准备对${getFactionDef(target)?.name}的宣称【${CLAIM_TYPES[claimType].label}】`, 'diplo');
   return true;
 }
 
@@ -1882,11 +1882,11 @@ function _execSchemeDriveWolf(fid, act) {
       if (G.diplo[kBA]) { G.diplo[kBA].status = 'enemy'; G.diplo[kBA]._warDeclaredTurn = G.turn; }
       addDiplo(targetA, targetB, -15);
       _syncAllyWarStatus(targetA, targetB);
-      log(`🐯 [AI] ${FAC[fid]?.name}驱虎吞狼！${FAC[targetA]?.name}向${FAC[targetB]?.name}宣战`, 'diplo');
+      log(`🐯 [AI] ${getFactionDef(fid)?.name}驱虎吞狼！${getFactionDef(targetA)?.name}向${getFactionDef(targetB)?.name}宣战`, 'diplo');
     }
   } else {
     fac.res.gold += 750;
-    log(`❌ [AI] ${FAC[fid]?.name}驱虎吞狼失败`, 'diplo');
+    log(`❌ [AI] ${getFactionDef(fid)?.name}驱虎吞狼失败`, 'diplo');
   }
   G.strategyCD[fid].driveWolf = 12;
   return true;
@@ -1903,10 +1903,10 @@ function _execSchemeTwoTigers(fid, act) {
   const rate = _strategyRate(fid, 0.50);
   if (Math.random() < rate) {
     addDiplo(targetA, targetB, -20);
-    log(`⚔️ [AI] ${FAC[fid]?.name}二虎竞食！${FAC[targetA]?.name}与${FAC[targetB]?.name}关系-20`, 'diplo');
+    log(`⚔️ [AI] ${getFactionDef(fid)?.name}二虎竞食！${getFactionDef(targetA)?.name}与${getFactionDef(targetB)?.name}关系-20`, 'diplo');
   } else {
     fac.res.gold += 400;
-    log(`❌ [AI] ${FAC[fid]?.name}二虎竞食失败`, 'diplo');
+    log(`❌ [AI] ${getFactionDef(fid)?.name}二虎竞食失败`, 'diplo');
   }
   G.strategyCD[fid].twoTigers = 8;
   return true;
@@ -1929,11 +1929,11 @@ function _execSchemeSpy(fid, act) {
       const oldLoy = G.genLoyalty[victim.name] ?? (victim.loyalty || 60);
       G.genLoyalty[victim.name] = Math.max(0, oldLoy - 15);
       if (G.loyaltyAccum) G.loyaltyAccum[victim.name] = G.genLoyalty[victim.name];
-      log(`🕵 [AI] ${FAC[fid]?.name}反间计！${FAC[target]?.name} ${victim.name} 忠诚-15`, 'diplo');
+      log(`🕵 [AI] ${getFactionDef(fid)?.name}反间计！${getFactionDef(target)?.name} ${victim.name} 忠诚-15`, 'diplo');
     }
   } else {
     fac.res.gold += 600;
-    log(`❌ [AI] ${FAC[fid]?.name}反间计失败`, 'diplo');
+    log(`❌ [AI] ${getFactionDef(fid)?.name}反间计失败`, 'diplo');
   }
   G.strategyCD[fid].spy = 8;
   return true;
@@ -1953,10 +1953,10 @@ function _execSchemeRumor(fid, act) {
   const rate = _strategyRate(fid, 0.45);
   if (Math.random() < rate) {
     city.morale = Math.max(0, (city.morale || 50) - 20);
-    log(`📢 [AI] ${FAC[fid]?.name}散布谣言！${city.name}民心-20`, 'diplo');
+    log(`📢 [AI] ${getFactionDef(fid)?.name}散布谣言！${city.name}民心-20`, 'diplo');
   } else {
     fac.res.gold += 300;
-    log(`❌ [AI] ${FAC[fid]?.name}散布谣言失败`, 'diplo');
+    log(`❌ [AI] ${getFactionDef(fid)?.name}散布谣言失败`, 'diplo');
   }
   G.strategyCD[fid].rumor = 6;
   return true;
@@ -1982,10 +1982,10 @@ function _execSchemeScout(fid, act) {
     if (!G.scoutReveals) G.scoutReveals = [];
     G.scoutReveals.push({ fid, cityId, expiresAt: G.turn + 3 });
     _applyScoutReveal(fid, cityId);
-    log(`🔍 [AI] ${FAC[fid]?.name}细作探报！${targetCity.name}周边情报已获取`, 'diplo');
+    log(`🔍 [AI] ${getFactionDef(fid)?.name}细作探报！${targetCity.name}周边情报已获取`, 'diplo');
   } else {
     fac.res.gold += Math.floor(cost / 2);
-    log(`❌ [AI] ${FAC[fid]?.name}细作探报失败`, 'diplo');
+    log(`❌ [AI] ${getFactionDef(fid)?.name}细作探报失败`, 'diplo');
   }
   G.strategyCD[fid].scout = 6;
   return true;

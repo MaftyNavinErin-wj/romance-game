@@ -87,7 +87,7 @@ function openGenProfile(genName, fid){
   const g=GEN_MAP[genName] || (G.generals[fid2||'wei']||[]).find(x=>x.name===genName);
   if(!g) return;
   const meta=getGenMeta(genName);
-  const fd=FAC[fid2||'wei'];
+  const fd=getFactionDef(fid2||'wei');
   const col=fd?.color||'#6b5530';
   const ac=v=>v>=90?'#8a7040':v>=75?'#1a7a3a':v>=60?'#1a5f8a':'#888';
   const aptColor={'S':'#8a7040','A':'#1a7a3a','B':'#1a5f8a','C':'rgba(80,65,40,.25)'};
@@ -266,7 +266,7 @@ function openGenProfile(genName, fid){
       : (val<=-50?'#c03030':val<=-20?'#e07040':'rgba(200,80,40,.4)');
     const sign = val>0?'+':'';
     const otherFid = Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(x=>x.name===name)) || 'wild';
-    const otherCol = FAC[otherFid]?.color || '#6b5530';
+    const otherCol = getFactionDef(otherFid)?.color || '#6b5530';
     return `<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px">
       <div style="width:26px;height:26px;border-radius:50%;background:${otherCol}18;border:1px solid ${otherCol}44;
         display:flex;align-items:center;justify-content:center;font-family:'Noto Serif SC',serif;font-size:11px;

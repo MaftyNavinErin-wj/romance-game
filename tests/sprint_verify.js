@@ -264,9 +264,9 @@ const VERIFIES = [
       if(!def) return { passed: false, detail: 'return_emperor def not found' };
       const choices = def.choices({ fid:'wei', genName:'X' });
       const effStr = choices[0].effect.toString();
-      // log 不应硬编 '主公', 应该用 FAC[fid]
-      if(effStr.indexOf('主公') >= 0 && effStr.indexOf('FAC[fid]') < 0){
-        return { passed: false, detail: '"主公" 仍硬编, 未改 FAC[fid].name' };
+      // log 不应硬编 '主公', 应该用 FAC[fid] / getFactionDef(fid) (1c-c migration 后)
+      if(effStr.indexOf('主公') >= 0 && effStr.indexOf('FAC[fid]') < 0 && effStr.indexOf('getFactionDef') < 0){
+        return { passed: false, detail: '"主公" 仍硬编, 未改 FAC[fid].name / getFactionDef(fid).name' };
       }
       // showNotif 应有 fid===G.playerFac gate
       if(effStr.indexOf('showNotif') >= 0 && effStr.indexOf('playerFac') < 0){
@@ -1827,11 +1827,15 @@ const VERIFIES = [
         const m3 = codeOnly.match(/\bETHOS_INIT\[/g) || [];
         const m4 = codeOnly.match(/\bDIPLO_INIT\b/g) || [];
         const m5 = codeOnly.match(/\bALL_FACS\b/g) || [];  // 1c-b
+        const m6 = codeOnly.match(/\bFAC\[/g) || [];  // 1c-c
+        const m7 = codeOnly.match(/\bObject\.(keys|entries|values)\(FAC\)/g) || [];  // 1c-c
         if(m1.length) errs.push(`${f}: ${m1.length} × FAC_IDENTITY[`);
         if(m2.length) errs.push(`${f}: ${m2.length} × FAC_IDENTITY.<fid>`);
         if(m3.length) errs.push(`${f}: ${m3.length} × ETHOS_INIT[`);
         if(m4.length) errs.push(`${f}: ${m4.length} × DIPLO_INIT`);
         if(m5.length) errs.push(`${f}: ${m5.length} × ALL_FACS`);
+        if(m6.length) errs.push(`${f}: ${m6.length} × FAC[`);
+        if(m7.length) errs.push(`${f}: ${m7.length} × Object.keys/entries/values(FAC)`);
       }
       return errs.length ? { passed: false, detail: `Scanned ${files.length - ALLOWLIST.size} files: ` + errs.slice(0,10).join(' / ') } : { passed: true, detail: `Scanned ${files.length - ALLOWLIST.size} files, 0 violations` };
     },
@@ -1877,6 +1881,42 @@ const VERIFIES = [
       if(win.ETHOS_INIT.wei.mandate !== origMandate) errs.push(`ETHOS_INIT.wei.mandate ${win.ETHOS_INIT.wei.mandate} != ${origMandate}`);
       if(win.DIPLO_INIT['shu-wu'].rel !== origRel) errs.push(`DIPLO_INIT.shu-wu.rel ${win.DIPLO_INIT['shu-wu'].rel} != ${origRel}`);
       return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
+  // ── 阶段 1c-c FAC[ + Object.<*>(FAC) migration ───────────────────────
+  // 26 files × ~241 hits FAC[expr] → getFactionDef(expr); + 7 Object.keys(FAC)→getScenarioFactions() + 1 Object.entries(FAC)→Object.entries(getAllFactions())
+  {
+    id: 'scenario-1c-c-getFactionDef-used',
+    name: '1c-c: src/ getFactionDef() 调用数 > 200 (~241 FAC[ 已迁移)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      function walkSrc(dir, acc){
+        for(const ent of fsM.readdirSync(dir, { withFileTypes: true })){
+          const full = pathM.join(dir, ent.name);
+          if(ent.isDirectory()) walkSrc(full, acc);
+          else if(ent.name.endsWith('.js')) acc.push(full);
+        }
+        return acc;
+      }
+      const files = walkSrc(pathM.resolve(__dirname, '..', 'src'), []);
+      let total = 0;
+      for(const f of files){
+        const src = fsM.readFileSync(f, 'utf8');
+        const m = src.match(/\bgetFactionDef\(/g) || [];
+        total += m.length;
+      }
+      if(total < 200) return { passed: false, detail: `getFactionDef( count=${total} (expected > 200, may indicate incomplete migration)` };
+      return { passed: true, detail: `${total} call sites` };
+    },
+  },
+  {
+    id: 'scenario-1c-c-getAllFactions-defined',
+    name: '1c-c: getAllFactions accessor 已加 (Object.entries 用例)',
+    fn(G, win){
+      if(typeof win.getAllFactions !== 'function') return { passed: false, detail: 'getAllFactions not function' };
+      const all = win.getAllFactions();
+      if(all !== win.FAC) return { passed: false, detail: 'getAllFactions() !== FAC ref' };
+      return { passed: true };
     },
   },
   // ── 阶段 1c-b ALL_FACS migration ──────────────────────────────────────
@@ -2017,6 +2057,7 @@ async function main(){
     window.syncArray = (typeof syncArray !== 'undefined') ? syncArray : null;
     // 1b-2 scenario accessors
     window.getFactionDef = (typeof getFactionDef !== 'undefined') ? getFactionDef : null;
+    window.getAllFactions = (typeof getAllFactions !== 'undefined') ? getAllFactions : null;
     window.getScenarioFactions = (typeof getScenarioFactions !== 'undefined') ? getScenarioFactions : null;
     window.getPlayableFactions = (typeof getPlayableFactions !== 'undefined') ? getPlayableFactions : null;
     window.isPlayableFaction = (typeof isPlayableFaction !== 'undefined') ? isPlayableFaction : null;

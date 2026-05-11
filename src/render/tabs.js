@@ -401,7 +401,7 @@ function renderStatsTab(c){
 // ═══════════════════════════════════════
 function renderPostTab(c){
   const fid = G.playerFac;
-  const fd = FAC[fid];
+  const fd = getFactionDef(fid);
   const slots = getPostSlots(fid);
   const posts = getFacPosts(fid);
   const buffs = calcPostBuffs(fid);
@@ -789,7 +789,7 @@ function _buildCourtVacancies(fid){
 }
 function renderFactionTab(c){
   const fid = G.playerFac;
-  const facName = FAC[fid]?.name || fid;
+  const facName = getFactionDef(fid)?.name || fid;
   const inf = calcFactionInfluence(fid);
   const fi = inf.factions;
   const total = inf.total;
@@ -996,7 +996,7 @@ function renderFactionTab(c){
 function renderDipTab(c){
   // 外交面板始终显示玩家自己势力，不跟随 selFac
   const fid = G.playerFac;
-  const others = Object.keys(FAC).filter(f=>f!==fid);
+  const others = getScenarioFactions().filter(f=>f!==fid);
   const sm  = {ally:'同盟', neutral:'中立', enemy:'敌对', vassal:'附庸'};
   const sc  = {ally:'#1a7a3a', neutral:'#6b5530', enemy:'#c03030', vassal:'#8060c0'};
   const rc  = r => r>=70?'#1a7a3a':r>=40?'#6b5530':'#c03030';
@@ -1134,7 +1134,7 @@ function renderDipTab(c){
         ? '仅名义·无纳贡'
         : `金${Math.round(_trMy.gold*100)}%·粮${Math.round(_trMy.food*100)}%`;
       btns = `<div style="margin-top:6px">
-        <div style="font-size:9px;color:${powCol};margin-bottom:5px">军力：${powLabel}${d.status==='vassal'?('<span style="color:#8060c0;margin-left:6px">'+(d.suzerain===fid?('（纳贡中·'+_trMyText+'）'):('（宗主：'+(FAC[d.suzerain]?.name||'?')+'）'))+'</span>'):''}</div>
+        <div style="font-size:9px;color:${powCol};margin-bottom:5px">军力：${powLabel}${d.status==='vassal'?('<span style="color:#8060c0;margin-left:6px">'+(d.suzerain===fid?('（纳贡中·'+_trMyText+'）'):('（宗主：'+(getFactionDef(d.suzerain)?.name||'?')+'）'))+'</span>'):''}</div>
         <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px">
           ${gift1}${gift2}${gift3}
         </div>
@@ -1192,7 +1192,7 @@ function renderDipTab(c){
 
     return `<div class="dip-item" style="flex-direction:column;align-items:stretch;padding:8px 10px;margin-bottom:8px;border:1px solid rgba(80,65,40,.10);background:rgba(80,65,40,.03)">
       <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-family:'Noto Serif SC',serif;font-size:12px;color:${FAC[other]?.color};min-width:28px">${FAC[other]?.name}</span>
+        <span style="font-family:'Noto Serif SC',serif;font-size:12px;color:${getFactionDef(other)?.color};min-width:28px">${getFactionDef(other)?.name}</span>
         <div class="rel-bar" style="flex:1"><div class="rel-fill" style="width:${rel}%;background:${rc(rel)}"></div></div>
         <span class="clickable-val" style="font-size:9px;color:rgba(92,74,50,.45);min-width:20px;text-align:right" onclick="event.stopPropagation();showDiploBreakdown(event,'${other}')">${rel}</span>
         <span class="clickable-val" style="font-size:9px;color:${statusCol};min-width:28px;text-align:right;font-family:'Noto Serif SC',serif" onclick="event.stopPropagation();showDiploBreakdown(event,'${other}')">${sm[d.status]||d.status}</span>
@@ -1202,7 +1202,7 @@ function renderDipTab(c){
   }).join('');
 
   c.innerHTML =
-    `<div style="font-size:10px;color:rgba(92,74,50,.40);margin-bottom:8px">外交总览 ${_tabHelpHtml('dip')} <span style="font-size:9px;color:rgba(92,74,50,.25)">${FAC[fid]?.full}</span></div>` +
+    `<div style="font-size:10px;color:rgba(92,74,50,.40);margin-bottom:8px">外交总览 ${_tabHelpHtml('dip')} <span style="font-size:9px;color:rgba(92,74,50,.25)">${getFactionDef(fid)?.full}</span></div>` +
     (() => {
       const rep = Math.round(G.reputation?.[fid] ?? REPUTATION_DEFAULT);
       const repCol = rep>=70?'#1a7a3a':rep>=40?'#6b5530':'#c03030';
@@ -1224,7 +1224,7 @@ function renderDipTab(c){
       let empStr = '';
       if(G.emperor){
         const empCity = CITY_MAP[G.emperor.cityId]?.name || G.emperor.cityId;
-        const empHolder = FAC[G.emperor.holder]?.name || '?';
+        const empHolder = getFactionDef(G.emperor.holder)?.name || '?';
         empStr = `<span style="font-size:9px;color:rgba(92,74,50,.55);margin-left:8px">天子在${empCity}（${empHolder}控制）</span>`;
       } else {
         empStr = `<span style="font-size:9px;color:rgba(92,74,50,.35);margin-left:8px">天子已废</span>`;
@@ -1256,7 +1256,7 @@ function renderDipTab(c){
 // ── ★ v145: 计谋独立Tab ──
 function renderSchemeTab(c){
   const fid = G.playerFac;
-  const others = Object.keys(FAC).filter(f=>f!==fid);
+  const others = getScenarioFactions().filter(f=>f!==fid);
 
   // ── 军师栏 ──
   const sName = G.factions[fid]?.strategist;
@@ -1287,8 +1287,8 @@ function renderSchemeTab(c){
       : `<button disabled class="dip-btn" title="${tip}" style="opacity:.35;cursor:not-allowed">${label}·${cost}金${cdBadge}</button>`;
   }
 
-  const pairOpts  = others.map(f=>`<option value="${f}">${FAC[f]?.name}</option>`).join('');
-  const pairOptsB = others.map((f,i)=>`<option value="${f}"${i===1?' selected':''}>${FAC[f]?.name}</option>`).join('');
+  const pairOpts  = others.map(f=>`<option value="${f}">${getFactionDef(f)?.name}</option>`).join('');
+  const pairOptsB = others.map((f,i)=>`<option value="${f}"${i===1?' selected':''}>${getFactionDef(f)?.name}</option>`).join('');
   const selStyle  = `font-size:9px;background:rgba(245,238,225,.95);color:var(--ink);border:1px solid rgba(80,65,40,.2);padding:2px 3px;border-radius:2px`;
 
   // 反间：势力 → 武将 级联
@@ -1297,7 +1297,7 @@ function renderSchemeTab(c){
     const genOpts = gens.map(g=>`<option value="${g.name}">${g.name}（忠${Math.round(G.genLoyalty[g.name]??60)}）</option>`).join('');
     const selId = `spy-gen-${f}`;
     return `<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
-      <span style="font-size:9px;color:${FAC[f]?.color};min-width:16px">${FAC[f]?.name}</span>
+      <span style="font-size:9px;color:${getFactionDef(f)?.color};min-width:16px">${getFactionDef(f)?.name}</span>
       <select id="${selId}" style="${selStyle}">${genOpts||'<option>（无）</option>'}</select>
       ${sBtn('反间计',1200,'spy',0.40,`stratSpy('${f}',document.getElementById('${selId}').value)`)}
     </div>`;
@@ -1309,7 +1309,7 @@ function renderSchemeTab(c){
     const cityOpts = cities.map(c2=>`<option value="${c2.id}">${c2.name}（心${Math.round(c2.morale??50)}）</option>`).join('');
     const selId = `rum-city-${f}`;
     return `<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
-      <span style="font-size:9px;color:${FAC[f]?.color};min-width:16px">${FAC[f]?.name}</span>
+      <span style="font-size:9px;color:${getFactionDef(f)?.color};min-width:16px">${getFactionDef(f)?.name}</span>
       <select id="${selId}" style="${selStyle}">${cityOpts||'<option>（无城）</option>'}</select>
       ${sBtn('散布谣言',600,'rumor',0.45,`stratRumor('${f}',document.getElementById('${selId}').value)`)}
     </div>`;
@@ -1338,7 +1338,7 @@ function renderSchemeTab(c){
     : `<div style="font-size:9px;color:rgba(92,74,50,.35)">无邻接敌城可侦察</div>`;
 
   c.innerHTML =
-    `<div style="font-size:10px;color:rgba(92,74,50,.40);margin-bottom:8px">计谋总览 ${_tabHelpHtml('scheme')} <span style="font-size:9px;color:rgba(92,74,50,.25)">${FAC[fid]?.full}</span></div>` +
+    `<div style="font-size:10px;color:rgba(92,74,50,.40);margin-bottom:8px">计谋总览 ${_tabHelpHtml('scheme')} <span style="font-size:9px;color:rgba(92,74,50,.25)">${getFactionDef(fid)?.full}</span></div>` +
     strategistBar +
     `<div style="padding:8px;margin-bottom:10px;background:rgba(120,60,20,.06);border:1px solid rgba(80,65,40,.10);border-radius:3px">
       <div style="display:flex;flex-direction:column;gap:8px">
@@ -1369,7 +1369,7 @@ function renderSchemeTab(c){
             const dd=G.diplo[fid+'-'+f]||{rel:50};
             const relOk = dd.rel>=20;
             return `<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
-              <span style="font-size:9px;color:${FAC[f]?.color};min-width:16px">${FAC[f]?.name}</span>
+              <span style="font-size:9px;color:${getFactionDef(f)?.color};min-width:16px">${getFactionDef(f)?.name}</span>
               <span style="font-size:8px;color:rgba(92,74,50,.35)">好感${Math.round(dd.rel)}</span>
               ${sBtn('通使',600,'envoy',0.65,`stratEnvoy('${f}')`)}
             </div>`;
@@ -1427,8 +1427,8 @@ function renderEthosTab(c){
   getScenarioFactions().filter(f => f !== fid).forEach(of => {
     const oe = G.factions[of]?.ethos;
     if(!oe) return;
-    const facN = FAC[of]?.name || of;
-    const facC = FAC[of]?.color || '#6b5530';
+    const facN = getFactionDef(of)?.name || of;
+    const facC = getFactionDef(of)?.color || '#6b5530';
     const dist = Math.round(_ethosDistance(fid, of));
     const distLabel = dist > 50 ? '道不同不相为谋' : dist > 30 ? '貌合神离' : dist > 15 ? '和而不同' : '志同道合';
     const distCol = dist > 50 ? '#c03030' : dist > 30 ? '#8a6a10' : dist > 15 ? 'rgba(92,74,50,.5)' : '#1a7a3a';

@@ -71,7 +71,7 @@ function _renderSiegeIndicators() {
     const siegeUnits = G.units.filter(u => u.status === 'siege' && u.siegeTarget === def.id);
     if (!siegeUnits.length) return;
     const atkFac = siegeUnits[0].fac;
-    const atkCol = FAC[atkFac]?.color || '#c03030';
+    const atkCol = getFactionDef(atkFac)?.color || '#c03030';
     const defMult = getSiegeDefMult(city);
     const invS = 'scale(' + (1/_mapScale).toFixed(4) + ')';
     const siegeTurns = siegeUnits[0]._siegeTurnCount || 0;
@@ -297,7 +297,7 @@ function renderUnitsOnMap(){
   // C4: 也需要用过滤后的单位列表渲染
   const visibleUnits = Object.values(byPos).flat();
   visibleUnits.forEach(unit => {
-    const col = FAC[unit.fac]?.color||'#888';
+    const col = getFactionDef(unit.fac)?.color||'#888';
     const isSel = G.selUnitId === unit.id;
     const isGarr = unit.status === 'garrison';
     const pos = hexToPixel(unit.hq??0, unit.hr??0);
@@ -491,7 +491,7 @@ function renderUnitsOnMap(){
 function renderUnitDetail(c){
   const unit=G.units.find(u=>u.id===G.selUnitId);
   if(!unit){renderMilTab(c);return;}
-  const col=FAC[unit.fac]?.color||'#888';
+  const col=getFactionDef(unit.fac)?.color||'#888';
   const isPlayer=unit.fac===G.playerFac;
   const ap=calcUnitAP(unit);
   const total=getUnitTroops(unit);
@@ -560,7 +560,7 @@ function renderUnitDetail(c){
       ${backBtn}
       <div class="cd-name" style="color:${col}">${titleName}</div>
       <div style="font-size:10px;color:rgba(92,74,50,.40);margin-bottom:10px">
-        ${FAC[unit.fac]?.full} · ${atCity?atCity.name:'野外'} ·
+        ${getFactionDef(unit.fac)?.full} · ${atCity?atCity.name:'野外'} ·
         ${unit.status==='garrison'?'🛡驻扎':'⚔行军'}
       </div>
       <div style="font-size:9px;color:${intelCol};margin-bottom:10px;padding:4px 8px;border:1px solid ${intelCol}30;border-radius:3px">
@@ -651,7 +651,7 @@ function renderUnitDetail(c){
     ${backBtn}
     <div class="cd-name" style="color:${col}">${unit.squads[0]?.genName} 部</div>
     <div style="font-size:10px;color:rgba(92,74,50,.40);margin-bottom:10px">
-      ${FAC[unit.fac]?.full} · ${atCity?atCity.name:'野外('+terrain+')'} ·
+      ${getFactionDef(unit.fac)?.full} · ${atCity?atCity.name:'野外('+terrain+')'} ·
       ${unit.mobilizingTurns>0?`⚙整备中(${unit.mobilizingTurns}旬)`:isUnitMustering(unit)?'🏰集结中':unit.status==='garrison'?'🛡待命':unit.status==='camp'?'🏕扎营中':unit.status==='ambush'?'🌿埋伏中':'⚔行军'}
     </div>
     <div class="sec">编制</div>

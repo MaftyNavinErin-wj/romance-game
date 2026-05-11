@@ -414,7 +414,7 @@ const _baCore = (() => {
       wu:   'rgba(248,225,222,.95)',
       nanman:'rgba(248,240,210,.95)',
     };
-    const col = (typeof FAC !== 'undefined' && FAC[unit.fac]?.color) || '#888';
+    const col = (typeof FAC !== 'undefined' && getFactionDef(unit.fac)?.color) || '#888';
     const darkFill = FAC_FLAG_COL[unit.fac] || 'rgba(240,235,220,.95)';
     const gname = unit.squads?.[0]?.genName || '?';
     const dispName = gname.length > 2 ? gname.slice(0,2) : gname;
@@ -467,7 +467,7 @@ const _baCore = (() => {
       wu:   'rgba(248,225,222,.95)',
       nanman:'rgba(248,240,210,.95)',
     };
-    const col = (typeof FAC !== 'undefined' && FAC[unit.fac]?.color) || '#888';
+    const col = (typeof FAC !== 'undefined' && getFactionDef(unit.fac)?.color) || '#888';
     const sailFill = FAC_SAIL_COL[unit.fac] || 'rgba(240,235,220,.95)';
     const gname = unit.squads?.[0]?.genName || '?';
     const dispName = gname.length > 2 ? gname.slice(0,2) : gname;
@@ -647,7 +647,7 @@ async function _playDuelPreludeAnim(duel, atkPos, defPos){
 
     // 创建武将令牌（圆形纹章：势力色外圈 + 墨色内圈 + 武将名）
     const makeNameplate = (name, fac, startPos) => {
-      const col = FAC[fac]?.color || '#888';
+      const col = getFactionDef(fac)?.color || '#888';
       const disp = name.length > 2 ? name.slice(0,2) : name;
       const g = document.createElementNS(ns, 'g');
       g.setAttribute('transform', `translate(${startPos.x.toFixed(2)} ${startPos.y.toFixed(2)})`);
@@ -1008,7 +1008,7 @@ async function _playBattleCollisionAnim(attackers, defenders, report, posSnap){
       wei:'rgba(220,235,248,.95)',shu:'rgba(220,242,228,.95)',
       wu:'rgba(248,225,222,.95)',nanman:'rgba(248,240,210,.95)',
     };
-    const facCol = f => FAC[f]?.color || '#888';
+    const facCol = f => getFactionDef(f)?.color || '#888';
 
     // v174: makePhantom 已抽到 _baCore，保留本地 wrapper 闭包 animG/invS 保持调用点不变
     // §5.10 fix: wrapper 加 presetTroops 透传, caller 从 posSnap 取战前 troops
@@ -2191,7 +2191,7 @@ async function _playSiegeBattleAnim(report, attackers, defenders, posSnap, city)
     // 攀爬小圆点
     ladders.forEach((L, idx) => {
       const atkFac = atkPhantoms[idx]?.unit?.fac;
-      const climberCol = (typeof FAC !== 'undefined' && FAC[atkFac]?.color) || '#c96';
+      const climberCol = (typeof FAC !== 'undefined' && getFactionDef(atkFac)?.color) || '#c96';
       for(let k = 0; k < 2; k++){
         const climber = document.createElementNS(_baCore.SVG_NS, 'circle');
         climber.setAttribute('r', (1.5*invS).toFixed(2));
@@ -2260,7 +2260,7 @@ async function _playSiegeBattleAnim(report, attackers, defenders, posSnap, city)
 
     // ── Ph4 (3400-4200ms) 结果大字 + 飘字 + 归阵 ──
     const defFac = city.fac || effectiveDefenders[0]?.fac || 'wei';
-    const defColor = (typeof FAC !== 'undefined' && FAC[defFac]?.color) || '#806040';
+    const defColor = (typeof FAC !== 'undefined' && getFactionDef(defFac)?.color) || '#806040';
     let resultText, resultColor;
     if(atkWins && cityBreach){ resultText = '城破'; resultColor = '#c03030'; }
     else if(atkWins){ resultText = '攻占得手'; resultColor = '#c03030'; }

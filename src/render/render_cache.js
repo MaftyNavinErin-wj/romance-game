@@ -211,7 +211,7 @@ function _getCitySvgCache() {
     } else if (fogLv === FOG_UNEXPLORED) {
       displayFac = 'none';
     }
-    const fc = FAC[displayFac] || null;
+    const fc = getFactionDef(displayFac) || null;
     const col = fc ? fc.color : '#666';
     const darkFill = (fogLv === FOG_VISIBLE) ? (FAC_DARK_FILL[displayFac] || 'rgba(240,235,220,.92)')
                    : isExplored ? (FAC_DARK_FILL[displayFac] || 'rgba(235,228,215,.92)')

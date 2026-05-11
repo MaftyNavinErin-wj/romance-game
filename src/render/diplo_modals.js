@@ -172,7 +172,7 @@ function showDiploSueForPeace(offer){
   if(!offer) return;
   const {from, to} = offer;
   if(to !== G.playerFac) return; // 安全检查
-  const facName = FAC[from]?.name || from;
+  const facName = getFactionDef(from)?.name || from;
   const modal = document.getElementById('genericModal');
   const body  = document.getElementById('genericModalBody');
   if(!modal||!body) return;
@@ -225,18 +225,18 @@ function showSiegeAftermathChoice(cityId, atkFac){
 function showDiploVassal(offer){
   const { vassal, suzerain, type } = offer;
   const isPlayerSuzerain = suzerain === G.playerFac;
-  const facColor = FAC[isPlayerSuzerain ? vassal : suzerain]?.color || '#6b5530';
+  const facColor = getFactionDef(isPlayerSuzerain ? vassal : suzerain)?.color || '#6b5530';
   const title    = isPlayerSuzerain
-    ? `${FAC[vassal]?.name}请求称臣`
-    : `${FAC[suzerain]?.name}要求${FAC[vassal]?.name}称臣`;
+    ? `${getFactionDef(vassal)?.name}请求称臣`
+    : `${getFactionDef(suzerain)?.name}要求${getFactionDef(vassal)?.name}称臣`;
   // ★ v181 #5: 纳贡比例按宗主 stage 动态显示
   const _tr = getTributeRates(suzerain);
   const _trText = (_tr.gold === 0 && _tr.food === 0)
     ? '仅名义臣属·无纳贡'
     : `金${Math.round(_tr.gold*100)}%·粮${Math.round(_tr.food*100)}%/旬`;
   const body = isPlayerSuzerain
-    ? `<p style="font-size:11px;color:rgba(44,36,22,.65);line-height:1.8">${FAC[vassal]?.full}国力衰微，愿奉${FAC[suzerain]?.full}为宗主（${_trText}），换取庇护。</p>`
-    : `<p style="font-size:11px;color:rgba(44,36,22,.65);line-height:1.8">${FAC[suzerain]?.full}势力强横，迫使${FAC[vassal]?.full}称臣纳贡（${_trText}）。</p>`;
+    ? `<p style="font-size:11px;color:rgba(44,36,22,.65);line-height:1.8">${getFactionDef(vassal)?.full}国力衰微，愿奉${getFactionDef(suzerain)?.full}为宗主（${_trText}），换取庇护。</p>`
+    : `<p style="font-size:11px;color:rgba(44,36,22,.65);line-height:1.8">${getFactionDef(suzerain)?.full}势力强横，迫使${getFactionDef(vassal)?.full}称臣纳贡（${_trText}）。</p>`;
   const modal = document.getElementById('modal');
   document.getElementById('modalBody').innerHTML =
     `<div style="padding:12px 4px;text-align:center">

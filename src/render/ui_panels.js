@@ -52,8 +52,8 @@ function renderLeft(){
     el.innerHTML = _leftPanelCache.html;
   } else {
   // ★ 势力卡（增加金钱净产出/旬 和 粮食净变化/旬）
-  const _html = Object.keys(FAC).map(fid=>{
-    const f=G.factions[fid],fd=FAC[fid];
+  const _html = getScenarioFactions().map(fid=>{
+    const f=G.factions[fid],fd=getFactionDef(fid);
     const tax=TAX.find(t=>t.id===(f?.taxId||'norm'));
     // 一次遍历城市，计算所有需要的净收入/存粮
     let totalFood=0,grossGold=0,woodNet=0,ironNet=0,totalGar=0,foodNetRaw=0;
@@ -182,7 +182,7 @@ function renderCityTab(c){
 function _renderCityList(c) {
   const listHtml = Object.entries(JUNS).map(([jid,jun])=>{
     const cities=CITIES_DEF.filter(cd=>cd.jun===jid);
-    const fc=FAC[jun.fac];
+    const fc=getFactionDef(jun.fac);
     return`<div class="jun-item">
       <div class="jun-hd" style="border-left-color:${fc.color}60">
         <span style="color:${fc.color}aa">${jun.name}</span>
@@ -196,7 +196,7 @@ function _renderCityList(c) {
         let displayFac = fogLv === FOG_VISIBLE ? city.fac
           : fogLv === FOG_EXPLORED ? (G.fogSnap?.[G.playerFac]?.[cd.id]?.fac || 'none')
           : 'none';
-        const dfc = FAC[displayFac];
+        const dfc = getFactionDef(displayFac);
         const cityCol = fogLv === FOG_VISIBLE ? (dfc ? dfc.color : 'rgba(120,100,70,.4)')
                       : fogLv === FOG_EXPLORED ? (dfc ? dfc.color + '88' : 'rgba(160,140,100,.55)')
                       : 'rgba(100,85,60,.35)';
@@ -245,7 +245,7 @@ function _renderCityDetail(c){
     let dispFacName, dispCol, dispInfo;
     if (fogLv === FOG_VISIBLE && !isOwnOrAlly) {
       // 可见但敌方——显示势力+大致信息
-      const fc2 = FAC[city.fac] || {color:'#888',name:'?'};
+      const fc2 = getFactionDef(city.fac) || {color:'#888',name:'?'};
       dispFacName = fc2.name; dispCol = fc2.color;
       const popTier = city.pop>=300000?'大城（繁华）':city.pop>=150000?'中城（一般）':'小城（偏僻）';
       const hasGarrison = (city.garrison||0)>500 || G.units.some(u=>u.fac===city.fac&&getUnitNodeId(u)===city.id);
@@ -259,8 +259,8 @@ function _renderCityDetail(c){
       <div style="margin-top:16px;font-size:9px;color:rgba(120,100,70,.3)">敌方城池无法查看详细内政信息</div>`;
     } else if (fogLv === FOG_EXPLORED) {
       const snap = G.fogSnap?.[G.playerFac]?.[G.selCity];
-      dispFacName = snap ? (FAC[snap.fac]?.name || '未知') : '未知';
-      dispCol = snap ? (FAC[snap.fac]?.color || '#888') : '#888';
+      dispFacName = snap ? (getFactionDef(snap.fac)?.name || '未知') : '未知';
+      dispCol = snap ? (getFactionDef(snap.fac)?.color || '#888') : '#888';
       dispInfo = `${tagsHtmlLimited}
         <div style="font-size:10px;color:${dispCol}99;margin-bottom:4px">归属：${dispFacName}（旧情报，第${snap?.turn??'?'}旬）</div>
         <div style="color:rgba(120,100,70,.5);font-size:10px;line-height:2;margin-top:12px">
@@ -285,7 +285,7 @@ function _renderCityDetail(c){
     return;
   }
 
-  const fc=FAC[city.fac] || {color:'#c04040', full:'叛乱势力', name:'叛军'};
+  const fc=getFactionDef(city.fac) || {color:'#c04040', full:'叛乱势力', name:'叛军'};
   const ts=getCityStats(city.tags||[]);
   const prod=getCityProd(city);
   const costs=getCityFoodCost(city);
@@ -505,7 +505,7 @@ function _renderCityDetail(c){
       return '<div class="uo-card'+(isSel?' sel':'')+'" style="margin-bottom:4px"'+
         ' onclick="G.selUnitId=\''+u.id+'\';G.activeTab=\'mil\';updateTabs();renderAllLight()">'+
         '<div class="uo-card-top">'+
-        '<span class="uo-name" style="color:'+FAC[u.fac]?.color+'">'+u.squads[0]?.genName+'部</span>'+
+        '<span class="uo-name" style="color:'+getFactionDef(u.fac)?.color+'">'+u.squads[0]?.genName+'部</span>'+
         '<span class="uo-status '+u.status+'">'+(u.status==='garrison'?'🛡驻':'⚔行')+'</span>'+
         '</div>'+
         '<div class="uo-bottom">'+u.squads.map(s=>TROOP_TYPES[s.type]?.icon||'').join('')+' '+fmt(total)+'兵</div>'+
@@ -561,7 +561,7 @@ function _renderCityDetail(c){
     if(!enemySiegeUnits.length) return '';
     const atkFac = enemySiegeUnits[0].fac;
     const atkNames = enemySiegeUnits.map(u => u.squads[0]?.genName || '?').join('、');
-    const atkCol = FAC[atkFac]?.color || '#c03030';
+    const atkCol = getFactionDef(atkFac)?.color || '#c03030';
     const defMult = getSiegeDefMult(c2).toFixed(2);
     const decayPct = Math.round((c2.siegeDecay||0)*100);
     const siegeTurns = enemySiegeUnits[0]._siegeTurnCount || 0;
@@ -596,7 +596,7 @@ function _renderCityDetail(c){
 function renderGenTab(c){
   const fid=G.selFac;
   const gens=G.generals[fid]||[];
-  const fd=FAC[fid];
+  const fd=getFactionDef(fid);
   const ac=v=>v>=90?'#8a7040':v>=75?'#1a7a3a':v>=60?'#1a5f8a':'#888';
   const ri={ruler:'👑',general:'⚔',advisor:'📜',minister:'🏛'};
   const aptColor={'S':'#8a7040','A':'#1a7a3a','B':'#1a5f8a','C':'#888888'};
@@ -693,7 +693,7 @@ function renderGenTab(c){
     const cards = poachables.map(([name, rec]) => {
       const gen = GEN_MAP[name]; // ★ v167fix #33
       if(!gen) return '';
-      const srcFac = FAC[rec.fid] || {};
+      const srcFac = getFactionDef(rec.fid) || {};
       const loy = G.genLoyalty[name] ?? 30;
       const topStat = Math.max(gen.com, gen.war, gen.int, gen.pol, gen.cha);
       const _techPoachCost = getTechEffect(G.playerFac, 'poachCostMult');

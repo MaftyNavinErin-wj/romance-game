@@ -35,6 +35,11 @@ function getFactionDef(fid) {
   return (typeof FAC !== 'undefined' && FAC[fid]) || null;
 }
 
+// 1c-c: 返回 FAC 整 object ref (Object.entries / .keys 用例)
+function getAllFactions() {
+  return (typeof FAC !== 'undefined') ? FAC : {};
+}
+
 function getScenarioFactions() {
   return (typeof ALL_FACS !== 'undefined') ? ALL_FACS : [];
 }

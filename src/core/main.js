@@ -47,7 +47,7 @@ function initGame(scenarioId){
   // (src/core/scenario_loader.js); 守底 invariant: sync 后值 ≡ 原 src/data/factions.js literal
   applyScenario(scenarioId || '214');
   G.turn=1; G.year=0; G.seasonIdx=0; // 重置回合计数
-  Object.keys(FAC).forEach(fid=>{
+  getScenarioFactions().forEach(fid=>{
     G.factions[fid]={res:{gold:0,wood:2000,iron:1400,horses:4000},cityCount:0,totalTroops:0,totalPop:0, // ★ v145: 木铁砍~55%，马匹1:1消耗体系
       taxId:'norm',    // ★ 每势力独立赋税
       policyId:'bal',  // ★ 每势力独立补员政策
@@ -60,7 +60,7 @@ function initGame(scenarioId){
     cityCount:0,totalTroops:0,totalPop:0,taxId:'norm',policyId:'bal',corveeId:'low',_salaryDebt:0,_salaryDebtTurns:0};
   // ★ v179fix P14: 君主名进 G（FAC.ruler 是剧本初值常量；继任后写 G.factionRulers，序列化才能保住）
   G.factionRulers = {};
-  Object.keys(FAC).forEach(fid => { G.factionRulers[fid] = FAC[fid].ruler; });
+  getScenarioFactions().forEach(fid => { G.factionRulers[fid] = getFactionDef(fid).ruler; });
   // 初始金钱 — v111: 砍半，避免开局瞎征兵后期维持不了；蜀国+2000补偿官职负担
   G.factions.wei.res.gold=10000;
   G.factions.shu.res.gold=8000;

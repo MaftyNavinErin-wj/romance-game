@@ -338,7 +338,7 @@ function showStackPicker(e, stackUnits){
   const list=document.getElementById('stackPickerList');
   if(!el||!list) return;
 
-  const facCol=f=>FAC[f]?.color||'#888';
+  const facCol=f=>getFactionDef(f)?.color||'#888';
   const facName=f=>({wei:'魏',shu:'蜀',wu:'吴',nanman:'蛮'}[f]||f);
   const statusLabel=u=>u.mobilizingTurns>0?`⚙${u.mobilizingTurns}旬`:u.status==='camp'?'🏕营':u.status==='ambush'?'🌿伏':u.status==='garrison'?'🛡待':'⚔行';
 
