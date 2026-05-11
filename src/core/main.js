@@ -42,7 +42,10 @@
 //
 // ── plan §二偏离记录(同前)── 同 docs/phase3_4_notes §二。
 
-function initGame(){
+function initGame(scenarioId){
+  // 1b-1: scenario materialize + sync top-level FAC/ALL_FACS/PLAYABLE_FACS/FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT
+  // (src/core/scenario_loader.js); 守底 invariant: sync 后值 ≡ 原 src/data/factions.js literal
+  applyScenario(scenarioId || '214');
   G.turn=1; G.year=0; G.seasonIdx=0; // 重置回合计数
   Object.keys(FAC).forEach(fid=>{
     G.factions[fid]={res:{gold:0,wood:2000,iron:1400,horses:4000},cityCount:0,totalTroops:0,totalPop:0, // ★ v145: 木铁砍~55%，马匹1:1消耗体系

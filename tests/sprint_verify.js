@@ -1498,6 +1498,101 @@ const VERIFIES = [
       return errs.length ? { passed: false, detail: errs.slice(0,8).join(' / ') } : { passed: true };
     },
   },
+  // ── 阶段 1b-1 materializeScenario + sync top-level const ──────────────
+  // src/core/scenario_loader.js applyScenario(scenarioId) sync FAC/ALL_FACS/
+  // PLAYABLE_FACS/FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT. initGame 顶部调用.
+  // 守底 invariant: sync 后值 ≡ 原 src/data/factions.js literal (smoke byte-identical 验证)
+  {
+    id: 'scenario-1b1-applyScenario-defined',
+    name: 'applyScenario / materializeScenario / syncObject / syncArray 已 expose (window 内)',
+    fn(G, win){
+      const errs = [];
+      if(typeof win.applyScenario !== 'function') errs.push('applyScenario not function');
+      if(typeof win.materializeScenario !== 'function') errs.push('materializeScenario not function');
+      if(typeof win.syncObject !== 'function') errs.push('syncObject not function');
+      if(typeof win.syncArray !== 'function') errs.push('syncArray not function');
+      return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1b1-sync-byte-identical',
+    name: 'initGame 后 FAC/ALL_FACS/PLAYABLE_FACS/FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT ≡ scenario 派生值',
+    fn(G, win){
+      const errs = [];
+      // FAC (4 entries, 各 name/full/ruler/color/cls)
+      const FAC = win.FAC;
+      if(!FAC || Object.keys(FAC).length !== 4) errs.push(`FAC count=${Object.keys(FAC||{}).length}, expected 4`);
+      if(FAC?.wei?.ruler !== '曹操') errs.push(`FAC.wei.ruler=${FAC?.wei?.ruler}`);
+      if(FAC?.shu?.full !== '蜀汉') errs.push(`FAC.shu.full=${FAC?.shu?.full}`);
+      if(FAC?.wei?.color !== '#1a5f8a') errs.push(`FAC.wei.color mismatch`);
+      if(FAC?.nanman?.cls !== 'nanman') errs.push(`FAC.nanman.cls mismatch`);
+      // ALL_FACS
+      const ALL_FACS = win.ALL_FACS;
+      if(!Array.isArray(ALL_FACS) || ALL_FACS.length !== 4) errs.push(`ALL_FACS length=${ALL_FACS?.length}`);
+      for(const f of ['wei','shu','wu','nanman']) if(!ALL_FACS.includes(f)) errs.push(`ALL_FACS missing ${f}`);
+      // PLAYABLE_FACS
+      const PLAY = win.PLAYABLE_FACS;
+      if(!Array.isArray(PLAY) || PLAY.length !== 4) errs.push(`PLAYABLE_FACS length=${PLAY?.length}`);
+      // FAC_IDENTITY
+      const FI = win.FAC_IDENTITY;
+      if(FI?.wei?.type !== 'emperor_holder') errs.push(`FAC_IDENTITY.wei.type=${FI?.wei?.type}`);
+      if(FI?.shu?.type !== 'han_royal') errs.push(`FAC_IDENTITY.shu.type=${FI?.shu?.type}`);
+      if(FI?.wei?.stage !== 'regime') errs.push(`FAC_IDENTITY.wei.stage=${FI?.wei?.stage}`);
+      if(FI?.nanman?.stage !== 'warlord') errs.push(`FAC_IDENTITY.nanman.stage=${FI?.nanman?.stage}`);
+      if(!Array.isArray(FI?.wei?.traits) || FI.wei.traits[0] !== '枭雄') errs.push(`FAC_IDENTITY.wei.traits mismatch`);
+      // ETHOS_INIT
+      const EI = win.ETHOS_INIT;
+      if(EI?.wei?.mandate !== 15) errs.push(`ETHOS_INIT.wei.mandate=${EI?.wei?.mandate}`);
+      if(EI?.shu?.power !== 0) errs.push(`ETHOS_INIT.shu.power=${EI?.shu?.power}`);
+      // DIPLO_INIT (6 一向 entries)
+      const DI = win.DIPLO_INIT;
+      if(!DI || Object.keys(DI).length !== 6) errs.push(`DIPLO_INIT count=${Object.keys(DI||{}).length}, expected 6`);
+      if(DI?.['shu-wu']?.status !== 'ally') errs.push(`DIPLO_INIT.shu-wu.status=${DI?.['shu-wu']?.status}`);
+      if(DI?.['shu-nanman']?.suzerain !== 'shu') errs.push(`DIPLO_INIT.shu-nanman.suzerain mismatch`);
+      if(DI?.['wei-shu']?.rel !== 40) errs.push(`DIPLO_INIT.wei-shu.rel=${DI?.['wei-shu'].rel}`);
+      return errs.length ? { passed: false, detail: errs.slice(0,10).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1b1-mutable-container-preserved',
+    name: 'top-level const 仍是 mutable container (运行时 mutate works, e.g. FAC_IDENTITY.wei.type 可改)',
+    fn(G, win){
+      const errs = [];
+      // FAC_IDENTITY.wei.type runtime mutation 后再 sync 应恢复
+      const FI = win.FAC_IDENTITY;
+      const origType = FI.wei.type;
+      FI.wei.type = 'test_value';
+      if(FI.wei.type !== 'test_value') errs.push('FAC_IDENTITY mutate failed');
+      // 重新 applyScenario 后应恢复 (清空 + Object.assign)
+      win.applyScenario('214');
+      if(FI.wei.type !== origType) errs.push(`re-apply did not restore FAC_IDENTITY.wei.type (got ${FI.wei.type})`);
+      // 但 FI 引用本身不变 (const 容器 unchanged)
+      if(win.FAC_IDENTITY !== FI) errs.push('FAC_IDENTITY const ref changed (should be same container)');
+      return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1b1-empty-before-init',
+    name: 'src/data/factions.js 顶层 const 改 empty container (initGame 前空, smoke 验证有效)',
+    fn(G, win){
+      // 间接验证: 直接读 src/data/factions.js,确保字面值是 empty
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'factions.js'), 'utf8');
+      const errs = [];
+      // const FAC = {}; const ALL_FACS = []; 等 6 个 empty container
+      if(!/const\s+FAC\s*=\s*\{\}\s*;/.test(src)) errs.push('FAC not empty container');
+      if(!/const\s+ALL_FACS\s*=\s*\[\]\s*;/.test(src)) errs.push('ALL_FACS not empty array');
+      if(!/const\s+PLAYABLE_FACS\s*=\s*\[\]\s*;/.test(src)) errs.push('PLAYABLE_FACS not empty array');
+      if(!/const\s+FAC_IDENTITY\s*=\s*\{\}\s*;/.test(src)) errs.push('FAC_IDENTITY not empty container');
+      if(!/const\s+ETHOS_INIT\s*=\s*\{\}\s*;/.test(src)) errs.push('ETHOS_INIT not empty container');
+      if(!/const\s+DIPLO_INIT\s*=\s*\{\}\s*;/.test(src)) errs.push('DIPLO_INIT not empty container');
+      // 不许残留 literal value
+      if(src.indexOf('曹操') !== -1) errs.push('factions.js 残留 literal "曹操" (未清干净)');
+      if(src.indexOf('mandate:') !== -1) errs.push('factions.js 残留 ETHOS literal');
+      if(src.indexOf("'wei-shu'") !== -1 || src.indexOf('"wei-shu"') !== -1) errs.push('factions.js 残留 DIPLO literal');
+      return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
   {
     // 验证 verify_scenario_214.js validator 在当前 SCENARIO_214 上 PASS (0 errors)
     // 这是 1a.3 的核心 守底: validator + sprint_verify 都 PASS = 数据 schema 一致
@@ -1576,6 +1671,15 @@ async function main(){
     window.CAMP_MOBILIZE_TURNS = (typeof CAMP_MOBILIZE_TURNS !== 'undefined') ? CAMP_MOBILIZE_TURNS : 1;
     // 1a.2 codex P2 verify: TECH_TREE cross-ref check 用
     window.TECH_TREE = (typeof TECH_TREE !== 'undefined') ? TECH_TREE : {};
+    // 1b-1 verify: scenario loader + 新 sync containers
+    window.PLAYABLE_FACS = (typeof PLAYABLE_FACS !== 'undefined') ? PLAYABLE_FACS : [];
+    window.FAC_IDENTITY = (typeof FAC_IDENTITY !== 'undefined') ? FAC_IDENTITY : {};
+    window.ETHOS_INIT = (typeof ETHOS_INIT !== 'undefined') ? ETHOS_INIT : {};
+    window.DIPLO_INIT = (typeof DIPLO_INIT !== 'undefined') ? DIPLO_INIT : {};
+    window.applyScenario = (typeof applyScenario !== 'undefined') ? applyScenario : null;
+    window.materializeScenario = (typeof materializeScenario !== 'undefined') ? materializeScenario : null;
+    window.syncObject = (typeof syncObject !== 'undefined') ? syncObject : null;
+    window.syncArray = (typeof syncArray !== 'undefined') ? syncArray : null;
     // (function 顶层声明默认就是 window.<name>, 不需要 expose)
   `;
   win.document.head.appendChild(exposeScript);

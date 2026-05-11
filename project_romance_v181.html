@@ -809,6 +809,13 @@ header{background:rgba(235,225,205,.98);border-bottom:1px solid rgba(80,65,40,.2
 <script src="src/data/state_county.js"></script>
 <script src="src/data/cities.js"></script>
 <script src="src/data/factions.js"></script>
+<!-- 1a 主表 (scenario phase 1a, 1b-1 起被 scenario_loader 消费) -->
+<script src="src/data/general_base.js"></script>
+<script src="src/data/city_base.js"></script>
+<script src="src/data/faction_base.js"></script>
+<script src="src/data/scenarios/214.js"></script>
+<!-- 1b-1 scenario loader: materializeScenario + sync 顶层 const (initGame 调用) -->
+<script src="src/core/scenario_loader.js"></script>
 <script src="src/core/helpers.js"></script>
 <script src="src/core/hubs.js"></script>
 <script src="src/core/claude_ai.js"></script>
