@@ -93,6 +93,10 @@ async function main() {
         : null,
       PLAYABLE_FACS: typeof PLAYABLE_FACS !== 'undefined' ? PLAYABLE_FACS : null,
       ALL_FACS: typeof ALL_FACS !== 'undefined' ? ALL_FACS : null,
+      // 1a.3 新增: generals scenario-specific 数据源
+      INTIMACY_PRESET: typeof INTIMACY_PRESET !== 'undefined' ? INTIMACY_PRESET : null,
+      MERIT_INIT: typeof MERIT_INIT !== 'undefined' ? MERIT_INIT : null,
+      RETAINER_PRESET: typeof RETAINER_PRESET !== 'undefined' ? RETAINER_PRESET : null,
     };
     window.__G__ = G;
   `;
@@ -104,7 +108,8 @@ async function main() {
   const required = ['GENS_FULL','GEN_META','WILD_GENS','WILD_GEN_META','GEN_POOL_INACTIVE',
                     'GEN_CLASS','GEN_TAGS','CITIES_DEF','FAC',
                     'FAC_IDENTITY','ETHOS_INIT','DIPLO_INIT','TECH_PREUNLOCK','AI_PERSONALITY',
-                    'FOUNDING_CORE','PLAYABLE_FACS','ALL_FACS'];
+                    'FOUNDING_CORE','PLAYABLE_FACS','ALL_FACS',
+                    'INTIMACY_PRESET','MERIT_INIT','RETAINER_PRESET'];
   for (const k of required) {
     if (!data[k]) throw new Error(`missing global: ${k}`);
   }
@@ -369,6 +374,170 @@ const ${varName} = ${json};
   }
   console.log(`[extract] SCENARIO_214.cities built: ${Object.keys(sCities).length} entries`);
 
+  // ════════════════════════════════════════════════════════════════
+  // 1a.3 — 构建 SCENARIO_214.generals 切片
+  // ════════════════════════════════════════════════════════════════
+  //
+  // 策略:
+  //   GENS_FULL  → active (minTurn<=1) / pending (minTurn>1, 加 pendingFac)
+  //   WILD_GENS  → wild   (minTurn<=1) / pending (minTurn>1, 无 pendingFac → wildPool)
+  //   GEN_POOL_INACTIVE → skip (设计 doc §3.4 "未出生/已死 不列")
+  //
+  // 字段:
+  //   active: fac/city/role/post/title/loyalty/merit/retainer/initialUnit/relations/skillsOverride
+  //   wild:   fac:'wild', wildData{ title/post/loyalty/merit/retainer/relations/skillsOverride }
+  //   pending: availableYear + wildData (+ pendingFac 当 from GENS_FULL minTurn>1)
+  //
+  // 衍生映射:
+  //   city: initUnits.city(若 active 在 initUnits 内) else faction.capital fallback
+  //         (nanman 无 capital → 用 jianning 唯一 nanman city)
+  //   role: GENS_FULL[fid][i].role 当 'ruler', 其他 null (strategist/prefect 起手未指派)
+  //   post/title/loyalty: GEN_META[name].{post/title/loyalty}
+  //   merit: MERIT_INIT[name] || 20 (active) / 10 (wild/pending)
+  //   retainer: RETAINER_PRESET[name] || { count:0, type:null }
+  //   initialUnit: true 当在 initUnits 内 (active 才有)
+  //   relations: GEN_META[name].relations 一向, intimacy=INTIMACY_PRESET 任向 lookup else 50, drop icon
+  //   availableYear: startYear + floor((minTurn-1)/36)  (36 旬/年, minTurn 1-based)
+  //   skillsOverride: null (1a 阶段未实装 timeline 解锁; 阶段 6 补)
+  //
+  // 1a.3 pragmatic decisions (codex review trial 1 catch):
+  //   - city fallback to capital for non-initUnit active (v181 不 track per-general city)
+  //   - relations 一向 + 漏 INTIMACY_PRESET orphan pair (设计 doc §3.4 不允 separate intimacyPairs 字段)
+  //   - pending 加 pendingFac 扩展 (preserve v181 _pendingFac 语义: 出山 → ACTIVE in pre-assigned fac, 非 wildPool)
+
+  // initUnits city map: name → city (复用 v181 initUnits literal,跟 main.js L186-227 一致)
+  const initUnits = [
+    { fac:'wei', city:'xuchang',  members:['曹操','许褚'] },
+    { fac:'wei', city:'nanyang',  members:['曹仁','满宠'] },
+    { fac:'wei', city:'xiapi',    members:['张辽','乐进'] },
+    { fac:'shu', city:'chengdu',  members:['赵云','张翼'] },
+    { fac:'shu', city:'xiangyang',members:['关羽','廖化'] },
+    { fac:'wu',  city:'jianye',   members:['吕蒙','程普'] },
+    { fac:'wu',  city:'hefei',    members:['甘宁','凌统'] },
+  ];
+  const NAME_TO_INIT_CITY = {};
+  initUnits.forEach(u => u.members.forEach(n => { NAME_TO_INIT_CITY[n] = u.city; }));
+
+  // capital fallback per fac (nanman 无 capital → jianning 唯一 nanman city)
+  const FAC_CAPITAL = {};
+  for (const [cid, c] of Object.entries(sCities)) {
+    if (c.isCapital) FAC_CAPITAL[c.fac] = cid;
+  }
+  FAC_CAPITAL.nanman = FAC_CAPITAL.nanman || 'jianning';
+
+  // INTIMACY_PRESET 任向 lookup
+  function lookupIntimacy(a, b) {
+    for (const [x, y, v] of data.INTIMACY_PRESET) {
+      if ((x === a && y === b) || (x === b && y === a)) return v;
+    }
+    return 50;  // 默认中性 (1a.3 pragmatic)
+  }
+
+  // build relations list 一向 (per design doc §3.4 line 168-171, drop icon)
+  function buildRelations(name) {
+    const meta = data.GEN_META[name] || data.WILD_GEN_META[name] || {};
+    const rels = meta.relations || [];
+    return rels.map(r => ({
+      target:   r.name,
+      type:     r.type,
+      intimacy: lookupIntimacy(name, r.name),
+    }));
+  }
+
+  // retainer fallback
+  function buildRetainer(name) {
+    const r = data.RETAINER_PRESET[name];
+    if (r) return { count: r.count, type: r.type };
+    return { count: 0, type: null };
+  }
+
+  // wildData bundle for wild/pending (跟 design doc §3.4 line 192-207)
+  function buildWildData(name) {
+    const meta = data.WILD_GEN_META[name] || data.GEN_META[name] || {};
+    return {
+      title:    meta.title || null,
+      post:     meta.post ? { ...meta.post } : null,
+      loyalty:  meta.loyalty != null ? meta.loyalty : 75,
+      merit:    data.MERIT_INIT[name] != null ? data.MERIT_INIT[name] : 10,
+      retainer: buildRetainer(name),
+      relations: buildRelations(name),
+      skillsOverride: null,  // 1a 阶段未实装
+    };
+  }
+
+  // generals 切片
+  const sGenerals = {};
+
+  // GENS_FULL → active (minTurn<=1) / pending (minTurn>1 with pendingFac)
+  for (const [fid, gens] of Object.entries(data.GENS_FULL)) {
+    for (const g of gens) {
+      if (sGenerals[g.name]) {
+        console.warn(`[extract] DUP general (GENS_FULL): ${g.name} — skipping later occurrence`);
+        continue;
+      }
+      const mt = g.minTurn || 1;
+      if (mt > 1) {
+        // pending with pendingFac (1a.3 扩展: 出山 → ACTIVE in pre-assigned fac)
+        sGenerals[g.name] = {
+          status: 'pending',
+          fac: 'wild',
+          pendingFac: fid,
+          availableYear: 214 + Math.floor((mt - 1) / 36),
+          wildData: buildWildData(g.name),
+        };
+      } else {
+        // active
+        const meta = data.GEN_META[g.name] || {};
+        const initCity = NAME_TO_INIT_CITY[g.name];
+        const inInitUnit = !!initCity;
+        sGenerals[g.name] = {
+          status: 'active',
+          fac:    fid,
+          city:   inInitUnit ? initCity : FAC_CAPITAL[fid],
+          role:   g.role === 'ruler' ? 'ruler' : null,
+          post:   meta.post ? { ...meta.post } : null,
+          title:  meta.title || null,
+          loyalty: meta.loyalty != null ? meta.loyalty : 75,
+          merit:   data.MERIT_INIT[g.name] != null ? data.MERIT_INIT[g.name] : 20,
+          retainer: buildRetainer(g.name),
+          initialUnit: inInitUnit,
+          relations: buildRelations(g.name),
+          skillsOverride: null,
+        };
+      }
+    }
+  }
+
+  // WILD_GENS → wild (minTurn<=1) / pending (minTurn>1 无 pendingFac → wildPool when ready)
+  for (const g of data.WILD_GENS) {
+    if (sGenerals[g.name]) {
+      console.warn(`[extract] DUP general (WILD_GENS overrides GENS_FULL?): ${g.name}`);
+      continue;
+    }
+    const mt = g.minTurn || 1;
+    if (mt > 1) {
+      sGenerals[g.name] = {
+        status: 'pending',
+        fac: 'wild',
+        availableYear: 214 + Math.floor((mt - 1) / 36),
+        wildData: buildWildData(g.name),
+      };
+    } else {
+      sGenerals[g.name] = {
+        status: 'wild',
+        fac: 'wild',
+        wildData: buildWildData(g.name),
+      };
+    }
+  }
+  // GEN_POOL_INACTIVE 不列 (设计 doc §3.4 line 225)
+
+  const activeCount  = Object.values(sGenerals).filter(g => g.status === 'active').length;
+  const wildCount    = Object.values(sGenerals).filter(g => g.status === 'wild').length;
+  const pendingCount = Object.values(sGenerals).filter(g => g.status === 'pending').length;
+  const pendingFacCount = Object.values(sGenerals).filter(g => g.status === 'pending' && g.pendingFac).length;
+  console.log(`[extract] SCENARIO_214.generals built: ${Object.keys(sGenerals).length} entries (active=${activeCount} wild=${wildCount} pending=${pendingCount} 其中 pendingFac=${pendingFacCount})`);
+
   // SCENARIO_214 整合
   const SCENARIO_214 = {
     id: '214',
@@ -381,7 +550,7 @@ const ${varName} = ${json};
     factions: sFactions,
     diplo: sDiplo,
     cities: sCities,
-    generals: {},  // 1a.3 sprint 补全(active/wild/pending 武将切片)
+    generals: sGenerals,
   };
 
   // 写文件
@@ -399,7 +568,10 @@ const ${varName} = ${json};
 //                              ethos/res/reputation/emperor/techPreunlock/aiPersonality/foundingCore
 //   diplo[]                  — 4-tuple [a, b, rel, status] (+ 5th suzerain 当 status='vassal')
 //   cities[cid]              — {fac, pop, troops, isCapital} (CITY_BASE 之外的 scenario fields)
-//   generals                 — {} 占位(1a.3 sprint 补全)
+//   generals[name]           — status: 'active'|'wild'|'pending';字段按 status 分支
+//                              active:  fac/city/role/post/title/loyalty/merit/retainer/initialUnit/relations/skillsOverride
+//                              wild:    fac:'wild', wildData{title/post/loyalty/merit/retainer/relations/skillsOverride}
+//                              pending: availableYear + wildData + 可选 pendingFac (GENS_FULL minTurn>1)
 //
 // 来源:阶段 1a.2 由 tools/extract_scenario_214.js 自动抽取
 //   - factions: FAC[fid].ruler + PLAYABLE_FACS + FAC_IDENTITY + ETHOS_INIT
@@ -427,6 +599,7 @@ const SCENARIO_214 = ${sJson};
   console.log(`  SCENARIO_214.diplo edges:   ${sDiplo.length}`);
   console.log(`  SCENARIO_214.cities:        ${Object.keys(sCities).length}`);
   console.log(`  SCENARIO_214.emperor:       ${JSON.stringify(SCENARIO_214.emperor)}`);
+  console.log(`  SCENARIO_214.generals:      ${Object.keys(sGenerals).length} (active=${activeCount} wild=${wildCount} pending=${pendingCount})`);
 
   dom.window.close();
 }

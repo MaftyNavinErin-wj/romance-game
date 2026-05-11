@@ -548,7 +548,7 @@ function validateScenario(scenario) {
   // E.1 relations target 必须 in scenario.generals
   // E.2 relations target.status != 'unavailable'
   // E.3 双向: A→B 有 B→A 必须有
-  // E.4 intimacy: 0..100 range
+  // E.4 intimacy: -100..100 range (allow 负值 表达 仇怨/宿敌, 例 关羽-黄忠=-15, 凌统-甘宁=-60)
   // E.5 target != self (no self-relation)
   // E.6 no duplicate edge (A->B 列 2 次)
   // E.7 type 对称 (A→B 父亲 → B→A 必须子嗣,table-driven)

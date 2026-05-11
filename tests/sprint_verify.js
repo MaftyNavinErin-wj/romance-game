@@ -840,9 +840,9 @@ const VERIFIES = [
       if(!Array.isArray(S.diplo)) errs.push('diplo not array');
       if(typeof S.cities !== 'object') errs.push('cities not object');
       if(typeof S.emperor !== 'object') errs.push('emperor not object');
-      // 1a.2 generals 占位 = {}
+      // 1a.3: generals 已填充 (125 entries 来自 GENS_FULL 109 + WILD_GENS 16)
       if(typeof S.generals !== 'object' || Array.isArray(S.generals)) errs.push('generals not plain object');
-      if(Object.keys(S.generals).length !== 0) errs.push(`generals should be {} placeholder in 1a.2, got ${Object.keys(S.generals).length} entries`);
+      if(Object.keys(S.generals).length === 0) errs.push('generals empty (1a.3 should populate from GENS_FULL + WILD_GENS)');
       return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
     },
   },
@@ -1186,6 +1186,250 @@ const VERIFIES = [
         if(f.ruler && !genSet.has(f.ruler)) errs.push(`${fid}.ruler ${f.ruler} not in GEN_BASE`);
       }
       return errs.length ? { passed: false, detail: errs.slice(0,8).join(' / ') } : { passed: true };
+    },
+  },
+
+  // ── 阶段 1a.3 SCENARIO_214.generals (scenario_system §3.4 + §9 C/E/G/I/J/L) ──
+  // 125 entries (109 GENS_FULL + 16 WILD_GENS, GEN_POOL_INACTIVE skip).
+  // status: active 101 / wild 6 / pending 18 (含 pendingFac 8)
+  {
+    id: 'scenario-1a3-generals-count-dist',
+    name: 'SCENARIO_214.generals 125 entries (active=101 / wild=6 / pending=18)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      const total = Object.keys(S.generals).length;
+      if(total !== 125) errs.push(`expected 125 generals, got ${total}`);
+      const a = Object.values(S.generals).filter(g => g.status === 'active').length;
+      const w = Object.values(S.generals).filter(g => g.status === 'wild').length;
+      const p = Object.values(S.generals).filter(g => g.status === 'pending').length;
+      if(a !== 101) errs.push(`active=${a} (expected 101)`);
+      if(w !== 6)   errs.push(`wild=${w} (expected 6)`);
+      if(p !== 18)  errs.push(`pending=${p} (expected 18)`);
+      // pendingFac: 8 (来自 GENS_FULL minTurn>1)
+      const pf = Object.values(S.generals).filter(g => g.status === 'pending' && g.pendingFac).length;
+      if(pf !== 8) errs.push(`pendingFac=${pf} (expected 8)`);
+      return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a3-active-schema',
+    name: 'SCENARIO_214 active 武将全表 schema (fac/city/role/post/title/loyalty/merit/retainer/initialUnit/relations/skillsOverride)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const REQ = ['status','fac','city','role','post','title','loyalty','merit','retainer','initialUnit','relations','skillsOverride'];
+      const ROLE_ENUM = new Set(['ruler','strategist','prefect',null]);
+      const errs = [];
+      for(const [name, g] of Object.entries(S.generals)){
+        if(g.status !== 'active') continue;
+        for(const k of REQ){
+          if(!(k in g)) errs.push(`${name}.${k} missing`);
+        }
+        if(g.fac === 'wild') errs.push(`${name} active fac='wild' (illegal)`);
+        if(!ROLE_ENUM.has(g.role)) errs.push(`${name}.role='${g.role}' invalid`);
+        if(typeof g.loyalty !== 'number' || g.loyalty < 0 || g.loyalty > 100) errs.push(`${name}.loyalty=${g.loyalty} out of [0,100]`);
+        if(typeof g.merit !== 'number') errs.push(`${name}.merit not number`);
+        if(typeof g.initialUnit !== 'boolean') errs.push(`${name}.initialUnit not bool`);
+        if(!Array.isArray(g.relations)) errs.push(`${name}.relations not array`);
+        if(g.retainer === undefined || g.retainer === null) errs.push(`${name}.retainer null/undefined`);
+        else {
+          if(typeof g.retainer.count !== 'number') errs.push(`${name}.retainer.count not number`);
+          if(g.retainer.type !== null && typeof g.retainer.type !== 'string') errs.push(`${name}.retainer.type invalid`);
+        }
+        if(errs.length > 40) break;
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,10).join(' / ') + (errs.length>10?` (+${errs.length-10} more)`:'') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a3-active-city-fac-consistent',
+    name: 'SCENARIO_214 active.city.fac == active.fac (设计 doc §9 C.2, 城市归属一致)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      for(const [name, g] of Object.entries(S.generals)){
+        if(g.status !== 'active') continue;
+        const c = S.cities[g.city];
+        if(!c) errs.push(`${name}.city='${g.city}' not in scenario.cities`);
+        else if(c.fac !== g.fac) errs.push(`${name} fac=${g.fac} city.fac=${c.fac} mismatch`);
+        if(errs.length > 15) break;
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,8).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a3-rulers',
+    name: 'SCENARIO_214 每 fac 恰好 1 ruler (设计 doc §9 I.5; 曹操/刘备/孙权/孟获)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      const rulers = {};
+      for(const [name, g] of Object.entries(S.generals)){
+        if(g.status === 'active' && g.role === 'ruler'){
+          rulers[g.fac] = (rulers[g.fac] || []);
+          rulers[g.fac].push(name);
+        }
+      }
+      const expected = { wei:'曹操', shu:'刘备', wu:'孙权', nanman:'孟获' };
+      for(const fid of Object.keys(S.factions)){
+        const r = rulers[fid] || [];
+        if(r.length !== 1) errs.push(`${fid}: ${r.length} rulers (${r.join(',')})`);
+        else if(r[0] !== expected[fid]) errs.push(`${fid}.ruler=${r[0]} expected ${expected[fid]}`);
+        // 一致 with faction.ruler
+        if(S.factions[fid].ruler !== r[0]) errs.push(`${fid}.faction.ruler=${S.factions[fid].ruler} != active ruler=${r[0]}`);
+      }
+      return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a3-wild-pending-schema',
+    name: 'SCENARIO_214 wild/pending fac="wild" + wildData{title,post,loyalty,merit,retainer,relations,skillsOverride}',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const REQ_WD = ['title','post','loyalty','merit','retainer','relations','skillsOverride'];
+      const errs = [];
+      for(const [name, g] of Object.entries(S.generals)){
+        if(g.status !== 'wild' && g.status !== 'pending') continue;
+        if(g.fac !== 'wild') errs.push(`${name} ${g.status} fac='${g.fac}' (must be 'wild')`);
+        const wd = g.wildData;
+        if(!wd || typeof wd !== 'object'){ errs.push(`${name}.wildData missing`); continue; }
+        for(const k of REQ_WD){
+          if(!(k in wd)) errs.push(`${name}.wildData.${k} missing`);
+        }
+        if(typeof wd.loyalty !== 'number' || wd.loyalty < 0 || wd.loyalty > 100) errs.push(`${name}.wildData.loyalty=${wd.loyalty} out of [0,100]`);
+        if(!Array.isArray(wd.relations)) errs.push(`${name}.wildData.relations not array`);
+        if(errs.length > 30) break;
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,10).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a3-pending-availableYear',
+    name: 'SCENARIO_214 pending availableYear > startYear, sane range, sample 验证 (司马昭/邓艾)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      for(const [name, g] of Object.entries(S.generals)){
+        if(g.status !== 'pending') continue;
+        if(typeof g.availableYear !== 'number') errs.push(`${name}.availableYear not number`);
+        else if(g.availableYear <= S.startYear) errs.push(`${name}.availableYear=${g.availableYear} <= startYear=${S.startYear}`);
+        else if(g.availableYear > 300) errs.push(`${name}.availableYear=${g.availableYear} > 300`);
+      }
+      // sample: 司马昭 pendingFac=wei + 邓艾 wildPool 路径无 pendingFac
+      const sma = S.generals['司马昭'];
+      if(!sma) errs.push('司马昭 missing');
+      else {
+        if(sma.status !== 'pending') errs.push(`司马昭.status=${sma.status} expected pending`);
+        if(sma.pendingFac !== 'wei') errs.push(`司马昭.pendingFac=${sma.pendingFac} expected wei`);
+        // minTurn=153 → 214 + floor(152/36)=214+4=218
+        if(sma.availableYear !== 218) errs.push(`司马昭.availableYear=${sma.availableYear} expected 218`);
+      }
+      const dy = S.generals['邓艾'];
+      if(!dy) errs.push('邓艾 missing');
+      else {
+        if(dy.status !== 'pending') errs.push(`邓艾.status=${dy.status} expected pending`);
+        if(dy.pendingFac) errs.push(`邓艾.pendingFac=${dy.pendingFac} should be absent (WILD_GENS → wildPool)`);
+        // minTurn=189 → 214 + floor(188/36)=214+5=219
+        if(dy.availableYear !== 219) errs.push(`邓艾.availableYear=${dy.availableYear} expected 219`);
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,8).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a3-generals-gen-base-cross-ref',
+    name: 'SCENARIO_214 全 generals 名都在 GEN_BASE (no orphan)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const gbSrc = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'general_base.js'), 'utf8');
+      const GEN_BASE = (new Function(gbSrc + '\n; return GEN_BASE;'))();
+      const sSrc = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(sSrc + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      const genSet = new Set(Object.keys(GEN_BASE));
+      for(const name of Object.keys(S.generals)){
+        if(!genSet.has(name)) errs.push(`${name} not in GEN_BASE`);
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,8).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a3-relations-intimacy-range',
+    name: 'SCENARIO_214 relations intimacy ∈ [-100,100] (E.4 modified: 允许 负值 表 仇怨)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      for(const [name, g] of Object.entries(S.generals)){
+        const rels = (g.status === 'active')
+          ? (g.relations || [])
+          : ((g.wildData && g.wildData.relations) || []);
+        for(const r of rels){
+          if(typeof r.intimacy !== 'number') errs.push(`${name}→${r.target} intimacy not number`);
+          else if(r.intimacy < -100 || r.intimacy > 100) errs.push(`${name}→${r.target} intimacy=${r.intimacy} out of [-100,100]`);
+          if(r.target === name) errs.push(`${name} self-relation`);
+        }
+        if(errs.length > 20) break;
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,8).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a3-cao-cao-spec',
+    name: 'SCENARIO_214.generals.曹操 specific (active/wei/xuchang/ruler + initialUnit + 5 relations + retainer cavalry 2500)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      const c = S.generals['曹操'];
+      if(!c) return { passed: false, detail: '曹操 missing' };
+      if(c.status !== 'active')  errs.push(`status=${c.status}`);
+      if(c.fac !== 'wei')        errs.push(`fac=${c.fac}`);
+      if(c.city !== 'xuchang')   errs.push(`city=${c.city}`);
+      if(c.role !== 'ruler')     errs.push(`role=${c.role}`);
+      if(c.title !== '治世能臣') errs.push(`title=${c.title}`);
+      if(c.loyalty !== 95)       errs.push(`loyalty=${c.loyalty}`);
+      if(c.merit !== 150)        errs.push(`merit=${c.merit}`);
+      if(c.initialUnit !== true) errs.push(`initialUnit=${c.initialUnit}`);
+      if(c.retainer?.count !== 2500) errs.push(`retainer.count=${c.retainer?.count}`);
+      if(c.retainer?.type !== 'cavalry') errs.push(`retainer.type=${c.retainer?.type}`);
+      if(!Array.isArray(c.relations) || c.relations.length !== 5) errs.push(`relations length=${c.relations?.length} (expected 5)`);
+      return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
+  {
+    // 验证 verify_scenario_214.js validator 在当前 SCENARIO_214 上 PASS (0 errors)
+    // 这是 1a.3 的核心 守底: validator + sprint_verify 都 PASS = 数据 schema 一致
+    id: 'scenario-1a3-validator-tool-pass',
+    name: 'tests/verify_scenario_214.js validator 在当前 SCENARIO_214 上 0 errors (warnings 允许)',
+    fn(G, win){
+      const { execSync } = require('child_process');
+      const pathM = require('path');
+      try {
+        const out = execSync('node ' + pathM.resolve(__dirname, 'verify_scenario_214.js'), {
+          cwd: pathM.resolve(__dirname, '..'),
+          encoding: 'utf8',
+          stdio: ['ignore','pipe','pipe'],
+          timeout: 60000,
+        });
+        if(out.indexOf('PASS') < 0) return { passed: false, detail: 'no PASS marker in output' };
+        return { passed: true };
+      } catch(e){
+        return { passed: false, detail: 'validator FAIL: ' + (e.stdout || '').slice(-400) };
+      }
     },
   },
 ];
