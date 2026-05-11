@@ -128,3 +128,18 @@ function applyScenario(scenarioId) {
   syncObject(DIPLO_INIT,    m.DIPLO_INIT);
   return m;
 }
+
+// ── 1c-a codex trial 1 P2 fix: 自动 sync on script load ──
+// 1b-1 把 factions.js literal → empty container 后,
+// loadFromSlot() (v181 L1747) 等 bypass initGame 的入口 (e.g. 标题画面"读取存档") 会看到
+// FAC/ALL_FACS/FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT 全空, _deserializeG 的
+// FAC_IDENTITY[f] check (v181 L1533) 失败 → 加载存档后 FAC 等仍空 → 游戏破.
+//
+// 修复策略: scenario_loader.js script load 时 immediately applyScenario('214'),
+// 恢复 pre-1b-1 invariant "factions.js script load 后 6 容器即 populated".
+// initGame 内 applyScenario 调用幂等 (re-sync 同样值), smoke byte-identical 不破.
+//
+// 加载顺序保证 (project_romance_v181.html):
+//   factions.js → general_base.js → city_base.js → faction_base.js → scenarios/214.js → THIS file
+//   ↑ SCENARIO_214 + FACTION_BASE 已 load,applyScenario('214') 可安全调.
+applyScenario('214');

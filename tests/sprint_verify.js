@@ -1779,13 +1779,15 @@ const VERIFIES = [
   // 同时 close 1b-1 P3 deferred: main.js:139-144 hardcoded FAC_IDENTITY reset 删除 (SCENARIO_214 sync 是 single source).
   {
     id: 'scenario-1c-a-no-direct-fac-identity-reads',
-    name: 'src/ 全部 FAC_IDENTITY[ / .wei / .shu 等直接 read 在 code 行 (非注释) = 0',
+    name: 'src/ 全部 FAC_IDENTITY[ / .wei / .shu 等直接 read 在 code 行 (非注释) = 0 (auto-derive 全 src/ .js 文件)',
     fn(G, win){
       const fsM = require('fs'), pathM = require('path');
-      // strip line comments helper
-      function stripLineComments(src){
+      // strip line + block comments helper
+      function stripComments(src){
+        // first strip /* ... */ block comments
+        src = src.replace(/\/\*[\s\S]*?\*\//g, '');
+        // then line comments (respecting strings)
         return src.split('\n').map(line => {
-          // 简化: 找到第一个 // 不在 string 内的位置, 截断
           let inStr = null;
           for(let i = 0; i < line.length; i++){
             const c = line[i];
@@ -1799,22 +1801,27 @@ const VERIFIES = [
           return line;
         }).join('\n');
       }
-      const filesToCheck = [
-        'src/chains/diplomacy.js', 'src/chains/economy.js', 'src/chains/ethos.js',
-        'src/chains/event.js', 'src/chains/general.js', 'src/chains/gentry.js',
-        'src/chains/military.js', 'src/chains/politics.js',
-        'src/core/main.js', 'src/core/tick.js', 'src/core/hubs.js', 'src/core/claude_ai.js',
-        'src/core/helpers.js', 'src/core/map.js',
-        'src/render/tabs.js', 'src/render/ui_panels.js', 'src/render/modals.js',
-        'src/render/boot_screens.js', 'src/render/diplo_modals.js',
-        'src/data/events.js',
-      ];
+      // codex P3 fix: auto-derive 全 src/ .js (递归), allowlist 排除 accessor/loader 定义文件 + factions.js
+      function walkSrc(dir, acc){
+        for(const ent of fsM.readdirSync(dir, { withFileTypes: true })){
+          const full = pathM.join(dir, ent.name);
+          if(ent.isDirectory()) walkSrc(full, acc);
+          else if(ent.name.endsWith('.js')) acc.push(full);
+        }
+        return acc;
+      }
+      const ALLOWLIST = new Set([
+        'src/data/factions.js',          // 顶层 const empty container 定义
+        'src/core/scenario_loader.js',   // applyScenario sync 实现
+        'src/core/scenario_accessors.js',// accessor 定义内部读 const 合法
+      ]);
+      const srcRoot = pathM.resolve(__dirname, '..', 'src');
+      const files = walkSrc(srcRoot, []).map(f => pathM.relative(pathM.resolve(__dirname, '..'), f).replace(/\\/g, '/'));
       const errs = [];
-      for(const f of filesToCheck){
+      for(const f of files){
+        if(ALLOWLIST.has(f)) continue;
         const full = pathM.resolve(__dirname, '..', f);
-        if(!fsM.existsSync(full)) continue;
-        const codeOnly = stripLineComments(fsM.readFileSync(full, 'utf8'));
-        // FAC_IDENTITY[ or FAC_IDENTITY.{wei|shu|wu|nanman} (literal-key writes)
+        const codeOnly = stripComments(fsM.readFileSync(full, 'utf8'));
         const m1 = codeOnly.match(/\bFAC_IDENTITY\[/g) || [];
         const m2 = codeOnly.match(/\bFAC_IDENTITY\.(wei|shu|wu|nanman)\b/g) || [];
         const m3 = codeOnly.match(/\bETHOS_INIT\[/g) || [];
@@ -1824,7 +1831,23 @@ const VERIFIES = [
         if(m3.length) errs.push(`${f}: ${m3.length} × ETHOS_INIT[`);
         if(m4.length) errs.push(`${f}: ${m4.length} × DIPLO_INIT`);
       }
-      return errs.length ? { passed: false, detail: errs.slice(0,10).join(' / ') } : { passed: true };
+      return errs.length ? { passed: false, detail: `Scanned ${files.length - ALLOWLIST.size} files: ` + errs.slice(0,10).join(' / ') } : { passed: true, detail: `Scanned ${files.length - ALLOWLIST.size} files, 0 violations` };
+    },
+  },
+  {
+    // codex trial 1 P2: loadFromSlot() bypass initGame — auto-apply on module load fix
+    id: 'scenario-1c-a-auto-apply-on-script-load',
+    name: '1c-a P2 fix: scenario_loader.js script load 时自动 applyScenario("214") (loadFromSlot bypass 修复)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'core', 'scenario_loader.js'), 'utf8');
+      // 顶层有 applyScenario('214') 调用 (不在 function 体内)
+      // 检查: 找最后一个 } 之后是否有 applyScenario('214') 调用
+      const stripped = src.replace(/\/\/[^\n]*/g, ''); // strip line comments first
+      // module-level applyScenario call = 不在 'function' 体内的 applyScenario('214');
+      if(!/^\s*applyScenario\(['"]214['"]\)\s*;?\s*$/m.test(stripped))
+        return { passed: false, detail: 'scenario_loader.js 末尾无 module-level applyScenario("214") 调用' };
+      return { passed: true };
     },
   },
   {
