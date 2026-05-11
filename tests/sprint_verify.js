@@ -1652,6 +1652,128 @@ const VERIFIES = [
       return errs.length ? { passed: false, detail: errs.slice(0,6).join(' | ') } : { passed: true };
     },
   },
+  // ── 阶段 1b-2 scenario accessor functions ─────────────────────────────
+  // src/core/scenario_accessors.js: 10 accessor 函数 (additive API).
+  // 1b-2 scope: 仅新增 API, 现有模块仍读 FAC[fid] 等顶层 const, 行为 byte-identical.
+  // 1c module-by-module 改 FAC[fid] → getFactionDef(fid); 1d accessor backing 切到 G runtime state.
+  {
+    id: 'scenario-1b2-accessors-defined',
+    name: '10 个 accessor 全 expose (getFactionDef / getScenarioFactions / getPlayableFactions / isPlayableFaction / getFactionIdentity / setFactionIdentity / getEthos / getDiploInit / getWildGenDef / getWildGenMeta)',
+    fn(G, win){
+      const errs = [];
+      const REQ = ['getFactionDef','getScenarioFactions','getPlayableFactions','isPlayableFaction',
+                   'getFactionIdentity','setFactionIdentity','getEthos','getDiploInit',
+                   'getWildGenDef','getWildGenMeta'];
+      for(const fn of REQ){
+        if(typeof win[fn] !== 'function') errs.push(`${fn} not function`);
+      }
+      return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1b2-faction-accessors-byte-identical',
+    name: 'getFactionDef / getScenarioFactions / getPlayableFactions / isPlayableFaction 返回值 ≡ 直接读 const',
+    fn(G, win){
+      const errs = [];
+      // getFactionDef: ref equal to FAC[fid]
+      if(win.getFactionDef('wei') !== win.FAC.wei) errs.push('getFactionDef(wei) !== FAC.wei (not ref)');
+      if(win.getFactionDef('shu') !== win.FAC.shu) errs.push('getFactionDef(shu) !== FAC.shu');
+      if(win.getFactionDef('unknown') !== null) errs.push(`getFactionDef('unknown') should be null (got ${win.getFactionDef('unknown')})`);
+      // getScenarioFactions: ref equal to ALL_FACS
+      if(win.getScenarioFactions() !== win.ALL_FACS) errs.push('getScenarioFactions() !== ALL_FACS (not ref)');
+      // getPlayableFactions: ref equal
+      if(win.getPlayableFactions() !== win.PLAYABLE_FACS) errs.push('getPlayableFactions() !== PLAYABLE_FACS');
+      // isPlayableFaction
+      if(!win.isPlayableFaction('wei')) errs.push('isPlayableFaction(wei) false');
+      if(win.isPlayableFaction('rebel')) errs.push('isPlayableFaction(rebel) true');
+      if(win.isPlayableFaction('unknown')) errs.push('isPlayableFaction(unknown) true');
+      return errs.length ? { passed: false, detail: errs.slice(0,5).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1b2-identity-ethos-diplo-accessors',
+    name: 'getFactionIdentity / setFactionIdentity / getEthos / getDiploInit 返回值 + 写入路径',
+    fn(G, win){
+      const errs = [];
+      // getFactionIdentity: ref equal
+      if(win.getFactionIdentity('wei') !== win.FAC_IDENTITY.wei) errs.push('getFactionIdentity(wei) !== FAC_IDENTITY.wei');
+      if(win.getFactionIdentity('unknown') !== null) errs.push('getFactionIdentity(unknown) !== null');
+      // setFactionIdentity: writes through to FAC_IDENTITY
+      const origStage = win.FAC_IDENTITY.wei.stage;
+      win.setFactionIdentity('wei', 'stage', 'test_stage');
+      if(win.FAC_IDENTITY.wei.stage !== 'test_stage') errs.push(`setFactionIdentity 未写入 (stage=${win.FAC_IDENTITY.wei.stage})`);
+      // restore
+      win.setFactionIdentity('wei', 'stage', origStage);
+      // setFactionIdentity on unknown fac: no-op (no throw)
+      try { win.setFactionIdentity('unknown', 'stage', 'x'); } catch(e){ errs.push(`setFactionIdentity('unknown') threw: ${e.message}`); }
+      // getEthos: ref equal
+      if(win.getEthos('wei') !== win.ETHOS_INIT.wei) errs.push('getEthos(wei) !== ETHOS_INIT.wei');
+      if(win.getEthos('unknown') !== null) errs.push('getEthos(unknown) !== null');
+      // getDiploInit: ref equal
+      if(win.getDiploInit() !== win.DIPLO_INIT) errs.push('getDiploInit() !== DIPLO_INIT');
+      return errs.length ? { passed: false, detail: errs.slice(0,5).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1b2-wild-gen-accessors',
+    name: 'getWildGenDef / getWildGenMeta 返回值 ≡ WILD_GENS.find / WILD_GEN_META[name]',
+    fn(G, win){
+      const errs = [];
+      // getWildGenDef: same ref as WILD_GENS.find
+      const dengAi = win.getWildGenDef('邓艾');
+      if(!dengAi) errs.push('getWildGenDef(邓艾) null');
+      // WILD_GENS is global in v181 — find via getWildGenDef which wraps it
+      const dengAiDirect = win.WILD_GENS ? win.WILD_GENS.find(g => g.name === '邓艾') : null;
+      // 若 WILD_GENS not exposed, 直接验 dengAi 字段
+      if(dengAi){
+        if(dengAi.name !== '邓艾') errs.push(`wild def name=${dengAi.name}`);
+        if(dengAi.minTurn !== 189) errs.push(`邓艾.minTurn=${dengAi.minTurn} expected 189`);
+      }
+      if(win.getWildGenDef('曹操') !== null) errs.push('getWildGenDef(曹操) should be null (not in WILD_GENS)');
+      if(win.getWildGenDef('unknown') !== null) errs.push('getWildGenDef(unknown) should be null');
+      // getWildGenMeta
+      const xushu = win.getWildGenMeta('徐庶');
+      if(!xushu) errs.push('getWildGenMeta(徐庶) null');
+      else {
+        if(xushu.loyalty !== 70) errs.push(`徐庶.loyalty=${xushu.loyalty} expected 70`);
+        if(!xushu.post || xushu.post.name !== '军师') errs.push(`徐庶.post.name=${xushu.post?.name}`);
+      }
+      if(win.getWildGenMeta('unknown') !== null) errs.push('getWildGenMeta(unknown) should be null');
+      return errs.length ? { passed: false, detail: errs.slice(0,5).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1b2-no-module-migration-yet',
+    name: '1b-2 仅 additive API: 现有模块 src/chains/* 仍读 FAC[fid] / ALL_FACS 等直接 const (1c 才迁移)',
+    fn(G, win){
+      // grep 验证: src/chains/* + src/core/main.js 中 FAC[ / ALL_FACS / FAC_IDENTITY[ 仍然存在
+      const fsM = require('fs'), pathM = require('path');
+      const errs = [];
+      const filesToCheck = [
+        'src/chains/diplomacy.js',
+        'src/chains/economy.js',
+        'src/chains/ethos.js',
+        'src/chains/event.js',
+        'src/chains/general.js',
+        'src/chains/gentry.js',
+        'src/chains/military.js',
+        'src/chains/politics.js',
+        'src/core/main.js',
+        'src/render/tabs.js',
+        'src/render/ui_panels.js',
+      ];
+      let totalConstReads = 0;
+      for(const f of filesToCheck){
+        const src = fsM.readFileSync(pathM.resolve(__dirname, '..', f), 'utf8');
+        // count direct FAC[/ALL_FACS/FAC_IDENTITY[ reads
+        const m = src.match(/\b(FAC\[|ALL_FACS\b|FAC_IDENTITY\[|ETHOS_INIT\[|DIPLO_INIT\[)/g) || [];
+        totalConstReads += m.length;
+      }
+      // 1b-2 应有 > 0 (没人迁移). 1c 应逐渐减到 0.
+      if(totalConstReads === 0) errs.push('1b-2: expected direct const reads > 0 across modules (premature migration?)');
+      return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
   {
     id: 'scenario-1b1-empty-before-init',
     name: 'src/data/factions.js 顶层 const 改 empty container (initGame 前空, smoke 验证有效)',
@@ -1761,6 +1883,17 @@ async function main(){
     window.materializeScenario = (typeof materializeScenario !== 'undefined') ? materializeScenario : null;
     window.syncObject = (typeof syncObject !== 'undefined') ? syncObject : null;
     window.syncArray = (typeof syncArray !== 'undefined') ? syncArray : null;
+    // 1b-2 scenario accessors
+    window.getFactionDef = (typeof getFactionDef !== 'undefined') ? getFactionDef : null;
+    window.getScenarioFactions = (typeof getScenarioFactions !== 'undefined') ? getScenarioFactions : null;
+    window.getPlayableFactions = (typeof getPlayableFactions !== 'undefined') ? getPlayableFactions : null;
+    window.isPlayableFaction = (typeof isPlayableFaction !== 'undefined') ? isPlayableFaction : null;
+    window.getFactionIdentity = (typeof getFactionIdentity !== 'undefined') ? getFactionIdentity : null;
+    window.setFactionIdentity = (typeof setFactionIdentity !== 'undefined') ? setFactionIdentity : null;
+    window.getEthos = (typeof getEthos !== 'undefined') ? getEthos : null;
+    window.getDiploInit = (typeof getDiploInit !== 'undefined') ? getDiploInit : null;
+    window.getWildGenDef = (typeof getWildGenDef !== 'undefined') ? getWildGenDef : null;
+    window.getWildGenMeta = (typeof getWildGenMeta !== 'undefined') ? getWildGenMeta : null;
     // (function 顶层声明默认就是 window.<name>, 不需要 expose)
   `;
   win.document.head.appendChild(exposeScript);
