@@ -174,7 +174,7 @@
 //      TAX_DEFS / POLICY_DEFS / CORVEE_DEFS / TRADE_AGR_COST / TRADE_AGR_MAX /
 //      GAR_SALARY_RATE / SUPPLY_CITY_RESTORE_TURNS / FOOD_ALERT_COOLDOWN /
 //      MIGRATION_LOSS_RATE / MIGRATION_RECEIVING_BONUS / BLD_DEFS / SQUAD_DEFS /
-//      MAT_PER_TROOP / FAC / ALL_FACS`(部分已抽 src/data/,部分留 v181)
+//      MAT_PER_TROOP / FAC / getScenarioFactions()`(部分已抽 src/data/,部分留 v181)
 //   - `G(状态根)`(已抽 src/core/state.js)
 //
 // 同 phase 2/3.2/3.3/3.4/3.5/3.6/3.7/3.8 反向调用模式,设计原则 (c) 已 approve。
@@ -1342,7 +1342,7 @@ function aiDoTradeAgreement(fid){
   if(getTradeAgreements(fid).length >= TRADE_AGR_MAX) return; // 已满
   const fac = G.factions[fid];
   if(!fac || fac.res.gold < TRADE_AGR_COST * 2) return; // 留余量
-  const others = ALL_FACS.filter(f => f !== fid && !getSuzerain(f));
+  const others = getScenarioFactions().filter(f => f !== fid && !getSuzerain(f));
   // 按对方城市数排序（优先大势力=更多通商收入）
   const candidates = others.map(other => {
     const dk = fid < other ? `${fid}-${other}` : `${other}-${fid}`;

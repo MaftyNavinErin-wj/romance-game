@@ -83,7 +83,7 @@ function openPostAction(genName, fid){
 // ═══════════════════════════════════════
 function openGenProfile(genName, fid){
   const fid2=fid||Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(g=>g.name===genName))
-    || ALL_FACS.find(f=>(G.generals[f]||[]).some(g=>g.name===genName));
+    || getScenarioFactions().find(f=>(G.generals[f]||[]).some(g=>g.name===genName));
   const g=GEN_MAP[genName] || (G.generals[fid2||'wei']||[]).find(x=>x.name===genName);
   if(!g) return;
   const meta=getGenMeta(genName);

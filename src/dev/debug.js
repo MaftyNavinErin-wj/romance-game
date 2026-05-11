@@ -175,7 +175,7 @@
 
   // 势力下拉选项
   function _dbgFacOptions(){
-    return ALL_FACS.map(function(f){
+    return getScenarioFactions().map(function(f){
       return '<option value="'+f+'">'+(FAC[f]?.name||f)+'</option>';
     }).join('');
   }
@@ -253,13 +253,13 @@
 
     document.getElementById('_dbg_rs_max').onclick = function(){
       _dbgSafe(function(){
-        ALL_FACS.forEach(function(fid){
+        getScenarioFactions().forEach(function(fid){
           const fac = G.factions[fid];
           if(!fac || !fac.res) return;
           fac.res.gold = (fac.res.gold||0) + 10000;
         });
         Object.values(G.cities||{}).forEach(function(c){
-          if(ALL_FACS.includes(c.fac)) c.storage = (c.storage||0) + 5000;
+          if(getScenarioFactions().includes(c.fac)) c.storage = (c.storage||0) + 5000;
         });
       }, '一键满血');
     };
@@ -279,7 +279,7 @@
     document.getElementById('_dbg_rs_warall').onclick = function(){
       _dbgSafe(function(){
         const player = G.playerFac;
-        ALL_FACS.forEach(function(f){
+        getScenarioFactions().forEach(function(f){
           if(f !== player) _dbgSetRelation(f, player, 'enemy', 0);
         });
       }, '所有AI对玩家宣战');
@@ -287,8 +287,8 @@
 
     document.getElementById('_dbg_rs_neutral').onclick = function(){
       _dbgSafe(function(){
-        ALL_FACS.forEach(function(a){
-          ALL_FACS.forEach(function(b){
+        getScenarioFactions().forEach(function(a){
+          getScenarioFactions().forEach(function(b){
             if(a !== b) _dbgSetRelation(a, b, 'neutral', 30);
           });
         });
@@ -945,7 +945,7 @@
     const seasonIdx = G.seasonIdx ?? 0;
     lines.push('第 '+(G.turn||0)+' 旬, '+(seasonNames[seasonIdx % 4]||'?')+'季 (建安'+(G.year||0)+'年)');
     // 各势力存亡
-    const facStatus = ALL_FACS.map(function(f){
+    const facStatus = getScenarioFactions().map(function(f){
       const fac = G.factions?.[f];
       const name = FAC[f]?.name || f;
       if(!fac) return name+'(?)';

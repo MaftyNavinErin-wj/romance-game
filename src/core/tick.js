@@ -72,7 +72,7 @@
 //           / _applySiegeAftermath / showGameEndOverlay / fuzzyTroopDisplay
 //           / getUnitTroops / getUnitNodeId / calcUnitAP / unitsContact
 //           / sleep / hkey / _shownCities / HEX_CITY / CITY_MAP / GEN_MAP
-//           / FAC / ALL_FACS / YEARS / SEASONS / WILD_POOL_INTERVAL
+//           / FAC / getScenarioFactions() / YEARS / SEASONS / WILD_POOL_INTERVAL
 //           / EVENT_CAT_COOLDOWN / AI_RECRUIT_INTERVAL / MERIT_INIT
 //           / CITIES_DEF
 //   - 顶层 lets(留 v181): _marchAnimating / _fastForward / _deployedGensMoraleCache
@@ -177,8 +177,8 @@ function runRebelAI(){
 async function runAI(){
   // 快进模式下玩家势力也托管给AI，实现完全对等的模拟
   const aiFacs = _fastForward
-    ? ALL_FACS
-    : ALL_FACS.filter(f=>f!==G.playerFac);
+    ? getScenarioFactions()
+    : getScenarioFactions().filter(f=>f!==G.playerFac);
 
   for(const fid of aiFacs){
     if(G.factions[fid]?._eliminated) continue; // ★ v119: 已淘汰势力不执行AI
@@ -247,7 +247,7 @@ async function runAI(){
       const _aiFac = G.factions[fid];
       const _aiCities = Object.values(G.cities).filter(c=>c.fac===fid);
       const _aiBuilding = _aiCities.some(c=>c.buildQueue && c.buildQueue.length > 0);
-      const _aiAtWar = ALL_FACS.some(of => of!==fid && of!=='rebel' && getDiploStatus(fid,of)==='enemy');
+      const _aiAtWar = getScenarioFactions().some(of => of!==fid && of!=='rebel' && getDiploStatus(fid,of)==='enemy');
       if(_aiBuilding && _aiAtWar) _aiFac.corveeId = 'mid';      // 战时建设：中徭（保守，避免民心崩）
       else if(_aiBuilding && !_aiAtWar) _aiFac.corveeId = 'high'; // 和平建设：重徭冲刺
       else _aiFac.corveeId = 'low';                               // 无建设：不征发
@@ -338,7 +338,7 @@ async function nextTurn(){
   // 重置外交行动标记
   Object.values(G.diplo).forEach(d=>{ d._actedThisTurn=false; });
   // D-120 fix: 重置顶层 _diploActed_${fid}（与 B1 字段同时机）
-  ALL_FACS.forEach(fid => { delete G[`_diploActed_${fid}`]; });
+  getScenarioFactions().forEach(fid => { delete G[`_diploActed_${fid}`]; });
 
   // ★ I3 fix: 预计算 _postBuffs（含朝议decree），使 processCityFood/processMorale 在首旬即能读到
   Object.keys(G.factions).forEach(fid => {
@@ -405,7 +405,7 @@ async function nextTurn(){
     }
   });
   // ★ C4: 更新所有势力迷雾（移动后、战斗前）
-  ALL_FACS.forEach(fid => updateFog(fid));
+  getScenarioFactions().forEach(fid => updateFog(fid));
   // 不在旬初强清战报队列——玩家未看完的战报应保留到关闭后自然消化
   checkAmbushTriggers();      // ★ v100: 只检测伏击（普通野战已由AI/玩家显式发起）
   // ★ v100: 叛军战斗检测（叛军不经过aiExecuteOrders，需独立处理）
@@ -459,7 +459,7 @@ async function nextTurn(){
   }
   // ★ D1: 官职功绩每旬积累（太守/军师/官职 +0.3/旬）
   // ★ D3: 太守/官职每旬政治经验
-  ALL_FACS.forEach(fid=>{
+  getScenarioFactions().forEach(fid=>{
     Object.values(G.cities).filter(c=>c.fac===fid && c.prefect).forEach(c=>{
       addMerit(c.prefect, 0.3);
       addStatExp(c.prefect, 'pol', 0.3);   // 太守每旬+0.3 pol exp
@@ -516,9 +516,9 @@ async function nextTurn(){
   processReputation();      // ★ C3: 信誉自然恢复
   processStageEvolution();  // ★ v172: 势力演进阶段（军阀→一方之主→政权）自动判定（须先于processGentry，以便当旬clamp用新stage）
   processGentry();          // ★ I2: 豪族支持度每旬变化（内含按stage的bounds clamp + stage差异化恢复速率）
-  ALL_FACS.forEach(fid => processFacEthos(fid)); // ★ v151: 价值观每旬漂移
+  getScenarioFactions().forEach(fid => processFacEthos(fid)); // ★ v151: 价值观每旬漂移
   // ★ C3: AI称帝评估（每12旬）
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     if(fid !== G.playerFac && G.turn >= 24 && G.turn % 12 === 0) aiConsiderEnthrone(fid);
   });
   // 清除残部：兵力<50的部队自动解散（含逃兵流散至极少的情况）
@@ -696,7 +696,7 @@ async function fastForwardTurns(n){
     // 每5旬让出事件循环，防止浏览器判定脚本卡死
     if(i % 5 === 4) await new Promise(r => setTimeout(r, 0));
     // ★ v119: 胜利/玩家淘汰时中断快进
-    const alive = ALL_FACS.filter(f => !G.factions[f]?._eliminated);
+    const alive = getScenarioFactions().filter(f => !G.factions[f]?._eliminated);
     if(alive.length <= 1) { log(`⏩ 快进中断：天下已定`, 'event'); break; }
   }
   _fastForward = false;
@@ -706,7 +706,7 @@ async function fastForwardTurns(n){
   renderAll();
   log(`⏩ 快进 ${n} 旬完成（第${G.turn}旬）`, 'economy');
   // ★ v119: 快进结束后若已有胜负，弹出结算画面
-  const _aliveFF = ALL_FACS.filter(f => !G.factions[f]?._eliminated);
+  const _aliveFF = getScenarioFactions().filter(f => !G.factions[f]?._eliminated);
   if(_aliveFF.length <= 1 && !G._victoryShown){
     G._victoryShown = true;
     const winner = _aliveFF[0];
@@ -726,7 +726,7 @@ const _STATS_MAX = 40;    // 最多保留40旬历史
 
 function pushStatsSnapshot(){
   const snap = { turn:G.turn, year:G.year, seasonIdx:G.seasonIdx };
-  ALL_FACS.forEach(fid=>{
+  getScenarioFactions().forEach(fid=>{
     const fc = Object.values(G.cities).filter(c=>c.fac===fid);
     const ut = G.units.filter(u=>u.fac===fid);
     snap[fid]={

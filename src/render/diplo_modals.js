@@ -147,7 +147,7 @@ function _checkPendingCourtAfterPopup(){
 /** 朝议主入口（每季度首旬调用） */
 function triggerCourtCouncil(){
   _expireCourtDecrees();
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     const proposals = _generateCourtProposals(fid);
     if(!proposals.length) return;
     if(fid === G.playerFac){

@@ -135,7 +135,7 @@
 //     _aiDoPoach 扣资源
 //   - log / showNotif (已抽 src/render/notifications.js)
 //   - confirm (浏览器 API) — succeedRuler (玩家继任确认)
-//   - 数据 / 常量: GEN_TAGS / GEN_MAP / FAC / ALL_FACS / FAC_IDENTITY /
+//   - 数据 / 常量: GEN_TAGS / GEN_MAP / FAC / getScenarioFactions() / FAC_IDENTITY /
 //     GENS_FULL / GEN_META / WILD_GENS / GEN_POOL_INACTIVE / FOUNDING_CORE /
 //     COUNTY_NAME_TO_CITY / GENTRY_FAC_TO_STATES / STATE_TO_GENTRY_FAC /
 //     STATE_CITIES / TROOP_TYPES / 等 (留 v181 / 已抽 src/data/)
@@ -281,7 +281,7 @@ function _deepCloneGen(g){ return {...g, apt: g.apt ? {...g.apt} : undefined}; }
  *  非活跃武将(GEN_POOL_INACTIVE)保留原始引用（不参与成长） */
 function _rebuildGEN_MAP(){
   GEN_MAP = Object.fromEntries(GEN_POOL_INACTIVE.map(g=>[g.name, g]));
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     (G.generals[fid]||[]).forEach(gen => { if(gen.name) GEN_MAP[gen.name] = gen; });
   });
   (G.genPendingPool||[]).forEach(gen => { if(gen.name) GEN_MAP[gen.name] = gen; });
@@ -592,7 +592,7 @@ function factionModToLoyaltyDelta(mod) {
 function processFactionLoyalty(){
   if(!G.genFactionMod) G.genFactionMod = {};
 
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     const gens = (G.generals[fid] || []).filter(g => g.role !== 'ruler');
     if(!gens.length) return;
 
@@ -884,7 +884,7 @@ function refreshWildPool(){
   // ★ v152: 举孝廉bonus — 额外增加在野武将数
   let extraSlots = 0;
   if(G._juxiaolianBonus){
-    ALL_FACS.forEach(fid => {
+    getScenarioFactions().forEach(fid => {
       if(G._juxiaolianBonus[fid] > 0){
         extraSlots += G._juxiaolianBonus[fid];
         delete G._juxiaolianBonus[fid];
@@ -1521,7 +1521,7 @@ function checkLoyaltyThresholds(){
       // ★ v131: B3④挖角脆弱标记——不予理会的武将阈值提高
       const _vuln = G._poachVulnerable?.[name];
       if(_vuln) _poachThr = Math.max(_poachThr, _vuln.threshold);
-      ALL_FACS.forEach(otherFid => {
+      getScenarioFactions().forEach(otherFid => {
         if(otherFid === fid) return; // 己方科技不影响己方武将被挖
         const pt = getTechEffect(otherFid, 'poachThreshold'); // 负值如-5
         // D-055 fix: 用实际 _poachThr 当基线（投机 55 / 普通 45），不再硬编码 45 失效投机标签科技 buff
@@ -1673,7 +1673,7 @@ function setPrefect(cityId, genName){
       if(G.loyaltyAccum) G.loyaltyAccum[genName] = G.genLoyalty[genName];
     }
     addGenChronicle(genName, `受命为${city.name}太守，忠心倍增。`);
-    if(cityFac && ALL_FACS.includes(cityFac)){
+    if(cityFac && getScenarioFactions().includes(cityFac)){
       // ★ B1 降将任太守事件
       if(seniority(genName, cityFac) === 'defector'){
         triggerFactionEvent('defectorPrefect', cityFac, {});
@@ -1694,7 +1694,7 @@ function setPrefect(cityId, genName){
       if(G.loyaltyAccum) G.loyaltyAccum[oldPrefect] = G.genLoyalty[oldPrefect];
     }
     // ★ v73 卸任官职 → 同派系凝聚感 -1
-    if(cityFac && ALL_FACS.includes(cityFac)){
+    if(cityFac && getScenarioFactions().includes(cityFac)){
       const rmFac = getGenFaction(oldPrefect, cityFac);
       if(rmFac) triggerFactionEvent('removePost', cityFac, {removedFaction: rmFac});
       // D-051 fix: 价值观冲击 — 卸任太守（与 dismissGenPost 同模式）
@@ -1758,7 +1758,7 @@ function setStrategist(fid, genName){
       if(G.loyaltyAccum) G.loyaltyAccum[genName] = G.genLoyalty[genName];
     }
     // ★ v73 任命军师 → 同派系凝聚感 +2
-    if(ALL_FACS.includes(fid)){
+    if(getScenarioFactions().includes(fid)){
       const apFac = getGenFaction(genName, fid);
       if(apFac) triggerFactionEvent('appointPost', fid, {appointedFaction: apFac});
       // D-051 fix: 价值观冲击 — 任命军师（与 appointGenPost 同模式）
@@ -1771,7 +1771,7 @@ function setStrategist(fid, genName){
     log(`📜 ${FAC[fid]?.name}撤销军师任命`, 'fac');
   }
   // ★ v73 卸任军师 → 原军师同派系凝聚感 -1
-  if(prev && prev !== genName && ALL_FACS.includes(fid)){
+  if(prev && prev !== genName && getScenarioFactions().includes(fid)){
     const rmFac = getGenFaction(prev, fid);
     if(rmFac) triggerFactionEvent('removePost', fid, {removedFaction: rmFac});
     // D-051 fix: 价值观冲击 — 卸任军师（与 dismissGenPost 同模式）
@@ -2018,7 +2018,7 @@ function killGen(genName, killerName){
   let killedMainFac = null;
   let killedFid = null;
   let wasRuler = false;
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     if((G.generals[fid]||[]).some(g => g.name === genName)){
       killedFid = fid;
       killedMainFac = getGenFaction(genName, fid);
@@ -2035,7 +2035,7 @@ function killGen(genName, killerName){
   G.wildPool = (G.wildPool||[]).filter(n=>n!==genName);
   Object.values(G.cities).forEach(city=>{ if(city.prefect===genName) city.prefect=null; });
   // ★ v78 继任：君主若任军师也需清除
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     if(G.factions[fid]?.strategist === genName) G.factions[fid].strategist = null;
   });
   G.units.forEach(u=>{ u.squads = u.squads.filter(sq=>sq.genName!==genName); });
@@ -2065,7 +2065,7 @@ function killGen(genName, killerName){
   if(killedFid && killerName){
     // 找凶手势力
     let killerFid = null;
-    ALL_FACS.forEach(f => {
+    getScenarioFactions().forEach(f => {
       if((G.generals[f]||[]).some(g=>g.name===killerName)) killerFid = f;
     });
     if(killerFid) checkBloodFeud(genName, killedFid, killerFid);
@@ -2135,7 +2135,7 @@ function succeedRuler(fid, deadRulerName){
 function surrenderGen(genName, targetFid){
   // ★ v119fix: 归降前清除原势力太守/军师
   clearPrefectByGen(genName);
-  ALL_FACS.forEach(f => { if(G.factions[f]?.strategist === genName) G.factions[f].strategist = null; });
+  getScenarioFactions().forEach(f => { if(G.factions[f]?.strategist === genName) G.factions[f].strategist = null; });
   Object.keys(G.generals).forEach(fid=>{
     G.generals[fid] = (G.generals[fid]||[]).filter(g=>g.name!==genName);
   });

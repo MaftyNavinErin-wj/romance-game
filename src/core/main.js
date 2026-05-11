@@ -30,7 +30,7 @@
 //   - 数据 / 常量(部分已抽 src/data/):FAC / GENS_FULL / CITIES_DEF / DIPLO_INIT
 //     / TECH_PREUNLOCK / FAC_IDENTITY / FOUNDING_CORE / RETAINER_PRESET
 //     / RETAINER_LEVEL / INTIMACY_PRESET / ETHOS_INIT / MERIT_INIT / GEN_TAGS
-//     / GENS_FULL / ALL_GENS / ALL_FACS / ALL_POSTS / WILD_GENS / CITY_MAP
+//     / GENS_FULL / ALL_GENS / getScenarioFactions() / ALL_POSTS / WILD_GENS / CITY_MAP
 //     / STATE_TO_GENTRY_FAC
 //   - chain primitive: garrisonCap / _deepCloneGen / createUnit / getInitLevel
 //     / getGenMeta / addGenChronicle / setIntimacy / refreshWildPool
@@ -43,7 +43,7 @@
 // ── plan §二偏离记录(同前)── 同 docs/phase3_4_notes §二。
 
 function initGame(scenarioId){
-  // 1b-1: scenario materialize + sync top-level FAC/ALL_FACS/PLAYABLE_FACS/FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT
+  // 1b-1: scenario materialize + sync top-level FAC/getScenarioFactions()/PLAYABLE_FACS/FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT
   // (src/core/scenario_loader.js); 守底 invariant: sync 后值 ≡ 原 src/data/factions.js literal
   applyScenario(scenarioId || '214');
   G.turn=1; G.year=0; G.seasonIdx=0; // 重置回合计数
@@ -73,7 +73,7 @@ function initGame(scenarioId){
   G.factions.nanman.res.wood=1000; // ★ v144→v145: 南中产木但贫困
   G.factions.nanman.res.iron=650;  // ★ v145: 南蛮铁匮乏
   // ★ v115: 科技树初始化
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     const preunlock = TECH_PREUNLOCK[fid] || [];
     G.factions[fid]._tech = {
       researched: new Set(preunlock),
@@ -124,7 +124,7 @@ function initGame(scenarioId){
   G.units=[];
   // 外交冷却期（格式：_diploCD_facA_facB，值为剩余旬数）
   // 动态挂在G对象上，initGame时清除所有旧CD
-  ALL_FACS.forEach(a=>ALL_FACS.forEach(b=>{
+  getScenarioFactions().forEach(a=>getScenarioFactions().forEach(b=>{
     if(a!==b) G[`_diploCD_${a}_${b}`]=0;
   }));
   _pendingPeaceOffer  = null;
@@ -144,7 +144,7 @@ function initGame(scenarioId){
   G._tradeCD = {}; // ★ v164: 互市冷却 {fid_target: expiresAtTurn}
   G._tradeAgreements = []; // ★ v165: 通商协定 [{factions:['a','b'], since:turn}]
   G._migratedThisTurn = false; // ★ v166: 迁民每旬限制
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     G.strategyCD[fid] = { driveWolf:0, twoTigers:0, spy:0, rumor:0, scout:0, envoy:0 };
   });
   // ★ B1 派系政治系统初始化
@@ -156,7 +156,7 @@ function initGame(scenarioId){
   G.genFactionModLog = {}; // ★ v94: 派系事件日志
   G._warClaimStrength = {}; // ★ v113: 宣称强度追踪
   // ★ v151: 价值观系统初始化
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     G.factions[fid].ethos = {...(getEthos(fid) || {mandate:0,power:0,civil:0,military:0,strategy:0})};
     G.factions[fid]._ethosLog = [];
     G.factions[fid]._ethosSnap = {};
@@ -165,7 +165,7 @@ function initGame(scenarioId){
   G.genStatBase = {};   // ★ D3: 属性初始值快照 {genName: {com,war,int,pol}}
   G.genAptExp = {};     // ★ D3: 适性经验 {genName: {cavalry,light,...}}
   // 开局将领：核心创始人标记 'founding'，其余为 'member'（老臣/同僚）
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     const coreSet = FOUNDING_CORE[fid] || new Set();
     (G.generals[fid]||[]).forEach(gen => {
       G.genJoinTurn[gen.name] = 0;

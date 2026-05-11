@@ -44,7 +44,7 @@
 //   - `showNotif`(已抽 src/render/notifications.js)— E3 内调用
 //   - `ETHOS_LABELS / ETHOS_DIM_NAMES`(已抽 src/data/tags.js)— E3 / 留 v181 的 renderEthosTab 共用
 //   - `GEN_TAGS`(已抽 src/data/tags.js)— E5 内调用
-//   - `ALL_FACS / G(状态根)`(已抽 src/data/factions.js / src/core/state.js)
+//   - `getScenarioFactions() / G(状态根)`(已抽 src/data/factions.js / src/core/state.js)
 //
 // 同 phase 2/3.2/3.3/3.4 反向调用模式,设计原则 (c) 已 approve。
 //
@@ -162,7 +162,7 @@ function processFacEthos(fid){
   const fieldRatio = field / ((field + garr) || 1);
   _applyEthosDrift(fid, 'strategy', (fieldRatio - 0.35) * 0.6, '军事态势');
   // 长期无战事 → 守成（检查是否与任何势力敌对）
-  const atWar = ALL_FACS.some(of => {
+  const atWar = getScenarioFactions().some(of => {
     if(of === fid) return false;
     const dk = G.diplo[`${fid}-${of}`] || G.diplo[`${of}-${fid}`];
     return dk && dk.status === 'enemy';

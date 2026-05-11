@@ -148,7 +148,7 @@
 //   - `hasFacGen / genHasOffice`(本 chain self-call + 武将链 helper)
 //   - `_shuffleFY`(外交链 / 通用 helper,留 v181 等 3.8)— _generateCourtProposals 调
 //   - `log / showNotif`(已抽 src/render/notifications.js)
-//   - `TECH_TREE / ALL_POSTS / POST_TIERS / FAC_IDENTITY / FAC / ALL_FACS / GEN_TAGS
+//   - `TECH_TREE / ALL_POSTS / POST_TIERS / FAC_IDENTITY / FAC / getScenarioFactions() / GEN_TAGS
 //      / STAGE_NAMES / STAGE_PROMO / STAGE_LABEL_CAP / STAGE_LABEL_FLOOR
 //      / STAGE_TIER1_SLOTS / STATE_CITIES / STATE_NAMES / STATE_TIER
 //      / FACTION_DEFS / GENTRY_FAC_TO_STATES / COUNTY_CLAN_SENS / COURT_PROPOSALS_MIL
@@ -237,7 +237,7 @@ function canAffordTech(fid, techId) {
 
 /** 每旬处理科技研究进度（在nextTurn中调用） */
 function processTechResearch() {
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     const tech = G.factions[fid]?._tech;
     if (!tech || !tech.current) return;
     const cur = tech.current;
@@ -379,7 +379,7 @@ function countFacCities(fid){
 
 /** 追踪每个势力每个州"首次满足3城"的旬数（用于18旬持续时间判定） */
 function _updateStateAnchorClock(){
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     if(!G.factions[fid]) return;
     if(!G.factions[fid]._stateAnchorClock) G.factions[fid]._stateAnchorClock = {};
     const clock = G.factions[fid]._stateAnchorClock;
@@ -480,7 +480,7 @@ function promoteStage(fid){
 /** 每旬调用：更新 anchor clock + 尝试自动晋升 */
 function processStageEvolution(){
   _updateStateAnchorClock();
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     // 每旬一次判定：warlord→regional 要求18旬anchor持续，与 regional→regime 条件天然不会同旬满足，
     // 所以此处调用一次即可，不会出现跨级跳跃
     promoteStage(fid);
@@ -640,7 +640,7 @@ function genHasOffice(genName, fid){
   if(getGenPostDef(genName)) return true;
   if(fid && getFactionRuler(fid) === genName) return true;
   // fallback: check all factions
-  if(!fid){ for(const f of ALL_FACS){ if(getFactionRuler(f) === genName && hasFacGen(f, genName)) return true; } }
+  if(!fid){ for(const f of getScenarioFactions()){ if(getFactionRuler(f) === genName && hasFacGen(f, genName)) return true; } }
   return false;
 }
 /** 任命官职 */
@@ -1012,7 +1012,7 @@ function doEnthrone(fid){
   // 天子消亡
   if(G.emperor){
     // 所有emperor_holder降级
-    ALL_FACS.forEach(f => {
+    getScenarioFactions().forEach(f => {
       const ident = getFactionIdentity(f);
       if(ident?.type === 'emperor_holder'){
         setFactionIdentity(f, 'type', ident._baseType || 'warlord');
@@ -1024,7 +1024,7 @@ function doEnthrone(fid){
   // 信誉+10
   G.reputation[fid] = Math.min(100, (G.reputation[fid]||REPUTATION_DEFAULT) + 10);
   // 第三方关系
-  ALL_FACS.forEach(other => {
+  getScenarioFactions().forEach(other => {
     if(other === fid) return;
     const otherIsEmperor = getFactionIdentity(other)?.type === 'emperor';
     addDiplo(fid, other, otherIsEmperor ? -25 : -15);
@@ -1034,11 +1034,11 @@ function doEnthrone(fid){
   // 派系影响
   const facKey = oldType === 'han_royal' ? 'han_royal' : (oldType === 'emperor_holder' ? 'emperor_holder' : 'warlord');
   const fx = ENTHRONE_FACTION_EFFECTS[facKey];
-  if(fx && ALL_FACS.includes(fid)) _applyClaimFactionEffects(fid, fx);
+  if(fx && getScenarioFactions().includes(fid)) _applyClaimFactionEffects(fid, fx);
   log(`👑 ${FAC[fid]?.name}${getFactionRuler(fid)}称帝！天下震动`, 'diplo');
   applyEthosShock(fid, 'mandate', 28, '称帝'); // ★ v151
   // 派系事件通知
-  ALL_FACS.forEach(f => {
+  getScenarioFactions().forEach(f => {
     if(f !== fid) triggerFactionEvent('warDeclare', f, {}); // 他国鹰派被激活
   });
 }
@@ -1055,7 +1055,7 @@ function aiConsiderEnthrone(fid){
   if(_ethEnt && _ethEnt.mandate >= 60) chance = Math.min(0.95, chance + 0.15);
   // 额外条件：城市数应多于至少一个对手
   const myCities = Object.values(G.cities).filter(c=>c.fac===fid).length;
-  const maxOther = Math.max(...ALL_FACS.filter(f=>f!==fid).map(f=>Object.values(G.cities).filter(c=>c.fac===f).length));
+  const maxOther = Math.max(...getScenarioFactions().filter(f=>f!==fid).map(f=>Object.values(G.cities).filter(c=>c.fac===f).length));
   // ★ v152: mandate>=60时降低城市优势要求（不需要是最强的也敢称帝）
   const cityAdvantageNeeded = (_ethEnt && _ethEnt.mandate >= 60) ? -2 : 0;
   if(myCities <= maxOther + cityAdvantageNeeded) return;

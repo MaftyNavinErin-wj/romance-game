@@ -220,7 +220,7 @@
 //   - core helpers(已抽):safeSub / safeAdd
 //   - render(已抽):log / showNotif / fmt / closeModal / renderAll / renderAllLight /
 //      renderRight / renderMap / invalidateCityCache / updateFogCitySnapshot
-//   - 数据 / 常量(已抽 src/data/ 或留 v181):FAC / ALL_FACS / GEN_TAGS / GEN_MAP /
+//   - 数据 / 常量(已抽 src/data/ 或留 v181):FAC / getScenarioFactions() / GEN_TAGS / GEN_MAP /
 //      CITY_MAP / CITIES_DEF / FAC_IDENTITY / TECH_TREE / BLDS / SUPPLY_LOSS_RATES 等
 //   - `G(状态根)`(已抽 src/core/state.js)
 //
@@ -757,7 +757,7 @@ function _aiGetThreatMatrix(fid) {
   const fac = G.factions[fid];
   if (!fac) return { threats: {}, highestThreat: 0, secondThreat: 0, maxDeployRatio: 1.0 };
   // 外交状态哈希（自愈机制：即使漏了invalidate也能检测到变化）
-  const diploHash = ALL_FACS.filter(f=>f!==fid)
+  const diploHash = getScenarioFactions().filter(f=>f!==fid)
     .map(f=>getDiploStatus(fid,f)).join(',');
   // 缓存检查（每3旬 或 被标脏 或 外交变化）
   if (fac._aiThreatCache && !fac._aiThreatDirty &&
@@ -766,7 +766,7 @@ function _aiGetThreatMatrix(fid) {
     return fac._aiThreatCache.data;
   }
   const threats = {};
-  const allFacs = ALL_FACS.filter(f => f !== fid); // ★ v146: 硬编码→ALL_FACS，含南蛮
+  const allFacs = getScenarioFactions().filter(f => f !== fid); // ★ v146: 硬编码→getScenarioFactions()，含南蛮
   allFacs.forEach(ef => {
     threats[ef] = _aiCalcThreat(fid, ef);
   });
@@ -786,7 +786,7 @@ function _aiGetThreatMatrix(fid) {
 
 /** GT1: 标脏所有势力的威胁缓存（外交变化/丢城时调用） */
 function _aiInvalidateThreatCache() {
-  ALL_FACS.forEach(fid => { // ★ v146: 硬编码→ALL_FACS
+  getScenarioFactions().forEach(fid => { // ★ v146: 硬编码→getScenarioFactions()
     const fac = G.factions[fid];
     if (fac) fac._aiThreatDirty = true;
   });
@@ -3751,7 +3751,7 @@ function processUnitSalary() {
   // 阶段1（即时）：欠饷 → 全军士气下降 + 无法补员
   // 阶段2（延迟）：连续欠饷满5旬 → 开始逐旬逃兵（与士气无关，纯粹时间积累）
   //               连续欠饷满10旬 → 逃兵率加倍
-  ALL_FACS.forEach(fid=>{
+  getScenarioFactions().forEach(fid=>{
     const fac=G.factions[fid];
     const units=G.units.filter(u=>u.fac===fid);
 
@@ -5839,7 +5839,7 @@ function resolveSiegeBattle(attackers, defenders, city, nodeLabel){
 
   // SKILL_INLINE: zuoduan_def — 孙权坐断：当官时江东己方城市garrison部队守城DEF+5%
   const _sunquanFac = (() => {
-    for(const f of ALL_FACS){ if(hasFacGen(f,'孙权') && genHasOffice('孙权',f)) return f; }
+    for(const f of getScenarioFactions()){ if(hasFacGen(f,'孙权') && genHasOffice('孙权',f)) return f; }
     return null;
   })();
   const _zuoduanActive = _sunquanFac && city.fac === _sunquanFac && isJiangdong(city.id);
@@ -6003,7 +6003,7 @@ function resolveSiegeBattle(attackers, defenders, city, nodeLabel){
     // 共同抗敌加成：占领共同敌人的城市，与盟友/友方友好度+2
     if(oldFac && oldFac !== 'rebel' && atkFac !== 'rebel') applyCommonEnemyDiploBonus(atkFac, oldFac, 2);
     // ★ B1 占领新城事件：鹰派+3
-    if(atkFac && ALL_FACS.includes(atkFac)) triggerFactionEvent('conquer', atkFac, {});
+    if(atkFac && getScenarioFactions().includes(atkFac)) triggerFactionEvent('conquer', atkFac, {});
     // ★ D1: 攻城方全员功绩+10
     attackers.forEach(u=>u.squads.forEach(sq=>{ if(sq.genName) addMerit(sq.genName, 10); }));
     // ★ v151: 攻克城池 → 方略偏扩张
@@ -6780,7 +6780,7 @@ function _resolveBattleEngagement(attackers, defenders, nodeLabel, activeDuel, n
         if(rev) rev._betrayal = true;
         applyReputationPenalty(atkFac0, 'betray');
         // D-048 fix: de facto 宣战背刺也触发 betray 派系事件（与玩家 diploWar 对称）
-        if(ALL_FACS.includes(atkFac0)) triggerFactionEvent('betray', atkFac0, {});
+        if(getScenarioFactions().includes(atkFac0)) triggerFactionEvent('betray', atkFac0, {});
       }
       if(G.diplo[bk]._peaceTurn != null && (G.turn - G.diplo[bk]._peaceTurn) <= 3){
         applyReputationPenalty(atkFac0, 'relapse');
@@ -6792,7 +6792,7 @@ function _resolveBattleEngagement(attackers, defenders, nodeLabel, activeDuel, n
       // D-118 fix: applyWarDeclarationEffects 全套副作用 (信誉/第三方/派系/ethos), 跟三入口一致 (de facto = 无名宣战, claimType=null)
       applyWarDeclarationEffects(atkFac0, defFac, null);
       // D-118 fix: warDeclare 派系事件 (跟三入口宣战 + 斩使 D-049/D-131 fix 一致)
-      if(ALL_FACS.includes(atkFac0)) triggerFactionEvent('warDeclare', atkFac0, {});
+      if(getScenarioFactions().includes(atkFac0)) triggerFactionEvent('warDeclare', atkFac0, {});
       log(`⚔️ ${FAC[atkFac0]?.name}对${FAC[defFac]?.name}动兵，双方进入敌对状态`, 'diplo');
     }
 

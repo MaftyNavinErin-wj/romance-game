@@ -231,7 +231,7 @@ function renderStatsTab(c){
   const h=_statsHistory;
 
   // ── 当前快照 ──
-  const now=ALL_FACS.map(fid=>{
+  const now=getScenarioFactions().map(fid=>{
     const fc=Object.values(G.cities).filter(x=>x.fac===fid);
     const ut=G.units.filter(u=>u.fac===fid);
     const pop=fc.reduce((s,x)=>s+x.pop,0);
@@ -248,9 +248,9 @@ function renderStatsTab(c){
     if(h.length<2) return '<div style="color:var(--ink-ll);font-size:9px;text-align:center;padding:8px">暂无数据</div>';
     const W=240,H=56,pad=6;
     const iw=W-pad*2, ih=H-pad*2;
-    const allVals=h.flatMap(s=>ALL_FACS.map(f=>s[f]?.[key]||0));
+    const allVals=h.flatMap(s=>getScenarioFactions().map(f=>s[f]?.[key]||0));
     const maxV=maxOverride||Math.max(...allVals,1);
-    const lines=ALL_FACS.map(fid=>{
+    const lines=getScenarioFactions().map(fid=>{
       const pts=h.map((s,i)=>{
         const v=s[fid]?.[key]||0;
         const x=pad+i/(h.length-1)*iw;
@@ -272,7 +272,7 @@ function renderStatsTab(c){
 
   // ── 城池归属比例条 ──
   const totalCities=CITIES_DEF.length;
-  const barHtml=ALL_FACS.map(fid=>{
+  const barHtml=getScenarioFactions().map(fid=>{
     const cnt=Object.values(G.cities).filter(x=>x.fac===fid).length;
     const pct=(cnt/totalCities*100).toFixed(1);
     return `<div style="flex:${cnt};background:${FAC_COL[fid]};height:8px;transition:flex .5s" title="${FAC_NAME[fid]} ${cnt}城"></div>`;
@@ -318,7 +318,7 @@ function renderStatsTab(c){
       <div style="font-size:9px;color:var(--ink-ll);margin-bottom:6px;display:flex;align-items:center;gap:8px">
         ${label}
         <span style="margin-left:auto;display:flex;gap:10px">
-          ${ALL_FACS.map(f=>`<span style="color:${FAC_COL[f]}">${FAC_NAME[f]}</span>`).join('')}
+          ${getScenarioFactions().map(f=>`<span style="color:${FAC_COL[f]}">${FAC_NAME[f]}</span>`).join('')}
         </span>
       </div>
       ${sparkline(key)}
@@ -376,7 +376,7 @@ function renderStatsTab(c){
 
     <div style="display:flex;border-radius:4px;overflow:hidden;margin-bottom:10px;height:8px">${barHtml}</div>
     <div style="display:flex;gap:12px;font-size:9px;color:rgba(44,36,22,.35);margin-bottom:12px">
-      ${ALL_FACS.map(fid=>{
+      ${getScenarioFactions().map(fid=>{
         const cnt=Object.values(G.cities).filter(x=>x.fac===fid).length;
         return `<span style="color:${FAC_COL[fid]}">${FAC_NAME[fid]} ${cnt}城 (${(cnt/totalCities*100).toFixed(0)}%)</span>`;
       }).join('')}
@@ -1424,7 +1424,7 @@ function renderEthosTab(c){
 
   // ── 其他势力价值观一览 ──
   let othersHtml = '';
-  ALL_FACS.filter(f => f !== fid).forEach(of => {
+  getScenarioFactions().filter(f => f !== fid).forEach(of => {
     const oe = G.factions[of]?.ethos;
     if(!oe) return;
     const facN = FAC[of]?.name || of;

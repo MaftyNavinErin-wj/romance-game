@@ -124,7 +124,7 @@
 //   - `G(状态根)`(已抽 src/core/state.js)
 //   - 武将链 helpers(留 v181 等 3.12):`hasFacGen / genHasOffice`(getScoutINT 调)
 //   - `getUnitTroops`(归军事链 MIL4,Commit 2 抽,但 hoisted function 跨 script 调用 OK)
-//   - 数据 / 常量:`FAC / ALL_FACS`
+//   - 数据 / 常量:`FAC / getScenarioFactions()`
 //
 // ── plan §二偏离记录 ──
 // PLAN §三阶段 3.11(原)字面:hex/fog/pathfinding 是军事链子组(~34 函数)。
@@ -364,7 +364,7 @@ function fuzzyGenDisplay(unit, intVal) {
 /** 获取fid的视野共享来源列表（含盟友+附庸） */
 function getFogAllyFacs(fid) {
   const result = [fid];
-  ALL_FACS.forEach(other => {
+  getScenarioFactions().forEach(other => {
     if (other === fid) return;
     const d = G.diplo?.[`${fid}-${other}`];
     if (!d) return;
@@ -414,7 +414,7 @@ function fogBFS(col, row, radius) {
 function initFog() {
   G.fog = {};
   G.fogSnap = {};
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     G.fog[fid] = {};
     G.fogSnap[fid] = {};
     // 只有己方城市位置开局标记explored（远方城市保持unexplored）
@@ -426,11 +426,11 @@ function initFog() {
     });
   });
   // 计算各势力初始视野（己方领地→visible）
-  ALL_FACS.forEach(fid => updateFog(fid));
+  getScenarioFactions().forEach(fid => updateFog(fid));
 
   // 开局补充：把与己方visible区域相邻的敌方城市，其整个辖区设为explored
   // 逻辑：你知道京口在边境旁，你也知道它大致控制多大范围——但不知道谁控制
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     const fog = G.fog[fid];
     const territory = _buildTerritoryMap();
     // 找出所有与己方visible区域相邻格属于的非己方城市
@@ -553,7 +553,7 @@ function updateFogCitySnapshot(cityId, newFac) {
   const cdef = CITY_MAP?.[cityId];
   if (!cdef) return;
   const k = hkey(cdef.q, cdef.r);
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     if (!G.fog?.[fid]) return;
     // 只有当前visible的势力才能感知城市易主，explored不应该更新（情报过时）
     const fogLv = G.fog[fid][k] ?? FOG_UNEXPLORED;

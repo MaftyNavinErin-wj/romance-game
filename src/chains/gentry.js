@@ -108,7 +108,7 @@
 //   - `log / showNotif`(已抽 src/render/notifications.js)
 //   - `GEN_TAGS / GEN_MAP / CITY_MAP / CITY_TO_STATE / STATE_TO_GENTRY_FAC
 //     / COUNTY_NAME_TO_CITY / COUNTY_DATA / CLAN_FAMILIES / SIEGE_AFTERMATH
-//     / SUPPLY_CITY_RESTORE_TURNS / STAGE_GENTRY_BOUNDS / FAC / ALL_FACS
+//     / SUPPLY_CITY_RESTORE_TURNS / STAGE_GENTRY_BOUNDS / FAC / getScenarioFactions()
 //     / REPUTATION_DEFAULT`(数据 / 常量,部分已抽 src/data/,部分留 v181)
 //   - `G(状态根)`(已抽 src/core/state.js)
 //
@@ -383,7 +383,7 @@ function processGentry(){
   Object.values(G.cities).forEach(city => {
     if(city._yibingBuff && city._yibingBuff.expiresAt <= G.turn) delete city._yibingBuff;
   });
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     // ★ v170: 预计算在朝武将加成清单（每个fac一次，所有城共享）
     const facGens = G.generals[fid] || [];
     const genBonusList = [];
@@ -633,7 +633,7 @@ function _triggerGentryBetray(cityId, siegingFac){
   // D-031 fix: 开城易主补 _applySiegeAftermath（修补"围城方白嫖一座城无收入/处置选项"漏洞，'pacify' 安民与开城温和语义匹配）
   if(siegingFac !== 'rebel') _applySiegeAftermath(cityId, siegingFac, 'pacify');
   // D-045/D-131 fix: 豪族开城迎降 = 攻方占城，触发 conquer 派系事件（military.js:5942 标准攻城同模式，鹰派 +3）
-  if(ALL_FACS.includes(siegingFac)) triggerFactionEvent('conquer', siegingFac, {});
+  if(getScenarioFactions().includes(siegingFac)) triggerFactionEvent('conquer', siegingFac, {});
 
   log(`⚠ ${cityName}豪族举事，开城迎降${siegingName}！`, 'event');
   if(oldFac === G.playerFac || siegingFac === G.playerFac){

@@ -1779,7 +1779,7 @@ const VERIFIES = [
   // 同时 close 1b-1 P3 deferred: main.js:139-144 hardcoded FAC_IDENTITY reset 删除 (SCENARIO_214 sync 是 single source).
   {
     id: 'scenario-1c-a-no-direct-fac-identity-reads',
-    name: 'src/ 全部 FAC_IDENTITY[ / .wei / .shu 等直接 read 在 code 行 (非注释) = 0 (auto-derive 全 src/ .js 文件)',
+    name: 'src/ 全部直接 read 在 code 行 = 0: FAC_IDENTITY[/.<fid> + ETHOS_INIT[ + DIPLO_INIT + ALL_FACS (1c-a + 1c-b)',
     fn(G, win){
       const fsM = require('fs'), pathM = require('path');
       // strip line + block comments helper
@@ -1826,10 +1826,12 @@ const VERIFIES = [
         const m2 = codeOnly.match(/\bFAC_IDENTITY\.(wei|shu|wu|nanman)\b/g) || [];
         const m3 = codeOnly.match(/\bETHOS_INIT\[/g) || [];
         const m4 = codeOnly.match(/\bDIPLO_INIT\b/g) || [];
+        const m5 = codeOnly.match(/\bALL_FACS\b/g) || [];  // 1c-b
         if(m1.length) errs.push(`${f}: ${m1.length} × FAC_IDENTITY[`);
         if(m2.length) errs.push(`${f}: ${m2.length} × FAC_IDENTITY.<fid>`);
         if(m3.length) errs.push(`${f}: ${m3.length} × ETHOS_INIT[`);
         if(m4.length) errs.push(`${f}: ${m4.length} × DIPLO_INIT`);
+        if(m5.length) errs.push(`${f}: ${m5.length} × ALL_FACS`);
       }
       return errs.length ? { passed: false, detail: `Scanned ${files.length - ALLOWLIST.size} files: ` + errs.slice(0,10).join(' / ') } : { passed: true, detail: `Scanned ${files.length - ALLOWLIST.size} files, 0 violations` };
     },
@@ -1875,6 +1877,33 @@ const VERIFIES = [
       if(win.ETHOS_INIT.wei.mandate !== origMandate) errs.push(`ETHOS_INIT.wei.mandate ${win.ETHOS_INIT.wei.mandate} != ${origMandate}`);
       if(win.DIPLO_INIT['shu-wu'].rel !== origRel) errs.push(`DIPLO_INIT.shu-wu.rel ${win.DIPLO_INIT['shu-wu'].rel} != ${origRel}`);
       return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
+  // ── 阶段 1c-b ALL_FACS migration ──────────────────────────────────────
+  // 19 files × 134 hits: ALL_FACS → getScenarioFactions() (byte-identical, getter 返回 ref)
+  {
+    id: 'scenario-1c-b-getScenarioFactions-used',
+    name: '1c-b: src/ getScenarioFactions() 调用数 > 100 (~134 ALL_FACS 已迁移)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      function walkSrc(dir, acc){
+        for(const ent of fsM.readdirSync(dir, { withFileTypes: true })){
+          const full = pathM.join(dir, ent.name);
+          if(ent.isDirectory()) walkSrc(full, acc);
+          else if(ent.name.endsWith('.js')) acc.push(full);
+        }
+        return acc;
+      }
+      const files = walkSrc(pathM.resolve(__dirname, '..', 'src'), []);
+      let total = 0;
+      for(const f of files){
+        const src = fsM.readFileSync(f, 'utf8');
+        const m = src.match(/\bgetScenarioFactions\(\)/g) || [];
+        total += m.length;
+      }
+      // 期望 100+ (1c-b 迁移 134, accessor 自身定义 1)
+      if(total < 100) return { passed: false, detail: `getScenarioFactions() count=${total} (expected > 100, may indicate incomplete migration)` };
+      return { passed: true, detail: `${total} call sites` };
     },
   },
   {

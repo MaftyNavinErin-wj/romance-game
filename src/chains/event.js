@@ -97,7 +97,7 @@
 //   - `clearPrefectByGen`(武将链,留 v181 等 3.12)— `_triggerMajorRebellion` 调
 //   - `log / fmt / showNotif`(已抽 src/render/notifications.js)
 //   - `safeSub`(已抽 src/core/helpers.js)
-//   - 数据 / 常量:`FAC / ALL_FACS / FAC_IDENTITY / CITY_MAP / CITIES_DEF /
+//   - 数据 / 常量:`FAC / getScenarioFactions() / FAC_IDENTITY / CITY_MAP / CITIES_DEF /
 //      EVENT_DEFS / AI_PERSONALITY / EVENT_CAT_COOLDOWN / SEASONS / PLAGUE_SPREAD_PROB`
 //     (已抽 src/data/)
 //   - `G(状态根)`(已抽 src/core/state.js)
@@ -359,7 +359,7 @@ function rollEventsV2(){
   if(!G._eventQueue) G._eventQueue=[];
 
   // D-134 fix: 灭国势力跳过事件 roll, 跟 D-129 processFacEthos / tick.js:184/693/703 _eliminated guard 同模式
-  const facs = ALL_FACS.filter(f => !G.factions[f]?._eliminated);
+  const facs = getScenarioFactions().filter(f => !G.factions[f]?._eliminated);
   const triggered = []; // [{def, fid, ctx, forPlayer}]
 
   EVENT_DEFS.forEach(def=>{

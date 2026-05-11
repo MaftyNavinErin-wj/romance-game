@@ -1107,7 +1107,7 @@ function showGameEndOverlay(isVictory, winnerFid){
   const playerGens = (G.generals[G.playerFac] || []).length;
 
   // 淘汰记录
-  const elimRecords = ALL_FACS
+  const elimRecords = getScenarioFactions()
     .filter(f => f !== (isVictory ? G.playerFac : winnerFid) && G.factions[f]?._eliminatedTurn)
     .map(f => `${FAC[f]?.name||f} 覆灭于第${G.factions[f]._eliminatedTurn}旬`)
     .join('　·　');
@@ -1504,7 +1504,7 @@ async function pingClaudeAPI() {
     if (typeof G === 'undefined' || !G.factions) {
       console.warn('⚠️ 游戏尚未开始（G.factions不存在），请先开始游戏再测试AI决策');
     } else {
-      const aiFacs = ALL_FACS.filter(f => f !== G.playerFac && !G.factions[f]?._eliminated);
+      const aiFacs = getScenarioFactions().filter(f => f !== G.playerFac && !G.factions[f]?._eliminated);
       const eligible = aiFacs.filter(f => CITIES_DEF.filter(c => G.cities[c.id]?.fac === f).length >= 2);
       console.log(`   当前AI势力: ${aiFacs.map(f=>FAC[f]?.name).join(', ')}`);
       console.log(`   满足2城门槛: ${eligible.map(f=>FAC[f]?.name).join(', ') || '(无——全部单城，不会调API)'}`);

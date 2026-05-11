@@ -1232,7 +1232,7 @@ const EVENT_DEFS = [
     season:null, icon:'📨', name:'使者来访',
     condition(fid){
       if(Math.random() >= 0.15) return false; // 15%/旬
-      const others = ALL_FACS.filter(f=>{
+      const others = getScenarioFactions().filter(f=>{
         if(f===fid) return false;
         // ★ v147: 排除小势力（<3城）和自己的附庸
         const cityCount = Object.values(G.cities).filter(c=>c.fac===f).length;
@@ -1287,7 +1287,7 @@ const EVENT_DEFS = [
               d1._betrayal = true;
               if(d2) d2._betrayal = true;
               applyReputationPenalty(fid, 'betray');
-              if(ALL_FACS.includes(fid)) triggerFactionEvent('betray', fid, {});
+              if(getScenarioFactions().includes(fid)) triggerFactionEvent('betray', fid, {});
             }
             if(d1 && d1._peaceTurn != null && (G.turn - d1._peaceTurn) <= 3){
               applyReputationPenalty(fid, 'relapse');
@@ -1301,7 +1301,7 @@ const EVENT_DEFS = [
             // 斩使=无理由开战，按 'none' 宣称强度惩罚；与 14282/14490/37343 路径一致
             applyWarDeclarationEffects(fid, ctx.targetFid, null);
             // D-049/D-131 fix: 斩使立威是 de facto 宣战，触发 warDeclare 派系事件（接口完整性不变量）
-            if(ALL_FACS.includes(fid)) triggerFactionEvent('warDeclare', fid, {});
+            if(getScenarioFactions().includes(fid)) triggerFactionEvent('warDeclare', fid, {});
             _aiInvalidateThreatCache();
             // 全军士气+5
             G.units.filter(u=>u.fac===fid).forEach(u=>{
@@ -1313,7 +1313,7 @@ const EVENT_DEFS = [
     aiChoose(ctx, pers){
       const gold = G.factions[ctx.fid]?.res?.gold ?? 0;
       // 好战AI：只在已有其他敌人时才考虑斩使（双线作战除外）
-      const hasEnemy = ALL_FACS.some(f=>f!==ctx.fid && f!==ctx.targetFid && getDiploStatus(ctx.fid,f)==='enemy');
+      const hasEnemy = getScenarioFactions().some(f=>f!==ctx.fid && f!==ctx.targetFid && getDiploStatus(ctx.fid,f)==='enemy');
       if(pers.diploAggro > 0.7 && !hasEnemy) return 1; // 好战但无敌人→不表态（保留外交空间）
       if(pers.diploAggro > 0.7 && hasEnemy && gold>=300) return 0; // 好战+已有敌人+有钱→结盟（拉拢第三方）
       if(gold>=300 && pers.diploAggro < 0.5) return 0; // 保守有钱→结盟
@@ -1327,7 +1327,7 @@ const EVENT_DEFS = [
     season:null, icon:'🕊️', name:'远交近攻',
     condition(fid){
       if(Math.random() >= 0.12) return false; // 12%/旬
-      const others = ALL_FACS.filter(f=>f!==fid);
+      const others = getScenarioFactions().filter(f=>f!==fid);
       // ★ v147: 辅助——判断两势力是否有城市地理邻接
       const _facsAdjacent = (a,b) => {
         const aCities = Object.values(G.cities).filter(c=>c.fac===a);
@@ -1431,13 +1431,13 @@ const EVENT_DEFS = [
             });
             // 全城民心+5
             Object.values(G.cities).forEach(c=>{
-              if(ALL_FACS.includes(c.fac)){
+              if(getScenarioFactions().includes(c.fac)){
                 c.morale = Math.min(100, c.morale+5);
               }
             });
             // 全部队士气+5
             G.units.forEach(u=>{
-              if(ALL_FACS.includes(u.fac)){
+              if(getScenarioFactions().includes(u.fac)){
                 u.squads.forEach(sq=>{ sq.morale=Math.min(100,sq.morale+5); });
               }
             });

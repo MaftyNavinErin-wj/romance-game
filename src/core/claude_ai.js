@@ -49,7 +49,7 @@
 //     / getAvailableClaims / _aiGetThreatMatrix / hkey / getScoutINT
 //     / getFacUnitSalary / canAffordTech / canAffordMat / ensureCityNeighbors
 //     / FOG_VISIBLE / ROAD_ADJ / CITY_MAP / GEN_MAP / GEN_TAGS / TECH_TREE
-//     / BLDS / FAC / ALL_FACS / TAX / CLAIM_TYPES / REPUTATION_DEFAULT
+//     / BLDS / FAC / getScenarioFactions() / TAX / CLAIM_TYPES / REPUTATION_DEFAULT
 //     / MAX_FIELD_UNITS_ABS / G(状态根)`
 //   - 通知通道(已抽):`log / showNotif / _showEventToPlayer`
 // 这些跨段引用同 phase 2 render → mechanism 反向调用模式,(c) 已 approve。
@@ -131,7 +131,7 @@ function _updateIntelHistory(fid) {
   });
 
   // 2. 更新visibleTrend：每势力可见总兵力趋势
-  const enemies = ALL_FACS.filter(f => f !== fid && !G.factions[f]?._eliminated);
+  const enemies = getScenarioFactions().filter(f => f !== fid && !G.factions[f]?._eliminated);
   enemies.forEach(ef => {
     if (!ih.visibleTrend[ef]) ih.visibleTrend[ef] = [];
     const visTotal = G.units.filter(u => u.fac === ef && fog &&
@@ -230,7 +230,7 @@ function _buildFogEstimates(fid) {
   const fog = G.fog?.[fid];
   const fogSnap = G.fogSnap?.[fid] || {};
   const estimates = [];
-  const enemies = ALL_FACS.filter(f => f !== fid && !G.factions[f]?._eliminated);
+  const enemies = getScenarioFactions().filter(f => f !== fid && !G.factions[f]?._eliminated);
 
   // 每城平均兵力系数（随游戏阶段调整）
   const avgPerCity = G.turn < 20 ? 2500 : G.turn < 50 ? 4000 : 5500;
@@ -440,7 +440,7 @@ function _isStrategicTurn(fid) {
   const ih = _claudeAI._intelHistory[fid];
   if (ih?.lostCities?.some(lc => lc.turn === G.turn)) return true; // 本旬丢城
   // 检查是否刚被宣战（本旬diplo变为enemy）
-  const enemies = ALL_FACS.filter(f => f !== fid);
+  const enemies = getScenarioFactions().filter(f => f !== fid);
   for (const ef of enemies) {
     const d1 = G.diplo[`${fid}-${ef}`] || {};
     const d2 = G.diplo[`${ef}-${fid}`] || {};
@@ -760,7 +760,7 @@ function getGameState(fid) {
   }));
 
   // ── 外交 (含 ethos 距离 — D-121 batch-25) ──
-  const diplomacy = ALL_FACS.filter(f => f !== fid).map(other => {
+  const diplomacy = getScenarioFactions().filter(f => f !== fid).map(other => {
     if (G.factions[other]?._eliminated) return null;
     const k = `${fid}-${other}`;
     const d = G.diplo[k] || {};

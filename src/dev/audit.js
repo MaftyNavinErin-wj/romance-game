@@ -5,11 +5,11 @@
 function runIntegrityAudit(){
   const errors = [];
   const warn = (group, msg) => errors.push({group, msg});
-  const VALID_FACS = new Set([...ALL_FACS, 'rebel']);
+  const VALID_FACS = new Set([...getScenarioFactions(), 'rebel']);
   const VALID_STATUS = new Set(['garrison','march','halt','camp','ambush','siege']);
 
   // ── 1. 资源合法性 ──
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     const res = G.factions[fid]?.res;
     if(!res){ warn('资源','`G.factions['+fid+'].res` 不存在'); return; }
     ['gold','wood','iron','horses'].forEach(k => {
@@ -50,7 +50,7 @@ function runIntegrityAudit(){
   if(G.genLoyalty && G.loyaltyAccum){
     // 只检查当前在某势力中的武将（在野/下野武将不需要loyaltyAccum）
     const activeFacGens = new Set();
-    ALL_FACS.forEach(fid => {
+    getScenarioFactions().forEach(fid => {
       (G.generals[fid]||[]).forEach(g => activeFacGens.add(g.name));
     });
     Object.keys(G.genLoyalty).forEach(name => {
@@ -78,7 +78,7 @@ function runIntegrityAudit(){
 
   // ── 5. 死武将残留 ──
   const allAliveGens = new Set();
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     (G.generals[fid]||[]).forEach(g => allAliveGens.add(g.name));
   });
   // 5a: 部队squads中的武将
@@ -97,7 +97,7 @@ function runIntegrityAudit(){
     }
   });
   // 5c: 军师
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     const strat = G.factions[fid]?.strategist;
     if(strat && !allAliveGens.has(strat)){
       warn('死将残留', `${fid} strategist='${strat}' 不在活武将池`);
@@ -173,7 +173,7 @@ function runIntegrityAudit(){
       if(!inFac){
         // 可能武将已转投他方
         let foundFac = null;
-        ALL_FACS.forEach(f => {
+        getScenarioFactions().forEach(f => {
           if((G.generals[f]||[]).some(g => g.name === city.prefect)) foundFac = f;
         });
         if(foundFac) warn('结构', `city[${cid}] fac=${city.fac} prefect='${city.prefect}' 实际属于${foundFac}`);
@@ -182,7 +182,7 @@ function runIntegrityAudit(){
   });
 
   // ★ v151: 价值观系统审计
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     const eth = G.factions[fid]?.ethos;
     if(!eth) { warn('价值观', `${fid} missing ethos object`); return; }
     ETHOS_DIMS.forEach(d => {
@@ -239,7 +239,7 @@ function runIntegrityAudit(){
 // ═══════════════════════════════════════════════════════
 
 function checkElimination(){
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     if(G.factions[fid]?._eliminated) return; // 已淘汰
     const cities = Object.values(G.cities).filter(c => c.fac === fid);
     const units = G.units.filter(u => u.fac === fid && getUnitTroops(u) > 0);
@@ -286,7 +286,7 @@ function checkElimination(){
   });
 
   // ── 胜利判定：只剩一家未淘汰 ──
-  const alive = ALL_FACS.filter(f => !G.factions[f]?._eliminated);
+  const alive = getScenarioFactions().filter(f => !G.factions[f]?._eliminated);
   if(alive.length === 1){
     const winner = alive[0];
     if(!G._victoryShown){
