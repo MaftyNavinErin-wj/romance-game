@@ -489,6 +489,26 @@ const VERIFIES = [
         : { passed: false, detail: '缺: '+missing.join(' / ') };
     },
   },
+  {
+    id: 'D-resolveBattle-defFac',
+    name: 'resolveBattle 内部 default set atkFac/defFac (§5.7 P3 防御性 fix)',
+    fn(G, win){
+      const src = require('fs').readFileSync(
+        require('path').resolve(__dirname, '..', 'src', 'chains', 'military.js'),
+        'utf8'
+      );
+      // 锚 resolveBattle return 块, 验证 atkFac/defFac default set
+      const block = src.match(/function resolveBattle\([\s\S]{0,40000}?return \{[\s\S]{0,1000}?\};\n\}/);
+      if(!block) return { passed: false, detail: 'resolveBattle return 块找不到' };
+      if(block[0].indexOf('atkFac: attackers[0]?.fac') < 0){
+        return { passed: false, detail: 'atkFac default set 漏 (期望 attackers[0]?.fac)' };
+      }
+      if(block[0].indexOf('defFac: defenders[0]?.fac') < 0){
+        return { passed: false, detail: 'defFac default set 漏 (期望 defenders[0]?.fac)' };
+      }
+      return { passed: true };
+    },
+  },
 ];
 
 // ═══════════════════════════════════════════════════════════════════

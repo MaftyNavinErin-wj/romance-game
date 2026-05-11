@@ -5241,6 +5241,10 @@ function resolveBattle(attackers, defenders, terrain){
   });
 
   return {
+    // §5.7 P3 防御性 (sprint_followup): 内部 default set atkFac/defFac, 防 future caller 漏补 silent stale state bug
+    // caller 仍可 override (caller 用 report.atkFac=... 在 receive 后赋值会覆盖 default)
+    // 跟 §5.1 fix 同模式 (defensive at source vs at site)
+    atkFac: attackers[0]?.fac, defFac: defenders[0]?.fac,
     atkWins,
     atkATK:Math.round(atkATK_val), atkDEF:Math.round(atkDEF_val),
     defATK:Math.round(defATK_val), defDEF:Math.round(defDEF_val),
