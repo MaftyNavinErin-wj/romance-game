@@ -286,6 +286,39 @@ const isPlayer = (report.defFac === G.playerFac); // §5.1 同模式 fix
 - `_pendingBattleAnimations` push 时传 city/unit 引用 vs snapshot 的架构债 (跨 fire-and-forget 异步通用模式)
 - `_battleReports` 内 report 自身字段是否完整快照 (report 字段是 anim/modal 唯一安全来源 — 应 audit 字段全集)
 
+### §5.6 S3 partial audit — squad.troops/morale + unit.fac/status (2026-05-11)
+
+**S3p 范围**:扫 squad/unit 战中战后 mutate + battle_anim 路径读
+
+**结论**:**0 新真 bug 候选** + 关键架构发现
+
+**字段-by-字段**:
+
+| 字段 | 战后 anim 路径 read | mutate 模式 | 评估 |
+|---|---|---|---|
+| `unit.fac` | 14 处 (玩家方判定) | **immutable** (grep 全 src 0 处 mutate) | robust ✅ unit 无阵营切换机制 |
+| `unit.status` | **0** (battle_anim 全 grep) | mutate 多处 (battle_modals/military 战后 ambush→halt / siege→halt) | robust ✅ anim 不依赖 |
+| `squad.troops` | 2 处 (L420/470 phantom 旗帜数字) | resolveBattle 内多处 mutate (战后扣减) | **设计意图模糊** — 见下 |
+| `squad.morale` | 0 处 anim (L1597/1723/1961/2272/2575 是 isPlayer 判定不读 morale) | resolveBattle mutate | robust ✅ |
+| `G.units` 删除 | phantom 内部 cache 引用与 live 解耦 | 战后 wiped filter | robust ✅ |
+
+**squad.troops 设计意图模糊 (P3 候选, 需 user 实机测判定)**:
+- battle_anim L420/470 phantom 旗帜数字读 `getUnitTroops(unit)` (live 战后值)
+- 视觉表达可能是 (a) 战前兵力 (开战时多少人) 或 (b) 战后兵力 (战完剩多少人)
+- 如设计意图是 (a) → 应改读 `report.atkTroops`/`defTroops` (military.js:5247 已记录)
+- 如设计意图是 (b) → 当前实现正确
+- 静态难判,需 user 实机看 phantom 数字判设计意图,**留 P3 候选**
+
+**架构结论 (S3p 关键发现)**:
+- unit.fac **immutable** — 部队无阵营切换机制 (投降是 G.generals 数组 splice + 武将进新 fac, 不动 unit)
+- battle_anim 内 phantom 是 **cache 引用** 而非 G.units live state — anim 期间 G.units 删除/修改不影响 phantom 显示
+- 战斗机制 anim/modal 唯一 stale state pattern: **city.fac 这种 in-place 字段 mutate** (而非引用层面替换)
+- §5.1 + §5.3 是 city.fac in-place mutate 的孤立同函数漏 — 整体架构 robust
+
+**S4 audit 候选 (后续 session, P4 优先级)**:
+- _battleReports report 字段全集 audit (字段完整性核, 是 anim/modal 唯一安全来源)
+- _pendingBattleAnimations 跨 fire-and-forget 异步通用 stale state 模式扫 (其他 fire-and-forget queue 是否同模式)
+
 ---
 
-(sprint_followup v1.5 — 2026-05-11 audit pass 2 S2 加 §5.5 收尾 + S3 候选)
+(sprint_followup v1.6 — 2026-05-11 audit pass 2 S3 partial 加 §5.6 收尾 + S4 候选)

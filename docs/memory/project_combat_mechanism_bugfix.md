@@ -35,6 +35,28 @@ type: project
 - _pendingBattleAnimations push city/unit 引用 vs snapshot 的架构债通用模式
 - _battleReports 内 report 字段全集 audit (是 anim/modal 唯一安全来源, 应核字段完整性)
 
+## 2026-05-11 audit pass 2 S3 partial (squad.troops/morale + unit.fac/status)
+
+**S3p 收益**:
+- **0 新真 bug 候选** + 关键架构发现
+- §5.6 sprint_followup 入: 字段表 + squad.troops 设计意图模糊 P3 候选 (留 user 实机测判定 phantom 数字是战前/战后)
+- 关键架构沉淀:
+  - **unit.fac immutable** — 部队无阵营切换机制 (投降是 G.generals splice + 武将进新 fac, 不动 unit)
+  - battle_anim phantom 是 **cache 引用** 而非 G.units live state — anim 期间 G.units 删除/修改不影响 phantom 显示
+  - 战斗机制 anim/modal **唯一 stale state pattern**: city.fac 这种 **in-place 字段 mutate** (而非引用层面替换)
+  - §5.1 + §5.3 是 city.fac in-place mutate 的孤立同函数漏 — 整体架构 robust by design
+
+**累计 audit pass 2 S1+S2+S3p 结论 (沉淀)**:
+- 真 bug 候选 1 个 (§5.3 P2, 1 行 fix, 跟 §5.1 同模式)
+- verified-with-notes 集合 4 个 (§5.4)
+- 6 字段 robust by design (§5.5)
+- squad.troops 设计意图模糊 1 个 P3 (§5.6, 需 user 实机测)
+- 架构层面: 战斗机制 anim/modal 整体 robust, stale state 风险只在 city.fac in-place mutate
+
+**S4 audit 候选 (后续 session, P4 优先级)**:
+- _battleReports report 字段全集 audit (字段完整性核)
+- _pendingBattleAnimations 跨 fire-and-forget 异步通用 stale state 模式扫 (其他 fire-and-forget queue)
+
 ---
 
 ## 批 1 收尾 (2026-05-11)
