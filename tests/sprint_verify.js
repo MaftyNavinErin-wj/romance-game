@@ -1917,7 +1917,7 @@ const VERIFIES = [
   },
   {
     id: 'scenario-1c-d-getWildGenDef-used',
-    name: '1c-d: getWildGenDef() 调用数 >= 10 (10 WILD_GENS.find migration)',
+    name: '1c-d: getWildGenDef() 实际 call sites = 9 (1c-d migration; 排除注释 + accessor 自身定义)',
     fn(G, win){
       const fsM = require('fs'), pathM = require('path');
       function walkSrc(dir, acc){
@@ -1928,15 +1928,23 @@ const VERIFIES = [
         }
         return acc;
       }
+      // codex trial 1 P2/P3 fix: strip comments + exclude accessor self-def
+      const ALLOWLIST = new Set([
+        'src/core/scenario_accessors.js',  // accessor 定义本身, getWildGenDef 内 1 用 ≠ migration
+      ]);
       const files = walkSrc(pathM.resolve(__dirname, '..', 'src'), []);
       let total = 0;
       for(const f of files){
+        const rel = pathM.relative(pathM.resolve(__dirname, '..'), f).replace(/\\/g, '/');
+        if(ALLOWLIST.has(rel)) continue;
         const src = fsM.readFileSync(f, 'utf8');
-        const m = src.match(/\bgetWildGenDef\s*\(/g) || [];
+        // strip /* ... */ + // line comments
+        const codeOnly = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+        const m = codeOnly.match(/\bgetWildGenDef\s*\(/g) || [];
         total += m.length;
       }
-      if(total < 10) return { passed: false, detail: `getWildGenDef call count=${total} (expected >= 10)` };
-      return { passed: true, detail: `${total} call sites` };
+      if(total !== 9) return { passed: false, detail: `getWildGenDef call sites=${total} (expected 9 1c-d migration sites)` };
+      return { passed: true, detail: `${total} call sites (strict count)` };
     },
   },
   // ── 阶段 1c-c FAC[ + Object.<*>(FAC) migration ───────────────────────
