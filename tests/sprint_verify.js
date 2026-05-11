@@ -490,6 +490,46 @@ const VERIFIES = [
     },
   },
   {
+    id: 'D-camp-1-runtime',
+    name: '_aiChooseDefensePosture 实际调用返 camp (D-camp-1 runtime 验证, 替代 user 50 旬等扎营)',
+    fn(G, win){
+      // Mock setup: 找 wei AI 第一个 unit (开局 wei res >> CAMP_COST)
+      const fid = 'wei';
+      const aiUnit = G.units.find(u => u.fac === fid && u.squads && u.squads.length);
+      if(!aiUnit){ return { passed: false, detail: 'wei 无 AI unit' }; }
+      // 确保 fac.res 满足 CAMP_COST (initGame wei 默认 gold=10000, wood=2000)
+      const fac = G.factions[fid];
+      if(!fac || (fac.res.gold||0) < 100 || (fac.res.wood||0) < 80){
+        return { passed: false, detail: 'wei res 不足 CAMP_COST (gold=100, wood=80)' };
+      }
+      // Mock threat: 邻 hex 大兵力 + INT 中等 (避开 raid 模式 INT 差 >10 + 避开陆逊 huoying_def)
+      const threatUnit = {
+        id: '_mock_threat_camp1',
+        fac: 'shu',
+        hq: (aiUnit.hq||0) + 1, hr: aiUnit.hr||0,
+        status: 'halt',
+        movePath: [],
+        squads: [{
+          genName: '关羽', type: 'heavy', troops: 50000, maxTroops: 50000,
+          morale: 80, level: 3,
+        }],
+      };
+      let result;
+      try {
+        result = win._aiChooseDefensePosture(aiUnit, fid, [threatUnit]);
+      } catch(e){
+        return { passed: false, detail: 'EXCEPTION: ' + (e.message || e) };
+      }
+      // 期望返 'camp' (boost 路径 L977 OR fallback L1029) 或 ambush object
+      // 'garrison' / 'halt' 是 fix-broken 信号 (前者 threat 检测错, 后者 res 不足回退)
+      if(result === 'camp'){ return { passed: true }; }
+      if(result && typeof result === 'object' && result.type === 'ambush'){
+        return { passed: true, detail: 'ambush 路径 hit (亦合理, 因 fix 后 camp 优先 ambush 评估)' };
+      }
+      return { passed: false, detail: 'expected camp/ambush, got ' + JSON.stringify(result) };
+    },
+  },
+  {
     id: 'D-resolveBattle-defFac',
     name: 'resolveBattle 内部 default set atkFac/defFac (§5.7 P3 防御性 fix)',
     fn(G, win){

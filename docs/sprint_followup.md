@@ -449,6 +449,83 @@ _drainPendingBattleAnimations().catch(e => console.error('[drainAnim] fatal:', e
 - _drainPendingBattleAnimations 是否改 await 设计 (跟 S5 模式 3 借鉴: drain 时显式重新验证 city.fac, 而非改 await)
 - await 模式会破坏 v175 fire-and-forget 设计意图 (push 后 nextTurn 仍跑), 需设计层 approve
 
+### §5.10 phantom 旗帜兵力 stale state (P2 真 bug, user 实机 2026-05-11 实测判定)
+
+**症状** (user 实测):
+> "现在初始状态是战前兵力,然后(单挑后)突然跳成战后兵力,然后两边碰撞,结算为战后兵力。这里我觉得应该在碰撞前仍是战前兵力,碰撞后才变成战后兵力"
+
+**触发场景**: 任意有 activeDuel 的野战 (单挑前奏后碰撞)
+
+**Root cause 锁定** (sprint_followup §5.10 audit):
+
+时序 (battle_modals.js confirmBattle L1318-1332):
+1. 玩家点 confirm OK → squad.troops 战前值 (resolveBattle 还没跑)
+2. **`await _playDuelPreludeAnim(activeDuel, atkPos, defPos)`** (L1318) — 单挑前奏 anim, 不动原 unit svg, 玩家看到原 unit 旗帜显示**战前兵力** ✅
+3. **`_resolveBattleEngagement(...)`** (L1324) — resolveBattle 内 mutate squad.troops **战后值**
+4. **`await _playBattleCollisionAnim(...)`** (L1332) — 创建 phantom (battle_anim.js:1019 `makePhantom(unit, pos)`), phantom 旗帜读 `getUnitTroops(unit)` (battle_anim.js:420) **= 战后值**, 同时隐藏原 unit svg (L1035)
+5. **玩家看到旗帜数字从战前(原 unit)突跳战后(phantom)** ⚠️ — 即 user 描述的"单挑后突跳战后"
+
+**Stale state 模式**: 跟 §5.1 同模式 — push anim 时 squad.troops 已 mutate, anim 内读 live state 而非 snapshot
+
+**修法 (1-2 处 fix, 跟 §5.1 同模式 defensive at site)**:
+
+方案 A (推荐): `_battlePosSnap` 扩展为 `_battleSnap`, 含 troops snapshot
+- battle_modals.js:1294 push snap 时同步存战前 troops:
+  ```js
+  _battleSnap[u.id] = { hq: u.hq, hr: u.hr, troops: getUnitTroops(u) };
+  ```
+- makePhantom 接受 troops 参数, caller 从 snap 取战前值传入:
+  ```js
+  function makePhantom(animG, unit, startPos, invS, presetTroops){
+    ...
+    const total = (presetTroops != null) ? presetTroops : getUnitTroops(unit);
+  }
+  ```
+- _playBattleCollisionAnim L1019 `makePhantom(unit, pos)` → `makePhantom(unit, pos, snap[unit.id]?.troops)`
+- Phase 4 L1270 `getUnitTroops(p.unit)` 保留战后值 (用于 wipe opacity 判定, 设计意图正确)
+
+方案 B (简单但侵入小): phantom 创建后, 在 collision 阶段(Phase 3 碰撞) 重新 update 旗帜数字 = 战后值
+- 不改 makePhantom signature, 在 Phase 3 内 swap 旗帜 text
+- 视觉切换在"碰撞瞬间"而非"phantom 创建瞬间", 跟 user 期望对齐
+
+**P 级**: P2 (UI 视觉跳变, 不影响 gameplay 但破坏战前-碰撞-战后的视觉时序连贯)
+
+**留给 sprint**: 战斗机制 sprint 批 2 候选 (与 §5.3 同源同模式, 可一打两个 fix)
+
+**§5.6 升级**: §5.6 audit 时只是怀疑 (设计意图模糊), user 实机判定**确认是 bug + 锁定 root cause + 给出修法**, **§5.6 P3 → §5.10 P2 真 bug**
+
+### §5.3 update — 飘字色 user 实测验证 (2026-05-11)
+
+**user 实测反馈**:
+> "如果你说的是损失人数, 那我看飘的都是红字"
+
+**spawnLossText 色逻辑实测** (battle_anim.js:350):
+- isPlayer=true → fill 米色 + stroke 红色 (轻飘"自己损失警示")
+- isPlayer=false → fill 红色 + stroke 米色 (实心红"敌方伤亡战果")
+- **两种色都是红色调**, 视觉差别细微 (描边 vs 实心)
+
+**§5.3 重新评估**:
+- code 层 stale 仍是 bug (isPlayer 因 city.fac stale 错判 → 玩家自己损失被显示成"敌方伤亡"色)
+- **视觉影响 P3 (而非 P2)**: user 视觉看"都是红字" 难一眼区分玩家方/敌方损失色
+- 修法仍同 §5.1 模式: `isPlayer = (report.defFac === G.playerFac)` (1 行)
+- **P 级降 P2 → P3** (视觉影响小, 但 code stale 仍应 fix 跟 §5.1 一致)
+
+### Test 2 D-camp-1-runtime sprint_verify 上线 (2026-05-11)
+
+**目的**: 替代 user 50 旬实机等 AI 扎营 — 直接调 _aiChooseDefensePosture 验证 fix 路径
+
+**实现** (tests/sprint_verify.js D-camp-1-runtime entry):
+- Mock setup: wei AI 部队 (initGame 拿 G.units.find(u=>u.fac==='wei'))
+- Mock threat: 邻 hex 50000 兵 shu 关羽 unit (避开陆逊 huoying_def + raid INT 差 >10)
+- 调 `win._aiChooseDefensePosture(aiUnit, 'wei', [threatUnit])`
+- assert 返 'camp' (boost 路径 L977 OR fallback L1029)
+
+**结果**: PASS — fix 路径自动触发 'camp' 决策
+
+**价值**:
+- user 不用 50 旬实机等 (memory 教训: 战斗机制 fix 必须 user 实机测, 但 D-camp-1 可 mock state 自动化)
+- regression 防御: 后续修改 _aiChooseDefensePosture 此 entry 立即 catch fix 失效
+
 ---
 
-(sprint_followup v1.9 — 2026-05-11 audit pass 2 S6 加 §5.9 全 src/ 异步路径终极审计 + 唯一 fire-and-forget Promise 锁定)
+(sprint_followup v2.0 — 2026-05-11 user 实机反馈: §5.10 phantom 真 bug 锁定 + §5.3 视觉降级 + Test 2 D-camp-1-runtime 模拟上线)

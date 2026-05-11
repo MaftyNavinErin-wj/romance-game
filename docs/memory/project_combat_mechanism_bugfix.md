@@ -120,6 +120,40 @@ type: project
 - verified-with-notes 4 (§5.4) + robust 字段 11 (§5.5+§5.6) + 16 queue 总表 (§5.7+§5.8)
 - 整体战斗机制架构 robust by design, 唯一 stale 源已锁定且模式已抽象 (3 类跨 chain robust 模式)
 
+## 2026-05-11 user 实机反馈 — §5.10 phantom 真 bug + Test 2 模拟上线
+
+**user 实机测 4 项反馈**:
+1. **Test 1 PASS** ✅ — §5.1 fix 自然验证通过 (AI 攻陷玩家城有完整动画)
+2. **Test 2** — user 觉得 50 旬等 AI 扎营太难, 我做了 runtime 模拟替代
+3. **Test 3** — user 看飘字"都是红字", 视觉影响小 (§5.3 P2 → P3)
+4. **Test 4 真 bug 锁定** — user 实机判定 phantom 旗帜兵力时序错: 应战前到碰撞,碰撞后才战后; 现象单挑后突跳战后
+
+**§5.10 phantom 旗帜兵力 stale state P2 真 bug** (sprint_followup §5.10):
+- 时序: 单挑动画 (squad.troops 战前) → resolveBattle mutate (战后) → collision anim 创建 phantom 读 live state (战后) → 视觉跳变
+- Root cause: makePhantom L420 `getUnitTroops(unit)` 读 mutate 后 squad.troops, 应读 snapshot
+- 修法 A 推荐: `_battlePosSnap` 扩 `_battleSnap` 含 troops snapshot, makePhantom 接 presetTroops 参数
+- 跟 §5.1 fix 同模式 (defensive at site, 用 snap 字段而非 live state)
+- §5.6 P3 audit 模糊 → §5.10 P2 真 bug (user 实机判定锁定)
+
+**§5.3 P 级降级** (sprint_followup §5.3 update):
+- spawnLossText 玩家方=米填红描, 敌方=红填米描 (两种都偏红)
+- user 视觉看"都是红字"难区分 → 视觉影响 P3
+- code 层 stale 仍是 bug, fix 1 行同 §5.1 模式
+- P 级 P2 → P3
+
+**Test 2 D-camp-1-runtime sprint_verify 上线** (tests/sprint_verify.js):
+- Mock: wei AI unit + 邻 hex 50000 兵 shu 关羽 threat (避陆逊 + 避 raid INT 差)
+- 调 `_aiChooseDefensePosture(aiUnit, 'wei', [threatUnit])` → 返 'camp' ✅
+- 替代 user 50 旬实机等扎营
+- 价值: regression 防御 + 自动化 (memory 战斗机制 fix 必须 user 实机测的例外: D-camp-1 mock state 可自动化)
+
+**user 实机测教训沉淀**:
+- 实机测发现新真 bug (§5.10) — audit 静态 (squad.troops 设计意图模糊) 不够, user 实测才能定时序问题
+- 部分 fix 可 runtime mock 替代 user 实测 (D-camp-1), 部分必须 user 实测 (anim 视觉时序如 §5.10 root cause)
+- §5.6 升级 §5.10 教训: audit 模糊 P3 候选, 应优先 user 实测以确认 / 锁定
+
+---
+
 ## 2026-05-11 audit pass 2 S6 — 全 src/ 异步路径终极审计
 
 **S6 范围**:全 src/ setTimeout (75) + Promise (31) + async/await (~30) 异步路径扫
