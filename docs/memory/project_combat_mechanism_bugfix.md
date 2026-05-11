@@ -120,9 +120,35 @@ type: project
 - verified-with-notes 4 (§5.4) + robust 字段 11 (§5.5+§5.6) + 16 queue 总表 (§5.7+§5.8)
 - 整体战斗机制架构 robust by design, 唯一 stale 源已锁定且模式已抽象 (3 类跨 chain robust 模式)
 
-**S6 audit 候选 (后续 session, P6 优先级 — 架构层面)**:
-- _pendingBattleAnimations 加 drain 时显式重新验证 (跨 chain 模式 3 借鉴, 可选)
-- 通用扫: setTimeout / Promise / await chain 是否有 fire-and-forget 路径不在 queue 模式内
+## 2026-05-11 audit pass 2 S6 — 全 src/ 异步路径终极审计
+
+**S6 范围**:全 src/ setTimeout (75) + Promise (31) + async/await (~30) 异步路径扫
+
+**S6 关键发现**:
+- 75 setTimeout 全 robust by design (modal 链 idempotent + tick try/catch + state 阻塞 mid-modal)
+- 31 Promise 只 1 prod fire-and-forget: **`_drainPendingBattleAnimations()` (tick.js:632)** — §5.1+§5.3 入口路径
+- 其他 async 全 await chain 或 modal callback (state 阻塞)
+
+**S6 终极结论 (整 src/ 异步审计)**:
+- 16 queue 中唯一 stale 模式源: _pendingBattleAnimations (S4 锁定)
+- 全 src/ Promise 中唯一 prod fire-and-forget: tick.js:632 (S6 锁定)
+- 两个独立维度 (queue 模式 + Promise 模式) 都指向**同一来源**: _pendingBattleAnimations queue + _drainPendingBattleAnimations() drainer
+- §5.1+§5.3 是该唯一来源的孤立同函数漏点
+- **整体战斗机制 + 全 src/ 异步路径 robust by design**
+
+**S7 audit 候选 (后续, 设计层面)**:
+- _drainPendingBattleAnimations 改 await 设计 vs drain 时显式重新验证 (S5 模式 3 借鉴)
+- await 模式破坏 v175 fire-and-forget 设计意图, 需设计层 approve
+
+**累计 audit pass 2 S1-S6 完结 (2026-05-11)**:
+- 真 bug 候选 1 (§5.3 P2)
+- P3 防御性 fix 已 close: §5.7 (commit 1be7ff9)
+- P3 设计意图模糊 1 (§5.6 squad.troops, 需 user 实测)
+- P4 跨 confirm wipe 1 (§5.7)
+- P6 架构层 1 (§5.8)
+- 设计层 1 (§5.9 _drainPendingBattleAnimations 模式)
+- verified-with-notes 4 + robust 字段 11 + 16 queue 总表 + 异步终极审计 (75 setTimeout / 31 Promise / 1 唯一 fire-and-forget Promise)
+- **整体战斗机制 + 全 src/ 异步路径 stale state 风险已系统性证明 robust by design**, §5.1+§5.3 是孤立漏点
 
 ---
 

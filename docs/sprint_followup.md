@@ -403,6 +403,52 @@ resolveBattle (military.js:4786) **不 set atkFac/defFac/atkNames/defNames** —
 - _pendingBattleAnimations 加 drain 时显式重新验证 (跨 chain 模式 3 借鉴)
 - 通用扫: 还有没有 fire-and-forget 异步路径不在 queue 模式内 (例如 setTimeout / Promise / await chain)
 
+### §5.9 S6 audit — setTimeout / Promise / await chain 全 src/ 异步路径终极审计 (2026-05-11)
+
+**S6 范围**:全 src/ 异步路径扫, 找不在 queue 模式内的 fire-and-forget stale state 风险
+
+**全 src/ 异步统计**:
+- **75 setTimeout** (12 文件): battle_anim 18 + battle_modals 27 + tick 11 + boot_screens 3 + 其他 16
+- **31 Promise** (5 文件): battle_anim 24 + tick 4 + 其他 3
+- **2 .catch** (prod): tick.js:632 + debug.js:651 (debug only)
+
+**setTimeout 分类 (全 robust by design)**:
+
+| 模式 | 例子 | stale 评估 |
+|---|---|---|
+| Modal 链 trigger | `setTimeout(showNextBattleReport, 200/300)` | robust ✅ idempotent (showNextX 自带 length check + drain shift) |
+| Tick.js modal 链 | `setTimeout(()=>{try{showX()}catch...}, ms)` | robust ✅ try/catch 防御 |
+| Yield to event loop | `setTimeout(r, 0)` (Promise wrap) | 非 stale (microtask scheduling) |
+| Game end overlay 延迟 | `setTimeout(() => showGameEndOverlay, 500)` | 单触发, 无队列 |
+| Modal 二次弹窗 | `setTimeout(()=>showSiegeAftermathChoice, 200)` | modal 阻塞 nextTurn, state 不能 mid-modal mutate |
+
+**Promise/async 分类**:
+- **anim 内 Promise.all + tween** (24 处): 全 await, 不是 fire-and-forget
+- **claude_ai timeout** (`Promise.race` + setTimeout reject): await, robust
+- **modal callback async** (confirmBattle / confirmSiegeBattle 等): event handler fire-and-forget 但 internal await chain + state 阻塞 (modal 期间不 nextTurn)
+- **tick.js:697 yield Promise**: await 不 fire-and-forget
+
+**关键发现 (S6 终极验证)**:
+
+**全 src/ prod 路径唯一 fire-and-forget Promise**:
+```js
+// src/core/tick.js:632
+_drainPendingBattleAnimations().catch(e => console.error('[drainAnim] fatal:', e));
+```
+
+这就是 **§5.1 + §5.3 的入口路径** — push city/unit 引用到 `_pendingBattleAnimations` queue → fire-and-forget drain (tick 不 await) → 期间 nextTurn 跑 → city.fac mutate → drain 时读 stale。
+
+**S6 终极结论 (整 src/ 异步审计)**:
+- 16 queue 中唯一 stale 模式源: `_pendingBattleAnimations` (S4 已锁定)
+- 75 setTimeout 全 robust by design
+- 31 Promise 中只 1 个 prod fire-and-forget = `_drainPendingBattleAnimations()` (tick.js:632, §5.1+§5.3 入口)
+- **全 src/ 异步路径 stale state 风险单一来源已锁定**, §5.1+§5.3 是该唯一来源的孤立同函数漏点
+- audit pass 2 S1-S6 系统性证明: 战斗机制 + 全 src/ 异步路径整体 **robust by design**
+
+**S7 audit 候选 (后续 session, 设计层面)**:
+- _drainPendingBattleAnimations 是否改 await 设计 (跟 S5 模式 3 借鉴: drain 时显式重新验证 city.fac, 而非改 await)
+- await 模式会破坏 v175 fire-and-forget 设计意图 (push 后 nextTurn 仍跑), 需设计层 approve
+
 ---
 
-(sprint_followup v1.8 — 2026-05-11 audit pass 2 S5 加 §5.8 跨 chain queue 8 新 + 累计 16 queue 总表 + S6 候选)
+(sprint_followup v1.9 — 2026-05-11 audit pass 2 S6 加 §5.9 全 src/ 异步路径终极审计 + 唯一 fire-and-forget Promise 锁定)
