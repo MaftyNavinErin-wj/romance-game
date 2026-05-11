@@ -1,24 +1,34 @@
 ---
-name: Refactor phase status — 战斗机制 sprint 批 1+2 close + scenario system 启动 (1a.1 主表抽离)
-description: 重构主体收官 + B sprint 7 链全 sweep + 战斗机制 sprint 5 fix (§5.1/§5.2/§5.7/§5.10/§5.3). 2026-05-11 新启 scenario system 多剧本架构: design doc v3.3 codex 6 trials LGTM + 阶段 1a.1 主表抽离完成 (GEN_BASE 133 / CITY_BASE 45 / FACTION_BASE 4 + extract 工具 + sprint_verify 8 entries). 下次 session 起点: 阶段 1a.2 SCENARIO_214 主体 (factions/diplo/cities).
+name: Refactor phase status — 战斗机制 sprint 批 1+2 close + scenario system 1a.1 + 1a.2 完成
+description: 重构主体收官 + B sprint 7 链全 sweep + 战斗机制 sprint 5 fix (§5.1/§5.2/§5.7/§5.10/§5.3). scenario system 多剧本架构: design doc v3.3 codex 6 trials LGTM + 阶段 1a.1 主表抽离 + 阶段 1a.2 SCENARIO_214 主体 (factions/diplo/cities/emperor 切片). 下次 session 起点: 阶段 1a.3 SCENARIO_214.generals (~100 武将切片 + verify_scenario_214.js 工具).
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
-## 2026-05-11 session 末状态(本 session 完成的工作)
+## 2026-05-11 session 末状态(本 session 完成的工作 — 1a.2)
 
-**main HEAD: `b16f2be` refactor(scenario-1a.1): 主表抽离** (本 session 新增 3 commits, 待 push)
+**main HEAD: `42382f8` refactor(scenario-1a.2-p2b)** (本 session 新增 3 commits, 待 push)
 
-本 session 完成:
-1. **战斗机制 sprint 批 2 close** (commit `79cfdac` + `9f522f5` memory): §5.3 P3 防御性 fix (virtualGarrison 飘字 isPlayer 用 report.defFac, 跟 §5.1 同模式, codex LGTM)
-2. **Scenario system design doc v3.3** (commit `cec915d`): 多剧本架构设计, codex 6 trials LGTM (NEEDS-WORK → LGTM 经过 v1/v2/v3.0/v3.1/v3.2/v3.3 6 次迭代), 文档 docs/scenario_system.md (709 行)
-3. **阶段 1a.1 主表抽离** (commit `b16f2be`): GEN_BASE / CITY_BASE / FACTION_BASE 3 主表抽离, extract 工具 (tools/extract_scenario_214.js), 8 sprint_verify entries 全表 schema 验证. smoke vs main byte-identical 守底 (code 未改). 35/35 sprint_verify PASS. codex review trial 2 LGTM.
+本 session 完成 (1a.2 sprint, 3 commits):
+1. **2eebbfb refactor(scenario-1a.2)**: SCENARIO_214 主体切片
+   - 新建 src/data/scenarios/214.js (521 行 / 10 KB): id/version/name/startYear/emperor/factions/diplo/cities/generals
+   - factions (4): ruler/playable/type/_baseType/traits/stage/anchorState/ethos/res/reputation/emperor/techPreunlock/aiPersonality/foundingCore
+   - diplo (6 edges): 4-tuple [a,b,rel,status] (+ 5th suzerain 当 vassal, shu-nanman)
+   - cities (45): {fac, pop, troops, isCapital} 投影, 显式 bool
+   - emperor (top-level): {cityId:'ye', holder:'wei'} 1:1 mirror G.emperor (设计 doc §7.2 只有 emperorHolder, 加 cityId 保 init 字面)
+   - generals: {} 占位 (1a.3 sprint 补全)
+   - extract tool 扩展: 加 seedrandom + 调 initGame() 后读 G.factions[fid].res / G.reputation / G.emperor (运行时单一权威源)
+2. **9ebd478 codex P2 (trial 1 LGTM with 5 P2)**: doc drift fix (§3.4 ethos keys / aiPersonality / res 例) + 5 sprint_verify (ethos schema / aiPersonality schema / techPreunlock TECH_TREE ref / diplo.rel range / version semver)
+3. **42382f8 codex P2 (trial 2 NEEDS-WORK with 2 P2 + 1 升 P2)**: 残余 drift (techPreunlock fake id / cities "49 城" → "1a 45 / 1f 49") + aiPersonality 严格化 (拒 unknown key)
+4. **codex trial 3 LGTM 0/0/0** (无 regression, 设计 doc 现跟 runtime 完全一致)
+
+**sprint_verify**: 49/49 PASS (27 现有 + 8 scenario-1a.1 + **14 scenario-1a.2**)
 
 **Scenario system 整体进度** (24-36 session 路线):
-- ✅ Design doc (6 trials LGTM)
+- ✅ Design doc (6 trials LGTM, v3.3)
 - ✅ 阶段 1a.1 主表 (GEN_BASE 133 / CITY_BASE 45 / FACTION_BASE 4)
-- 🔄 **下次 session: 阶段 1a.2 SCENARIO_214 主体** (factions 4 + diplo 6 + cities 45)
-- ⏳ 阶段 1a.3 SCENARIO_214.generals (~100 武将 + verify_scenario_214.js 工具)
+- ✅ **阶段 1a.2 SCENARIO_214 主体** (factions 4 + diplo 6 + cities 45 + emperor; generals 占位 {})
+- 🔄 **下次 session: 阶段 1a.3 SCENARIO_214.generals** (~100 active/wild/pending 武将切片 + verify_scenario_214.js 工具)
 - ⏳ 阶段 1b-1f / 2-7 (路线见 docs/scenario_system.md §8)
 
 **11 阶段 + 工作量** (vs 历史 codex 估):
