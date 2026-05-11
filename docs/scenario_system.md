@@ -45,7 +45,10 @@ const GEN_BASE = {
     birthplace: '河东解县',
     clan: '河东关氏',
     gentry: null,
-    classTag: 'warrior',
+    faction_clan: null,        // 内政派系归属(谯沛 / 颍川 etc),null = 不属任何派系
+    classTag: 'warrior',       // 武将主分类
+    classTagsAll: ['warrior','commander'],  // 全分类(GEN_CLASS,多类武将完整列出)
+    values: ['忠义','汉室死忠'],  // 武将固有性格 tag(忠义 / 投机 / 野心 / 汉室死忠 等)
 
     // ── timeless skills(满级能力,关羽巅峰技能)──
     skills: [

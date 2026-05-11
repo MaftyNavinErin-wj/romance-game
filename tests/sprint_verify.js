@@ -618,6 +618,205 @@ const VERIFIES = [
       return { passed: true };
     },
   },
+
+  // ── 阶段 1a.1 主表抽离 (scenario_system §3) ──────────────────────────────
+  // GEN_BASE / CITY_BASE / FACTION_BASE 从 src/data/ 静态 require, 字段完整性验证
+  {
+    id: 'scenario-1a-gen-base-count',
+    name: 'GEN_BASE 武将数量 == 133 (109 GENS_FULL + 16 WILD_GENS + 8 GEN_POOL_INACTIVE)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'general_base.js'), 'utf8');
+      const GEN_BASE = (new Function(src + '\n; return GEN_BASE;'))();
+      const n = Object.keys(GEN_BASE).length;
+      if(n !== 133) return { passed: false, detail: `expected 133, got ${n}` };
+      return { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a-gen-base-fields-sample',
+    name: 'GEN_BASE 抽样字段完整 (曹操/关羽/徐庶/孙策)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'general_base.js'), 'utf8');
+      const GEN_BASE = (new Function(src + '\n; return GEN_BASE;'))();
+      const required = ['com','war','int','pol','cha','apt','classTag','skills','values'];
+      const errs = [];
+      for(const name of ['曹操','关羽','徐庶','孙策']){
+        const g = GEN_BASE[name];
+        if(!g){ errs.push(`${name} missing`); continue; }
+        for(const k of required){
+          if(!(k in g)) errs.push(`${name}.${k} missing`);
+        }
+        if(typeof g.apt !== 'object' || !g.apt.cavalry) errs.push(`${name}.apt 不全`);
+      }
+      // 曹操特定: faction_clan='谯沛', classTag='commander'
+      if(GEN_BASE['曹操']?.faction_clan !== '谯沛') errs.push('曹操.faction_clan != 谯沛');
+      if(GEN_BASE['曹操']?.classTag !== 'commander') errs.push('曹操.classTag != commander');
+      // 孙策 (GEN_POOL_INACTIVE): birthYear=175, deathYear=200
+      if(GEN_BASE['孙策']?.birthYear !== 175) errs.push('孙策.birthYear != 175');
+      if(GEN_BASE['孙策']?.deathYear !== 200) errs.push('孙策.deathYear != 200');
+      return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a-city-base-count',
+    name: 'CITY_BASE 城市数量 == 45',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'city_base.js'), 'utf8');
+      const CITY_BASE = (new Function(src + '\n; return CITY_BASE;'))();
+      const n = Object.keys(CITY_BASE).length;
+      if(n !== 45) return { passed: false, detail: `expected 45, got ${n}` };
+      return { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a-city-base-fields-sample',
+    name: 'CITY_BASE 抽样字段完整 (xuchang/luoyang/chengdu/jianye)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'city_base.js'), 'utf8');
+      const CITY_BASE = (new Function(src + '\n; return CITY_BASE;'))();
+      const required = ['name','q','r','tags','jun','size','base'];
+      const errs = [];
+      for(const cid of ['xuchang','luoyang','chengdu','jianye']){
+        const c = CITY_BASE[cid];
+        if(!c){ errs.push(`${cid} missing`); continue; }
+        for(const k of required){
+          if(!(k in c)) errs.push(`${cid}.${k} missing`);
+        }
+      }
+      // 不含 scenario-specific 字段
+      const forbidden = ['fac','pop','troops','isCapital'];
+      const xuchang = CITY_BASE['xuchang'];
+      for(const k of forbidden){
+        if(k in xuchang) errs.push(`xuchang.${k} 不应在 CITY_BASE (scenario-specific)`);
+      }
+      // xuchang 特定: q=52, r=26, base.food=480
+      if(xuchang.q !== 52 || xuchang.r !== 26) errs.push('xuchang q/r != 52/26');
+      if(xuchang.base?.food !== 480) errs.push('xuchang.base.food != 480');
+      return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a-faction-base',
+    name: 'FACTION_BASE 含 wei/shu/wu/nanman 4 entry,各 name/full/color/cls 完整',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'faction_base.js'), 'utf8');
+      const FACTION_BASE = (new Function(src + '\n; return FACTION_BASE;'))();
+      const errs = [];
+      if(Object.keys(FACTION_BASE).length !== 4) errs.push(`expected 4 entries, got ${Object.keys(FACTION_BASE).length}`);
+      const required = ['name','full','color','cls'];
+      for(const fid of ['wei','shu','wu','nanman']){
+        const f = FACTION_BASE[fid];
+        if(!f){ errs.push(`${fid} missing`); continue; }
+        for(const k of required){
+          if(!(k in f)) errs.push(`${fid}.${k} missing`);
+        }
+        // 不含 scenario-specific 字段
+        if('ruler' in f) errs.push(`${fid}.ruler 不应在 FACTION_BASE (scenario-specific)`);
+      }
+      // wei 特定
+      if(FACTION_BASE['wei']?.full !== '曹魏') errs.push('wei.full != 曹魏');
+      if(FACTION_BASE['wei']?.color !== '#1a5f8a') errs.push('wei.color mismatch');
+      return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
+  {
+    // P2 codex trial 1 应对: 全 GEN_BASE entries schema 验证 (133 entries 一致)
+    id: 'scenario-1a-gen-base-schema-all',
+    name: 'GEN_BASE 全 133 entries: required keys 全有 + 禁 scenario-specific bleed',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'general_base.js'), 'utf8');
+      const GEN_BASE = (new Function(src + '\n; return GEN_BASE;'))();
+      // GEN_BASE 每 entry 必含的 keys (stable schema, null OK)
+      const REQUIRED_KEYS = ['com','war','int','pol','cha','apt',
+                             'birthYear','deathYear','debutYear',
+                             'birthplace','clan','faction_clan','gentry',
+                             'classTag','classTagsAll','skills','values'];
+      // 禁出现的 scenario-specific keys
+      const FORBIDDEN_KEYS = ['fac','city','role','post','title','loyalty','merit','retainer','relations',
+                              'initialUnit','skillsOverride','status','availableYear','wildData'];
+      const errs = [];
+      let count = 0;
+      for(const [name, entry] of Object.entries(GEN_BASE)){
+        count++;
+        for(const k of REQUIRED_KEYS){
+          if(!(k in entry)) errs.push(`${name}.${k} missing`);
+        }
+        for(const k of FORBIDDEN_KEYS){
+          if(k in entry) errs.push(`${name}.${k} scenario bleed`);
+        }
+        // 战力字段值合法 (number)
+        for(const stat of ['com','war','int','pol','cha']){
+          if(typeof entry[stat] !== 'number') errs.push(`${name}.${stat} not number (${typeof entry[stat]})`);
+        }
+        // apt 必须 object 含 6 兵种
+        if(typeof entry.apt !== 'object' || !entry.apt.cavalry || !entry.apt.light || !entry.apt.heavy
+           || !entry.apt.archer || !entry.apt.siege || !entry.apt.naval){
+          errs.push(`${name}.apt 缺兵种`);
+        }
+        // skills / values / classTagsAll 必须 array
+        if(!Array.isArray(entry.skills)) errs.push(`${name}.skills not array`);
+        if(!Array.isArray(entry.values)) errs.push(`${name}.values not array`);
+        if(!Array.isArray(entry.classTagsAll)) errs.push(`${name}.classTagsAll not array`);
+        if(errs.length > 30) break;  // cap
+      }
+      if(count !== 133) errs.unshift(`expected 133 entries, got ${count}`);
+      return errs.length ? { passed: false, detail: errs.slice(0,10).join(' / ') + (errs.length>10?` (+${errs.length-10} more)`:'') } : { passed: true };
+    },
+  },
+  {
+    // P3 codex trial 1 应对: table-wide forbidden scan for CITY_BASE
+    id: 'scenario-1a-city-base-schema-all',
+    name: 'CITY_BASE 全 45 entries: required keys + 禁 scenario-specific bleed (fac/pop/troops/isCapital)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'city_base.js'), 'utf8');
+      const CITY_BASE = (new Function(src + '\n; return CITY_BASE;'))();
+      const REQUIRED = ['name','q','r','tags','jun','size','base'];
+      const FORBIDDEN = ['fac','pop','troops','isCapital','garrison','storage','morale','popQuality','buildings','prefect','gentry','occupied','siegeDecay'];
+      const errs = [];
+      for(const [cid, c] of Object.entries(CITY_BASE)){
+        for(const k of REQUIRED){
+          if(!(k in c)) errs.push(`${cid}.${k} missing`);
+        }
+        for(const k of FORBIDDEN){
+          if(k in c) errs.push(`${cid}.${k} scenario bleed`);
+        }
+        if(typeof c.q !== 'number' || typeof c.r !== 'number') errs.push(`${cid} q/r not number`);
+        if(!Array.isArray(c.tags)) errs.push(`${cid}.tags not array`);
+        if(typeof c.base !== 'object') errs.push(`${cid}.base not object`);
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,10).join(' / ') + (errs.length>10?` (+${errs.length-10} more)`:'') } : { passed: true };
+    },
+  },
+  {
+    // P3 codex trial 1 应对: table-wide forbidden scan for FACTION_BASE
+    id: 'scenario-1a-faction-base-schema-all',
+    name: 'FACTION_BASE 全 4 entries: required keys + 禁 scenario-specific bleed',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'faction_base.js'), 'utf8');
+      const FACTION_BASE = (new Function(src + '\n; return FACTION_BASE;'))();
+      const REQUIRED = ['name','full','color','cls'];
+      const FORBIDDEN = ['ruler','type','_baseType','traits','stage','anchorState','ethos','res','reputation',
+                         'emperor','techPreunlock','aiPersonality','foundingCore','playable'];
+      const errs = [];
+      for(const [fid, f] of Object.entries(FACTION_BASE)){
+        for(const k of REQUIRED){
+          if(!(k in f)) errs.push(`${fid}.${k} missing`);
+        }
+        for(const k of FORBIDDEN){
+          if(k in f) errs.push(`${fid}.${k} scenario bleed`);
+        }
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,10).join(' / ') } : { passed: true };
+    },
+  },
 ];
 
 // ═══════════════════════════════════════════════════════════════════
