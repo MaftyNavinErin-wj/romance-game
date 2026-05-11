@@ -1,13 +1,26 @@
 ---
-name: Refactor phase status — 战斗机制 sprint 批 1+2 close + scenario system 1a 阶段 (1a.1+1a.2+1a.3) 全完成
-description: 重构主体收官 + B sprint 7 链全 sweep + 战斗机制 sprint 5 fix. scenario system 多剧本架构 1a 阶段 ✅ 主表 (133+45+4) + SCENARIO_214 切片完整 (factions/diplo/cities/emperor/generals 125/initialUnits 7-14 squads) + validator 工具. 下次 session 起点: 阶段 1b-1 materializeScenario 派生 + mutable container sync FAC/ALL_FACS/FAC_IDENTITY.
+name: Refactor phase status — scenario system 1a + 1b-1 完成 (首个动 src/ 阶段 byte-identical)
+description: 重构主体收官 + B sprint 7 链全 sweep + 战斗机制 5 fix. scenario system 1a 全完成 (主表+SCENARIO_214+generals 125+initialUnits 7) + 1b-1 完成 (materializeScenario + sync 6 顶层 const, smoke byte-identical 守底). 下次 session 起点: 阶段 1b-2 accessor functions (getFactionDef/getScenarioFactions/etc.) 或 1c hardcoded 214 cleanup.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
-## 2026-05-11 session 末状态(本 session 完成 1a 阶段全部 — 1a.1 是 prior, 本 session 1a.2 + 1a.3)
+## 2026-05-11 session 末状态(本 session 累计 1a.2 + 1a.3 + 1b-1, 10 commits 待 push)
 
-**main HEAD: `479a209` refactor(scenario-1a.3-p1)** (本 session 累计 6 commits, 待 push)
+**main HEAD: `4308212` refactor(scenario-1b1-p2)**
+
+本 session 1b-1 工作 (continued from 1a.3):
+- **826f4c5 refactor(scenario-1b1)**: materializeScenario + sync 6 顶层 const (mutable container)
+  - 新建 src/core/scenario_loader.js (~140 行): materializeScenario / syncObject / syncArray / applyScenario
+  - src/data/factions.js: literal const → empty container (~60→30 行)
+  - src/core/main.js initGame 顶部加 applyScenario(scenarioId || '214')
+  - project_romance_v181.html 加 5 script tags (general_base / city_base / faction_base / scenarios/214 / scenario_loader)
+  - smoke before vs after: byte-identical 除 generated_at timestamp (4 line diff 全 timestamp, 0 G state 漂移)
+- **4308212 codex trial 1 LGTM with P2 fix**: sprint_verify byte-identical 严格化 (key order + JSON deep-equal)
+- **codex trial 2 LGTM 0/0/0** (P3 FAC_IDENTITY main.js:139 hardcoded reset defer 1c)
+
+**66/66 sprint_verify PASS** (旧 65 + 1 strict entry)
+**smoke byte-identical 守底 ✅** (首个动 src/ 阶段成功)
 
 本 session 1a.3 工作 (continued from 1a.2):
 - **7e71c32 refactor(scenario-1a.3)**: SCENARIO_214.generals 125 武将切片 + verify_scenario_214.js validator 工具
@@ -43,9 +56,10 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - ✅ Design doc (6 trials LGTM, v3.3 + 1a.3 加 pendingFac/initialUnits 扩展)
 - ✅ 阶段 1a.1 主表 (GEN_BASE 133 / CITY_BASE 45 / FACTION_BASE 4)
 - ✅ 阶段 1a.2 SCENARIO_214 主体 (factions 4 + diplo 6 + cities 45 + emperor)
-- ✅ **阶段 1a.3 SCENARIO_214.generals** (125 武将: active 101 / wild 6 / pending 18 含 pendingFac 8 + initialUnits 7-14 squads + verify_scenario_214.js validator)
-- 🔄 **下次 session: 阶段 1b-1 materializeScenario** 派生 + mutable container sync FAC/ALL_FACS/FAC_IDENTITY/etc.
-- ⏳ 阶段 1b-2/1c/1d/1e/1f / 2-7 (路线见 docs/scenario_system.md §8)
+- ✅ 阶段 1a.3 SCENARIO_214.generals (125 武将: active 101 / wild 6 / pending 18 含 pendingFac 8 + initialUnits 7-14 squads + verify_scenario_214.js validator)
+- ✅ **阶段 1b-1 materializeScenario + sync** (6 顶层 const sync byte-identical; scenario_loader.js 模块新建)
+- 🔄 **下次 session: 阶段 1b-2 accessor functions** (getFactionDef / getScenarioFactions / getPlayableFactions / getFactionIdentity / getEthos / getWildGenDef etc.)
+- ⏳ 阶段 1c/1d/1e/1f / 2-7 (路线见 docs/scenario_system.md §8)
 
 **11 阶段 + 工作量** (vs 历史 codex 估):
 | 阶段 | Sessions | 性质 |
