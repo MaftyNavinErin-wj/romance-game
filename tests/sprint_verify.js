@@ -1883,6 +1883,62 @@ const VERIFIES = [
       return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
     },
   },
+  // ── 阶段 1c-d WILD_GENS.find migration ────────────────────────────────
+  // find → getWildGenDef (10 sites). forEach/filter/some/push 留 direct (collection-level, 1d 处理 G._wildGenDefs).
+  {
+    id: 'scenario-1c-d-no-wild-gens-find',
+    name: '1c-d: src/ WILD_GENS.find( = 0 (collection 形态 forEach/filter/some/push 仍 direct, 1d 处理)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      function walkSrc(dir, acc){
+        for(const ent of fsM.readdirSync(dir, { withFileTypes: true })){
+          const full = pathM.join(dir, ent.name);
+          if(ent.isDirectory()) walkSrc(full, acc);
+          else if(ent.name.endsWith('.js')) acc.push(full);
+        }
+        return acc;
+      }
+      const ALLOWLIST = new Set([
+        'src/data/generals.js', 'src/core/scenario_accessors.js',
+      ]);
+      const files = walkSrc(pathM.resolve(__dirname, '..', 'src'), []);
+      const errs = [];
+      for(const f of files){
+        const rel = pathM.relative(pathM.resolve(__dirname, '..'), f).replace(/\\/g, '/');
+        if(ALLOWLIST.has(rel)) continue;
+        const src = fsM.readFileSync(f, 'utf8');
+        // strip line comments first
+        const codeOnly = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
+        const m = codeOnly.match(/\bWILD_GENS\s*\.\s*find\s*\(/g) || [];
+        if(m.length) errs.push(`${rel}: ${m.length} × WILD_GENS.find(`);
+      }
+      return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1c-d-getWildGenDef-used',
+    name: '1c-d: getWildGenDef() 调用数 >= 10 (10 WILD_GENS.find migration)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      function walkSrc(dir, acc){
+        for(const ent of fsM.readdirSync(dir, { withFileTypes: true })){
+          const full = pathM.join(dir, ent.name);
+          if(ent.isDirectory()) walkSrc(full, acc);
+          else if(ent.name.endsWith('.js')) acc.push(full);
+        }
+        return acc;
+      }
+      const files = walkSrc(pathM.resolve(__dirname, '..', 'src'), []);
+      let total = 0;
+      for(const f of files){
+        const src = fsM.readFileSync(f, 'utf8');
+        const m = src.match(/\bgetWildGenDef\s*\(/g) || [];
+        total += m.length;
+      }
+      if(total < 10) return { passed: false, detail: `getWildGenDef call count=${total} (expected >= 10)` };
+      return { passed: true, detail: `${total} call sites` };
+    },
+  },
   // ── 阶段 1c-c FAC[ + Object.<*>(FAC) migration ───────────────────────
   // 26 files × ~241 hits FAC[expr] → getFactionDef(expr); + 7 Object.keys(FAC)→getScenarioFactions() + 1 Object.entries(FAC)→Object.entries(getAllFactions())
   {

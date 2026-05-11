@@ -416,7 +416,7 @@ const EVENT_DEFS = [
           if(!referrer) continue;
           const loyalty = G.genLoyalty[rel.name]??80;
           if(loyalty < 70) continue;
-          const wildGen = WILD_GENS.find(g=>g.name===wildName);
+          const wildGen = getWildGenDef(wildName);
           if(!wildGen) continue;
           return {wildName, wildGen, referrerName:rel.name, referrerLoyalty:loyalty, relType:rel.type};
         }
@@ -438,7 +438,7 @@ const EVENT_DEFS = [
           effect(){
             // 检查在野池中仍存在
             if(!G.wildPool.includes(wName)){ log(`${wName}已另投他处`,'event'); return; }
-            const gen = WILD_GENS.find(g=>g.name===wName);
+            const gen = getWildGenDef(wName);
             if(!gen) return;
             { const _cloned = _deepCloneGen(gen); G.generals[fid].push(_cloned); GEN_MAP[_cloned.name] = _cloned; } // ★ v155fix P0
             G.genLoyalty[wName] = initLoy;

@@ -614,7 +614,7 @@ function renderGenTab(c){
 
     const nextRefresh = WILD_POOL_INTERVAL - ((G.turn - G.wildPoolTurn) % WILD_POOL_INTERVAL);
     const cards = G.wildPool.map(name=>{
-      const g = WILD_GENS.find(x=>x.name===name);
+      const g = getWildGenDef(name);
       if(!g) return '';
       const meta = getGenMeta(name);
       const topStat = Math.max(g.com,g.war,g.int,g.pol,g.cha);

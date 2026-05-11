@@ -254,7 +254,7 @@ function checkElimination(){
         if(g.role === 'ruler') return; // 君主不入在野池
         clearPrefectByGen(g.name);
         clearAllPostsByGen(g.name);
-        if(!WILD_GENS.find(x => x.name === g.name)){
+        if(!getWildGenDef(g.name)){
           WILD_GENS.push({...g, defectedFrom: fid, defectedTurn: G.turn, minTurn: G.turn});
         }
         if(!G.wildPool.includes(g.name) && G.wildPool.length < 8) G.wildPool.push(g.name);

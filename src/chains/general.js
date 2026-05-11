@@ -963,7 +963,7 @@ function calcGentryRecruitBonus(genName, fid){
  */
 function _doRecruitWild(genName, fid, silent){
   const fac = G.factions[fid];
-  const gen = WILD_GENS.find(g => g.name === genName);
+  const gen = getWildGenDef(genName);
   if(!gen || !G.wildPool.includes(genName)) return false;
 
   // CD检查
@@ -1064,7 +1064,7 @@ function _doRecruitWild(genName, fid, silent){
 function recruitWild(genName){
   const fid = G.playerFac;
   const fac = G.factions[fid];
-  const gen = WILD_GENS.find(g => g.name === genName);
+  const gen = getWildGenDef(genName);
   if(!gen){ showNotif('武将数据异常','warn'); return; }
   if(!G.wildPool.includes(genName)){ showNotif('该武将已离开在野池','warn'); return; }
   const cdData = G.wildRecruitCD[genName];
@@ -1100,7 +1100,7 @@ function aiDoRecruitTalent(fid){
 
   // 来源1: 在野武将池
   G.wildPool.forEach(name => {
-    const g = WILD_GENS.find(x => x.name === name);
+    const g = getWildGenDef(name);
     if(!g) return;
     const cdData = G.wildRecruitCD[name];
     if(cdData && cdData.until > G.turn) return;
@@ -1477,12 +1477,12 @@ function checkLoyaltyThresholds(){
         G.units = G.units.filter(u => u.squads.length > 0 && u.squads.some(sq => sq.troops > 0));
         if(G.selUnitId && !G.units.find(u=>u.id===G.selUnitId)) G.selUnitId=null;
         // 加入在野池（若未在其中）
-        if(!WILD_GENS.find(x => x.name === name)){
+        if(!getWildGenDef(name)){
           // 用GENS_FULL中的数据重建在野条目（标记下野信息）
           const genData = {...g, defectedFrom: fid, defectedTurn: G.turn, minTurn: G.turn};
           WILD_GENS.push(genData);
         } else {
-          const wg = WILD_GENS.find(x => x.name === name);
+          const wg = getWildGenDef(name);
           if(wg){ wg.defectedFrom = fid; wg.defectedTurn = G.turn; wg.minTurn = G.turn; }
         }
         // D-054 fix: 池满时顶替最旧条目,保证新下野武将立即可见 (避免最多 5 旬窗口期等下次 refreshWildPool)
