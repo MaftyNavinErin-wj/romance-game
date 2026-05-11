@@ -1572,6 +1572,87 @@ const VERIFIES = [
     },
   },
   {
+    // codex trial 1 P2: 严格 byte-identical 验证 — exact key order + deep equality
+    // 6 容器 sync 后必须跟 v181 原 src/data/factions.js literal 完全一致 (key 顺序 + 值)
+    id: 'scenario-1b1-byte-identical-strict',
+    name: 'sync 后 6 容器 deep-equal + exact key order vs v181 原 factions.js literal',
+    fn(G, win){
+      const errs = [];
+      // FAC: key 顺序 wei/shu/wu/nanman + each entry 字段顺序 name/full/ruler/color/cls
+      const facKeys = Object.keys(win.FAC);
+      const expectFacKeys = ['wei','shu','wu','nanman'];
+      if(facKeys.join(',') !== expectFacKeys.join(','))
+        errs.push(`FAC keys order: got [${facKeys.join(',')}], expected [${expectFacKeys.join(',')}]`);
+      // FAC entry field order (Object.keys 应 name/full/ruler/color/cls)
+      const wei = win.FAC.wei;
+      const weiKeys = Object.keys(wei);
+      if(weiKeys.join(',') !== 'name,full,ruler,color,cls')
+        errs.push(`FAC.wei keys order: got [${weiKeys.join(',')}]`);
+      // deep-equal: 严格匹配 v181 原 literal (cherry-pick 全部 4 fac)
+      const expectFAC = {
+        wei:    { name:'魏', full:'曹魏', ruler:'曹操', color:'#1a5f8a', cls:'wei' },
+        shu:    { name:'蜀', full:'蜀汉', ruler:'刘备', color:'#1a7a3a', cls:'shu' },
+        wu:     { name:'吴', full:'孙吴', ruler:'孙权', color:'#a82a1a', cls:'wu' },
+        nanman: { name:'蛮', full:'南蛮', ruler:'孟获', color:'#8b6914', cls:'nanman' },
+      };
+      const facStr = JSON.stringify(win.FAC);
+      const expFacStr = JSON.stringify(expectFAC);
+      if(facStr !== expFacStr) errs.push(`FAC JSON mismatch:\n  got: ${facStr.slice(0,200)}\n  exp: ${expFacStr.slice(0,200)}`);
+
+      // ALL_FACS: exact array (Object.keys(FAC).filter(f=>f!=='rebel'))
+      const allFacsStr = JSON.stringify(win.ALL_FACS);
+      if(allFacsStr !== '["wei","shu","wu","nanman"]') errs.push(`ALL_FACS=${allFacsStr}`);
+
+      // PLAYABLE_FACS: exact ['wei','shu','wu','nanman']
+      const playStr = JSON.stringify(win.PLAYABLE_FACS);
+      if(playStr !== '["wei","shu","wu","nanman"]') errs.push(`PLAYABLE_FACS=${playStr}`);
+
+      // FAC_IDENTITY: key order + each entry 字段顺序 type/_baseType/traits/stage/anchorState
+      const fiKeys = Object.keys(win.FAC_IDENTITY);
+      if(fiKeys.join(',') !== 'wei,shu,wu,nanman') errs.push(`FAC_IDENTITY keys order: [${fiKeys.join(',')}]`);
+      const fiWeiKeys = Object.keys(win.FAC_IDENTITY.wei);
+      if(fiWeiKeys.join(',') !== 'type,_baseType,traits,stage,anchorState')
+        errs.push(`FAC_IDENTITY.wei keys order: [${fiWeiKeys.join(',')}]`);
+      const expectFI = {
+        wei:    { type:'emperor_holder', _baseType:'warlord',  traits:['枭雄'],     stage:'regime',  anchorState:null },
+        shu:    { type:'han_royal',      _baseType:'han_royal', traits:['仁主','汉室'], stage:'regime',  anchorState:null },
+        wu:     { type:'warlord',        _baseType:'warlord',  traits:[],            stage:'regime',  anchorState:null },
+        nanman: { type:'tribal',         _baseType:'tribal',   traits:['蛮族'],      stage:'warlord', anchorState:null },
+      };
+      const fiStr = JSON.stringify(win.FAC_IDENTITY);
+      const expFiStr = JSON.stringify(expectFI);
+      if(fiStr !== expFiStr) errs.push(`FAC_IDENTITY JSON mismatch`);
+
+      // ETHOS_INIT: 各 entry 顺序 mandate/power/civil/military/strategy
+      const eiWeiKeys = Object.keys(win.ETHOS_INIT.wei);
+      if(eiWeiKeys.join(',') !== 'mandate,power,civil,military,strategy')
+        errs.push(`ETHOS_INIT.wei keys order: [${eiWeiKeys.join(',')}]`);
+      const expectEI = {
+        wei:    { mandate:  15, power:  20, civil:  0, military: 10, strategy: 15 },
+        shu:    { mandate: -30, power:   0, civil:  5, military:-20, strategy: 10 },
+        wu:     { mandate:   0, power: -20, civil:  0, military:  0, strategy:-20 },
+        nanman: { mandate:   0, power:   0, civil:-10, military: 15, strategy:  5 },
+      };
+      if(JSON.stringify(win.ETHOS_INIT) !== JSON.stringify(expectEI)) errs.push(`ETHOS_INIT JSON mismatch`);
+
+      // DIPLO_INIT: key order 'wei-shu','wei-wu','shu-wu','wei-nanman','shu-nanman','wu-nanman'
+      const diKeys = Object.keys(win.DIPLO_INIT);
+      const expectDiKeys = ['wei-shu','wei-wu','shu-wu','wei-nanman','shu-nanman','wu-nanman'];
+      if(diKeys.join(',') !== expectDiKeys.join(',')) errs.push(`DIPLO_INIT keys order: [${diKeys.join(',')}]`);
+      const expectDI = {
+        'wei-shu':   {status:'neutral', rel:40},
+        'wei-wu':    {status:'neutral', rel:45},
+        'shu-wu':    {status:'ally',    rel:78},
+        'wei-nanman':{status:'neutral', rel:25},
+        'shu-nanman':{status:'vassal',  rel:50, suzerain:'shu'},
+        'wu-nanman': {status:'neutral', rel:30},
+      };
+      if(JSON.stringify(win.DIPLO_INIT) !== JSON.stringify(expectDI)) errs.push(`DIPLO_INIT JSON mismatch`);
+
+      return errs.length ? { passed: false, detail: errs.slice(0,6).join(' | ') } : { passed: true };
+    },
+  },
+  {
     id: 'scenario-1b1-empty-before-init',
     name: 'src/data/factions.js 顶层 const 改 empty container (initGame 前空, smoke 验证有效)',
     fn(G, win){
