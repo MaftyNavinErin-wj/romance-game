@@ -1,6 +1,6 @@
 ---
-name: Refactor phase status — scenario 1a + 1b + 1c-a 完成
-description: 重构主体收官 + B sprint 7 链全 sweep + 战斗机制 5 fix. scenario system 1a 全完成 + 1b-1 sync 6 顶层 const + 1b-2 10 accessor + 1c-a FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT migration (28 sites, 含 loadFromSlot bypass fix). 下次 session: 1c-b ALL_FACS (134) 或 1c-c FAC[ (241).
+name: Refactor phase status — scenario 1a + 1b + 1c 全完成 (module migration 414 sites)
+description: 重构主体收官 + B sprint 7 链全 sweep + 战斗机制 5 fix. scenario system 1a 全完成 + 1b sync/accessor + 1c 全 4 子阶段 (1c-a 28 / 1c-b 134 / 1c-c 242 / 1c-d 9 = 413 sites migrate). 全 byte-identical 守底, 79/79 sprint_verify. 下次: 1d top-level const 删 + accessor backing 切 G runtime state.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -75,9 +75,13 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - ✅ 阶段 1a.3 SCENARIO_214.generals (125 武将: active 101 / wild 6 / pending 18 含 pendingFac 8 + initialUnits 7-14 squads + verify_scenario_214.js validator)
 - ✅ 阶段 1b-1 materializeScenario + sync (6 顶层 const sync byte-identical; scenario_loader.js 模块新建)
 - ✅ 阶段 1b-2 scenario accessors (10 accessor additive API)
-- ✅ **阶段 1c-a FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT migration** (28 sites + 1b-1 P3 close + loadFromSlot bypass fix via auto-apply on module load)
-- 🔄 **下次 session: 阶段 1c-b ALL_FACS migration** (134 hits) 或 1c-c FAC[ (241 hits)
-- ⏳ 1c-d WILD_GENS (22 hits 复杂) + 阶段 1d/1e/1f / 2-7
+- ✅ 阶段 1c-a FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT migration (28 sites + 1b-1 P3 close + loadFromSlot bypass fix)
+- ✅ 阶段 1c-b ALL_FACS migration (134 sites)
+- ✅ 阶段 1c-c FAC[ + Object.<*>(FAC) migration (242 sites + getAllFactions accessor)
+- ✅ **阶段 1c-d WILD_GENS.find migration** (9 sites; collection forEach/filter/some/push 留 direct, 1d 处理)
+- ✅ **1c 阶段全完成** ✅ 总 413 sites migrated, 全 byte-identical 守底
+- 🔄 **下次 session: 阶段 1d** top-level const 删 + accessor backing 切 G runtime state (G.facIdentity / G._wildGenDefs)
+- ⏳ 阶段 1e validators / 1f 4 新城 / 2-7 (路线见 docs/scenario_system.md §8)
 
 **11 阶段 + 工作量** (vs 历史 codex 估):
 | 阶段 | Sessions | 性质 |

@@ -1,6 +1,6 @@
 - [User role](user_role.md) — 用户是 Project Romance 制作人,亲自定 session 范围 + 设计 approval
 - [Project Romance overview](project_overview.md) — 三国题材策略游戏,v181 单 HTML,正在做 data/render/chains/core 四层重构
-- [Refactor phase status](project_refactor_status.md) — **scenario 1a + 1b + 1c-a 完成 ✅** (main local 5fe127c, 3 commits 待 push 本 session 起). 1c-a 含 loadFromSlot bypass fix (1b-1 latent bug). 下次: 1c-b ALL_FACS / 1c-c FAC[ / 1c-d WILD_GENS
+- [Refactor phase status](project_refactor_status.md) — **scenario 1a + 1b + 1c 全完成 ✅** (main local a29a8bf, 1c 总 413 sites migrate). 全 byte-identical 守底. 下次: 1d top-level const 删 + accessor backing 切 G runtime state
 - [战斗机制 systematic bug fix sprint](project_combat_mechanism_bugfix.md) — 批 1+2 close 5 fix (§5.1/§5.2/§5.7/§5.10/§5.3); audit pass 2 S1-S6 完结 robust by design; 剩余 §5.7 P4 / §5.8 P6 / §5.9 设计层 低优
 - [Scenario system design](../scenario_system.md) — 多剧本架构 design doc v3.3 + 1a.3 扩展 (pendingFac + initialUnits 字段); 1a 阶段全完成 ✅ (主表 + SCENARIO_214 + generals 125 + initialUnits 7); 1b-1 下次
 - [Chain master scout](project_chain_master_scout.md) — 8 链总图 + map.js carry-over;顺序 ethos→gentry→politics→diplomacy→economy→event→military→general
