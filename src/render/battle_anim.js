@@ -2282,7 +2282,9 @@ async function _playSiegeBattleAnim(report, attackers, defenders, posSnap, city)
     });
     // ★ v175fix4: virtualGarrison 没做 phantom，补一条守军损失飘字从城市 icon 位置发出
     if(virtualGarrison && (report.defLost||0) > 0){
-      const isPlayer = (city.fac === G.playerFac);
+      // D-anim-3 fix (sprint_followup §5.3, 跟 §5.1 同模式): 用 report.defFac (战前守方) 而非 city.fac
+      // city.fac 在攻城胜利后已被 resolveSiegeBattle 改成 atkFac, 玩家被攻陷时 isPlayer 误判 false → 飘字色错 (敌方红 而非玩家绿)
+      const isPlayer = (report.defFac === G.playerFac);
       const startY = cityCY - 18*invS;
       const txt = _baCore.spawnLossText(animG, cityCX, startY, report.defLost, isPlayer, invS);
       _baCore.floatLossText(txt, startY, 1100, invS);

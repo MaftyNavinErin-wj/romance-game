@@ -457,6 +457,27 @@ const VERIFIES = [
     },
   },
   {
+    id: 'D-anim-3',
+    name: 'virtualGarrison 飘字 isPlayer 用 report.defFac (§5.3, 跟 §5.1 同模式)',
+    fn(G, win){
+      const src = require('fs').readFileSync(
+        require('path').resolve(__dirname, '..', 'src', 'render', 'battle_anim.js'),
+        'utf8'
+      );
+      // virtualGarrison 飘字 block (cityCX/cityCY 紧邻 defLost 判断)
+      const m = src.match(/if\(virtualGarrison && \(report\.defLost[\s\S]{0,800}?\}/);
+      if(!m) return { passed: false, detail: 'virtualGarrison 飘字 block 未找到' };
+      const block = m[0];
+      if(block.indexOf('report.defFac === G.playerFac') < 0){
+        return { passed: false, detail: 'isPlayer 未用 report.defFac (city.fac 战胜后已变 atkFac)' };
+      }
+      if(/const isPlayer = \(city\.fac === G\.playerFac\)/.test(block)){
+        return { passed: false, detail: 'stale city.fac 判断仍在 block 内' };
+      }
+      return { passed: true };
+    },
+  },
+  {
     id: 'D-camp-1',
     name: '_aiChooseDefensePosture halt 前评估 camp +10% DEF 胜率 (§5.2 P2 fix)',
     fn(G, win){
