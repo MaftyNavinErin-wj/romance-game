@@ -84,6 +84,18 @@ type: project
 - 8 queue 全表 (§5.7)
 - 战斗机制 anim/modal 整体架构 robust, 唯一 stale state 模式源已锁定
 
+## 2026-05-11 §5.7 P3 防御性 fix 实装 (commit 1be7ff9)
+
+**fix**: resolveBattle return 内部 default set `atkFac: attackers[0]?.fac, defFac: defenders[0]?.fac`
+
+**性质**: future-proof 防御 fix, 7 caller 行为不变 (caller override 仍 work, smoke fix vs no-fix byte-identical 51 snapshots)
+
+**意义**: §5.1 (defensive at site) + §5.7 (defensive at source) 两层防御组合
+- §5.1 fix anim 端读 stale city.fac → 改读 report.defFac
+- §5.7 source 端补 default 字段 → 防 future caller 漏补 silent stale bug
+
+**workflow streamline**: codex trial 1 LGTM, sprint_verify entry + smoke byte-identical 守底, 无 user 实机测 (纯防御性现有 caller 行为不变)
+
 ## 2026-05-11 audit pass 2 S5 (跨 chain 8 queue, 累计 16 queue 总表)
 
 **S5 收益**:
