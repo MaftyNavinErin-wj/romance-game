@@ -817,6 +817,270 @@ const VERIFIES = [
       return errs.length ? { passed: false, detail: errs.slice(0,10).join(' / ') } : { passed: true };
     },
   },
+
+  // ── 阶段 1a.2 SCENARIO_214 主体 (scenario_system §3.4) ──────────────────────
+  // 验证 src/data/scenarios/214.js 的 factions / diplo / cities / emperor 切片完整性。
+  // generals = {} 占位,1a.3 sprint 补全(active/wild/pending 武将切片)。
+  {
+    id: 'scenario-1a2-top-fields',
+    name: 'SCENARIO_214 顶层字段齐 (id/version/name/startYear/emperor/factions/diplo/cities/generals)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      const REQ = ['id','version','name','startYear','description','provenance',
+                   'emperor','factions','diplo','cities','generals'];
+      for(const k of REQ){
+        if(!(k in S)) errs.push(`${k} missing`);
+      }
+      if(S.id !== '214') errs.push(`id != '214' (got ${S.id})`);
+      if(S.startYear !== 214) errs.push(`startYear != 214 (got ${S.startYear})`);
+      if(typeof S.factions !== 'object') errs.push('factions not object');
+      if(!Array.isArray(S.diplo)) errs.push('diplo not array');
+      if(typeof S.cities !== 'object') errs.push('cities not object');
+      if(typeof S.emperor !== 'object') errs.push('emperor not object');
+      // 1a.2 generals 占位 = {}
+      if(typeof S.generals !== 'object' || Array.isArray(S.generals)) errs.push('generals not plain object');
+      if(Object.keys(S.generals).length !== 0) errs.push(`generals should be {} placeholder in 1a.2, got ${Object.keys(S.generals).length} entries`);
+      return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a2-emperor',
+    name: 'SCENARIO_214.emperor == {cityId:"ye", holder:"wei"}',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      if(S.emperor?.cityId !== 'ye') errs.push(`emperor.cityId != 'ye' (got ${S.emperor?.cityId})`);
+      if(S.emperor?.holder !== 'wei') errs.push(`emperor.holder != 'wei' (got ${S.emperor?.holder})`);
+      // 一致性: factions[holder].emperor === true, 其他 false (设计 doc §3.4 + §9 B.5)
+      const holder = S.emperor?.holder;
+      let truthyCount = 0;
+      for(const [fid, f] of Object.entries(S.factions || {})){
+        if(f.emperor === true) truthyCount++;
+        if(fid === holder && f.emperor !== true) errs.push(`factions[${fid}].emperor should be true (is holder)`);
+        if(fid !== holder && f.emperor !== false) errs.push(`factions[${fid}].emperor should be false`);
+      }
+      if(truthyCount !== 1) errs.push(`exactly 1 faction.emperor=true required (got ${truthyCount})`);
+      return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a2-factions-count-keys',
+    name: 'SCENARIO_214.factions 4 entries (wei/shu/wu/nanman), 全 required keys + ruler/playable',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      const fids = Object.keys(S.factions || {});
+      if(fids.length !== 4) errs.push(`expected 4 factions, got ${fids.length}`);
+      const REQ = ['ruler','playable','type','_baseType','traits','stage','anchorState','ethos',
+                   'res','reputation','emperor','techPreunlock','aiPersonality','foundingCore'];
+      for(const fid of ['wei','shu','wu','nanman']){
+        const f = S.factions[fid];
+        if(!f){ errs.push(`${fid} missing`); continue; }
+        for(const k of REQ){
+          if(!(k in f)) errs.push(`${fid}.${k} missing`);
+        }
+        if(typeof f.playable !== 'boolean') errs.push(`${fid}.playable not bool`);
+        if(typeof f.emperor !== 'boolean') errs.push(`${fid}.emperor not bool`);
+        if(!Array.isArray(f.traits)) errs.push(`${fid}.traits not array`);
+        if(!Array.isArray(f.techPreunlock)) errs.push(`${fid}.techPreunlock not array`);
+        if(!Array.isArray(f.foundingCore)) errs.push(`${fid}.foundingCore not array`);
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,15).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a2-factions-sample-values',
+    name: 'SCENARIO_214.factions 抽样值 (wei.ruler 曹操 / shu.type han_royal / nanman.stage warlord / shu.res.horses 2500)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      const wei = S.factions.wei, shu = S.factions.shu, wu = S.factions.wu, nm = S.factions.nanman;
+      if(wei?.ruler !== '曹操') errs.push(`wei.ruler != 曹操 (got ${wei?.ruler})`);
+      if(shu?.ruler !== '刘备') errs.push(`shu.ruler != 刘备 (got ${shu?.ruler})`);
+      if(wu?.ruler !== '孙权')  errs.push(`wu.ruler != 孙权 (got ${wu?.ruler})`);
+      if(nm?.ruler !== '孟获')  errs.push(`nanman.ruler != 孟获 (got ${nm?.ruler})`);
+      if(shu?.type !== 'han_royal')       errs.push(`shu.type != han_royal (got ${shu?.type})`);
+      if(wei?.type !== 'emperor_holder')  errs.push(`wei.type != emperor_holder (got ${wei?.type})`);
+      if(nm?.stage !== 'warlord')         errs.push(`nanman.stage != warlord (got ${nm?.stage})`);
+      // res 抽样: initGame 字面值
+      if(wei?.res?.gold !== 10000) errs.push(`wei.res.gold != 10000 (got ${wei?.res?.gold})`);
+      if(shu?.res?.horses !== 2500) errs.push(`shu.res.horses != 2500 (got ${shu?.res?.horses})`);
+      if(wu?.res?.iron !== 1000) errs.push(`wu.res.iron != 1000 (got ${wu?.res?.iron})`);
+      if(nm?.res?.gold !== 1500) errs.push(`nanman.res.gold != 1500 (got ${nm?.res?.gold})`);
+      // reputation 抽样
+      if(wei?.reputation !== 45) errs.push(`wei.reputation != 45`);
+      if(shu?.reputation !== 80) errs.push(`shu.reputation != 80`);
+      // techPreunlock
+      if(!Array.isArray(wei?.techPreunlock) || !wei.techPreunlock.includes('mil1'))
+        errs.push(`wei.techPreunlock missing mil1`);
+      // foundingCore
+      if(!wei?.foundingCore?.includes('曹操')) errs.push(`wei.foundingCore missing 曹操`);
+      if(!nm?.foundingCore?.includes('孟获'))  errs.push(`nanman.foundingCore missing 孟获`);
+      // ethos 抽样
+      if(wei?.ethos?.mandate !== 15) errs.push(`wei.ethos.mandate != 15`);
+      // aiPersonality 抽样
+      if(wei?.aiPersonality?.diploAggro !== 0.65) errs.push(`wei.aiPersonality.diploAggro != 0.65`);
+      return errs.length ? { passed: false, detail: errs.slice(0,15).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a2-diplo-edges',
+    name: 'SCENARIO_214.diplo 6 edges, 全 4-tuple [a,b,rel,status] (vassal 5-tuple suzerain)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      if(S.diplo?.length !== 6) errs.push(`expected 6 edges, got ${S.diplo?.length}`);
+      const VALID_STATUS = new Set(['neutral','ally','enemy','truce','vassal']);
+      const VALID_FIDS = new Set(Object.keys(S.factions || {}));
+      const seen = new Set();
+      for(const e of S.diplo || []){
+        if(!Array.isArray(e) || e.length < 4) { errs.push(`edge not 4-tuple: ${JSON.stringify(e)}`); continue; }
+        const [a, b, rel, status, suzerain] = e;
+        // F.2 no self-pair
+        if(a === b) errs.push(`self-pair ${a}-${b}`);
+        // F.1 fids must exist in scenario.factions
+        if(!VALID_FIDS.has(a)) errs.push(`unknown fid ${a}`);
+        if(!VALID_FIDS.has(b)) errs.push(`unknown fid ${b}`);
+        // F.3 no duplicate (canonical key a-b lex sorted)
+        const k = [a,b].sort().join('-');
+        if(seen.has(k)) errs.push(`duplicate edge ${k}`); else seen.add(k);
+        if(typeof rel !== 'number') errs.push(`${a}-${b} rel not number`);
+        if(!VALID_STATUS.has(status)) errs.push(`${a}-${b} invalid status ${status}`);
+        if(status === 'vassal'){
+          if(!suzerain) errs.push(`${a}-${b} vassal missing suzerain`);
+          else if(suzerain !== a && suzerain !== b) errs.push(`${a}-${b} suzerain ${suzerain} not in pair`);
+        } else if(e.length > 4){
+          errs.push(`${a}-${b} non-vassal has 5th element`);
+        }
+      }
+      // 具体抽样
+      const find = (a,b) => (S.diplo || []).find(e => (e[0]===a && e[1]===b) || (e[0]===b && e[1]===a));
+      const shuWu = find('shu','wu');
+      if(!shuWu || shuWu[3] !== 'ally' || shuWu[2] !== 78) errs.push(`shu-wu should be ally rel=78`);
+      const shuNm = find('shu','nanman');
+      if(!shuNm || shuNm[3] !== 'vassal' || shuNm[4] !== 'shu') errs.push(`shu-nanman should be vassal suzerain=shu`);
+      return errs.length ? { passed: false, detail: errs.slice(0,10).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a2-cities-count-fields',
+    name: 'SCENARIO_214.cities 45 entries, 全 {fac,pop,troops,isCapital} 4 fields',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      const cids = Object.keys(S.cities || {});
+      if(cids.length !== 45) errs.push(`expected 45 cities, got ${cids.length}`);
+      const REQ = ['fac','pop','troops','isCapital'];
+      // 禁出现的 CITY_BASE / runtime 字段(同 city_base sprint_verify 防 bleed)
+      const FORBIDDEN = ['name','q','r','tags','jun','size','base',
+                         'garrison','storage','morale','popQuality','buildings','prefect','gentry','occupied','siegeDecay'];
+      const VALID_FIDS = new Set(Object.keys(S.factions || {}));
+      for(const [cid, c] of Object.entries(S.cities || {})){
+        for(const k of REQ){
+          if(!(k in c)) errs.push(`${cid}.${k} missing`);
+        }
+        for(const k of FORBIDDEN){
+          if(k in c) errs.push(`${cid}.${k} should be in CITY_BASE / runtime, not SCENARIO`);
+        }
+        if(typeof c.fac !== 'string' || !VALID_FIDS.has(c.fac)) errs.push(`${cid}.fac '${c.fac}' invalid`);
+        if(typeof c.pop !== 'number') errs.push(`${cid}.pop not number`);
+        if(typeof c.troops !== 'number') errs.push(`${cid}.troops not number`);
+        if(typeof c.isCapital !== 'boolean') errs.push(`${cid}.isCapital not bool (must be explicit true/false)`);
+        if(errs.length > 30) break;
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,10).join(' / ') + (errs.length>10?` (+${errs.length-10} more)`:'') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1a2-cities-capitals',
+    name: 'SCENARIO_214.cities 恰 4 个 isCapital (xuchang/chengdu/jianye/? — 每势力 1 个,B.3 spec)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      const capitals = Object.entries(S.cities || {}).filter(([_, c]) => c.isCapital === true);
+      // 已知 capitals: xuchang(wei) / chengdu(shu) / jianye(wu). nanman 无 capital(蛮族,设计 doc §9 B.3 允许)
+      if(capitals.length !== 3) errs.push(`expected 3 capitals (wei/shu/wu — nanman 无), got ${capitals.length}`);
+      const caps = new Set(capitals.map(([cid]) => cid));
+      for(const expected of ['xuchang','chengdu','jianye']){
+        if(!caps.has(expected)) errs.push(`expected capital ${expected} missing`);
+      }
+      // B.3: 每 faction 至多 1 capital
+      const byFac = {};
+      for(const [cid, c] of capitals){
+        const fac = c.fac;
+        byFac[fac] = (byFac[fac] || 0) + 1;
+      }
+      for(const [fac, n] of Object.entries(byFac)){
+        if(n > 1) errs.push(`faction ${fac} has ${n} capitals (max 1)`);
+      }
+      // 抽样: cities[xuchang] 完整值
+      const xc = S.cities?.xuchang;
+      if(xc?.fac !== 'wei') errs.push(`xuchang.fac != wei`);
+      if(xc?.pop !== 425000) errs.push(`xuchang.pop != 425000 (got ${xc?.pop})`);
+      if(xc?.troops !== 4000) errs.push(`xuchang.troops != 4000`);
+      return errs.length ? { passed: false, detail: errs.slice(0,8).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    // 跨表一致性: SCENARIO_214.cities 的 cid 全在 CITY_BASE 里 (B.1 spec 一半)
+    id: 'scenario-1a2-cities-base-cross-ref',
+    name: 'SCENARIO_214.cities 全 cid 都在 CITY_BASE (cross-table 引用一致, B.1)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const cbSrc = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'city_base.js'), 'utf8');
+      const CITY_BASE = (new Function(cbSrc + '\n; return CITY_BASE;'))();
+      const sSrc = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(sSrc + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      const baseKeys = new Set(Object.keys(CITY_BASE));
+      const sceKeys  = new Set(Object.keys(S.cities || {}));
+      for(const cid of sceKeys){
+        if(!baseKeys.has(cid)) errs.push(`scenario cid ${cid} not in CITY_BASE`);
+      }
+      // 1a 阶段 CITY_BASE 全 45 城都该列在 scenario.cities (设计 doc §3.4 注释 "必列全 CITY_BASE")
+      for(const cid of baseKeys){
+        if(!sceKeys.has(cid)) errs.push(`CITY_BASE.${cid} missing from scenario.cities`);
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,8).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    // 跨表一致性: SCENARIO_214.factions[fid].foundingCore 武将名都在 GEN_BASE
+    id: 'scenario-1a2-founding-core-gen-base',
+    name: 'SCENARIO_214 foundingCore 武将名全部在 GEN_BASE (cross-ref 完整, 1a.3 generals 补全 precondition)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const gbSrc = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'general_base.js'), 'utf8');
+      const GEN_BASE = (new Function(gbSrc + '\n; return GEN_BASE;'))();
+      const sSrc = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(sSrc + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      const genSet = new Set(Object.keys(GEN_BASE));
+      for(const [fid, f] of Object.entries(S.factions || {})){
+        for(const name of (f.foundingCore || [])){
+          if(!genSet.has(name)) errs.push(`${fid}.foundingCore[${name}] not in GEN_BASE`);
+        }
+        // ruler 也应在 GEN_BASE
+        if(f.ruler && !genSet.has(f.ruler)) errs.push(`${fid}.ruler ${f.ruler} not in GEN_BASE`);
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,8).join(' / ') } : { passed: true };
+    },
+  },
 ];
 
 // ═══════════════════════════════════════════════════════════════════

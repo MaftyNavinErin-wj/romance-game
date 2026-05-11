@@ -1,27 +1,34 @@
 // tools/extract_scenario_214.js
 //
-// 阶段 1a.1 数据抽取工具
+// 阶段 1a.1 + 1a.2 数据抽取工具
 //
 // 流程:
 //   1. 用 jsdom 加载 project_romance_v181.html(跟 smoke.js 同 setup)
 //   2. 等 v181 inline script 解析完
 //   3. expose 现有数据 const 到 window.__data__
-//   4. 输出:
-//      - src/data/general_base.js  (GEN_BASE 主表)
-//      - src/data/city_base.js     (CITY_BASE 主表)
-//      - src/data/faction_base.js  (FACTION_BASE 主表)
+//   4. 调 initGame() 取 G.factions[fid].res / G.reputation / G.emperor 等 initGame 字面值
+//   5. 输出:
+//      - src/data/general_base.js          (1a.1 — GEN_BASE 主表)
+//      - src/data/city_base.js             (1a.1 — CITY_BASE 主表)
+//      - src/data/faction_base.js          (1a.1 — FACTION_BASE 主表)
+//      - src/data/scenarios/214.js         (1a.2 — SCENARIO_214 切片,不含 generals)
 //
-// 1a.1 阶段不动现有代码,只新增 3 个未引用的文件。
+// 1a 阶段不动现有代码,只新增 4 个未引用的文件。
 // smoke vs main byte-identical 自然守底(code 未改)。
+//
+// 注:1a.2 SCENARIO_214.generals = {} 占位,1a.3 sprint 补全(active/wild/pending 武将切片)。
 
 'use strict';
 
 const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
+const seedrandom = require('../tests/vendor/seedrandom.js');
 
-const HTML_PATH = path.resolve(__dirname, '..', 'project_romance_v181.html');
-const OUT_DIR   = path.resolve(__dirname, '..', 'src', 'data');
+const HTML_PATH      = path.resolve(__dirname, '..', 'project_romance_v181.html');
+const OUT_DIR        = path.resolve(__dirname, '..', 'src', 'data');
+const SCENARIO_DIR   = path.resolve(__dirname, '..', 'src', 'data', 'scenarios');
+const EXTRACT_SEED   = 'extract_scenario_seed_001';
 
 function waitFor(predicate, timeout = 10000) {
   return new Promise((resolve, reject) => {
@@ -46,13 +53,23 @@ async function main() {
     pretendToBeVisual: true,
     resources: 'usable',
     url: 'file://' + HTML_PATH,
+    beforeParse(win) {
+      // 1a.2 codex 应对: seed Math.random,initGame popQuality/morale 等不影响抽取
+      // 但保稳态(initGame 顶层 random 调用确定性,DOM build 不抛)
+      const rng = seedrandom(EXTRACT_SEED);
+      win.Math.random = rng;
+      win.__SMOKE_TEST__ = true;   // 1a.2: 让 initGame 知道是非交互环境
+      win.addEventListener('error', e => {
+        console.error('[extract] window error:', e.error ? (e.error.stack || e.error.message) : e.message);
+      });
+    },
   });
   const window = dom.window;
 
   console.log('[extract] waiting for initGame...');
   await waitFor(() => typeof window.initGame === 'function', 15000);
 
-  // expose 现有数据 const 到 window.__data__
+  // expose 现有数据 const 到 window.__data__ + G 引用(initGame 调用前装好)
   const exposeScript = window.document.createElement('script');
   exposeScript.textContent = `
     window.__data__ = {
@@ -65,17 +82,41 @@ async function main() {
       GEN_TAGS: typeof GEN_TAGS !== 'undefined' ? GEN_TAGS : null,
       CITIES_DEF: typeof CITIES_DEF !== 'undefined' ? CITIES_DEF : null,
       FAC: typeof FAC !== 'undefined' ? FAC : null,
+      // 1a.2 新增: scenario-specific init constants
+      FAC_IDENTITY: typeof FAC_IDENTITY !== 'undefined' ? FAC_IDENTITY : null,
+      ETHOS_INIT: typeof ETHOS_INIT !== 'undefined' ? ETHOS_INIT : null,
+      DIPLO_INIT: typeof DIPLO_INIT !== 'undefined' ? DIPLO_INIT : null,
+      TECH_PREUNLOCK: typeof TECH_PREUNLOCK !== 'undefined' ? TECH_PREUNLOCK : null,
+      AI_PERSONALITY: typeof AI_PERSONALITY !== 'undefined' ? AI_PERSONALITY : null,
+      FOUNDING_CORE: typeof FOUNDING_CORE !== 'undefined'
+        ? Object.fromEntries(Object.entries(FOUNDING_CORE).map(([fid, set]) => [fid, [...set]]))
+        : null,
+      PLAYABLE_FACS: typeof PLAYABLE_FACS !== 'undefined' ? PLAYABLE_FACS : null,
+      ALL_FACS: typeof ALL_FACS !== 'undefined' ? ALL_FACS : null,
     };
+    window.__G__ = G;
   `;
   window.document.head.appendChild(exposeScript);
 
   const data = window.__data__;
   if (!data) throw new Error('expose failed: window.__data__ not set');
 
-  const required = ['GENS_FULL','GEN_META','WILD_GENS','WILD_GEN_META','GEN_POOL_INACTIVE','GEN_CLASS','GEN_TAGS','CITIES_DEF','FAC'];
+  const required = ['GENS_FULL','GEN_META','WILD_GENS','WILD_GEN_META','GEN_POOL_INACTIVE',
+                    'GEN_CLASS','GEN_TAGS','CITIES_DEF','FAC',
+                    'FAC_IDENTITY','ETHOS_INIT','DIPLO_INIT','TECH_PREUNLOCK','AI_PERSONALITY',
+                    'FOUNDING_CORE','PLAYABLE_FACS','ALL_FACS'];
   for (const k of required) {
     if (!data[k]) throw new Error(`missing global: ${k}`);
   }
+
+  // 1a.2: 调 initGame() 装 G.factions[fid].res / G.reputation / G.emperor
+  console.log('[extract] calling initGame() for runtime init values...');
+  window.initGame();
+  const G = window.__G__;
+  if (!G || !G.factions || !G.reputation || !G.emperor) {
+    throw new Error('initGame did not produce expected G.factions/reputation/emperor');
+  }
+  console.log(`[extract] initGame done; reputation=${JSON.stringify(G.reputation)} emperor=${JSON.stringify(G.emperor)}`);
 
   console.log(`[extract] GENS_FULL: ${Object.keys(data.GENS_FULL).length} factions, total ${Object.values(data.GENS_FULL).reduce((s,a)=>s+a.length,0)} generals`);
   console.log(`[extract] WILD_GENS: ${data.WILD_GENS.length}`);
@@ -247,11 +288,145 @@ const ${varName} = ${json};
     FACTION_BASE
   );
 
+  // ════════════════════════════════════════════════════════════════
+  // 1a.2 — 构建 SCENARIO_214 切片(factions / diplo / cities / emperor)
+  // ════════════════════════════════════════════════════════════════
+  //
+  // generals 字段:1a.2 留空 {}, 1a.3 sprint 补全(active/wild/pending 武将切片)。
+  //
+  // 字段来源(scenario-specific,scenario 切的初始 state):
+  //   factions[fid]:
+  //     - ruler            ← FAC[fid].ruler
+  //     - playable         ← PLAYABLE_FACS.includes(fid)
+  //     - type/_baseType/traits/stage/anchorState ← FAC_IDENTITY[fid]
+  //     - ethos            ← ETHOS_INIT[fid]
+  //     - res              ← G.factions[fid].res (initGame 装好)
+  //     - reputation       ← G.reputation[fid]
+  //     - emperor          ← G.emperor.holder === fid
+  //     - techPreunlock    ← TECH_PREUNLOCK[fid]
+  //     - aiPersonality    ← AI_PERSONALITY[fid]
+  //     - foundingCore     ← FOUNDING_CORE[fid] (Set → Array)
+  //   diplo[]: 4-tuple [a, b, rel, status] (+ 5th element suzerain when status='vassal')
+  //   cities[cid]: { fac, pop, troops, isCapital }  ← CITIES_DEF 投影
+  //   emperor: { cityId, holder }                  ← G.emperor (initGame 字面)
+  //
+  // 设计文档参考: docs/scenario_system.md §3.4
+  // 守底: 1a.2 不动 code,文件不被引用,smoke vs main byte-identical 自然守底
+
+  const PLAYABLE_SET = new Set(data.PLAYABLE_FACS);
+
+  // factions
+  const sFactions = {};
+  for (const fid of data.ALL_FACS) {
+    if (fid === 'rebel') continue;  // 叛军不是 scenario faction
+    const idy   = data.FAC_IDENTITY[fid];
+    const eth   = data.ETHOS_INIT[fid] || null;
+    const tech  = data.TECH_PREUNLOCK[fid] || [];
+    const ai    = data.AI_PERSONALITY[fid] || null;
+    const core  = data.FOUNDING_CORE[fid] || [];
+    const gres  = G.factions[fid] && G.factions[fid].res;
+    if (!idy)  throw new Error(`FAC_IDENTITY missing for ${fid}`);
+    if (!gres) throw new Error(`G.factions[${fid}].res missing`);
+    sFactions[fid] = {
+      ruler:        data.FAC[fid].ruler,
+      playable:     PLAYABLE_SET.has(fid),
+      type:         idy.type,
+      _baseType:    idy._baseType,
+      traits:       [...(idy.traits || [])],
+      stage:        idy.stage,
+      anchorState:  idy.anchorState,
+      ethos:        eth ? { ...eth } : null,
+      res:          { ...gres },
+      reputation:   G.reputation[fid] != null ? G.reputation[fid] : null,
+      emperor:      G.emperor.holder === fid,
+      techPreunlock: [...tech],
+      aiPersonality: ai ? { ...ai } : null,
+      foundingCore: [...core],
+    };
+  }
+  console.log(`[extract] SCENARIO_214.factions built: ${Object.keys(sFactions).length} entries`);
+
+  // diplo (4-tuple [a, b, rel, status], + 5th suzerain when 'vassal')
+  // DIPLO_INIT keys 是 'a-b' 一向(initGame 内 mirror 出 'b-a')—— 这里只产正向 tuple
+  const sDiplo = [];
+  for (const [key, v] of Object.entries(data.DIPLO_INIT)) {
+    const [a, b] = key.split('-');
+    const tuple = [a, b, v.rel, v.status];
+    if (v.status === 'vassal' && v.suzerain) tuple.push(v.suzerain);
+    sDiplo.push(tuple);
+  }
+  console.log(`[extract] SCENARIO_214.diplo built: ${sDiplo.length} edges`);
+
+  // cities (fac/pop/troops/isCapital,缺省 isCapital 不写 → 用 false 显式写,避免 v3.3 隐式坑)
+  const sCities = {};
+  for (const c of data.CITIES_DEF) {
+    sCities[c.id] = {
+      fac:       c.fac,
+      pop:       c.pop,
+      troops:    c.troops,
+      isCapital: c.isCapital === true,  // 显式 bool,缺省=false
+    };
+  }
+  console.log(`[extract] SCENARIO_214.cities built: ${Object.keys(sCities).length} entries`);
+
+  // SCENARIO_214 整合
+  const SCENARIO_214 = {
+    id: '214',
+    version: '1.0',
+    name: '三足鼎立',
+    startYear: 214,
+    description: '东汉建安十九年,曹操称魏公,刘备入蜀,孙权割据江东,三国鼎足之势已成。',
+    provenance: 'project_romance_v181.html 初始 state(initGame + factions.js + military.js AI_PERSONALITY + generals.js FOUNDING_CORE 等 verbatim 抽离)',
+    emperor: { cityId: G.emperor.cityId, holder: G.emperor.holder },
+    factions: sFactions,
+    diplo: sDiplo,
+    cities: sCities,
+    generals: {},  // 1a.3 sprint 补全(active/wild/pending 武将切片)
+  };
+
+  // 写文件
+  if (!fs.existsSync(SCENARIO_DIR)) fs.mkdirSync(SCENARIO_DIR, { recursive: true });
+  const sJson = JSON.stringify(SCENARIO_214, null, 2);
+  const sContent =
+`// 214.js
+//
+// SCENARIO_214 — 三足鼎立(214 年建安十九年)初始 state 切片
+//
+// 字段:
+//   id/version/name/startYear/description/provenance — 元信息
+//   emperor                  — {cityId, holder} 天子位置(initGame 字面)
+//   factions[fid]            — ruler/playable/type/_baseType/traits/stage/anchorState/
+//                              ethos/res/reputation/emperor/techPreunlock/aiPersonality/foundingCore
+//   diplo[]                  — 4-tuple [a, b, rel, status] (+ 5th suzerain 当 status='vassal')
+//   cities[cid]              — {fac, pop, troops, isCapital} (CITY_BASE 之外的 scenario fields)
+//   generals                 — {} 占位(1a.3 sprint 补全)
+//
+// 来源:阶段 1a.2 由 tools/extract_scenario_214.js 自动抽取
+//   - factions: FAC[fid].ruler + PLAYABLE_FACS + FAC_IDENTITY + ETHOS_INIT
+//               + G.factions[fid].res + G.reputation + G.emperor + TECH_PREUNLOCK
+//               + AI_PERSONALITY + FOUNDING_CORE
+//   - diplo:    DIPLO_INIT(一向,materialize 时双向 mirror)
+//   - cities:   CITIES_DEF.{fac, pop, troops, isCapital}
+//   - emperor:  G.emperor (initGame: { cityId:'ye', holder:'wei' })
+//
+// 1a 阶段不被任何 code 引用,仅为后续阶段 1b 的 materializeScenario() 数据源。
+// 字段说明见 docs/scenario_system.md §3.4。
+
+const SCENARIO_214 = ${sJson};
+`;
+  const scenarioPath = path.join(SCENARIO_DIR, '214.js');
+  fs.writeFileSync(scenarioPath, sContent);
+  console.log(`[extract] wrote ${scenarioPath} (${(sContent.length/1024).toFixed(1)} KB)`);
+
   // 简要统计
   console.log('\n[extract] Summary:');
-  console.log(`  GEN_BASE entries: ${Object.keys(GEN_BASE).length}`);
-  console.log(`  CITY_BASE entries: ${Object.keys(CITY_BASE).length}`);
-  console.log(`  FACTION_BASE entries: ${Object.keys(FACTION_BASE).length}`);
+  console.log(`  GEN_BASE entries:           ${Object.keys(GEN_BASE).length}`);
+  console.log(`  CITY_BASE entries:          ${Object.keys(CITY_BASE).length}`);
+  console.log(`  FACTION_BASE entries:       ${Object.keys(FACTION_BASE).length}`);
+  console.log(`  SCENARIO_214.factions:      ${Object.keys(sFactions).length}`);
+  console.log(`  SCENARIO_214.diplo edges:   ${sDiplo.length}`);
+  console.log(`  SCENARIO_214.cities:        ${Object.keys(sCities).length}`);
+  console.log(`  SCENARIO_214.emperor:       ${JSON.stringify(SCENARIO_214.emperor)}`);
 
   dom.window.close();
 }
