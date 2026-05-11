@@ -1837,16 +1837,20 @@ const VERIFIES = [
   {
     // codex trial 1 P2: loadFromSlot() bypass initGame — auto-apply on module load fix
     id: 'scenario-1c-a-auto-apply-on-script-load',
-    name: '1c-a P2 fix: scenario_loader.js script load 时自动 applyScenario("214") (loadFromSlot bypass 修复)',
+    name: '1c-a P2 fix: scenario_loader.js 文件末尾 module-level applyScenario("214") (loadFromSlot bypass 修复)',
     fn(G, win){
       const fsM = require('fs'), pathM = require('path');
       const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'core', 'scenario_loader.js'), 'utf8');
-      // 顶层有 applyScenario('214') 调用 (不在 function 体内)
-      // 检查: 找最后一个 } 之后是否有 applyScenario('214') 调用
-      const stripped = src.replace(/\/\/[^\n]*/g, ''); // strip line comments first
-      // module-level applyScenario call = 不在 'function' 体内的 applyScenario('214');
-      if(!/^\s*applyScenario\(['"]214['"]\)\s*;?\s*$/m.test(stripped))
-        return { passed: false, detail: 'scenario_loader.js 末尾无 module-level applyScenario("214") 调用' };
+      // codex trial 2 P3 tighten: 证明 module-level (而非在 function 体内的 applyScenario 调用)
+      // 策略: 严格找 "文件 最后 non-comment non-empty line === applyScenario('214');"
+      // 这等价 module-level (function 体内调用必然不是文件最后一行)
+      const stripped = src
+        .replace(/\/\*[\s\S]*?\*\//g, '')   // strip block comments
+        .replace(/\/\/[^\n]*/g, '');        // strip line comments
+      const lines = stripped.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      const lastLine = lines[lines.length - 1] || '';
+      if(lastLine !== "applyScenario('214');")
+        return { passed: false, detail: `scenario_loader.js 最后 non-comment line = "${lastLine}" (期望 "applyScenario('214');" 证明 module-level)` };
       return { passed: true };
     },
   },
