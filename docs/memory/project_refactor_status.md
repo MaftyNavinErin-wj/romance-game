@@ -1,13 +1,28 @@
 ---
-name: Refactor phase status — 战斗机制 sprint 批 1+2 close + scenario system 1a.1 + 1a.2 完成
-description: 重构主体收官 + B sprint 7 链全 sweep + 战斗机制 sprint 5 fix (§5.1/§5.2/§5.7/§5.10/§5.3). scenario system 多剧本架构: design doc v3.3 codex 6 trials LGTM + 阶段 1a.1 主表抽离 + 阶段 1a.2 SCENARIO_214 主体 (factions/diplo/cities/emperor 切片). 下次 session 起点: 阶段 1a.3 SCENARIO_214.generals (~100 武将切片 + verify_scenario_214.js 工具).
+name: Refactor phase status — 战斗机制 sprint 批 1+2 close + scenario system 1a 阶段 (1a.1+1a.2+1a.3) 全完成
+description: 重构主体收官 + B sprint 7 链全 sweep + 战斗机制 sprint 5 fix. scenario system 多剧本架构 1a 阶段 ✅ 主表 (133+45+4) + SCENARIO_214 切片完整 (factions/diplo/cities/emperor/generals 125/initialUnits 7-14 squads) + validator 工具. 下次 session 起点: 阶段 1b-1 materializeScenario 派生 + mutable container sync FAC/ALL_FACS/FAC_IDENTITY.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
-## 2026-05-11 session 末状态(本 session 完成的工作 — 1a.2)
+## 2026-05-11 session 末状态(本 session 完成 1a 阶段全部 — 1a.1 是 prior, 本 session 1a.2 + 1a.3)
 
-**main HEAD: `42382f8` refactor(scenario-1a.2-p2b)** (本 session 新增 3 commits, 待 push)
+**main HEAD: `479a209` refactor(scenario-1a.3-p1)** (本 session 累计 6 commits, 待 push)
+
+本 session 1a.3 工作 (continued from 1a.2):
+- **7e71c32 refactor(scenario-1a.3)**: SCENARIO_214.generals 125 武将切片 + verify_scenario_214.js validator 工具
+  - active 101 / wild 6 / pending 18 (含 pendingFac 8 来自 GENS_FULL minTurn>1)
+  - 字段完整 active(12) + wild/pending(wildData 7 字段)
+  - 设计 doc §9 子集 validator: B.4/C.1-5/E.1/4/5/6/G.4/5/I.5/6/J.1-3/L.2
+- **479a209 codex trial 1 NEEDS-WORK fix** (2 P1 + 3 P2 + 1 P3):
+  - P1.1 relations 全收编 (INTIMACY_PRESET orphan pair 双向 mirror, 曹操 5→10 / 关羽 4→7)
+  - P1.2 scenario.initialUnits[] 字段 (7 units / 14 squads, 设计 扩展, 1b byte-identical 必需)
+  - P2 validator 严格化 (E.1 升 error + initialUnits schema check + INTIMACY_PRESET 覆盖 sprint_verify)
+  - P3 city fallback 标 synthetic comment
+- **codex trial 2 LGTM 0/0/0** (无 regression, 1a.3 closed)
+
+**sprint_verify**: 61/61 PASS (44 base + 17 scenario: 8 1a.1 + 7 1a.2 + **12 1a.3**)
+**verify_scenario_214.js**: 0 errors / 4 warnings (4 RETAINER_PRESET 漏 — v181 数据 issue 非 1a.3 bug)
 
 本 session 完成 (1a.2 sprint, 3 commits):
 1. **2eebbfb refactor(scenario-1a.2)**: SCENARIO_214 主体切片
@@ -25,11 +40,12 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 **sprint_verify**: 49/49 PASS (27 现有 + 8 scenario-1a.1 + **14 scenario-1a.2**)
 
 **Scenario system 整体进度** (24-36 session 路线):
-- ✅ Design doc (6 trials LGTM, v3.3)
+- ✅ Design doc (6 trials LGTM, v3.3 + 1a.3 加 pendingFac/initialUnits 扩展)
 - ✅ 阶段 1a.1 主表 (GEN_BASE 133 / CITY_BASE 45 / FACTION_BASE 4)
-- ✅ **阶段 1a.2 SCENARIO_214 主体** (factions 4 + diplo 6 + cities 45 + emperor; generals 占位 {})
-- 🔄 **下次 session: 阶段 1a.3 SCENARIO_214.generals** (~100 active/wild/pending 武将切片 + verify_scenario_214.js 工具)
-- ⏳ 阶段 1b-1f / 2-7 (路线见 docs/scenario_system.md §8)
+- ✅ 阶段 1a.2 SCENARIO_214 主体 (factions 4 + diplo 6 + cities 45 + emperor)
+- ✅ **阶段 1a.3 SCENARIO_214.generals** (125 武将: active 101 / wild 6 / pending 18 含 pendingFac 8 + initialUnits 7-14 squads + verify_scenario_214.js validator)
+- 🔄 **下次 session: 阶段 1b-1 materializeScenario** 派生 + mutable container sync FAC/ALL_FACS/FAC_IDENTITY/etc.
+- ⏳ 阶段 1b-2/1c/1d/1e/1f / 2-7 (路线见 docs/scenario_system.md §8)
 
 **11 阶段 + 工作量** (vs 历史 codex 估):
 | 阶段 | Sessions | 性质 |
