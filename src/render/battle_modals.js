@@ -276,7 +276,7 @@ async function confirmAmbush(){
   // ★ v175: 战前位置快照（供动画定位）
   const _ambushPosSnap = {};
   [...validPlayer, ...validEnemy].forEach(u => {
-    _ambushPosSnap[u.id] = { hq: u.hq, hr: u.hr };
+    _ambushPosSnap[u.id] = { hq: u.hq, hr: u.hr, troops: getUnitTroops(u) };
   });
 
   let ambushReport = null;
@@ -516,7 +516,7 @@ async function confirmCampBattle(mode){
   // ★ v175: 战前位置快照（防止 doRetreat 改动 unit.hq/hr 导致动画位置错位）
   const _campPosSnap = {};
   [...playerSide, ...enemySide].forEach(u => {
-    _campPosSnap[u.id] = { hq: u.hq, hr: u.hr };
+    _campPosSnap[u.id] = { hq: u.hq, hr: u.hr, troops: getUnitTroops(u) };
   });
 
   let campReport = null;
@@ -780,7 +780,7 @@ async function confirmSiegeDefend(choice){
     _defendAttackers = enemySide;
     _defendDefenders = playerSide;
     // ★ v175: 战前位置快照
-    [...enemySide, ...playerSide].forEach(u => { _siegePosSnap[u.id] = { hq: u.hq, hr: u.hr }; });
+    [...enemySide, ...playerSide].forEach(u => { _siegePosSnap[u.id] = { hq: u.hq, hr: u.hr, troops: getUnitTroops(u) }; });
     siegeReport = resolveSiegeBattle(enemySide, playerSide, siegeCity, nodeLabel);
     if(!siegeReport){ renderAll(); return; }
     siegeReport.playerWasAttacker = false;
@@ -793,7 +793,7 @@ async function confirmSiegeDefend(choice){
     // enemySide是围城方（攻方发起者），playerSide是守方出城
     // ★ v175: 战前位置快照（供出城野战/水战动画）
     const _sortiePosSnap = {};
-    [...enemySide, ...playerSide].forEach(u => { _sortiePosSnap[u.id] = { hq: u.hq, hr: u.hr }; });
+    [...enemySide, ...playerSide].forEach(u => { _sortiePosSnap[u.id] = { hq: u.hq, hr: u.hr, troops: getUnitTroops(u) }; });
     const _brLenBeforeSortie = _battleReports.length;
     _resolveBattleEngagement(enemySide, playerSide, nodeLabel, null);
     log('⚔ 【' + nodeLabel + '】我军出城迎战', 'battle');
@@ -914,7 +914,7 @@ async function confirmSiegeBattle(fight){
     _siegeAttackers = playerSide;
     _siegeDefenders = allDefenders;
     // ★ v175: 战前位置快照
-    [...playerSide, ...allDefenders].forEach(u => { _siegePosSnap[u.id] = { hq: u.hq, hr: u.hr }; });
+    [...playerSide, ...allDefenders].forEach(u => { _siegePosSnap[u.id] = { hq: u.hq, hr: u.hr, troops: getUnitTroops(u) }; });
 
     siegeReport = resolveSiegeBattle(playerSide, allDefenders, city, nodeLabel);
     if(!siegeReport){ renderAll(); return; }
@@ -1293,7 +1293,7 @@ async function confirmBattle(fight){
     // ★ v173: 战前位置快照（防止 doRetreat 在结算中改动 unit.hq/hr 导致动画位置错位）
     const _battlePosSnap = {};
     [...trueAtk, ...trueDef].forEach(u => {
-      _battlePosSnap[u.id] = { hq: u.hq, hr: u.hr };
+      _battlePosSnap[u.id] = { hq: u.hq, hr: u.hr, troops: getUnitTroops(u) };
     });
     // ★ v173: 叫阵前奏动画（仅在普通野战路径的 confirmBattle 中触发；伏击/营寨/攻城/水战各有自己的 confirm 函数）
     // 触发条件：activeDuel 存在且 accepted === true
@@ -1311,8 +1311,8 @@ async function confirmBattle(fight){
         const atkUnit = findUnitByGen(activeDuel.atkName);
         const defUnit = findUnitByGen(activeDuel.defName);
         if(atkUnit && defUnit){
-          const snapA = _battlePosSnap[atkUnit.id] || {hq: atkUnit.hq, hr: atkUnit.hr};
-          const snapD = _battlePosSnap[defUnit.id] || {hq: defUnit.hq, hr: defUnit.hr};
+          const snapA = _battlePosSnap[atkUnit.id] || {hq: atkUnit.hq, hr: atkUnit.hr, troops: getUnitTroops(atkUnit)}; // §5.10 fix: 默认 fallback 也补 troops snap
+          const snapD = _battlePosSnap[defUnit.id] || {hq: defUnit.hq, hr: defUnit.hr, troops: getUnitTroops(defUnit)};
           const atkPos = _baGetUnitRenderPos(atkUnit, G.units, snapA);
           const defPos = _baGetUnitRenderPos(defUnit, G.units, snapD);
           await _playDuelPreludeAnim(activeDuel, atkPos, defPos);

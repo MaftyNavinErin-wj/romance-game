@@ -2239,7 +2239,7 @@ function aiDoSiege(fid){
     const nodeLabel = city.name;
     // ★ v175: 战前位置快照
     const _siegePosSnap = {};
-    [...attackers, ...defenders].forEach(u => { _siegePosSnap[u.id] = { hq: u.hq, hr: u.hr }; });
+    [...attackers, ...defenders].forEach(u => { _siegePosSnap[u.id] = { hq: u.hq, hr: u.hr, troops: getUnitTroops(u) }; });
     const siegeReport = resolveSiegeBattle(attackers, defenders, city, nodeLabel);
     if(!siegeReport) return;
     siegeReport.playerWasAttacker = false;
@@ -6248,7 +6248,7 @@ function aiInitiateBattle(aggressorUnit) {
       const aiFireCampDef = aiDecideFireAttack(attackers, campDefenders, getTerrainAt(attackers[0]?.hq??0,attackers[0]?.hr??0), attackers[0]?.fac);
       // ★ v175: 战前位置快照（fire-and-forget 动画用）
       const _campSnap = {};
-      [...attackers, ...campDefenders].forEach(u => { _campSnap[u.id] = { hq: u.hq, hr: u.hr }; });
+      [...attackers, ...campDefenders].forEach(u => { _campSnap[u.id] = { hq: u.hq, hr: u.hr, troops: getUnitTroops(u) }; });
       const campReport = resolveCampBattle(attackers, campDefenders, mode, nodeLabel, aiFireCampDef);
       campReport.playerWasAttacker = false;
       _battleReports.push(campReport);
@@ -6270,7 +6270,7 @@ function aiInitiateBattle(aggressorUnit) {
       const aiFireCamp = aiDecideFireAttack(attackers, campDefenders, getTerrainAt(attackers[0]?.hq??0,attackers[0]?.hr??0), attackers[0]?.fac);
       // ★ v175: 位置快照
       const _campSnap2 = {};
-      [...attackers, ...campDefenders].forEach(u => { _campSnap2[u.id] = { hq: u.hq, hr: u.hr }; });
+      [...attackers, ...campDefenders].forEach(u => { _campSnap2[u.id] = { hq: u.hq, hr: u.hr, troops: getUnitTroops(u) }; });
       const campReport = resolveCampBattle(attackers, campDefenders, mode, nodeLabel, aiFireCamp);
       _battleReports.push(campReport);
       log('🏕 AI营寨战于' + nodeLabel + '（' + (mode==='raid'?'劫营':'强攻') + '）' + (aiFireCamp?'🔥火攻':''), 'battle');
@@ -6314,7 +6314,7 @@ function aiInitiateBattle(aggressorUnit) {
       // AI vs AI 攻城
       // ★ v175: 战前位置快照
       const _siegePosSnap = {};
-      [...attackers, ...defenders].forEach(u => { _siegePosSnap[u.id] = { hq: u.hq, hr: u.hr }; });
+      [...attackers, ...defenders].forEach(u => { _siegePosSnap[u.id] = { hq: u.hq, hr: u.hr, troops: getUnitTroops(u) }; });
       const siegeReport = resolveSiegeBattle(attackers, defenders, _defCitySiege, _defCitySiege.name);
       _battleReports.push(siegeReport);
       // push 动画队列（shouldSkip 内按迷雾判断是否真播）
@@ -6401,7 +6401,7 @@ function checkAmbushTriggers(){
       const aiUseFireAmb = aiDecideFireAttack([ambusher],[victim],ambushTerrain,ambusher.fac);
       // ★ v175: 战前位置快照（供动画定位 — 必须在 resolveAmbush 之前，因 resolveAmbush 可能改 hq/hr）
       const _ambushPosSnap = {};
-      [ambusher, victim].forEach(u => { _ambushPosSnap[u.id] = { hq: u.hq, hr: u.hr }; });
+      [ambusher, victim].forEach(u => { _ambushPosSnap[u.id] = { hq: u.hq, hr: u.hr, troops: getUnitTroops(u) }; });
       const report=resolveAmbush([ambusher],[victim],ambushTerrain,aiUseFireAmb);
       report.node = nodeLabel;
       _battleReports.push(report);
@@ -6745,7 +6745,7 @@ function _resolveBattleEngagement(attackers, defenders, nodeLabel, activeDuel, n
 
   // ★ v175: 战前位置快照（水战动画用；doRetreat 会改 unit.hq/hr）
   const _engagePosSnap = {};
-  [...attackers, ...defenders].forEach(u => { _engagePosSnap[u.id] = { hq: u.hq, hr: u.hr }; });
+  [...attackers, ...defenders].forEach(u => { _engagePosSnap[u.id] = { hq: u.hq, hr: u.hr, troops: getUnitTroops(u) }; });
 
   // 战斗发起扣外交友好度（rebel 不触发）
   if(atkFac0 !== 'rebel' && defFac !== 'rebel'){

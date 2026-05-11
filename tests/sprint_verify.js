@@ -490,6 +490,54 @@ const VERIFIES = [
     },
   },
   {
+    id: 'D-§5.10-phantom-snap',
+    name: 'phantom 旗帜战前 troops snap (§5.10 P2 真 bug fix, user 实测判定)',
+    fn(G, win){
+      const fs = require('fs'), path = require('path');
+      const baSrc = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'render', 'battle_anim.js'), 'utf8');
+      const bmSrc = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'render', 'battle_modals.js'), 'utf8');
+      const milSrc = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'chains', 'military.js'), 'utf8');
+      const tickSrc = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'core', 'tick.js'), 'utf8');
+
+      // Check 1: makePhantom + makeShipPhantom signature 加 presetTroops
+      if(!/function makePhantom\(animG, unit, startPos, invS, presetTroops\)/.test(baSrc)){
+        return { passed: false, detail: 'makePhantom signature 缺 presetTroops 参数' };
+      }
+      if(!/function makeShipPhantom\(animG, unit, startPos, invS, presetTroops\)/.test(baSrc)){
+        return { passed: false, detail: 'makeShipPhantom signature 缺 presetTroops 参数' };
+      }
+
+      // Check 2: 内部 read 优先 presetTroops, fallback live state
+      if(!/\(presetTroops != null\) \? presetTroops/.test(baSrc)){
+        return { passed: false, detail: 'makePhantom 内 troops read 未优先 presetTroops' };
+      }
+
+      // Check 3: posSnap 创建加 troops 字段 (战前 snapshot)
+      // 14 push site (battle_modals 6 + military 6 + tick 1 + battle_anim 1 _siegeArrivalChoice) 全应有 `troops: getUnitTroops(u)`
+      // codex trial 1 P2 catch: battle_anim.js _siegeArrivalChoice (L2629) 也是 push site, 我之前漏了
+      const expectedSnapSites = [
+        { src: bmSrc, file: 'battle_modals.js', expected: 6 },
+        { src: milSrc, file: 'military.js', expected: 6 },
+        { src: tickSrc, file: 'tick.js', expected: 1 },
+        { src: baSrc, file: 'battle_anim.js', expected: 1 }, // _siegeArrivalChoice
+      ];
+      for(const site of expectedSnapSites){
+        const matches = (site.src.match(/\{ hq: u\.hq, hr: u\.hr, troops: getUnitTroops\(u\) \}/g) || []).length;
+        if(matches < site.expected){
+          return { passed: false, detail: site.file+' posSnap push troops 漏 (expected '+site.expected+', got '+matches+')' };
+        }
+      }
+
+      // Check 4: makePhantom 调用传 posSnap[unit.id]?.troops (6 处)
+      const callMatches = (baSrc.match(/posSnap\?\.\[unit\.id\]\?\.troops/g) || []).length;
+      if(callMatches < 6){
+        return { passed: false, detail: 'makePhantom 调用传 presetTroops 漏 (expected ≥6, got '+callMatches+')' };
+      }
+
+      return { passed: true };
+    },
+  },
+  {
     id: 'D-camp-1-runtime',
     name: '_aiChooseDefensePosture 实际调用返 camp (D-camp-1 runtime 验证, 替代 user 50 旬等扎营)',
     fn(G, win){

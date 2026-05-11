@@ -125,7 +125,7 @@ function runRebelAI(){
           const nodeLabel = city.name;
           // ★ v175: 战前位置快照
           const _siegePosSnap = {};
-          [...attackers, ...defenders].forEach(u => { _siegePosSnap[u.id] = { hq: u.hq, hr: u.hr }; });
+          [...attackers, ...defenders].forEach(u => { _siegePosSnap[u.id] = { hq: u.hq, hr: u.hr, troops: getUnitTroops(u) }; });
           const siegeReport = resolveSiegeBattle(attackers, defenders, city, nodeLabel);
           if(siegeReport){
             siegeReport.playerWasAttacker = false;

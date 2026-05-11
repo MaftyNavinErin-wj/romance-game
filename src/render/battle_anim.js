@@ -402,9 +402,10 @@ const _baCore = (() => {
    * @param {Object} unit 部队对象（需要 fac, squads[0].genName, 可用 getUnitTroops）
    * @param {{x,y}} startPos 起始位置
    * @param {number} invS 反抵消 _mapScale 的缩放因子（1/_mapScale）
+   * @param {number} [presetTroops] §5.10 fix: 战前 troops snapshot (来自 posSnap[unit.id].troops); 不传则 fallback live squad.troops (向后兼容 + 防御 snap 缺漏)
    * @returns {SVGGElement} 幻影 g 元素；内部 .ba-inner 负责 scale
    */
-  function makePhantom(animG, unit, startPos, invS){
+  function makePhantom(animG, unit, startPos, invS, presetTroops){
     invS = invS ?? 1;
     const FLAG_W = 28, FLAG_H = 16, POLE_H = 18;
     const FAC_FLAG_COL = {
@@ -417,7 +418,10 @@ const _baCore = (() => {
     const darkFill = FAC_FLAG_COL[unit.fac] || 'rgba(240,235,220,.95)';
     const gname = unit.squads?.[0]?.genName || '?';
     const dispName = gname.length > 2 ? gname.slice(0,2) : gname;
-    const total = (typeof getUnitTroops === 'function') ? getUnitTroops(unit) : (unit.squads?.reduce((s,sq)=>s+(sq.troops||0),0) || 0);
+    // §5.10 fix (sprint_followup): presetTroops 战前 snapshot 优先, 防 phantom 创建时 squad.troops 已被 resolveBattle mutate 战后值
+    // 跟 §5.1 fix 同模式 (defensive at site, 用 snap 字段而非 live state)
+    const total = (presetTroops != null) ? presetTroops
+      : ((typeof getUnitTroops === 'function') ? getUnitTroops(unit) : (unit.squads?.reduce((s,sq)=>s+(sq.troops||0),0) || 0));
     const troopStr = total >= 10000 ? (total/10000).toFixed(1)+'万' : String(total);
 
     const g = document.createElementNS(SVG_NS, 'g');
@@ -452,7 +456,7 @@ const _baCore = (() => {
    * @param {number} invS 1/_mapScale
    * @returns {SVGGElement}
    */
-  function makeShipPhantom(animG, unit, startPos, invS){
+  function makeShipPhantom(animG, unit, startPos, invS, presetTroops){
     invS = invS ?? 1;
     const HULL_W = 22, HULL_H = 7;
     const MAST_H = 12;
@@ -467,7 +471,9 @@ const _baCore = (() => {
     const sailFill = FAC_SAIL_COL[unit.fac] || 'rgba(240,235,220,.95)';
     const gname = unit.squads?.[0]?.genName || '?';
     const dispName = gname.length > 2 ? gname.slice(0,2) : gname;
-    const total = (typeof getUnitTroops === 'function') ? getUnitTroops(unit) : (unit.squads?.reduce((s,sq)=>s+(sq.troops||0),0) || 0);
+    // §5.10 fix: 战前 troops snapshot 优先 (跟 makePhantom 同模式)
+    const total = (presetTroops != null) ? presetTroops
+      : ((typeof getUnitTroops === 'function') ? getUnitTroops(unit) : (unit.squads?.reduce((s,sq)=>s+(sq.troops||0),0) || 0));
     const troopStr = total >= 10000 ? (total/10000).toFixed(1)+'万' : String(total);
 
     // 船身 y=0 作为水面线，船身向下凸，桅+帆向上
@@ -1005,7 +1011,8 @@ async function _playBattleCollisionAnim(attackers, defenders, report, posSnap){
     const facCol = f => FAC[f]?.color || '#888';
 
     // v174: makePhantom 已抽到 _baCore，保留本地 wrapper 闭包 animG/invS 保持调用点不变
-    const makePhantom = (unit, startPos) => _baCore.makePhantom(animG, unit, startPos, invS);
+    // §5.10 fix: wrapper 加 presetTroops 透传, caller 从 posSnap 取战前 troops
+    const makePhantom = (unit, startPos, presetTroops) => _baCore.makePhantom(animG, unit, startPos, invS, presetTroops);
 
     // ── v174: tween 辅助通过 _baCore 复用（替代内联）──
     // 保留 _runTween / _startTween 两个本地别名，避免修改函数体内所有调用点
@@ -1016,11 +1023,11 @@ async function _playBattleCollisionAnim(attackers, defenders, report, posSnap){
     const phantoms = []; // {unit, el, origPos, isAtk, targetPos}
     const hiddenUnitEls = []; // 原 unitsLayer 下的 g 元素引用
     atkPositions.forEach(({unit, pos}) => {
-      const ph = makePhantom(unit, pos);
+      const ph = makePhantom(unit, pos, posSnap?.[unit.id]?.troops); // §5.10 fix: 战前 troops snap
       phantoms.push({unit, el: ph, origPos: pos, isAtk: true});
     });
     defPositions.forEach(({unit, pos}) => {
-      const ph = makePhantom(unit, pos);
+      const ph = makePhantom(unit, pos, posSnap?.[unit.id]?.troops); // §5.10 fix: 战前 troops snap
       phantoms.push({unit, el: ph, origPos: pos, isAtk: false});
     });
 
@@ -1497,10 +1504,10 @@ async function _playCampBattleAnim(report, attackers, defenders, posSnap){
     const phantoms = [];
     const hiddenUnitEls = [];
     atkPositions.forEach(({unit, pos}) => {
-      phantoms.push({ unit, el: _baCore.makePhantom(animG, unit, pos, invS), origPos: pos, isAtk: true, targetPos: pos });
+      phantoms.push({ unit, el: _baCore.makePhantom(animG, unit, pos, invS, posSnap?.[unit.id]?.troops), origPos: pos, isAtk: true, targetPos: pos }); // §5.10 fix: 战前 troops snap
     });
     defPositions.forEach(({unit, pos}) => {
-      phantoms.push({ unit, el: _baCore.makePhantom(animG, unit, pos, invS), origPos: pos, isAtk: false, targetPos: pos });
+      phantoms.push({ unit, el: _baCore.makePhantom(animG, unit, pos, invS, posSnap?.[unit.id]?.troops), origPos: pos, isAtk: false, targetPos: pos }); // §5.10 fix: 战前 troops snap
     });
     const unitsLayer = document.getElementById('unitsLayer');
     if(unitsLayer){
@@ -1806,10 +1813,10 @@ async function _playAmbushBattleAnim(report, attackers, defenders, posSnap){
     const phantoms = [];
     const hiddenUnitEls = [];
     atkPositions.forEach(({unit, pos}) => {
-      phantoms.push({ unit, el: _baCore.makePhantom(animG, unit, pos, invS), origPos: pos, isAtk: true, targetPos: pos });
+      phantoms.push({ unit, el: _baCore.makePhantom(animG, unit, pos, invS, posSnap?.[unit.id]?.troops), origPos: pos, isAtk: true, targetPos: pos }); // §5.10 fix: 战前 troops snap
     });
     defPositions.forEach(({unit, pos}) => {
-      phantoms.push({ unit, el: _baCore.makePhantom(animG, unit, pos, invS), origPos: pos, isAtk: false, targetPos: pos });
+      phantoms.push({ unit, el: _baCore.makePhantom(animG, unit, pos, invS, posSnap?.[unit.id]?.troops), origPos: pos, isAtk: false, targetPos: pos }); // §5.10 fix: 战前 troops snap
     });
     const unitsLayer = document.getElementById('unitsLayer');
     if(unitsLayer){
@@ -2074,14 +2081,14 @@ async function _playSiegeBattleAnim(report, attackers, defenders, posSnap, city)
       const sideY = cityCY + 42*invS;
       const ox = cityCX + (dx/len) * 22*invS * (atkPositions.length > 1 ? 1 : 0);
       const scenePos = { x: ox, y: sideY };
-      phantoms.push({ unit, el: _baCore.makePhantom(animG, unit, scenePos, invS),
+      phantoms.push({ unit, el: _baCore.makePhantom(animG, unit, scenePos, invS, posSnap?.[unit.id]?.troops), // §5.10 fix: 战前 troops snap
         origPos: pos, isAtk: true, scenePos, targetPos: scenePos });
     });
     // 守方野战部队 phantom（虚拟 garrison 跳过，不创建）
     defPositions.forEach(({unit, pos}, idx) => {
       const dx = (idx % 2 === 0) ? -10*invS : 10*invS;
       const scenePos = { x: cityCX + dx, y: cityCY - 4*invS };
-      phantoms.push({ unit, el: _baCore.makePhantom(animG, unit, scenePos, invS),
+      phantoms.push({ unit, el: _baCore.makePhantom(animG, unit, scenePos, invS, posSnap?.[unit.id]?.troops), // §5.10 fix: 战前 troops snap
         origPos: pos, isAtk: false, scenePos, targetPos: scenePos });
     });
 
@@ -2352,10 +2359,10 @@ async function _playNavalBattleAnim(report, attackers, defenders, posSnap){
     const phantoms = [];
     const hiddenUnitEls = [];
     atkPositions.forEach(({unit, pos}) => {
-      phantoms.push({ unit, el: _baCore.makeShipPhantom(animG, unit, pos, invS), origPos: pos, isAtk: true, targetPos: pos });
+      phantoms.push({ unit, el: _baCore.makeShipPhantom(animG, unit, pos, invS, posSnap?.[unit.id]?.troops), origPos: pos, isAtk: true, targetPos: pos }); // §5.10 fix: 战前 troops snap
     });
     defPositions.forEach(({unit, pos}) => {
-      phantoms.push({ unit, el: _baCore.makeShipPhantom(animG, unit, pos, invS), origPos: pos, isAtk: false, targetPos: pos });
+      phantoms.push({ unit, el: _baCore.makeShipPhantom(animG, unit, pos, invS, posSnap?.[unit.id]?.troops), origPos: pos, isAtk: false, targetPos: pos }); // §5.10 fix: 战前 troops snap
     });
 
     const unitsLayer = document.getElementById('unitsLayer');
@@ -2620,7 +2627,7 @@ async function _siegeArrivalChoice(choice){
     // ★ v102: 直接结算攻城（一层弹窗，不再走launchSiegeAttack二次确认）
     // ★ v175: 战前位置快照
     const _siegePosSnap = {};
-    [...attackers, ...defenders].forEach(u => { _siegePosSnap[u.id] = { hq: u.hq, hr: u.hr }; });
+    [...attackers, ...defenders].forEach(u => { _siegePosSnap[u.id] = { hq: u.hq, hr: u.hr, troops: getUnitTroops(u) }; });
     const siegeReport = resolveSiegeBattle(attackers, defenders, city, city.name);
     if(siegeReport){
       siegeReport.playerWasAttacker = true;
