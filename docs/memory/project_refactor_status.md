@@ -1,9 +1,57 @@
 ---
-name: Refactor phase status — B sprint 收官 + 战斗机制 sprint 批 1+2 (5 fix close)
-description: 重构主体收官 + B sprint 7 链全 sweep (22 D 类) + Layer-3 模板. 战斗机制 sprint 批 1+2 close 5 fix: §5.1 P1 (D-anim-2 virtualGarrison.fac) + §5.2 P2 (D-camp-1 AI 扎营) + §5.7 P3 (resolveBattle default fac) + §5.10 P2 (phantom snap, user 实测 PASS) + §5.3 P3 (virtualGarrison 飘字 isPlayer). audit pass 2 S1-S6 完结: 战斗机制 + 全 src/ 异步路径系统性证明 robust by design.
+name: Refactor phase status — 战斗机制 sprint 批 1+2 close + scenario system 启动 (1a.1 主表抽离)
+description: 重构主体收官 + B sprint 7 链全 sweep + 战斗机制 sprint 5 fix (§5.1/§5.2/§5.7/§5.10/§5.3). 2026-05-11 新启 scenario system 多剧本架构: design doc v3.3 codex 6 trials LGTM + 阶段 1a.1 主表抽离完成 (GEN_BASE 133 / CITY_BASE 45 / FACTION_BASE 4 + extract 工具 + sprint_verify 8 entries). 下次 session 起点: 阶段 1a.2 SCENARIO_214 主体 (factions/diplo/cities).
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
+
+## 2026-05-11 session 末状态(本 session 完成的工作)
+
+**main HEAD: `b16f2be` refactor(scenario-1a.1): 主表抽离** (本 session 新增 3 commits, 待 push)
+
+本 session 完成:
+1. **战斗机制 sprint 批 2 close** (commit `79cfdac` + `9f522f5` memory): §5.3 P3 防御性 fix (virtualGarrison 飘字 isPlayer 用 report.defFac, 跟 §5.1 同模式, codex LGTM)
+2. **Scenario system design doc v3.3** (commit `cec915d`): 多剧本架构设计, codex 6 trials LGTM (NEEDS-WORK → LGTM 经过 v1/v2/v3.0/v3.1/v3.2/v3.3 6 次迭代), 文档 docs/scenario_system.md (709 行)
+3. **阶段 1a.1 主表抽离** (commit `b16f2be`): GEN_BASE / CITY_BASE / FACTION_BASE 3 主表抽离, extract 工具 (tools/extract_scenario_214.js), 8 sprint_verify entries 全表 schema 验证. smoke vs main byte-identical 守底 (code 未改). 35/35 sprint_verify PASS. codex review trial 2 LGTM.
+
+**Scenario system 整体进度** (24-36 session 路线):
+- ✅ Design doc (6 trials LGTM)
+- ✅ 阶段 1a.1 主表 (GEN_BASE 133 / CITY_BASE 45 / FACTION_BASE 4)
+- 🔄 **下次 session: 阶段 1a.2 SCENARIO_214 主体** (factions 4 + diplo 6 + cities 45)
+- ⏳ 阶段 1a.3 SCENARIO_214.generals (~100 武将 + verify_scenario_214.js 工具)
+- ⏳ 阶段 1b-1f / 2-7 (路线见 docs/scenario_system.md §8)
+
+**11 阶段 + 工作量** (vs 历史 codex 估):
+| 阶段 | Sessions | 性质 |
+|---|---|---|
+| 1a 主表 + SCENARIO_214 | 2-3 (1a.1 ✅ + 1a.2 / 1a.3) | refactor 守底 |
+| 1b-1/1b-2 materializeScenario + accessor | 3-4 | refactor 守底 |
+| 1c hardcoded 214 cleanup | 3-4 | refactor 守底 |
+| 1d 删 top-level const | 1-2 | refactor 守底 |
+| 1e validators | 1-2 | refactor 守底 |
+| 1f 4 新城 (bohai/pingyuan/zhuojun/luyang) | 1-2 | feature 改 baseline |
+| 2 190 势力 + 外交 | 1-2 | feature |
+| 3 190 城市归属 | 1-2 | feature |
+| 4 190 武将 + 关系 | 3-4 | feature |
+| 5 启动 UI + Claude AI | 1-2 | feature |
+| 6 年龄 hook | 1 | feature |
+| 7 实玩平衡 | 3-5 | balance |
+| **合计** | **23-34** | |
+
+**关键设计决策已 close** (design doc §3-§13):
+- 主表 + scenario 切片 (Option B)
+- 武将状态机 active/wild/pending + 出山年
+- materializeScenario 单一 rebuild (pure transform)
+- 主表 const 用 mutable container 模式 (不 reassign)
+- FAC_IDENTITY split-brain 防御 (1c atomic 迁移)
+- 15 势力 (8 可玩) + 4 新城 + nanman 跨剧本共享 entry
+- Validators 13 类 corner case
+- 老存档不做迁移 (user 决策: 无现存档)
+- 武将年龄: flavor 字段, 不影响数值 (留阶段 6 hook)
+- 关系: 起手 snapshot + game event 累加
+
+---
+
 **截至 2026-05-10 的状态(每次 session 启动前请用 git log 校验,不抄)**:**重构 + 数据补完整体收官 + D 类 HIGH sprint 收官 + _exec 架构债 sprint 收官 + phase 4 + 桶 2/6 + F/G/J/H/I/K/M 全收尾 + B sprint 批 1 (D-006) + 批 2 (7 D 类 streamline) 完成**。
 
 **B sprint 进度** (启动 2026-05-10, 7 链全 sweep 完: 经济+武将+政治+价值观+事件+外交+军事):

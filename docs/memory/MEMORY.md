@@ -1,7 +1,8 @@
 - [User role](user_role.md) — 用户是 Project Romance 制作人,亲自定 session 范围 + 设计 approval
 - [Project Romance overview](project_overview.md) — 三国题材策略游戏,v181 单 HTML,正在做 data/render/chains/core 四层重构
-- [Refactor phase status](project_refactor_status.md) — **Phase 4 收官 + 桶 2 残余收尾 ✅** (main f8c3c18). v181 -88.8% (39547→4423). 39 src/. 下阶段候选:战斗机制 bug fix sprint / MEDIUM D 类 / audit pass 2
-- [战斗机制 systematic bug fix sprint 候选](project_combat_mechanism_bugfix.md) — audit pass 2 S1-S6 + §5.7+§5.10 fix close (1be7ff9+76f6f18); §5.10 方案 A robust (snap 扩 troops + makePhantom presetTroops); §5.3 留 P3; 待 user 实机测 phantom 数字时序
+- [Refactor phase status](project_refactor_status.md) — **战斗机制 sprint 批 1+2 close + scenario system 1a.1 主表抽离 ✅** (main b16f2be). 下次 session 起点: scenario system 阶段 1a.2 SCENARIO_214 主体
+- [战斗机制 systematic bug fix sprint](project_combat_mechanism_bugfix.md) — 批 1+2 close 5 fix (§5.1/§5.2/§5.7/§5.10/§5.3); audit pass 2 S1-S6 完结 robust by design; 剩余 §5.7 P4 / §5.8 P6 / §5.9 设计层 低优
+- [Scenario system design](../scenario_system.md) — 多剧本架构 design doc v3.3 (codex 6 trials LGTM); 主表 + scenario 切片; 23-34 session 11 阶段路线; 阶段 1a.1 ✅ 主表抽离 完成
 - [Chain master scout](project_chain_master_scout.md) — 8 链总图 + map.js carry-over;顺序 ethos→gentry→politics→diplomacy→economy→event→military→general
 - [Chain extraction template](feedback_chain_template.md) — chain 阶段 chains/*.js 模板规范(6 项 header 必含 + 加载顺序 data/core/chains/render/inline)
 - [Phase 3 workflow: scout-before-extract](feedback_phase3_scout_first.md) — 每个 sub-session 先 scout 实测,不照 plan 字面抽
