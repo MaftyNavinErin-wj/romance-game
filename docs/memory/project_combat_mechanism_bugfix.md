@@ -15,9 +15,25 @@ type: project
 - §5.1 fix 漏了同函数另一处 (L2278) 同模式 read — 单点 fix 时应 grep 同函数全字段 read 站避免漏
 - city.* mutation 集中 3 处 (military.js:5967 / gentry.js:588 / event.js:241), 但 mutation 同时**附带** mutate 6 字段 (city.prefect/garrison/siegeDecay/billetPool/occupied/_supplyRestoreTurns/_yibingBuff) — S2 扫这些字段同模式
 
-**S2 audit 候选** (后续 session):
-- city.prefect / city.garrison / city.billetPool / city.siegeDecay 同模式 read 站
-- _pendingBattleAnimations 异步 drain 期间 stale state 通用扫描
+## 2026-05-11 audit pass 2 S2 (6 字段: city.{prefect,garrison,billetPool,siegeDecay,morale,occupied})
+
+**S2 收益**:
+- **0 新真 bug 候选** — 全 anim/UI 路径 robust by design
+- §5.5 sprint_followup 入: 6 字段 audit 表 + 架构观察 (战斗 anim 战后只读 city.fac + city.garrison, 战报 modal 全读 report.* 不读 live city.*, confirm modal 战前弹安全, panel/tooltip 按需读不依赖事前快照)
+- 证实 §5.1 + §5.3 是孤立同函数 stale state, **不是系统性架构缺陷**
+- 后续 fix §5.3 时**不需要扩大 scope** 到其他字段
+
+**S2 架构观察 (沉淀)**:
+- v175 战报 modal `showNextBattleReport` 用 `r.*` (report 字段) 是关键设计 — 战后唯一安全来源
+- confirm modal 是战前弹 → city.* 还没 mutate
+- panel/tooltip 按需读 (玩家点开看时), city 已变是正确表现 (上下文是"当前"非"事前快照")
+- 真 stale state 风险只在 **fire-and-forget anim drain** 期间 (battle_anim 同函数同模式漏 — §5.1 + §5.3)
+
+**S3 audit 候选** (后续 session):
+- squad.troops / squad.morale 战中 mutate + battle_anim 战后 phantom 多处读
+- unit.fac / unit.status (squad 转隶 / unit 解散后 anim 路径)
+- _pendingBattleAnimations push city/unit 引用 vs snapshot 的架构债通用模式
+- _battleReports 内 report 字段全集 audit (是 anim/modal 唯一安全来源, 应核字段完整性)
 
 ---
 

@@ -252,6 +252,40 @@ const isPlayer = (report.defFac === G.playerFac); // §5.1 同模式 fix
 - `city.billetPool` / `city.siegeDecay` / `city.morale` 同模式
 - `_pendingBattleAnimations` 异步 drain 期间的 stale state pattern 通用扫描
 
+### §5.5 S2 audit 收尾 — city.{prefect, garrison, billetPool, siegeDecay, morale, occupied} (2026-05-11)
+
+**S2 范围**:扫 6 个战后 mutate 字段 (跟 city.fac 同 mutation 函数附带 mutate)
+
+**结论**:**0 新真 bug 候选** — 全 anim/UI 路径 robust by design
+
+**字段-by-字段 audit 结果**:
+
+| 字段 | 战后 anim 路径 read 数 | 战后 modal 路径 read 数 | 评估 |
+|---|---|---|---|
+| `city.prefect` | **0** | 0 (battle_modals 0 read) | robust ✅ panel/tooltip 按需读 = 已变就显示新主, 不是 stale |
+| `city.garrison` | 1 (L2013, S1 已 verified-with-notes) | 1 (L707, 战前 confirm) | robust ✅ |
+| `city.billetPool` | **0** | 0 | robust ✅ recruit_modals 按需读 |
+| `city.siegeDecay` | **0** | 4 (L589/607/630/705, **全战前 confirm**) | robust ✅ confirm 弹时 siegeDecay 还没 reset |
+| `city.morale` | **0** | 0 | robust ✅ |
+| `city.occupied` | **0** | 0 | robust ✅ |
+
+**架构观察**(写入 memory):
+- 战斗 anim 路径 (`battle_anim.js`) 战后**只读 `city.fac` + `city.garrison`**, 6 字段中其余 4 个 0 read
+- 战斗 modal (`battle_modals.js`) 战后路径 (`showNextBattleReport`) 全部读 `r.*` (report 字段), 不读 live `city.*`
+- confirm modal (`_showSiegeBattleConfirm` / `_showSiegeDefendConfirm`) 是**战前**弹 → city.* 还没 mutate, 安全
+- panel/tooltip (`ui_panels.js` / `tooltips.js`) 按需读 → 城已易主显示新主是正确表现 (panel 上下文是"当前", 不是"事前快照")
+
+**S2 价值**:虽然 0 新 bug, 但 audit 证实:
+1. §5.1 + §5.3 是孤立同函数 stale state, **不是系统性架构缺陷**
+2. 战斗机制 anim/modal 路径整体设计 robust (showNextBattleReport 用 report.* 是 v175 关键设计)
+3. 后续 sprint fix §5.3 时**不需要扩大 scope** 到其他字段
+
+**S3 audit 候选 (后续 session)**:
+- `squad.troops` / `squad.morale` 战中 mutate (resolveBattle 内) → battle_anim 战后多处读 phantom troops/morale (是设计意图但需核 stale state)
+- `unit.fac` / `unit.status` (squad 转隶 / unit 解散后 anim 路径)
+- `_pendingBattleAnimations` push 时传 city/unit 引用 vs snapshot 的架构债 (跨 fire-and-forget 异步通用模式)
+- `_battleReports` 内 report 自身字段是否完整快照 (report 字段是 anim/modal 唯一安全来源 — 应 audit 字段全集)
+
 ---
 
-(sprint_followup v1.4 — 2026-05-11 audit pass 2 S1 加 §5.3 真 bug 候选 + §5.4 verified-with-notes 集合)
+(sprint_followup v1.5 — 2026-05-11 audit pass 2 S2 加 §5.5 收尾 + S3 候选)
