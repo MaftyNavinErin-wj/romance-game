@@ -1,6 +1,6 @@
 ---
-name: Refactor phase status — scenario system 1a + 1b-1 + 1b-2 完成 (accessor API ready for 1c)
-description: 重构主体收官 + B sprint 7 链全 sweep + 战斗机制 5 fix. scenario system 1a 全完成 + 1b-1 sync 6 顶层 const + 1b-2 10 accessor API (additive). 下次 session 起点: 阶段 1c hardcoded 214 cleanup (~321 matches grep+替换 module-by-module, 3-4 session).
+name: Refactor phase status — scenario 1a + 1b + 1c-a 完成
+description: 重构主体收官 + B sprint 7 链全 sweep + 战斗机制 5 fix. scenario system 1a 全完成 + 1b-1 sync 6 顶层 const + 1b-2 10 accessor + 1c-a FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT migration (28 sites, 含 loadFromSlot bypass fix). 下次 session: 1c-b ALL_FACS (134) 或 1c-c FAC[ (241).
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -21,8 +21,22 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
   - getWildGenDef / getWildGenMeta (设计 doc §5.4; 1d 后 backing 切 G._wildGenDefs)
 - **codex 1b-2 trial 1 LGTM** with P2 (regression guard 弱 — codex 建议 1c replace) + P3 (getScenarioId 后续)
 
-**71/71 sprint_verify PASS**, smoke byte-identical 守底 ✅, verify_scenario_214 0 errors
-**1c migration scope** (codex estimated): ~321 matches across src/chains/ + src/core/ (FAC[/ALL_FACS/FAC_IDENTITY[/ETHOS_INIT[/DIPLO_INIT[/WILD_GENS/WILD_GEN_META). 大头集中 diplomacy.js / general.js / politics.js / tick.js / main.js
+**71/71 sprint_verify PASS** (post 1b-2), smoke byte-identical 守底 ✅, verify_scenario_214 0 errors
+**1c migration scope** (实测): ~430 matches. 大头集中 diplomacy.js / general.js / politics.js / tick.js / main.js
+
+## 1c-a 后状态 (本 session 末尾)
+
+- **05fe27e refactor(scenario-1c-a)**: FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT migration 28 sites + main.js:139-144 删除 (1b-1 P3 close)
+- **b5cce69 codex trial 1 P2+P3 fix**: scenario_loader.js 末尾自动 applyScenario('214') 修复 loadFromSlot bypass (1b-1 latent bug). regression guard 自动 walkSrc 全 src/ 43 files.
+- **5fe127c codex trial 2 P3 tighten**: auto-apply guard 严格 module-level proof.
+- **codex trial 2 LGTM** ✅
+
+74/74 sprint_verify PASS post 1c-a. smoke byte-identical除 timestamp.
+
+下一 sub-session 选项:
+- **1c-b ALL_FACS** (134 hits): 大头. 但单 accessor (getScenarioFactions), forEach/filter/includes 形态多.
+- **1c-c FAC[** (241 hits): 最大. 单 accessor (getFactionDef).
+- **1c-d WILD_GENS** (22 hits): 复杂 find/filter/forEach/push, 设计 doc §5.4 wild lookup contract.
 
 本 session 1a.3 工作 (continued from 1a.2):
 - **7e71c32 refactor(scenario-1a.3)**: SCENARIO_214.generals 125 武将切片 + verify_scenario_214.js validator 工具
@@ -60,9 +74,10 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - ✅ 阶段 1a.2 SCENARIO_214 主体 (factions 4 + diplo 6 + cities 45 + emperor)
 - ✅ 阶段 1a.3 SCENARIO_214.generals (125 武将: active 101 / wild 6 / pending 18 含 pendingFac 8 + initialUnits 7-14 squads + verify_scenario_214.js validator)
 - ✅ 阶段 1b-1 materializeScenario + sync (6 顶层 const sync byte-identical; scenario_loader.js 模块新建)
-- ✅ **阶段 1b-2 scenario accessors** (10 accessor: getFactionDef/getScenarioFactions/getPlayableFactions/isPlayableFaction/getFactionIdentity/setFactionIdentity/getEthos/getDiploInit/getWildGenDef/getWildGenMeta; additive API)
-- 🔄 **下次 session: 阶段 1c hardcoded 214 cleanup** (grep+替换 FAC[fid] → getFactionDef(fid) 等 ~321 matches; module-by-module, 大头工作 3-4 session)
-- ⏳ 阶段 1d/1e/1f / 2-7 (路线见 docs/scenario_system.md §8)
+- ✅ 阶段 1b-2 scenario accessors (10 accessor additive API)
+- ✅ **阶段 1c-a FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT migration** (28 sites + 1b-1 P3 close + loadFromSlot bypass fix via auto-apply on module load)
+- 🔄 **下次 session: 阶段 1c-b ALL_FACS migration** (134 hits) 或 1c-c FAC[ (241 hits)
+- ⏳ 1c-d WILD_GENS (22 hits 复杂) + 阶段 1d/1e/1f / 2-7
 
 **11 阶段 + 工作量** (vs 历史 codex 估):
 | 阶段 | Sessions | 性质 |
