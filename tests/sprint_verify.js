@@ -1060,6 +1060,108 @@ const VERIFIES = [
     },
   },
   {
+    // codex P2: ethos 5 required keys + numeric type (per design doc §3.4 ETHOS schema)
+    id: 'scenario-1a2-factions-ethos-schema',
+    name: 'SCENARIO_214.factions[fid].ethos 5 keys (mandate/power/civil/military/strategy) 全 number',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const ETHOS_KEYS = ['mandate','power','civil','military','strategy'];
+      const errs = [];
+      for(const [fid, f] of Object.entries(S.factions || {})){
+        if(typeof f.ethos !== 'object' || f.ethos === null){ errs.push(`${fid}.ethos missing/null`); continue; }
+        const keys = Object.keys(f.ethos);
+        if(keys.length !== ETHOS_KEYS.length) errs.push(`${fid}.ethos has ${keys.length} keys, expected ${ETHOS_KEYS.length}`);
+        for(const k of ETHOS_KEYS){
+          if(!(k in f.ethos)) errs.push(`${fid}.ethos.${k} missing`);
+          else if(typeof f.ethos[k] !== 'number') errs.push(`${fid}.ethos.${k} not number (${typeof f.ethos[k]})`);
+        }
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,8).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    // codex P2: aiPersonality 5 required keys + per-key legal ranges (G.6 spec)
+    id: 'scenario-1a2-factions-ai-personality-schema',
+    name: 'SCENARIO_214.factions[fid].aiPersonality 5 keys + 范围 (atk/siege/diplo 0..1, deploy/budget -1..+1)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      const REQ_01 = ['atkThreshold','siegeThreshold','diploAggro'];
+      const REQ_PM = ['deployBias','budgetBias'];
+      for(const [fid, f] of Object.entries(S.factions || {})){
+        const ai = f.aiPersonality;
+        if(!ai || typeof ai !== 'object'){ errs.push(`${fid}.aiPersonality missing`); continue; }
+        for(const k of REQ_01){
+          if(!(k in ai)) errs.push(`${fid}.aiPersonality.${k} missing`);
+          else if(typeof ai[k] !== 'number' || ai[k] < 0 || ai[k] > 1)
+            errs.push(`${fid}.aiPersonality.${k}=${ai[k]} out of [0,1]`);
+        }
+        for(const k of REQ_PM){
+          if(!(k in ai)) errs.push(`${fid}.aiPersonality.${k} missing`);
+          else if(typeof ai[k] !== 'number' || ai[k] < -1 || ai[k] > 1)
+            errs.push(`${fid}.aiPersonality.${k}=${ai[k]} out of [-1,+1]`);
+        }
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,8).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    // codex P2: techPreunlock entries 全在 TECH_TREE (cross-ref consts.js)
+    id: 'scenario-1a2-tech-preunlock-cross-ref',
+    name: 'SCENARIO_214.factions[fid].techPreunlock 全 id 都在 TECH_TREE',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const sSrc = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(sSrc + '\n; return SCENARIO_214;'))();
+      // win.TECH_TREE 已在 v181 inline script 装好 (constants.js 在 main script 前 load)
+      const techTree = win.TECH_TREE;
+      if(!techTree || typeof techTree !== 'object') return { passed: false, detail: 'TECH_TREE not exposed in window' };
+      const knownTechs = new Set(Object.keys(techTree));
+      const errs = [];
+      for(const [fid, f] of Object.entries(S.factions || {})){
+        for(const tid of (f.techPreunlock || [])){
+          if(!knownTechs.has(tid)) errs.push(`${fid}.techPreunlock[${tid}] not in TECH_TREE`);
+        }
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,8).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    // codex P2: diplo.rel range -100..100 (设计 doc §9 F.5)
+    id: 'scenario-1a2-diplo-rel-range',
+    name: 'SCENARIO_214.diplo[*].rel 全部 in [-100, 100] (F.5 spec)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      for(const e of S.diplo || []){
+        const [a, b, rel, status] = e;
+        if(typeof rel !== 'number' || rel < -100 || rel > 100)
+          errs.push(`${a}-${b} rel=${rel} out of [-100,100]`);
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,6).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    // codex P2: version semver-like format (设计 doc G.7)
+    id: 'scenario-1a2-version-semver',
+    name: 'SCENARIO_214.version semver-like (G.7 spec: N.M[.P])',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const v = S.version;
+      if(typeof v !== 'string') return { passed: false, detail: `version not string (got ${typeof v})` };
+      if(!/^\d+\.\d+(\.\d+)?$/.test(v)) return { passed: false, detail: `version '${v}' not semver-like` };
+      return { passed: true };
+    },
+  },
+  {
     // 跨表一致性: SCENARIO_214.factions[fid].foundingCore 武将名都在 GEN_BASE
     id: 'scenario-1a2-founding-core-gen-base',
     name: 'SCENARIO_214 foundingCore 武将名全部在 GEN_BASE (cross-ref 完整, 1a.3 generals 补全 precondition)',
@@ -1135,6 +1237,8 @@ async function main(){
     window.GEN_TAGS = (typeof GEN_TAGS !== 'undefined') ? GEN_TAGS : {};
     window.REPUTATION_DEFAULT = (typeof REPUTATION_DEFAULT !== 'undefined') ? REPUTATION_DEFAULT : 50;
     window.CAMP_MOBILIZE_TURNS = (typeof CAMP_MOBILIZE_TURNS !== 'undefined') ? CAMP_MOBILIZE_TURNS : 1;
+    // 1a.2 codex P2 verify: TECH_TREE cross-ref check 用
+    window.TECH_TREE = (typeof TECH_TREE !== 'undefined') ? TECH_TREE : {};
     // (function 顶层声明默认就是 window.<name>, 不需要 expose)
   `;
   win.document.head.appendChild(exposeScript);

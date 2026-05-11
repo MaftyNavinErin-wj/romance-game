@@ -122,9 +122,9 @@ const SCENARIO_214 = {
       type: 'emperor_holder', _baseType: 'warlord', traits: ['枭雄'],
       stage: 'regime', anchorState: null,
       // 价值观
-      ethos: { stab:60, str:75, just:40, royal:55, prag:70 },
-      // 起手资源
-      res: { gold:5000, food:8000, wood:3000, iron:2000, horses:300 },
+      ethos: { mandate:15, power:20, civil:0, military:10, strategy:15 },
+      // 起手资源 (runtime: 仅 4 字段, food 在 city.storage 不在 faction.res)
+      res: { gold:10000, wood:2000, iron:1400, horses:4000 },
       // 起手声望
       reputation: 75,
       // 挟天子
@@ -132,7 +132,7 @@ const SCENARIO_214 = {
       // 起手已研究科技
       techPreunlock: ['t1','t2','...'],
       // AI 性格(参数化,§10 cleanup 解放 hardcoded)
-      aiPersonality: { aggression:0.6, expansion:0.55, ... },
+      aiPersonality: { atkThreshold:0.50, siegeThreshold:0.50, diploAggro:0.65, deployBias:+0.15, budgetBias:+0.10 },
       // 创业班底(显示 + 内部 boost)
       foundingCore: ['曹操','夏侯惇','夏侯渊','曹仁','曹洪','荀彧','郭嘉'],
     },
@@ -566,12 +566,14 @@ function validateScenario(scenario) {
   // G.3 faction.name 不重复 per scenario
   // G.4 status enum legal ('active'|'wild'|'pending'),其他报错
   // G.5 role enum legal ('ruler'|'strategist'|'prefect'|null),其他报错
-  // G.6 scenario.factions[fid].aiPersonality 必填(非 null),且各维度 0-1 范围
+  // G.6 scenario.factions[fid].aiPersonality 必填(非 null),5 维全列:
+  //     atkThreshold / siegeThreshold / diploAggro: 0..1 范围
+  //     deployBias / budgetBias: -1..+1 范围(允许负值, 例 wu.deployBias=-0.10)
   // G.7 scenario.version 格式 (semver-like, e.g. '1.0' / '1.0.1')
   // G.8 至少一个 faction.playable=true
 
   // ── H. 资源 / 经济 sanity ──
-  // H.1 res.gold/food/wood/iron/horses 不 negative
+  // H.1 res.gold/wood/iron/horses 不 negative (4 字段, 无 faction-level food — food 在 city.storage)
   // H.2 city.pop >= 0
   // H.3 city.troops <= city.pop * X (合理性 sanity, X=0.5)
 
