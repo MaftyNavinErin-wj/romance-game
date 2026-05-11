@@ -319,6 +319,51 @@ const isPlayer = (report.defFac === G.playerFac); // §5.1 同模式 fix
 - _battleReports report 字段全集 audit (字段完整性核, 是 anim/modal 唯一安全来源)
 - _pendingBattleAnimations 跨 fire-and-forget 异步通用 stale state 模式扫 (其他 fire-and-forget queue 是否同模式)
 
+### §5.7 S4 audit — fire-and-forget queue 全表 + report 字段完整性 (2026-05-11)
+
+**S4 范围**:全 fire-and-forget queue 同模式扫 + resolveBattle/Siege report 字段完整性
+
+**全 queue 表** (8 个):
+
+| Queue | push 时点 | drain 时点 | stale state 评估 |
+|---|---|---|---|
+| `_pendingBattleAnimations` | resolveBattle 后 | nextTurn 末 (fire-and-forget drain) | **唯一 stale 风险源** (§5.1+§5.3, city.fac in-place) |
+| `_battleReports` | resolveBattle 后 | confirm/anim 后弹 modal | robust ✅ 全 r.* read 不读 live |
+| `_pendingBattleConfirms` | mid-tick 战斗判定 | nextTurn 末 modal pump | **跨 confirm wipe** P4 风险 (一个 unit 多 confirm 时被前一战 wipe → 后 confirm 显示 0 兵, 场景罕见) |
+| `_currentBattleConfirm` | drain 时 set | modal close 时 null | 单值 cursor, 不存 stale |
+| `_currentBattleReport` | drain 时 set | modal close 时发放 exp | 单值 cursor, 不存 stale |
+| `_pendingSiegeArrival` | unit arrive 时 push (ID-only `{unitId, cityId}`) | nextTurn 末 _checkSiegeArrival | **robust by design** ✅ ID-only + live state read + 4 防御 guard (`!unit / !city / city.fac===unit.fac / unit.status!=='siege'`) |
+| `_pendingPeaceOffer` | aiDoDiplo 求和时 set | UI modal 弹时 read | UI 路径, 玩家点开时 modal 显示当前 state — 不是 stale |
+| `_pendingVassalOffer` | AI 称臣判定时 set | UI modal 弹时 read | 同上 |
+
+**report 字段完整性 audit**:
+
+resolveSiegeBattle (military.js:5823) **内部 set 完整** ✅:
+- type/atkFac/defFac/atkNames/defNames/node/cityName/citySize
+- atkWins/defMult/atkTroops/defTroops/atkLost/defLost
+- passiveDuel/breakoutReports/annihilated/skillLogs/_atkUnitIds/_defUnitIds/_siegeAftermathCityId
+
+resolveBattle (military.js:4786) **不 set atkFac/defFac/atkNames/defNames** — 由 caller 补 set (7 callers 全 verified ✅):
+- L4583/4682: camp battle 内嵌, 包成 camp report (含 atkFac/defFac)
+- L5335: naval battle 内嵌, 包成 naval report
+- L5917: siege battle 内嵌, 包成 siege report (上面 ✅)
+- L6851: 主战场, L6852 caller 补 set ✅
+- battle_modals.js:340: ambush abort, L342-343 caller 补 set ✅
+
+**潜在风险 (P3 候选, 防御性架构 fix)**:
+- resolveBattle 不内部 set atkFac/defFac → 未来加新 caller 时若漏补, anim/modal 读 undefined → silent stale state bug
+- **修法 (P3)**: resolveBattle return 时内部 default `report.atkFac = attackers[0]?.fac; report.defFac = defenders[0]?.fac;`, caller 仍可 override (兼容现有 callers)
+- **价值**: 防 future regression, 类似 §5.1 fix 模式 (defensive at source vs defensive at site)
+
+**S4 关键架构发现**:
+- 全 fire-and-forget queue 中 **唯一 stale state 模式源**: `_pendingBattleAnimations` (因 push city/unit 引用 + drain 时 city.fac 已 mutate)
+- 其他 queue 全 robust (ID-only push / 单值 cursor / UI 按需读 / report.* 字段读 / 防御 guard)
+- §5.1 + §5.3 是该 queue 唯一 stale state 模式的两个孤立同函数漏点 — **整体战斗机制架构 robust by design**
+
+**S5 audit 候选 (后续 session, P5 优先级)**:
+- 跨 chain fire-and-forget queue 扫 (event/diplo/economy 内是否有同模式 queue)
+- 防御性 P3: resolveBattle 内部 default set atkFac/defFac (低 risk fix, 可走 sprint workflow)
+
 ---
 
-(sprint_followup v1.6 — 2026-05-11 audit pass 2 S3 partial 加 §5.6 收尾 + S4 候选)
+(sprint_followup v1.7 — 2026-05-11 audit pass 2 S4 加 §5.7 全 queue 表 + report 字段完整性 + S5 候选)

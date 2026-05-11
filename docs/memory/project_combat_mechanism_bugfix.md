@@ -53,9 +53,40 @@ type: project
 - squad.troops 设计意图模糊 1 个 P3 (§5.6, 需 user 实机测)
 - 架构层面: 战斗机制 anim/modal 整体 robust, stale state 风险只在 city.fac in-place mutate
 
-**S4 audit 候选 (后续 session, P4 优先级)**:
-- _battleReports report 字段全集 audit (字段完整性核)
-- _pendingBattleAnimations 跨 fire-and-forget 异步通用 stale state 模式扫 (其他 fire-and-forget queue)
+## 2026-05-11 audit pass 2 S4 (8 fire-and-forget queue + report 字段完整性)
+
+**S4 收益**:
+- 全 8 个 fire-and-forget queue 同模式扫: `_pendingBattleAnimations` 是**唯一 stale state 模式源**, 其他 7 queue robust
+- §5.7 sprint_followup 入: queue 全表 + report 字段完整性 audit + 1 个 P3 防御性 fix 候选
+- 1 P4 候选 (_pendingBattleConfirms 跨 confirm wipe, 场景罕见)
+- 1 P3 候选 (resolveBattle 内部 default set atkFac/defFac, 防 future caller 漏补)
+
+**S4 关键架构发现 (沉淀)**:
+- 全 queue 中**唯一 stale state 模式源 = _pendingBattleAnimations** (push city/unit 引用 + drain 时 city.fac 已 mutate)
+- 其他 7 queue 全 robust:
+  - _battleReports / _currentBattle* — r.* read robust
+  - _pendingSiegeArrival — ID-only push + live state read + 4 防御 guard
+  - _pendingPeaceOffer / _pendingVassalOffer — UI 按需读
+- §5.1 + §5.3 是该唯一 queue 模式的两个孤立同函数漏点 — **整体战斗机制架构 robust by design**
+
+**resolveBattle 字段缺漏** (P3 候选):
+- resolveBattle 不内部 set atkFac/defFac (由 caller 补 set, 7 callers 全 verified)
+- 风险: 未来加新 caller 时若漏补 → silent stale state bug
+- 修法 P3: resolveBattle return 时内部 default `report.atkFac = attackers[0]?.fac; report.defFac = defenders[0]?.fac;`, caller 仍可 override
+
+**累计 audit pass 2 S1+S2+S3p+S4 完结 (2026-05-11)**:
+- 真 bug 候选 1 个 (§5.3 P2, 1 行 fix)
+- P3 防御性 fix 候选 1 个 (§5.7 resolveBattle 内部 default set fac)
+- P3 设计意图模糊 1 个 (§5.6 squad.troops, 需 user 实机测)
+- P4 跨 confirm wipe 1 个 (§5.7 _pendingBattleConfirms, 场景罕见)
+- verified-with-notes 4 (§5.4)
+- robust by design 字段 6+5 (§5.5+§5.6)
+- 8 queue 全表 (§5.7)
+- 战斗机制 anim/modal 整体架构 robust, 唯一 stale state 模式源已锁定
+
+**S5 audit 候选 (后续 session, P5 优先级)**:
+- 跨 chain fire-and-forget queue 扫 (event/diplo/economy 是否有同模式 queue)
+- §5.7 P3 防御性 fix 实装 (低 risk, 可走 sprint workflow)
 
 ---
 
