@@ -364,6 +364,45 @@ resolveBattle (military.js:4786) **不 set atkFac/defFac/atkNames/defNames** —
 - 跨 chain fire-and-forget queue 扫 (event/diplo/economy 内是否有同模式 queue)
 - 防御性 P3: resolveBattle 内部 default set atkFac/defFac (低 risk fix, 可走 sprint workflow)
 
+### §5.8 S5 audit — 跨 chain fire-and-forget queue (2026-05-11)
+
+**S5 范围**:event/diplo/general/economy/politics chain 全 G._pending* + G._*Queue 扫,看是否有同 _pendingBattleAnimations stale state 模式
+
+**全跨 chain queue 表** (8 个新, 加 S4 8 个 = 16 queue 总表):
+
+| Queue | Chain | push 内容 | drain 防御 | 评估 |
+|---|---|---|---|---|
+| `G._pendingEvent` | event | evt 引用 (含 ctx.city) | modal 阻塞 nextTurn (tick.js:298) | robust ✅ modal 阻塞 → state 不能 mutate → ctx 准 |
+| `G._eventQueue` | event | t 对象 (含 ctx.city 引用) | `_popEventQueue` L440 重新验证 `ctx.city.fac !== G.playerFac` 跨 tick 城市丢失防御 | robust ✅ 同 §5.1 同模式正确防御写法 |
+| `G._pendingPrisoners` | general | `{name, capturerFid}` (string + ID) | `showNextPrisonerModal` L1876 `if(!g) shift+next` 武将死亡防御 | robust ✅ ID-only + 防御 guard |
+| `G._pendingEnvoyIntel` | diplomacy | `{targetFid, turn}` (ID + number) | tick.js:664 turn-based filter | robust ✅ ID-only |
+| `G._pendingSiegeAftermath` | military(via modals) | cityId (string) | tick.js:612 快进路径清理 | robust ✅ ID-only |
+| `G._pendingRetreatResult` | battle_modals | retResult 单值对象 (无 live state 引用) | drain 时直接读 | robust ✅ 不含引用 |
+| `window._pendingCourtCouncil` | politics | proposal 对象 | tick.js:614 快进路径清理 + UI 阻塞 | robust ✅ |
+| `_pendingPeaceOffer` / `_pendingVassalOffer` | diplomacy | 单值 | UI modal 按需读 | robust ✅ (S4 已 verified) |
+
+**关键架构发现 (S5)**:
+
+跨 chain queue **全 robust by design**, 模式有三类:
+1. **ID-only push** (string/number/ID, 无 live state 引用): _pendingPrisoners / _pendingEnvoyIntel / _pendingSiegeAftermath / _pendingSiegeArrival (S4)
+2. **modal 阻塞 nextTurn**: _pendingEvent / _pendingPeaceOffer / _pendingVassalOffer / _pendingCourtCouncil (modal 不点 OK 游戏暂停, state 不能 mutate)
+3. **drain 时显式重新验证 (跨 tick 防御)**: _eventQueue (event.js:440 重验 city.fac), _pendingPrisoners (general 武将死亡 guard), _pendingSiegeArrival (S4 4 防御 guard)
+
+**唯一例外仍是 `_pendingBattleAnimations`**:
+- push 引用 (city/unit) — **不是 ID-only**
+- drain 期间 nextTurn 仍跑(fire-and-forget, anim 与 nextTurn 不阻塞) → state 可能 mutate
+- 无 drain 时显式重新验证 → §5.1 + §5.3 漏点
+- **设计原因**: anim 需要 city/unit snap 做视觉, ID-only 不够; 但应学跨 chain 模式 (3) 加 drain 时 stale state 防御
+
+**整体跨 chain robust by design 总结** (累计 16 queue):
+- 战斗机制外的 7 chain queue: 全 robust (3 模式覆盖)
+- 战斗机制 8 queue: 7 robust + 1 stale 模式源 (_pendingBattleAnimations)
+- §5.1 + §5.3 是该模式源的孤立同函数漏点
+
+**S6 audit 候选 (后续 session, P6 优先级 — 架构层面)**:
+- _pendingBattleAnimations 加 drain 时显式重新验证 (跨 chain 模式 3 借鉴)
+- 通用扫: 还有没有 fire-and-forget 异步路径不在 queue 模式内 (例如 setTimeout / Promise / await chain)
+
 ---
 
-(sprint_followup v1.7 — 2026-05-11 audit pass 2 S4 加 §5.7 全 queue 表 + report 字段完整性 + S5 候选)
+(sprint_followup v1.8 — 2026-05-11 audit pass 2 S5 加 §5.8 跨 chain queue 8 新 + 累计 16 queue 总表 + S6 候选)

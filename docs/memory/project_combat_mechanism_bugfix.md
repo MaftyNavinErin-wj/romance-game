@@ -84,9 +84,33 @@ type: project
 - 8 queue 全表 (§5.7)
 - 战斗机制 anim/modal 整体架构 robust, 唯一 stale state 模式源已锁定
 
-**S5 audit 候选 (后续 session, P5 优先级)**:
-- 跨 chain fire-and-forget queue 扫 (event/diplo/economy 是否有同模式 queue)
-- §5.7 P3 防御性 fix 实装 (低 risk, 可走 sprint workflow)
+## 2026-05-11 audit pass 2 S5 (跨 chain 8 queue, 累计 16 queue 总表)
+
+**S5 收益**:
+- 跨 chain 全 G._pending* + G._*Queue 扫 (event/diplo/general/diplo/military/politics)
+- **跨 chain queue 全 robust by design** — 模式有三类:
+  1. **ID-only push** (string/number/ID, 无 live state 引用)
+  2. **modal 阻塞 nextTurn** (state 不能 mutate)
+  3. **drain 时显式重新验证 (跨 tick 防御)** — 如 event.js:440 `_popEventQueue` 重验 city.fac, 跟 §5.1 同模式正确写法
+- §5.8 sprint_followup 入: 跨 chain 8 queue + 累计 16 queue 总表 + 三类 robust 模式
+
+**S5 关键架构沉淀**:
+- 累计 16 queue 中 **15 robust + 1 stale 模式源 (_pendingBattleAnimations)** — 战斗机制 anim 是唯一例外
+- _pendingBattleAnimations push 引用 + drain 不阻塞 nextTurn + 无 drain 时显式重验 → §5.1+§5.3 漏点
+- **修法启示**: 学跨 chain 模式 3, 给 _pendingBattleAnimations drain 时加 stale state 防御 (P6 架构层 fix 候选, 但 §5.1/§5.3 单点 fix 已足以)
+
+**累计 audit pass 2 S1+S2+S3p+S4+S5 完结 (2026-05-11)**:
+- 真 bug 候选 1 个 (§5.3 P2, 1 行 fix)
+- P3 防御性 fix 候选 1 个 (§5.7 resolveBattle 内部 default set fac)
+- P3 设计意图模糊 1 个 (§5.6 squad.troops, 需 user 实测)
+- P4 跨 confirm wipe 1 个 (§5.7 _pendingBattleConfirms, 罕见)
+- P6 架构层 1 个 (§5.8 _pendingBattleAnimations drain 防御, 可选 — §5.1/§5.3 单点已足)
+- verified-with-notes 4 (§5.4) + robust 字段 11 (§5.5+§5.6) + 16 queue 总表 (§5.7+§5.8)
+- 整体战斗机制架构 robust by design, 唯一 stale 源已锁定且模式已抽象 (3 类跨 chain robust 模式)
+
+**S6 audit 候选 (后续 session, P6 优先级 — 架构层面)**:
+- _pendingBattleAnimations 加 drain 时显式重新验证 (跨 chain 模式 3 借鉴, 可选)
+- 通用扫: setTimeout / Promise / await chain 是否有 fire-and-forget 路径不在 queue 模式内
 
 ---
 
