@@ -352,10 +352,10 @@ function aiDoTechResearch(fid) {
 // ════════════════════════════════════════════════════════════════════
 
 /** 返回势力当前阶段（warlord/regional/regime） */
-function getStage(fid){ return FAC_IDENTITY[fid]?.stage || 'regime'; }
+function getStage(fid){ return getFactionIdentity(fid)?.stage || 'regime'; }
 
 /** 返回势力当前的 anchorState（一方之主阶段的根据地州id，否则 null） */
-function getAnchorState(fid){ return FAC_IDENTITY[fid]?.anchorState || null; }
+function getAnchorState(fid){ return getFactionIdentity(fid)?.anchorState || null; }
 
 /** 返回势力在指定州持有的城市数 */
 function countCitiesInState(fid, stateId){
@@ -423,7 +423,7 @@ function _selectBestAnchor(fid){
 
 /** 检查势力是否满足晋升条件，返回 {canPromote, nextStage, anchorState?} 或 null */
 function checkStagePromotion(fid){
-  const ident = FAC_IDENTITY[fid];
+  const ident = getFactionIdentity(fid);
   if(!ident) return null;
   const stage = ident.stage || 'regime';
   const totalCities = countFacCities(fid);
@@ -452,10 +452,10 @@ function checkStagePromotion(fid){
 function promoteStage(fid){
   const promo = checkStagePromotion(fid);
   if(!promo) return false;
-  const ident = FAC_IDENTITY[fid];
+  const ident = getFactionIdentity(fid);
   const oldStage = ident.stage;
-  ident.stage = promo.nextStage;
-  ident.anchorState = promo.anchorState || null;
+  setFactionIdentity(fid, 'stage', promo.nextStage);
+  setFactionIdentity(fid, 'anchorState', promo.anchorState || null);
   // 清空影响力缓存（阶段变化改变了乘数）
   if(typeof _facInfluenceCache !== 'undefined'){
     _facInfluenceCache = {};
@@ -992,7 +992,7 @@ function _aiCourtSelect(fid, proposals){
 
 /** 称帝条件检查 */
 function canEnthrone(fid){
-  if(FAC_IDENTITY[fid]?.type === 'emperor') return false;
+  if(getFactionIdentity(fid)?.type === 'emperor') return false;
   if(G.turn < 24) return false;
   // SKILL_INLINE: bigong — 华歆·逼宫：当官时称帝城市门槛10→8、信誉门槛40→30
   const _huaxinBonus = hasFacGen(fid, '华歆') && genHasOffice('华歆', fid);
@@ -1008,24 +1008,25 @@ function canEnthrone(fid){
 /** 执行称帝 */
 function doEnthrone(fid){
   if(!canEnthrone(fid)) return;
-  const oldType = FAC_IDENTITY[fid]?.type || 'warlord';
+  const oldType = getFactionIdentity(fid)?.type || 'warlord';
   // 天子消亡
   if(G.emperor){
     // 所有emperor_holder降级
     ALL_FACS.forEach(f => {
-      if(FAC_IDENTITY[f]?.type === 'emperor_holder'){
-        FAC_IDENTITY[f].type = FAC_IDENTITY[f]._baseType || 'warlord';
+      const ident = getFactionIdentity(f);
+      if(ident?.type === 'emperor_holder'){
+        setFactionIdentity(f, 'type', ident._baseType || 'warlord');
       }
     });
     G.emperor = null;
   }
-  FAC_IDENTITY[fid].type = 'emperor';
+  setFactionIdentity(fid, 'type', 'emperor');
   // 信誉+10
   G.reputation[fid] = Math.min(100, (G.reputation[fid]||REPUTATION_DEFAULT) + 10);
   // 第三方关系
   ALL_FACS.forEach(other => {
     if(other === fid) return;
-    const otherIsEmperor = FAC_IDENTITY[other]?.type === 'emperor';
+    const otherIsEmperor = getFactionIdentity(other)?.type === 'emperor';
     addDiplo(fid, other, otherIsEmperor ? -25 : -15);
     // ★ v152: 有人称帝→汉室正统性崩塌→所有其他势力mandate被推高
     applyEthosShock(other, 'mandate', 12, `${FAC[fid]?.name||fid}称帝·汉统动摇`);
@@ -1048,7 +1049,7 @@ function aiConsiderEnthrone(fid){
   // ★ v152: mandate低→拒绝称帝（崇汉AI不会称帝）；mandate高→降低门槛
   const _ethEnt = G.factions[fid]?.ethos;
   if(_ethEnt && _ethEnt.mandate < 30) return; // 崇汉倾向，不称帝
-  const myType = FAC_IDENTITY[fid]?.type;
+  const myType = getFactionIdentity(fid)?.type;
   let chance = myType === 'emperor_holder' ? 0.60 : myType === 'han_royal' ? 0.40 : 0.80;
   // mandate越高越积极
   if(_ethEnt && _ethEnt.mandate >= 60) chance = Math.min(0.95, chance + 0.15);

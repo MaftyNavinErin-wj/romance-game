@@ -114,7 +114,7 @@ function initGame(scenarioId){
     });
     G.generals[fid] = immediate;
   });
-  Object.entries(DIPLO_INIT).forEach(([k,v])=>{
+  Object.entries(getDiploInit()).forEach(([k,v])=>{
     G.diplo[k]={...v};
     const [a,b]=k.split('-');
     G.diplo[`${b}-${a}`]={...v};
@@ -135,13 +135,9 @@ function initGame(scenarioId){
   G.claims = {};     // 宣称准备记录 'fid-target': {type, prepTurns, ready, usedTurn}
   G.cityHistory = {}; // 城市易手追踪 cityId: {takenBy, fromFac, turn}
   G.feuds = {};       // 血仇记录 'fid-target': {reason, turn}
-  // 重置势力身份（防止上局残留）
-  FAC_IDENTITY.wei.type = 'emperor_holder'; FAC_IDENTITY.shu.type = 'han_royal'; FAC_IDENTITY.wu.type = 'warlord'; FAC_IDENTITY.nanman.type = 'tribal';
-  // v172: 重置 stage / anchorState（三国默认政权，孟获军阀）
-  FAC_IDENTITY.wei.stage = 'regime';    FAC_IDENTITY.wei.anchorState = null;
-  FAC_IDENTITY.shu.stage = 'regime';    FAC_IDENTITY.shu.anchorState = null;
-  FAC_IDENTITY.wu.stage  = 'regime';    FAC_IDENTITY.wu.anchorState  = null;
-  FAC_IDENTITY.nanman.stage = 'warlord';FAC_IDENTITY.nanman.anchorState = null;
+  // 1c-a: 1b-1 P3 close — 旧 v172 hardcoded reset 已 redundant (applyScenario 顶部 sync 同样值).
+  // 旧代码 12 行 (FAC_IDENTITY.wei.type='emperor_holder' / .stage='regime' / .anchorState=null etc.) 全删,
+  // SCENARIO_214.factions[fid] 是唯一 authority. 后续 scenarios 自然支持 (不再 wei/shu/wu/nanman 硬编码).
   // ★ 计谋系统CD初始化
   G.strategyCD = {};
   G.scoutReveals = []; // ★ v116: 细作探报持续效果 [{fid, cityId, expiresAt}]
@@ -161,7 +157,7 @@ function initGame(scenarioId){
   G._warClaimStrength = {}; // ★ v113: 宣称强度追踪
   // ★ v151: 价值观系统初始化
   ALL_FACS.forEach(fid => {
-    G.factions[fid].ethos = {...(ETHOS_INIT[fid] || {mandate:0,power:0,civil:0,military:0,strategy:0})};
+    G.factions[fid].ethos = {...(getEthos(fid) || {mandate:0,power:0,civil:0,military:0,strategy:0})};
     G.factions[fid]._ethosLog = [];
     G.factions[fid]._ethosSnap = {};
   });

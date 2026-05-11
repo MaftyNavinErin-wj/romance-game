@@ -1774,6 +1774,82 @@ const VERIFIES = [
       return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
     },
   },
+  // ── 阶段 1c-a FAC_IDENTITY / ETHOS_INIT / DIPLO_INIT migration ───────
+  // Migrate ~28 sites: read → getFactionIdentity/getEthos/getDiploInit, write → setFactionIdentity.
+  // 同时 close 1b-1 P3 deferred: main.js:139-144 hardcoded FAC_IDENTITY reset 删除 (SCENARIO_214 sync 是 single source).
+  {
+    id: 'scenario-1c-a-no-direct-fac-identity-reads',
+    name: 'src/ 全部 FAC_IDENTITY[ / .wei / .shu 等直接 read 在 code 行 (非注释) = 0',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      // strip line comments helper
+      function stripLineComments(src){
+        return src.split('\n').map(line => {
+          // 简化: 找到第一个 // 不在 string 内的位置, 截断
+          let inStr = null;
+          for(let i = 0; i < line.length; i++){
+            const c = line[i];
+            if(inStr){
+              if(c === inStr && line[i-1] !== '\\') inStr = null;
+            } else {
+              if(c === '"' || c === "'" || c === '`') inStr = c;
+              else if(c === '/' && line[i+1] === '/') return line.slice(0, i);
+            }
+          }
+          return line;
+        }).join('\n');
+      }
+      const filesToCheck = [
+        'src/chains/diplomacy.js', 'src/chains/economy.js', 'src/chains/ethos.js',
+        'src/chains/event.js', 'src/chains/general.js', 'src/chains/gentry.js',
+        'src/chains/military.js', 'src/chains/politics.js',
+        'src/core/main.js', 'src/core/tick.js', 'src/core/hubs.js', 'src/core/claude_ai.js',
+        'src/core/helpers.js', 'src/core/map.js',
+        'src/render/tabs.js', 'src/render/ui_panels.js', 'src/render/modals.js',
+        'src/render/boot_screens.js', 'src/render/diplo_modals.js',
+        'src/data/events.js',
+      ];
+      const errs = [];
+      for(const f of filesToCheck){
+        const full = pathM.resolve(__dirname, '..', f);
+        if(!fsM.existsSync(full)) continue;
+        const codeOnly = stripLineComments(fsM.readFileSync(full, 'utf8'));
+        // FAC_IDENTITY[ or FAC_IDENTITY.{wei|shu|wu|nanman} (literal-key writes)
+        const m1 = codeOnly.match(/\bFAC_IDENTITY\[/g) || [];
+        const m2 = codeOnly.match(/\bFAC_IDENTITY\.(wei|shu|wu|nanman)\b/g) || [];
+        const m3 = codeOnly.match(/\bETHOS_INIT\[/g) || [];
+        const m4 = codeOnly.match(/\bDIPLO_INIT\b/g) || [];
+        if(m1.length) errs.push(`${f}: ${m1.length} × FAC_IDENTITY[`);
+        if(m2.length) errs.push(`${f}: ${m2.length} × FAC_IDENTITY.<fid>`);
+        if(m3.length) errs.push(`${f}: ${m3.length} × ETHOS_INIT[`);
+        if(m4.length) errs.push(`${f}: ${m4.length} × DIPLO_INIT`);
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,10).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    id: 'scenario-1c-a-applyScenario-still-syncs-fac-identity',
+    name: '1c-a migration 后 applyScenario 仍 sync FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT (regression guard)',
+    fn(G, win){
+      // 验证 sync 链路完整: 调 applyScenario 后 6 容器仍有正确值
+      const errs = [];
+      // mutate 一些 known values 后 re-apply, 应恢复
+      const origType = win.FAC_IDENTITY.wei.type;
+      win.FAC_IDENTITY.wei.type = 'corrupted';
+      // clear ETHOS_INIT 测重 sync
+      const origMandate = win.ETHOS_INIT.wei.mandate;
+      win.ETHOS_INIT.wei.mandate = 999;
+      // clear DIPLO_INIT 测
+      const origRel = win.DIPLO_INIT['shu-wu'].rel;
+      win.DIPLO_INIT['shu-wu'].rel = 999;
+      // re-apply
+      win.applyScenario('214');
+      if(win.FAC_IDENTITY.wei.type !== origType) errs.push(`FAC_IDENTITY.wei.type ${win.FAC_IDENTITY.wei.type} != ${origType}`);
+      if(win.ETHOS_INIT.wei.mandate !== origMandate) errs.push(`ETHOS_INIT.wei.mandate ${win.ETHOS_INIT.wei.mandate} != ${origMandate}`);
+      if(win.DIPLO_INIT['shu-wu'].rel !== origRel) errs.push(`DIPLO_INIT.shu-wu.rel ${win.DIPLO_INIT['shu-wu'].rel} != ${origRel}`);
+      return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
   {
     id: 'scenario-1b1-empty-before-init',
     name: 'src/data/factions.js 顶层 const 改 empty container (initGame 前空, smoke 验证有效)',

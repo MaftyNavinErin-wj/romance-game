@@ -1068,7 +1068,7 @@ function renderDipTab(c){
         const readyCl = getReadyClaim(fid, other);
         const prepCl = G.claims?.[`${fid}-${other}`];
         const availClaims = getAvailableClaims(fid, other);
-        const myType = FAC_IDENTITY[fid]?.type;
+        const myType = getFactionIdentity(fid)?.type;
         if(readyCl){
           actionBtns += dipBtn(`⚔ 以【${readyCl.label}】宣战`, 'dip-btn-bad', `diploWar('${other}','${readyCl.type}')`, true, '');
         } else if(prepCl && !prepCl.ready){
@@ -1216,7 +1216,7 @@ function renderDipTab(c){
     })() +
     (() => {
       // ★ C3: 势力身份 + 天子 + 称帝按钮
-      const ident = FAC_IDENTITY[fid];
+      const ident = getFactionIdentity(fid);
       const typeLabels = {emperor_holder:'挟天子',han_royal:'汉室宗亲',warlord:'诸侯',emperor:'皇帝'};
       const typeColors = {emperor_holder:'#6b5530',han_royal:'#1a7a3a',warlord:'#888',emperor:'#c084fc'};
       const tLabel = typeLabels[ident?.type] || '诸侯';

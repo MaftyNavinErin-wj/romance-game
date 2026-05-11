@@ -1989,7 +1989,7 @@ const EVENT_DEFS = [
     id:'quanjin_biao', category:'story', playerOnly:false, priority:1, cooldown:24, oneTime:true,
     season:null, icon:'📜', name:'劝进表',
     condition(fid){
-      if(FAC_IDENTITY[fid]?.type === 'emperor') return false; // 已称帝
+      if(getFactionIdentity(fid)?.type === 'emperor') return false; // 已称帝
       const eth = G.factions[fid]?.ethos;
       if(!eth || eth.mandate < 20) return false;
       // 需要warlord标签武将在朝

@@ -720,7 +720,7 @@ function aiDoDiplo(fid){
           else if(rep < 60 && Math.random() < 0.50 * shameFactor) proceedWithWar = false;
         }
         // ★ C3: 曹操对刘备用奉旨讨逆：如果汉室死忠占比>15%，降级
-        if(usedClaimType === 'imperial_decree' && FAC_IDENTITY[other]?.type === 'han_royal'){
+        if(usedClaimType === 'imperial_decree' && getFactionIdentity(other)?.type === 'han_royal'){
           const inf = calcFactionInfluence(fid);
           const hanLoyal = (G.generals[fid]||[]).filter(g => {
             const m = getGenMeta(g.name); return (m.values||[]).includes('汉室死忠');
@@ -1226,8 +1226,8 @@ function _hasLostCityTo(fid, target){
 
 /** 获取fid对target可用的所有宣称类型 */
 function getAvailableClaims(fid, target){
-  const myType = FAC_IDENTITY[fid]?.type;
-  const targetType = FAC_IDENTITY[target]?.type;
+  const myType = getFactionIdentity(fid)?.type;
+  const targetType = getFactionIdentity(target)?.type;
   const results = [];
   Object.entries(CLAIM_TYPES).forEach(([id, ct]) => {
     // 身份要求
@@ -1290,8 +1290,8 @@ function getReadyClaim(fid, target){
 /** 宣战时结算所有宣称效果（信誉/外交/派系） */
 function applyWarDeclarationEffects(fid, target, claimType){
   const ct = claimType ? CLAIM_TYPES[claimType] : null;
-  const myType = FAC_IDENTITY[fid]?.type;
-  const targetType = FAC_IDENTITY[target]?.type;
+  const myType = getFactionIdentity(fid)?.type;
+  const targetType = getFactionIdentity(target)?.type;
   // emperor状态所有宣战走强宣称
   const strength = myType === 'emperor' ? 'strong' : (ct?.strength || 'none');
   const fx = CLAIM_EFFECTS[strength];
@@ -1395,12 +1395,13 @@ function checkEmperorCapture(cityId, oldFac, newFac){
   const oldHolder = G.emperor.holder;
   G.emperor.holder = newFac;
   // 旧持有者降级
-  if(FAC_IDENTITY[oldHolder]?.type === 'emperor_holder'){
-    FAC_IDENTITY[oldHolder].type = FAC_IDENTITY[oldHolder]._baseType || 'warlord';
+  const oldIdent = getFactionIdentity(oldHolder);
+  if(oldIdent?.type === 'emperor_holder'){
+    setFactionIdentity(oldHolder, 'type', oldIdent._baseType || 'warlord');
   }
   // 新持有者获得挟天子（emperor不受影响）
-  if(FAC_IDENTITY[newFac]?.type !== 'emperor'){
-    FAC_IDENTITY[newFac].type = 'emperor_holder';
+  if(getFactionIdentity(newFac)?.type !== 'emperor'){
+    setFactionIdentity(newFac, 'type', 'emperor_holder');
   }
   log(`👑 天子易主！${FAC[newFac]?.name}迎奉天子于${CITY_MAP[cityId]?.name||cityId}`, 'diplo');
 }
