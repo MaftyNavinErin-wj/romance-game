@@ -1,6 +1,6 @@
 ---
-name: Refactor phase status — scenario system 1a + 1b-1 完成 (首个动 src/ 阶段 byte-identical)
-description: 重构主体收官 + B sprint 7 链全 sweep + 战斗机制 5 fix. scenario system 1a 全完成 (主表+SCENARIO_214+generals 125+initialUnits 7) + 1b-1 完成 (materializeScenario + sync 6 顶层 const, smoke byte-identical 守底). 下次 session 起点: 阶段 1b-2 accessor functions (getFactionDef/getScenarioFactions/etc.) 或 1c hardcoded 214 cleanup.
+name: Refactor phase status — scenario system 1a + 1b-1 + 1b-2 完成 (accessor API ready for 1c)
+description: 重构主体收官 + B sprint 7 链全 sweep + 战斗机制 5 fix. scenario system 1a 全完成 + 1b-1 sync 6 顶层 const + 1b-2 10 accessor API (additive). 下次 session 起点: 阶段 1c hardcoded 214 cleanup (~321 matches grep+替换 module-by-module, 3-4 session).
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -9,18 +9,20 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 
 **main HEAD: `4308212` refactor(scenario-1b1-p2)**
 
-本 session 1b-1 工作 (continued from 1a.3):
+本 session 1b-1 + 1b-2 工作 (continued from 1a.3):
 - **826f4c5 refactor(scenario-1b1)**: materializeScenario + sync 6 顶层 const (mutable container)
-  - 新建 src/core/scenario_loader.js (~140 行): materializeScenario / syncObject / syncArray / applyScenario
-  - src/data/factions.js: literal const → empty container (~60→30 行)
-  - src/core/main.js initGame 顶部加 applyScenario(scenarioId || '214')
-  - project_romance_v181.html 加 5 script tags (general_base / city_base / faction_base / scenarios/214 / scenario_loader)
-  - smoke before vs after: byte-identical 除 generated_at timestamp (4 line diff 全 timestamp, 0 G state 漂移)
-- **4308212 codex trial 1 LGTM with P2 fix**: sprint_verify byte-identical 严格化 (key order + JSON deep-equal)
-- **codex trial 2 LGTM 0/0/0** (P3 FAC_IDENTITY main.js:139 hardcoded reset defer 1c)
+- **4308212 codex P2 fix**: sprint_verify byte-identical 严格化 (key order + JSON deep-equal)
+- **codex 1b-1 trial 2 LGTM 0/0/0**
+- **151cc6b refactor(scenario-1b2)**: 10 accessor (additive API)
+  - 新建 src/core/scenario_accessors.js (~75 行)
+  - getFactionDef / getScenarioFactions / getPlayableFactions / isPlayableFaction
+  - getFactionIdentity / setFactionIdentity (1d 后 backing 切 G.facIdentity)
+  - getEthos / getDiploInit
+  - getWildGenDef / getWildGenMeta (设计 doc §5.4; 1d 后 backing 切 G._wildGenDefs)
+- **codex 1b-2 trial 1 LGTM** with P2 (regression guard 弱 — codex 建议 1c replace) + P3 (getScenarioId 后续)
 
-**66/66 sprint_verify PASS** (旧 65 + 1 strict entry)
-**smoke byte-identical 守底 ✅** (首个动 src/ 阶段成功)
+**71/71 sprint_verify PASS**, smoke byte-identical 守底 ✅, verify_scenario_214 0 errors
+**1c migration scope** (codex estimated): ~321 matches across src/chains/ + src/core/ (FAC[/ALL_FACS/FAC_IDENTITY[/ETHOS_INIT[/DIPLO_INIT[/WILD_GENS/WILD_GEN_META). 大头集中 diplomacy.js / general.js / politics.js / tick.js / main.js
 
 本 session 1a.3 工作 (continued from 1a.2):
 - **7e71c32 refactor(scenario-1a.3)**: SCENARIO_214.generals 125 武将切片 + verify_scenario_214.js validator 工具
@@ -57,9 +59,10 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - ✅ 阶段 1a.1 主表 (GEN_BASE 133 / CITY_BASE 45 / FACTION_BASE 4)
 - ✅ 阶段 1a.2 SCENARIO_214 主体 (factions 4 + diplo 6 + cities 45 + emperor)
 - ✅ 阶段 1a.3 SCENARIO_214.generals (125 武将: active 101 / wild 6 / pending 18 含 pendingFac 8 + initialUnits 7-14 squads + verify_scenario_214.js validator)
-- ✅ **阶段 1b-1 materializeScenario + sync** (6 顶层 const sync byte-identical; scenario_loader.js 模块新建)
-- 🔄 **下次 session: 阶段 1b-2 accessor functions** (getFactionDef / getScenarioFactions / getPlayableFactions / getFactionIdentity / getEthos / getWildGenDef etc.)
-- ⏳ 阶段 1c/1d/1e/1f / 2-7 (路线见 docs/scenario_system.md §8)
+- ✅ 阶段 1b-1 materializeScenario + sync (6 顶层 const sync byte-identical; scenario_loader.js 模块新建)
+- ✅ **阶段 1b-2 scenario accessors** (10 accessor: getFactionDef/getScenarioFactions/getPlayableFactions/isPlayableFaction/getFactionIdentity/setFactionIdentity/getEthos/getDiploInit/getWildGenDef/getWildGenMeta; additive API)
+- 🔄 **下次 session: 阶段 1c hardcoded 214 cleanup** (grep+替换 FAC[fid] → getFactionDef(fid) 等 ~321 matches; module-by-module, 大头工作 3-4 session)
+- ⏳ 阶段 1d/1e/1f / 2-7 (路线见 docs/scenario_system.md §8)
 
 **11 阶段 + 工作量** (vs 历史 codex 估):
 | 阶段 | Sessions | 性质 |
