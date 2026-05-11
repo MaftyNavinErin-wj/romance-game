@@ -526,6 +526,34 @@ _drainPendingBattleAnimations().catch(e => console.error('[drainAnim] fatal:', e
 - user 不用 50 旬实机等 (memory 教训: 战斗机制 fix 必须 user 实机测, 但 D-camp-1 可 mock state 自动化)
 - regression 防御: 后续修改 _aiChooseDefensePosture 此 entry 立即 catch fix 失效
 
+### 战斗机制 sprint 批 2 close — §5.10 user 实测 PASS + §5.3 防御性 fix (2026-05-11)
+
+**§5.10 P2 真 bug user 实测 PASS** (commit 76f6f18 上 session 末实装, 本 session 头 user 确认):
+- Test A-E phantom 时序: 战前 → 碰撞 → 碰撞后战后, 跟 user 期望对齐
+- 方案 A robust (snap 扩 troops + makePhantom presetTroops) 验证生效
+
+**§5.3 P3 防御性 fix close** (本 session, 待 commit):
+- battle_anim.js:2287 `city.fac` → `report.defFac` (1 行 fix + 2 行 comment)
+- 跟 §5.1 D-anim-2 完全同模式 (同函数 L2028 已 fix, L2287 漏改)
+- sprint_verify D-anim-3 entry 加 (跟 D-anim-2 同模板, regex limit 800 char)
+- 顺便 fix D-anim-2 regex limit 400→800 (block 实际 492 字符)
+- smoke fix vs no-fix byte-identical (除 timestamp) — 跟 §5.7 同模式守底
+- codex review LGTM trial 1 (零 finding 零 concern)
+- 不 user 实机测: 跟 §5.7 同性质 (defensive at site, user 实测 "都是红字" 视觉差异极小)
+
+**战斗机制 sprint 批 1+2 累计成果**:
+- §5.1 P1 close (91680d5, virtualGarrison.fac 真 root cause)
+- §5.2 P2 close (60a1f97, _aiChooseDefensePosture camp boost)
+- §5.7 P3 close (1be7ff9, resolveBattle default fac)
+- §5.10 P2 close (76f6f18, phantom 旗帜 snap)
+- §5.3 P3 close (本 commit, virtualGarrison 飘字 isPlayer)
+- audit pass 2 S1-S6 完结: 系统性证明战斗机制 + 全 src/ 异步路径 robust by design
+
+**剩余战斗机制 sprint 候选** (P4+ 低优先级 / 设计层):
+- §5.7 P4 `_pendingBattleConfirms` 跨 confirm wipe (罕见场景)
+- §5.8 P6 `_pendingBattleAnimations` drain 防御 (架构层, §5.1/§5.3 单点 fix 已足)
+- §5.9 设计层 `_drainPendingBattleAnimations` await 模式 (需设计 approve, 破坏 v175 fire-and-forget)
+
 ---
 
-(sprint_followup v2.0 — 2026-05-11 user 实机反馈: §5.10 phantom 真 bug 锁定 + §5.3 视觉降级 + Test 2 D-camp-1-runtime 模拟上线)
+(sprint_followup v2.1 — 2026-05-11 战斗机制 sprint 批 2 close: §5.10 user 实测 PASS + §5.3 P3 防御性 fix)

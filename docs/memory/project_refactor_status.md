@@ -1,6 +1,6 @@
 ---
-name: Refactor phase status — B sprint 收官 + 战斗机制 sprint 批 1 (§5.1+§5.2 close)
-description: 重构主体收官 + B sprint 7 链全 sweep (22 D 类) + Layer-3 模板. 战斗机制 sprint 批 1 close 2 个 P1/P2: D-anim-2 (virtualGarrison.fac 真 root cause) + D-camp-1 (AI 扎营). 教训: race 静态推断错 2 次, F12 console log 实测才定位真 bug.
+name: Refactor phase status — B sprint 收官 + 战斗机制 sprint 批 1+2 (5 fix close)
+description: 重构主体收官 + B sprint 7 链全 sweep (22 D 类) + Layer-3 模板. 战斗机制 sprint 批 1+2 close 5 fix: §5.1 P1 (D-anim-2 virtualGarrison.fac) + §5.2 P2 (D-camp-1 AI 扎营) + §5.7 P3 (resolveBattle default fac) + §5.10 P2 (phantom snap, user 实测 PASS) + §5.3 P3 (virtualGarrison 飘字 isPlayer). audit pass 2 S1-S6 完结: 战斗机制 + 全 src/ 异步路径系统性证明 robust by design.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---

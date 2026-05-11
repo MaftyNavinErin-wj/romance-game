@@ -1,7 +1,36 @@
 ---
-name: 战斗机制 systematic bug fix sprint — 批 1 close + 2026-05-11 audit pass 2 S1
-description: 批 1 close §5.1 + §5.2 (2026-05-11). 同日 audit pass 2 S1 扫 city.fac + 武将状态 stale state 模式: 1 真 bug 候选 §5.3 (battle_anim L2278 isPlayer 同 §5.1 模式漏改) + §5.4 verified-with-notes 集合. S2 候选: city.prefect/garrison/billetPool 同模式
+name: 战斗机制 systematic bug fix sprint — 批 1+2 close + audit pass 2 S1-S6
+description: 批 1 close §5.1+§5.2+§5.7+§5.10 (2026-05-11). 批 2 close §5.3 P3 防御性 fix (2026-05-11, codex LGTM, virtualGarrison 飘字 isPlayer 用 report.defFac). §5.10 user 实测 PASS 确认 phantom 时序正确. audit pass 2 S1-S6 完结: 战斗机制 + 全 src/ 异步路径系统性证明 robust by design. 剩余 P4+ (§5.7 P4 / §5.8 P6 / §5.9 设计层) 低优先级
 type: project
+---
+
+## 2026-05-11 批 2 §5.3 P3 防御性 fix close (commit pending)
+
+**§5.10 user 实测 PASS** (本 session 头确认):
+- Test A-E phantom 时序: 战前 → 碰撞 → 碰撞后战后, 跟 user 期望对齐
+- commit 76f6f18 方案 A robust 实装生效
+
+**§5.3 P3 防御性 fix** (battle_anim.js:2287):
+- 1 行 fix: `(city.fac === G.playerFac)` → `(report.defFac === G.playerFac)`
+- 跟 §5.1 D-anim-2 同函数同模式 (L2028 已 fix, L2287 漏改) — 同函数 sprint 1 site 修法时应 grep 同函数全字段, audit pass 2 S1 catch
+- sprint_verify D-anim-3 entry 加 (跟 D-anim-2 同模板, regex limit 800 char)
+- 顺便修 D-anim-2 entry regex limit 400→800 (block 实际 492 字符, 之前漏算)
+- smoke fix vs no-fix byte-identical (除 timestamp), 27/27 sprint_verify PASS
+- codex review trial 1 LGTM (零 finding 零 concern: "consistently uses the pre-resolution defender faction for virtual garrison loss text")
+- 不 user 实机测: 跟 §5.7 同性质 — defensive at site, user 实测"都是红字"视觉差异极小 (米填红描 vs 红填米描都偏红)
+
+**批 1+2 累计 5 fix close**:
+- §5.1 P1 (91680d5) — virtualGarrison.fac 真 root cause
+- §5.2 P2 (60a1f97) — _aiChooseDefensePosture camp boost
+- §5.7 P3 (1be7ff9) — resolveBattle 默认 atkFac/defFac
+- §5.10 P2 (76f6f18) — phantom 旗帜战前 troops snap
+- §5.3 P3 (本 commit) — virtualGarrison 飘字 isPlayer
+
+**剩余 sprint 候选** (P4+ 优先级):
+- §5.7 P4 `_pendingBattleConfirms` 跨 confirm wipe (罕见)
+- §5.8 P6 `_pendingBattleAnimations` drain 防御 (架构层, §5.1/§5.3 单点已足)
+- §5.9 设计层 `_drainPendingBattleAnimations` await 模式 (设计 approve)
+
 ---
 
 ## 2026-05-11 audit pass 2 S1 (2 字段: city.fac + 武将状态)
