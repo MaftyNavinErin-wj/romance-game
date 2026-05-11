@@ -13,6 +13,7 @@
 //                              active:  fac/city/role/post/title/loyalty/merit/retainer/initialUnit/relations/skillsOverride
 //                              wild:    fac:'wild', wildData{title/post/loyalty/merit/retainer/relations/skillsOverride}
 //                              pending: availableYear + wildData + 可选 pendingFac (GENS_FULL minTurn>1)
+//   initialUnits[]           — 起手野战 squad spec: {fac, city, squads:[{genName,type,troops,maxTroops,morale}]}
 //
 // 来源:阶段 1a.2 由 tools/extract_scenario_214.js 自动抽取
 //   - factions: FAC[fid].ruler + PLAYABLE_FACS + FAC_IDENTITY + ETHOS_INIT
@@ -564,6 +565,31 @@ const SCENARIO_214 = {
           "target": "郭嘉",
           "type": "谋主",
           "intimacy": 85
+        },
+        {
+          "target": "许褚",
+          "type": null,
+          "intimacy": 80
+        },
+        {
+          "target": "贾诩",
+          "type": null,
+          "intimacy": 45
+        },
+        {
+          "target": "张辽",
+          "type": null,
+          "intimacy": 65
+        },
+        {
+          "target": "司马懿",
+          "type": null,
+          "intimacy": 40
+        },
+        {
+          "target": "曹洪",
+          "type": null,
+          "intimacy": 80
         }
       ],
       "skillsOverride": null
@@ -606,6 +632,11 @@ const SCENARIO_214 = {
           "target": "乐进",
           "type": "同僚",
           "intimacy": 55
+        },
+        {
+          "target": "于禁",
+          "type": null,
+          "intimacy": 50
         }
       ],
       "skillsOverride": null
@@ -680,6 +711,11 @@ const SCENARIO_214 = {
           "target": "曹仁",
           "type": "宗族",
           "intimacy": 65
+        },
+        {
+          "target": "曹洪",
+          "type": null,
+          "intimacy": 65
         }
       ],
       "skillsOverride": null
@@ -717,6 +753,11 @@ const SCENARIO_214 = {
           "target": "曹操",
           "type": "主公",
           "intimacy": 70
+        },
+        {
+          "target": "钟繇",
+          "type": null,
+          "intimacy": 60
         }
       ],
       "skillsOverride": null
@@ -882,6 +923,11 @@ const SCENARIO_214 = {
           "target": "司马懿",
           "type": "同僚",
           "intimacy": 50
+        },
+        {
+          "target": "郭淮",
+          "type": null,
+          "intimacy": 60
         }
       ],
       "skillsOverride": null
@@ -973,11 +1019,6 @@ const SCENARIO_214 = {
           "target": "曹操",
           "type": "主公护卫",
           "intimacy": 80
-        },
-        {
-          "target": "典韦",
-          "type": "义友",
-          "intimacy": 50
         }
       ],
       "skillsOverride": null
@@ -1009,6 +1050,11 @@ const SCENARIO_214 = {
         {
           "target": "郭嘉",
           "type": "同乡",
+          "intimacy": 55
+        },
+        {
+          "target": "钟繇",
+          "type": null,
           "intimacy": 55
         }
       ],
@@ -1133,6 +1179,16 @@ const SCENARIO_214 = {
           "target": "曹操",
           "type": "主公",
           "intimacy": 50
+        },
+        {
+          "target": "荀攸",
+          "type": null,
+          "intimacy": 55
+        },
+        {
+          "target": "王朗",
+          "type": null,
+          "intimacy": 50
         }
       ],
       "skillsOverride": null
@@ -1159,6 +1215,11 @@ const SCENARIO_214 = {
         {
           "target": "曹操",
           "type": "主公",
+          "intimacy": 50
+        },
+        {
+          "target": "钟繇",
+          "type": null,
           "intimacy": 50
         }
       ],
@@ -1640,6 +1701,11 @@ const SCENARIO_214 = {
           "target": "庞统",
           "type": "同窗",
           "intimacy": 50
+        },
+        {
+          "target": "刘备",
+          "type": null,
+          "intimacy": 70
         }
       ],
       "skillsOverride": null
@@ -1990,6 +2056,36 @@ const SCENARIO_214 = {
           "target": "赵云",
           "type": "义臣",
           "intimacy": 80
+        },
+        {
+          "target": "庞统",
+          "type": null,
+          "intimacy": 60
+        },
+        {
+          "target": "法正",
+          "type": null,
+          "intimacy": 65
+        },
+        {
+          "target": "黄忠",
+          "type": null,
+          "intimacy": 55
+        },
+        {
+          "target": "马超",
+          "type": null,
+          "intimacy": 45
+        },
+        {
+          "target": "徐庶",
+          "type": null,
+          "intimacy": 70
+        },
+        {
+          "target": "吴懿",
+          "type": null,
+          "intimacy": 60
         }
       ],
       "skillsOverride": null
@@ -2032,6 +2128,21 @@ const SCENARIO_214 = {
           "target": "徐晃",
           "type": "义友",
           "intimacy": 55
+        },
+        {
+          "target": "诸葛亮",
+          "type": null,
+          "intimacy": 55
+        },
+        {
+          "target": "黄忠",
+          "type": null,
+          "intimacy": -15
+        },
+        {
+          "target": "庞德",
+          "type": null,
+          "intimacy": -55
         }
       ],
       "skillsOverride": null
@@ -2111,6 +2222,56 @@ const SCENARIO_214 = {
           "target": "姜维",
           "type": "弟子",
           "intimacy": 75
+        },
+        {
+          "target": "关羽",
+          "type": null,
+          "intimacy": 55
+        },
+        {
+          "target": "张飞",
+          "type": null,
+          "intimacy": 50
+        },
+        {
+          "target": "马谡",
+          "type": null,
+          "intimacy": 65
+        },
+        {
+          "target": "蒋琬",
+          "type": null,
+          "intimacy": 70
+        },
+        {
+          "target": "费祎",
+          "type": null,
+          "intimacy": 65
+        },
+        {
+          "target": "魏延",
+          "type": null,
+          "intimacy": -30
+        },
+        {
+          "target": "徐庶",
+          "type": null,
+          "intimacy": 75
+        },
+        {
+          "target": "周瑜",
+          "type": null,
+          "intimacy": -40
+        },
+        {
+          "target": "董允",
+          "type": null,
+          "intimacy": 70
+        },
+        {
+          "target": "马忠",
+          "type": null,
+          "intimacy": 65
         }
       ],
       "skillsOverride": null
@@ -2308,6 +2469,11 @@ const SCENARIO_214 = {
           "target": "诸葛亮",
           "type": "同僚",
           "intimacy": 50
+        },
+        {
+          "target": "张松",
+          "type": null,
+          "intimacy": 65
         }
       ],
       "skillsOverride": null
@@ -2404,6 +2570,11 @@ const SCENARIO_214 = {
           "target": "费祎",
           "type": "同僚",
           "intimacy": 65
+        },
+        {
+          "target": "蒋琬",
+          "type": null,
+          "intimacy": 60
         }
       ],
       "skillsOverride": null
@@ -3008,9 +3179,39 @@ const SCENARIO_214 = {
           "intimacy": 80
         },
         {
-          "target": "孙策",
-          "type": "兄长",
-          "intimacy": 90
+          "target": "鲁肃",
+          "type": null,
+          "intimacy": 80
+        },
+        {
+          "target": "吕蒙",
+          "type": null,
+          "intimacy": 75
+        },
+        {
+          "target": "黄盖",
+          "type": null,
+          "intimacy": 70
+        },
+        {
+          "target": "程普",
+          "type": null,
+          "intimacy": 65
+        },
+        {
+          "target": "甘宁",
+          "type": null,
+          "intimacy": 60
+        },
+        {
+          "target": "张昭",
+          "type": null,
+          "intimacy": 65
+        },
+        {
+          "target": "诸葛瑾",
+          "type": null,
+          "intimacy": 80
         }
       ],
       "skillsOverride": null
@@ -3038,11 +3239,6 @@ const SCENARIO_214 = {
           "target": "孙权",
           "type": "主公",
           "intimacy": 85
-        },
-        {
-          "target": "孙策",
-          "type": "义兄弟",
-          "intimacy": 90
         },
         {
           "target": "鲁肃",
@@ -3196,6 +3392,11 @@ const SCENARIO_214 = {
           "target": "周瑜",
           "type": "前辈",
           "intimacy": 50
+        },
+        {
+          "target": "诸葛瑾",
+          "type": null,
+          "intimacy": 65
         }
       ],
       "skillsOverride": null
@@ -3225,14 +3426,14 @@ const SCENARIO_214 = {
           "intimacy": 70
         },
         {
-          "target": "孙策",
-          "type": "旧主",
-          "intimacy": 50
-        },
-        {
           "target": "周瑜",
           "type": "同僚",
           "intimacy": 50
+        },
+        {
+          "target": "韩当",
+          "type": null,
+          "intimacy": 65
         }
       ],
       "skillsOverride": null
@@ -3265,6 +3466,11 @@ const SCENARIO_214 = {
           "target": "甘宁",
           "type": "仇敌",
           "intimacy": -60
+        },
+        {
+          "target": "潘璋",
+          "type": null,
+          "intimacy": -40
         }
       ],
       "skillsOverride": null
@@ -3321,11 +3527,6 @@ const SCENARIO_214 = {
       "initialUnit": true,
       "relations": [
         {
-          "target": "孙策",
-          "type": "旧主",
-          "intimacy": 50
-        },
-        {
           "target": "孙权",
           "type": "主公",
           "intimacy": 65
@@ -3334,6 +3535,11 @@ const SCENARIO_214 = {
           "target": "周瑜",
           "type": "同僚",
           "intimacy": 50
+        },
+        {
+          "target": "韩当",
+          "type": null,
+          "intimacy": 70
         }
       ],
       "skillsOverride": null
@@ -3393,11 +3599,6 @@ const SCENARIO_214 = {
           "target": "孙权",
           "type": "元老",
           "intimacy": 65
-        },
-        {
-          "target": "孙策",
-          "type": "旧主",
-          "intimacy": 75
         }
       ],
       "skillsOverride": null
@@ -3430,6 +3631,11 @@ const SCENARIO_214 = {
           "target": "诸葛亮",
           "type": "兄弟",
           "intimacy": 50
+        },
+        {
+          "target": "陆逊",
+          "type": null,
+          "intimacy": 65
         }
       ],
       "skillsOverride": null
@@ -3462,6 +3668,11 @@ const SCENARIO_214 = {
           "target": "程普",
           "type": "旧友",
           "intimacy": 70
+        },
+        {
+          "target": "黄盖",
+          "type": null,
+          "intimacy": 65
         }
       ],
       "skillsOverride": null
@@ -3641,11 +3852,6 @@ const SCENARIO_214 = {
           "intimacy": 50
         },
         {
-          "target": "孙策",
-          "type": "旧主",
-          "intimacy": 50
-        },
-        {
           "target": "蒋钦",
           "type": "同僚",
           "intimacy": 50
@@ -3741,11 +3947,6 @@ const SCENARIO_214 = {
       },
       "initialUnit": false,
       "relations": [
-        {
-          "target": "孙策",
-          "type": "旧主",
-          "intimacy": 50
-        },
         {
           "target": "孙权",
           "type": "主公",
@@ -4290,6 +4491,11 @@ const SCENARIO_214 = {
             "target": "费祎",
             "type": "同僚",
             "intimacy": 70
+          },
+          {
+            "target": "董允",
+            "type": null,
+            "intimacy": 60
           }
         ],
         "skillsOverride": null
@@ -4321,6 +4527,11 @@ const SCENARIO_214 = {
           {
             "target": "诸葛亮",
             "type": "恩主",
+            "intimacy": 65
+          },
+          {
+            "target": "董允",
+            "type": null,
             "intimacy": 65
           }
         ],
@@ -4422,5 +4633,147 @@ const SCENARIO_214 = {
         "skillsOverride": null
       }
     }
-  }
+  },
+  "initialUnits": [
+    {
+      "fac": "wei",
+      "city": "xuchang",
+      "squads": [
+        {
+          "genName": "曹操",
+          "type": "cavalry",
+          "troops": 3000,
+          "maxTroops": 3000,
+          "morale": 88
+        },
+        {
+          "genName": "许褚",
+          "type": "heavy",
+          "troops": 2500,
+          "maxTroops": 2500,
+          "morale": 85
+        }
+      ]
+    },
+    {
+      "fac": "wei",
+      "city": "nanyang",
+      "squads": [
+        {
+          "genName": "曹仁",
+          "type": "heavy",
+          "troops": 3500,
+          "maxTroops": 3500,
+          "morale": 85
+        },
+        {
+          "genName": "满宠",
+          "type": "archer",
+          "troops": 2000,
+          "maxTroops": 2000,
+          "morale": 80
+        }
+      ]
+    },
+    {
+      "fac": "wei",
+      "city": "xiapi",
+      "squads": [
+        {
+          "genName": "张辽",
+          "type": "cavalry",
+          "troops": 3500,
+          "maxTroops": 3500,
+          "morale": 88
+        },
+        {
+          "genName": "乐进",
+          "type": "light",
+          "troops": 2500,
+          "maxTroops": 2500,
+          "morale": 82
+        }
+      ]
+    },
+    {
+      "fac": "shu",
+      "city": "chengdu",
+      "squads": [
+        {
+          "genName": "赵云",
+          "type": "cavalry",
+          "troops": 3000,
+          "maxTroops": 3000,
+          "morale": 88
+        },
+        {
+          "genName": "张翼",
+          "type": "light",
+          "troops": 2000,
+          "maxTroops": 2000,
+          "morale": 78
+        }
+      ]
+    },
+    {
+      "fac": "shu",
+      "city": "xiangyang",
+      "squads": [
+        {
+          "genName": "关羽",
+          "type": "light",
+          "troops": 3500,
+          "maxTroops": 3500,
+          "morale": 90
+        },
+        {
+          "genName": "廖化",
+          "type": "cavalry",
+          "troops": 2000,
+          "maxTroops": 2000,
+          "morale": 80
+        }
+      ]
+    },
+    {
+      "fac": "wu",
+      "city": "jianye",
+      "squads": [
+        {
+          "genName": "吕蒙",
+          "type": "light",
+          "troops": 3500,
+          "maxTroops": 3500,
+          "morale": 88
+        },
+        {
+          "genName": "程普",
+          "type": "heavy",
+          "troops": 2500,
+          "maxTroops": 2500,
+          "morale": 80
+        }
+      ]
+    },
+    {
+      "fac": "wu",
+      "city": "hefei",
+      "squads": [
+        {
+          "genName": "甘宁",
+          "type": "cavalry",
+          "troops": 3500,
+          "maxTroops": 3500,
+          "morale": 85
+        },
+        {
+          "genName": "凌统",
+          "type": "light",
+          "troops": 2500,
+          "maxTroops": 2500,
+          "morale": 82
+        }
+      ]
+    }
+  ]
 };

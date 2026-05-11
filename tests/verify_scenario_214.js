@@ -18,7 +18,7 @@
 //   - C.3 wild 必须 fac:'wild' + wildData
 //   - C.4 pending 必须 availableYear + wildData
 //   - C.5 active.initialUnit=true 时 retainer.count>0  (relax: 不当硬 fail, 仅警告; v181 部分 active 在 initUnit 但 RETAINER_PRESET 漏)
-//   - E.1 relations target 必须 in scenario.generals
+//   - E.1 relations target 必须 in scenario.generals (codex trial 1 P2: warning → error)
 //   - E.4 intimacy -100..100 (设计 doc drift 已修)
 //   - E.5 target != self
 //   - E.6 no dup edge per source general
@@ -30,6 +30,7 @@
 //   - J.2 pending availableYear > startYear (number, sane range)
 //   - J.3 wild/pending wildData 含 {title,post,loyalty,merit,retainer,relations}
 //   - L.2 pending availableYear > startYear (跟 J.2 重叠 但语义不同)
+//   - 1a.3 扩展 (codex trial 1 P1.2): scenario.initialUnits[] schema 完整 (fac/city/squads/{genName,type,troops,maxTroops,morale})
 //
 // 不覆盖 (留 1e validators sprint):
 //   - A.* unknown id family
@@ -137,7 +138,7 @@ function validate(S, ctx) {
       }
     }
 
-    // E.1 / E.4 / E.5 / E.6 — relations
+    // E.1 / E.4 / E.5 / E.6 — relations (codex trial 1 P2: E.1 升 error)
     const relsList = (g.status === 'active')
       ? (g.relations || [])
       : ((g.wildData && g.wildData.relations) || []);
@@ -145,9 +146,9 @@ function validate(S, ctx) {
     for (const r of relsList) {
       // E.5 self
       if (r.target === name) errors.push(`E.5 ${name} self-relation`);
-      // E.1 target ∈ scenario.generals
+      // E.1 target ∈ scenario.generals (now error per design doc 必须)
       if (!genNames.has(r.target))
-        warnings.push(`E.1 ${name}.relations[${r.target}] not in scenario.generals (target 未列, 例: GEN_POOL_INACTIVE / 未收录)`);
+        errors.push(`E.1 ${name}.relations[${r.target}] not in scenario.generals`);
       // E.4 intimacy
       if (typeof r.intimacy !== 'number' || r.intimacy < -100 || r.intimacy > 100)
         errors.push(`E.4 ${name}.relations[${r.target}].intimacy=${r.intimacy} out of [-100,100]`);
@@ -160,6 +161,47 @@ function validate(S, ctx) {
   for (const fid of facIds) {
     const n = rulerCountByFac[fid] || 0;
     if (n !== 1) errors.push(`I.5 faction[${fid}] has ${n} rulers (expected exactly 1)`);
+  }
+
+  // ── 1a.3 扩展 (codex trial 1 P1.2): scenario.initialUnits schema ──
+  const iu = S.initialUnits;
+  if (!Array.isArray(iu)) {
+    errors.push(`initialUnits not array (got ${typeof iu})`);
+  } else {
+    const VALID_TYPES = new Set(['cavalry','light','heavy','archer','siege','naval']);
+    iu.forEach((u, ui) => {
+      if (!u.fac || !facIds.has(u.fac)) errors.push(`initialUnits[${ui}].fac '${u.fac}' invalid`);
+      if (!u.city || !cityIds.has(u.city)) errors.push(`initialUnits[${ui}].city '${u.city}' invalid`);
+      // city.fac must match unit.fac
+      if (u.city && S.cities[u.city] && S.cities[u.city].fac !== u.fac)
+        errors.push(`initialUnits[${ui}] fac=${u.fac} city.fac=${S.cities[u.city].fac} mismatch`);
+      if (!Array.isArray(u.squads) || u.squads.length === 0) {
+        errors.push(`initialUnits[${ui}].squads not non-empty array`);
+        return;
+      }
+      u.squads.forEach((s, si) => {
+        const tag = `initialUnits[${ui}].squads[${si}]`;
+        if (!s.genName || !genNames.has(s.genName)) errors.push(`${tag}.genName '${s.genName}' not in scenario.generals`);
+        if (s.genName) {
+          const g = S.generals[s.genName];
+          if (g && g.status !== 'active') errors.push(`${tag}.genName '${s.genName}' status=${g.status} (must be active)`);
+          if (g && g.fac !== u.fac) errors.push(`${tag}.genName '${s.genName}' fac=${g.fac} (must be ${u.fac})`);
+          if (g && g.city !== u.city) errors.push(`${tag}.genName '${s.genName}' city=${g.city} (must be ${u.city})`);
+          if (g && !g.initialUnit) errors.push(`${tag}.genName '${s.genName}' initialUnit=false (must be true)`);
+        }
+        if (!VALID_TYPES.has(s.type)) errors.push(`${tag}.type='${s.type}' invalid (must be cavalry/light/heavy/archer/siege/naval)`);
+        if (typeof s.troops !== 'number' || s.troops <= 0) errors.push(`${tag}.troops=${s.troops} invalid`);
+        if (typeof s.maxTroops !== 'number' || s.maxTroops <= 0) errors.push(`${tag}.maxTroops=${s.maxTroops} invalid`);
+        if (typeof s.morale !== 'number' || s.morale < 0 || s.morale > 100) errors.push(`${tag}.morale=${s.morale} out of [0,100]`);
+      });
+    });
+    // every active.initialUnit=true 必须出现在 initialUnits 的某 squad
+    const inUnit = new Set();
+    iu.forEach(u => u.squads.forEach(s => inUnit.add(s.genName)));
+    for (const [name, g] of Object.entries(S.generals)) {
+      if (g.status === 'active' && g.initialUnit && !inUnit.has(name))
+        errors.push(`active ${name} initialUnit=true but not found in initialUnits[].squads (mismatch)`);
+    }
   }
 
   return { errors, warnings };

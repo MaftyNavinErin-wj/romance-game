@@ -224,20 +224,41 @@ const SCENARIO_214 = {
     },
     // unavailable 武将(未出生 / 已死):不列
     // 司马昭(211 生): 214 时 3 岁,可 status:'pending' availableYear:230(史实)
+    // 1a.3 扩展: GENS_FULL 内 minTurn>1 武将(v181 _pendingFac 语义),用 pendingFac 字段
+    //   - status='pending' + pendingFac='wei' → 出山时直接 ACTIVE in wei.generals
+    //   - 区别于 标准 pending (无 pendingFac, 出山时入 wildPool)
     司马昭: {
-      status:'pending', availableYear:230,
-      wildData: { title:'晋公',post:{...},loyalty:65, ... },
+      status:'pending',
+      pendingFac:'wei',   // 1a.3 扩展: GENS_FULL.wei minTurn>1 → 出山直接进 wei
+      availableYear:218,  // minTurn 153 → 214 + floor(152/36) = 218 (从史实 230 改自动派生)
+      wildData: { title:'路人皆知', post:{name:'大将军',rank:'文官'}, loyalty:88, merit:10, retainer:{count:0,type:null}, relations:[], skillsOverride:null },
     },
     // 张角(184 已死): 不列,validator 会 catch 列了的错
   },
 
   // ── 起手亲密度对(P1.1 codex INTIMACY_PRESET)──
-  // 隐式:已通过 relations.intimacy 表达(每 relation 含 intimacy 字段)
-  // 显式:无需单独 intimacyPairs 数组(避免双书写)
+  // 设计意图 (§6.3): INTIMACY_PRESET 全收编 to relations.intimacy
+  // 1a.3 实现 (codex trial 1 P1.1):
+  //   每个 INTIMACY_PRESET pair (a,b,v) 双方 ∈ scenario.generals → 双向 mirror:
+  //     - a.relations 含 {target:b, type:<GEN_META 或 null>, intimacy:v}
+  //     - b.relations 含 {target:a, type:<GEN_META 或 null>, intimacy:v}
+  //   GEN_META 提供 type → 一向 typed entry; INTIMACY_PRESET orphan → type=null entry
+  // 显式 intimacyPairs 数组: 不存在 (设计意图: 无双书写)
 
   // ── 在野池显式列表(P1.3 codex pendingGenPool wildData 全)──
   // 隐式:由 generals.{status='wild' or 'pending'} 派生,不重复
 };
+
+// 1a.3 扩展 (codex trial 1 P1.2): 起手野战 squad 完整 spec
+// retainer (亲卫部曲) ≠ initialUnit (起手 squad), 两套独立数据.
+// 1b materializeScenario 读 scenario.initialUnits 重建 G.units byte-identical.
+const SCENARIO_214_initialUnits_example = [
+  { fac:'wei', city:'xuchang', squads:[
+    { genName:'曹操', type:'cavalry', troops:3000, maxTroops:3000, morale:88 },
+    { genName:'许褚', type:'heavy',   troops:2500, maxTroops:2500, morale:85 },
+  ]},
+  // ... 7 units / 14 squads 全列
+];
 ```
 
 **字段说明**(v3.0 完整覆盖 codex P1.1):
@@ -258,6 +279,7 @@ const SCENARIO_214 = {
 | `skillsOverride` | active(wild/pending 用 wildData.skillsOverride) | 新(GEN_BASE.skills override) |
 | `availableYear` | pending | 旧 WILD_GENS.minTurn |
 | `wildData` | wild/pending | 旧 WILD_GEN_META |
+| `pendingFac` | pending (optional, 1a.3 扩展) | 旧 GENS_FULL minTurn>1 + _pendingFac 语义 |
 
 ### 3.5 status enum 详
 

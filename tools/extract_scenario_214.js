@@ -405,18 +405,41 @@ const ${varName} = ${json};
   //   - relations 一向 + 漏 INTIMACY_PRESET orphan pair (设计 doc §3.4 不允 separate intimacyPairs 字段)
   //   - pending 加 pendingFac 扩展 (preserve v181 _pendingFac 语义: 出山 → ACTIVE in pre-assigned fac, 非 wildPool)
 
-  // initUnits city map: name → city (复用 v181 initUnits literal,跟 main.js L186-227 一致)
-  const initUnits = [
-    { fac:'wei', city:'xuchang',  members:['曹操','许褚'] },
-    { fac:'wei', city:'nanyang',  members:['曹仁','满宠'] },
-    { fac:'wei', city:'xiapi',    members:['张辽','乐进'] },
-    { fac:'shu', city:'chengdu',  members:['赵云','张翼'] },
-    { fac:'shu', city:'xiangyang',members:['关羽','廖化'] },
-    { fac:'wu',  city:'jianye',   members:['吕蒙','程普'] },
-    { fac:'wu',  city:'hefei',    members:['甘宁','凌统'] },
+  // initUnits city map: name → city (DRY: 取自下方 sInitialUnits, 见 §SCENARIO_214 assembly)
+  // v181 main.js L186-227 initUnits literal mirror — extract 时硬编码,避免读 main.js
+  // ── 单一定义:NAME_TO_INIT_CITY 派生自 INIT_UNITS_LITERAL,sInitialUnits 也用此 literal ──
+  const INIT_UNITS_LITERAL = [
+    { fac:'wei', city:'xuchang',  squads:[
+      { genName:'曹操',  type:'cavalry', troops:3000, maxTroops:3000, morale:88 },
+      { genName:'许褚',  type:'heavy',   troops:2500, maxTroops:2500, morale:85 },
+    ]},
+    { fac:'wei', city:'nanyang',  squads:[
+      { genName:'曹仁',  type:'heavy',   troops:3500, maxTroops:3500, morale:85 },
+      { genName:'满宠',  type:'archer',  troops:2000, maxTroops:2000, morale:80 },
+    ]},
+    { fac:'wei', city:'xiapi',    squads:[
+      { genName:'张辽',  type:'cavalry', troops:3500, maxTroops:3500, morale:88 },
+      { genName:'乐进',  type:'light',   troops:2500, maxTroops:2500, morale:82 },
+    ]},
+    { fac:'shu', city:'chengdu',  squads:[
+      { genName:'赵云',  type:'cavalry', troops:3000, maxTroops:3000, morale:88 },
+      { genName:'张翼',  type:'light',   troops:2000, maxTroops:2000, morale:78 },
+    ]},
+    { fac:'shu', city:'xiangyang',squads:[
+      { genName:'关羽',  type:'light',   troops:3500, maxTroops:3500, morale:90 },
+      { genName:'廖化',  type:'cavalry', troops:2000, maxTroops:2000, morale:80 },
+    ]},
+    { fac:'wu',  city:'jianye',   squads:[
+      { genName:'吕蒙',  type:'light',   troops:3500, maxTroops:3500, morale:88 },
+      { genName:'程普',  type:'heavy',   troops:2500, maxTroops:2500, morale:80 },
+    ]},
+    { fac:'wu',  city:'hefei',    squads:[
+      { genName:'甘宁',  type:'cavalry', troops:3500, maxTroops:3500, morale:85 },
+      { genName:'凌统',  type:'light',   troops:2500, maxTroops:2500, morale:82 },
+    ]},
   ];
   const NAME_TO_INIT_CITY = {};
-  initUnits.forEach(u => u.members.forEach(n => { NAME_TO_INIT_CITY[n] = u.city; }));
+  INIT_UNITS_LITERAL.forEach(u => u.squads.forEach(s => { NAME_TO_INIT_CITY[s.genName] = u.city; }));
 
   // capital fallback per fac (nanman 无 capital → jianning 唯一 nanman city)
   const FAC_CAPITAL = {};
@@ -433,15 +456,74 @@ const ${varName} = ${json};
     return 50;  // 默认中性 (1a.3 pragmatic)
   }
 
-  // build relations list 一向 (per design doc §3.4 line 168-171, drop icon)
-  function buildRelations(name) {
-    const meta = data.GEN_META[name] || data.WILD_GEN_META[name] || {};
-    const rels = meta.relations || [];
-    return rels.map(r => ({
-      target:   r.name,
-      type:     r.type,
-      intimacy: lookupIntimacy(name, r.name),
-    }));
+  // build relations list (per design doc §3.4 line 168-171, drop icon)
+  // codex trial 1 P1.1 fix: 全收编 INTIMACY_PRESET (orphan pair 不丢)
+  //
+  // 策略:
+  //   Phase 1: GEN_META/WILD_GEN_META.relations 一向 emit (type 来自 meta)
+  //   Phase 2: INTIMACY_PRESET 双向 mirror, orphan pair 补 type=null entry
+  //   Phase 3: 任何 target ∉ {GENS_FULL ∪ WILD_GENS} (即 不在 scenario.generals) 的 entry 跳过
+  //            (设计 doc §9 E.1: relations target 必须 in scenario.generals — 否则 E.1 error)
+  // 结果: 每个 INTIMACY_PRESET pair (a,b,v) 若 a,b 都 ∈ scenario.generals → a 和 b 的 relations 都含 对方 with intimacy=v
+  //
+  // build 在 sGenerals 全部 status 决定后调用,需要 sceneNames 作 filter set.
+  // 为简单起见: buildRelationsAll(sceneNames) 返回 {name → relations[]} map.
+  function buildRelationsAll(sceneNames) {
+    const all = {};
+    const sceneSet = sceneNames instanceof Set ? sceneNames : new Set(sceneNames);
+
+    // helper: get existing relations bucket or init
+    const ensure = (name) => (all[name] = all[name] || []);
+    // helper: find edge by target
+    const findEdge = (arr, target) => arr.find(e => e.target === target);
+
+    // Phase 1: forward edges from GEN_META.relations (typed)
+    // GEN_META keyed by all generals;遍历所有
+    // 收集 union names 兼有 GEN_META + WILD_GEN_META
+    const allMetaNames = new Set([
+      ...Object.keys(data.GEN_META),
+      ...Object.keys(data.WILD_GEN_META),
+    ]);
+    for (const name of allMetaNames) {
+      if (!sceneSet.has(name)) continue;  // 本人不在 scenario → skip
+      const meta = data.GEN_META[name] || data.WILD_GEN_META[name] || {};
+      const rels = meta.relations || [];
+      const bucket = ensure(name);
+      for (const r of rels) {
+        if (!sceneSet.has(r.name)) continue;  // E.1: target 必须 ∈ scenario.generals
+        const exists = findEdge(bucket, r.name);
+        if (exists) continue;  // dedup
+        bucket.push({
+          target:   r.name,
+          type:     r.type,
+          intimacy: lookupIntimacy(name, r.name),
+        });
+      }
+    }
+
+    // Phase 2: INTIMACY_PRESET 双向 mirror (orphan pair 补 type=null edge)
+    // 任何 pair (a,b,v) 若 a 或 b 不在 sceneSet → skip 整 pair
+    for (const [a, b, v] of data.INTIMACY_PRESET) {
+      if (!sceneSet.has(a) || !sceneSet.has(b)) continue;
+      // a → b
+      const bucketA = ensure(a);
+      const edgeAB = findEdge(bucketA, b);
+      if (edgeAB) {
+        edgeAB.intimacy = v;  // overwrite with preset (即使已通过 forward edge 取过 lookup,确保 preset 值 authoritative)
+      } else {
+        bucketA.push({ target: b, type: null, intimacy: v });
+      }
+      // b → a
+      const bucketB = ensure(b);
+      const edgeBA = findEdge(bucketB, a);
+      if (edgeBA) {
+        edgeBA.intimacy = v;
+      } else {
+        bucketB.push({ target: a, type: null, intimacy: v });
+      }
+    }
+
+    return all;
   }
 
   // retainer fallback
@@ -452,6 +534,7 @@ const ${varName} = ${json};
   }
 
   // wildData bundle for wild/pending (跟 design doc §3.4 line 192-207)
+  // 注: relations 字段在 Phase 2 (buildRelationsAll) 计算后回填
   function buildWildData(name) {
     const meta = data.WILD_GEN_META[name] || data.GEN_META[name] || {};
     return {
@@ -460,12 +543,14 @@ const ${varName} = ${json};
       loyalty:  meta.loyalty != null ? meta.loyalty : 75,
       merit:    data.MERIT_INIT[name] != null ? data.MERIT_INIT[name] : 10,
       retainer: buildRetainer(name),
-      relations: buildRelations(name),
+      relations: [],   // 回填 in 2-pass
       skillsOverride: null,  // 1a 阶段未实装
     };
   }
 
-  // generals 切片
+  // generals 切片 — 2-pass build:
+  //   Pass 1: 决定 status / fac / 各字段 (relations 留 [] 占位)
+  //   Pass 2: 收集所有 generals 名作 sceneNames, 用 buildRelationsAll 同时填全部 relations (双向 INTIMACY_PRESET 收编)
   const sGenerals = {};
 
   // GENS_FULL → active (minTurn<=1) / pending (minTurn>1 with pendingFac)
@@ -493,7 +578,7 @@ const ${varName} = ${json};
         sGenerals[g.name] = {
           status: 'active',
           fac:    fid,
-          city:   inInitUnit ? initCity : FAC_CAPITAL[fid],
+          city:   inInitUnit ? initCity : FAC_CAPITAL[fid],  // codex P3: 非 initUnit active = synthetic capital fallback
           role:   g.role === 'ruler' ? 'ruler' : null,
           post:   meta.post ? { ...meta.post } : null,
           title:  meta.title || null,
@@ -501,7 +586,7 @@ const ${varName} = ${json};
           merit:   data.MERIT_INIT[g.name] != null ? data.MERIT_INIT[g.name] : 20,
           retainer: buildRetainer(g.name),
           initialUnit: inInitUnit,
-          relations: buildRelations(g.name),
+          relations: [],   // 回填 in pass 2
           skillsOverride: null,
         };
       }
@@ -532,11 +617,50 @@ const ${varName} = ${json};
   }
   // GEN_POOL_INACTIVE 不列 (设计 doc §3.4 line 225)
 
+  // ── Pass 2: relations 全收编 (设计 doc §6.3 + codex trial 1 P1.1) ──
+  const sceneNames = new Set(Object.keys(sGenerals));
+  const relMap = buildRelationsAll(sceneNames);
+  for (const [name, rels] of Object.entries(relMap)) {
+    const g = sGenerals[name];
+    if (!g) continue;
+    if (g.status === 'active') {
+      g.relations = rels;
+    } else {
+      // wild / pending: 回填到 wildData.relations
+      g.wildData.relations = rels;
+    }
+  }
+  // 确保未在 relMap 的 active 也有 relations=[] (空 array,不是 undefined)
+  for (const g of Object.values(sGenerals)) {
+    if (g.status === 'active') {
+      g.relations = g.relations || [];
+    } else {
+      g.wildData.relations = g.wildData.relations || [];
+    }
+  }
+
   const activeCount  = Object.values(sGenerals).filter(g => g.status === 'active').length;
   const wildCount    = Object.values(sGenerals).filter(g => g.status === 'wild').length;
   const pendingCount = Object.values(sGenerals).filter(g => g.status === 'pending').length;
   const pendingFacCount = Object.values(sGenerals).filter(g => g.status === 'pending' && g.pendingFac).length;
   console.log(`[extract] SCENARIO_214.generals built: ${Object.keys(sGenerals).length} entries (active=${activeCount} wild=${wildCount} pending=${pendingCount} 其中 pendingFac=${pendingFacCount})`);
+
+  // ── scenario.initialUnits — 起手野战 squad 完整 spec (codex trial 1 P1.2) ──
+  // 单一定义 INIT_UNITS_LITERAL (v181 main.js L186-227 字面 mirror).
+  // 1b materializeScenario 读此 reconstruct G.units byte-identical.
+  // retainer (亲卫部曲) ≠ initialUnit (起手野战 squad), 两套独立数据.
+  const sInitialUnits = INIT_UNITS_LITERAL.map(u => ({
+    fac:    u.fac,
+    city:   u.city,
+    squads: u.squads.map(s => ({
+      genName:   s.genName,
+      type:      s.type,
+      troops:    s.troops,
+      maxTroops: s.maxTroops,
+      morale:    s.morale,
+    })),
+  }));
+  console.log(`[extract] SCENARIO_214.initialUnits built: ${sInitialUnits.length} units, ${sInitialUnits.reduce((s,u)=>s+u.squads.length,0)} squads`);
 
   // SCENARIO_214 整合
   const SCENARIO_214 = {
@@ -551,6 +675,7 @@ const ${varName} = ${json};
     diplo: sDiplo,
     cities: sCities,
     generals: sGenerals,
+    initialUnits: sInitialUnits,
   };
 
   // 写文件
@@ -572,6 +697,7 @@ const ${varName} = ${json};
 //                              active:  fac/city/role/post/title/loyalty/merit/retainer/initialUnit/relations/skillsOverride
 //                              wild:    fac:'wild', wildData{title/post/loyalty/merit/retainer/relations/skillsOverride}
 //                              pending: availableYear + wildData + 可选 pendingFac (GENS_FULL minTurn>1)
+//   initialUnits[]           — 起手野战 squad spec: {fac, city, squads:[{genName,type,troops,maxTroops,morale}]}
 //
 // 来源:阶段 1a.2 由 tools/extract_scenario_214.js 自动抽取
 //   - factions: FAC[fid].ruler + PLAYABLE_FACS + FAC_IDENTITY + ETHOS_INIT

@@ -1406,8 +1406,96 @@ const VERIFIES = [
       if(c.initialUnit !== true) errs.push(`initialUnit=${c.initialUnit}`);
       if(c.retainer?.count !== 2500) errs.push(`retainer.count=${c.retainer?.count}`);
       if(c.retainer?.type !== 'cavalry') errs.push(`retainer.type=${c.retainer?.type}`);
-      if(!Array.isArray(c.relations) || c.relations.length !== 5) errs.push(`relations length=${c.relations?.length} (expected 5)`);
+      // 收编 后:5 GEN_META + 5 INTIMACY_PRESET orphan (许褚/贾诩/张辽/司马懿/曹洪) = 10
+      if(!Array.isArray(c.relations) || c.relations.length !== 10) errs.push(`relations length=${c.relations?.length} (expected 10 after INTIMACY_PRESET 收编)`);
       return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
+    },
+  },
+  {
+    // codex trial 1 P1.1 fix: relations 全收编 INTIMACY_PRESET (orphan pair 不丢)
+    // 每个 INTIMACY_PRESET 双方都在 scenario.generals 的 pair → 两侧都该有对方 relation entry
+    id: 'scenario-1a3-intimacy-preset-coverage',
+    name: 'INTIMACY_PRESET 全 pair (双方 ∈ scenario.generals) → 双向 relations 全收编 (codex P1.1 fix)',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      // win.INTIMACY_PRESET via inline script: 1a.3 extract tool 已 expose, 但 sprint_verify 还没 expose 直接 — 改读 src
+      const gsrc = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'generals.js'), 'utf8');
+      // 不要 eval 全 generals.js (大), 仅 grep INTIMACY_PRESET 块
+      const m = gsrc.match(/const INTIMACY_PRESET\s*=\s*(\[[\s\S]*?\]);/);
+      if(!m) return { passed: false, detail: 'INTIMACY_PRESET not parsed from generals.js' };
+      const INTIMACY_PRESET = (new Function('return ' + m[1] + ';'))();
+
+      function getRels(name){
+        const g = S.generals[name];
+        if(!g) return null;
+        return (g.status === 'active') ? (g.relations || []) : ((g.wildData && g.wildData.relations) || []);
+      }
+
+      const errs = [];
+      let okPairs = 0;
+      for(const [a, b, v] of INTIMACY_PRESET){
+        if(!S.generals[a] || !S.generals[b]) continue;  // skip if not both in scenario
+        const ra = getRels(a) || [];
+        const rb = getRels(b) || [];
+        const ab = ra.find(r => r.target === b);
+        const ba = rb.find(r => r.target === a);
+        if(!ab) errs.push(`${a} → ${b} relation missing (preset intimacy=${v})`);
+        else if(ab.intimacy !== v) errs.push(`${a} → ${b} intimacy=${ab.intimacy} != preset ${v}`);
+        if(!ba) errs.push(`${b} → ${a} relation missing (preset intimacy=${v})`);
+        else if(ba.intimacy !== v) errs.push(`${b} → ${a} intimacy=${ba.intimacy} != preset ${v}`);
+        okPairs++;
+      }
+      return errs.length ? { passed: false, detail: `${okPairs} pairs covered, ${errs.length} 漏: ` + errs.slice(0,6).join(' / ') } : { passed: true };
+    },
+  },
+  {
+    // codex trial 1 P1.2 fix: scenario.initialUnits 字段 (1b byte-identical 必需)
+    id: 'scenario-1a3-initial-units',
+    name: 'SCENARIO_214.initialUnits 7 units / 14 squads 完整 spec + cross-ref generals/cities',
+    fn(G, win){
+      const fsM = require('fs'), pathM = require('path');
+      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
+      const S = (new Function(src + '\n; return SCENARIO_214;'))();
+      const errs = [];
+      if(!Array.isArray(S.initialUnits)) errs.push('initialUnits not array');
+      else {
+        if(S.initialUnits.length !== 7) errs.push(`expected 7 units, got ${S.initialUnits.length}`);
+        const totalSquads = S.initialUnits.reduce((s,u)=>s+(u.squads||[]).length, 0);
+        if(totalSquads !== 14) errs.push(`expected 14 squads total, got ${totalSquads}`);
+        const VALID_TYPES = new Set(['cavalry','light','heavy','archer','siege','naval']);
+        for(const u of S.initialUnits){
+          if(!S.cities[u.city]) errs.push(`unit city ${u.city} not in scenario.cities`);
+          else if(S.cities[u.city].fac !== u.fac) errs.push(`unit fac=${u.fac} city.fac=${S.cities[u.city].fac} mismatch`);
+          for(const sq of (u.squads || [])){
+            const gen = S.generals[sq.genName];
+            if(!gen) errs.push(`squad gen ${sq.genName} not in scenario.generals`);
+            else {
+              if(gen.status !== 'active') errs.push(`${sq.genName} status=${gen.status} (must be active)`);
+              if(gen.fac !== u.fac) errs.push(`${sq.genName} fac=${gen.fac} != unit.fac=${u.fac}`);
+              if(gen.city !== u.city) errs.push(`${sq.genName} city=${gen.city} != unit.city=${u.city}`);
+              if(!gen.initialUnit) errs.push(`${sq.genName} initialUnit=false (must be true)`);
+            }
+            if(!VALID_TYPES.has(sq.type)) errs.push(`${sq.genName} type=${sq.type} invalid`);
+            if(typeof sq.troops !== 'number' || sq.troops <= 0) errs.push(`${sq.genName} troops=${sq.troops}`);
+            if(typeof sq.morale !== 'number' || sq.morale < 0 || sq.morale > 100) errs.push(`${sq.genName} morale=${sq.morale}`);
+          }
+        }
+        // 抽样: 曹操 in xuchang squad, cavalry, 3000 troops, 88 morale
+        const wei0 = S.initialUnits.find(u => u.city === 'xuchang');
+        if(!wei0) errs.push('xuchang unit missing');
+        else {
+          const cc = wei0.squads.find(s => s.genName === '曹操');
+          if(!cc) errs.push('曹操 squad in xuchang missing');
+          else {
+            if(cc.type !== 'cavalry') errs.push(`曹操.type=${cc.type}`);
+            if(cc.troops !== 3000) errs.push(`曹操.troops=${cc.troops}`);
+            if(cc.morale !== 88) errs.push(`曹操.morale=${cc.morale}`);
+          }
+        }
+      }
+      return errs.length ? { passed: false, detail: errs.slice(0,8).join(' / ') } : { passed: true };
     },
   },
   {
