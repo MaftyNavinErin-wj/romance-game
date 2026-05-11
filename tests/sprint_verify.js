@@ -1827,8 +1827,8 @@ const VERIFIES = [
         const m3 = codeOnly.match(/\bETHOS_INIT\[/g) || [];
         const m4 = codeOnly.match(/\bDIPLO_INIT\b/g) || [];
         const m5 = codeOnly.match(/\bALL_FACS\b/g) || [];  // 1c-b
-        const m6 = codeOnly.match(/\bFAC\[/g) || [];  // 1c-c
-        const m7 = codeOnly.match(/\bObject\.(keys|entries|values)\(FAC\)/g) || [];  // 1c-c
+        const m6 = codeOnly.match(/\bFAC\s*\[/g) || [];  // 1c-c (codex trial 1 P2: 容空格)
+        const m7 = codeOnly.match(/\bObject\.(keys|entries|values)\s*\(\s*FAC\s*\)/g) || [];  // 1c-c (容空格)
         if(m1.length) errs.push(`${f}: ${m1.length} × FAC_IDENTITY[`);
         if(m2.length) errs.push(`${f}: ${m2.length} × FAC_IDENTITY.<fid>`);
         if(m3.length) errs.push(`${f}: ${m3.length} × ETHOS_INIT[`);
