@@ -3,7 +3,7 @@
 // 城市主表(cross-scenario fix,地理 immutable 字段)
 // 字段:name/q/r/tags/jun/size/base(产出基数)
 // 不进 CITY_BASE 的字段:fac/pop/troops/isCapital(留 SCENARIO_xxx.cities)
-// 1a 阶段 45 城,阶段 1f 扩 4 城(bohai/pingyuan/zhuojun/luyang)→ 49 城
+// 1a 阶段 45 城,阶段 1f 扩 3 城(bohai/pingyuan/zhuojun)→ 48 城
 //
 // 来源:阶段 1a.1 由 tools/extract_scenario_214.js 自动抽取自 project_romance_v181.html。
 // 1a 阶段不被任何 code 引用,仅为后续阶段 1b 的 materializeScenario() 数据源。
@@ -814,6 +814,59 @@ const CITY_BASE = {
       "wood": 55,
       "iron": 45,
       "horses": 2
+    }
+  },
+  "bohai": {
+    "name": "南皮",
+    "q": 64,
+    "r": 11,
+    "tags": [
+      "平原",
+      "水乡"
+    ],
+    "jun": "jiqingjun",
+    "size": "medium",
+    "base": {
+      "food": 280,
+      "gold": 80,
+      "wood": 45,
+      "iron": 30,
+      "horses": 4
+    }
+  },
+  "pingyuan": {
+    "name": "平原",
+    "q": 60,
+    "r": 14,
+    "tags": [
+      "平原"
+    ],
+    "jun": "jiqingjun",
+    "size": "small",
+    "base": {
+      "food": 280,
+      "gold": 60,
+      "wood": 35,
+      "iron": 35,
+      "horses": 3
+    }
+  },
+  "zhuojun": {
+    "name": "涿郡",
+    "q": 53,
+    "r": 8,
+    "tags": [
+      "平原",
+      "产马"
+    ],
+    "jun": "jiqingjun",
+    "size": "small",
+    "base": {
+      "food": 220,
+      "gold": 48,
+      "wood": 30,
+      "iron": 35,
+      "horses": 80
     }
   }
 };
