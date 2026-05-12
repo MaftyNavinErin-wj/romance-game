@@ -3,7 +3,7 @@
 // 城市主表(cross-scenario fix,地理 immutable 字段)
 // 字段:name/q/r/tags/jun/size/base(产出基数)
 // 不进 CITY_BASE 的字段:fac/pop/troops/isCapital(留 SCENARIO_xxx.cities)
-// 1a 阶段 45 城,阶段 1f 扩 3 城(bohai/pingyuan/zhuojun)→ 48 城
+// 1a 阶段 45 城,阶段 1f 扩 8 城(河北 bohai/pingyuan/zhuojun + 徐州 xiaopei/donghai + 荆南 wuling + 关陇 shangdang/anding)→ 53 城
 //
 // 来源:阶段 1a.1 由 tools/extract_scenario_214.js 自动抽取自 project_romance_v181.html。
 // 1a 阶段不被任何 code 引用,仅为后续阶段 1b 的 materializeScenario() 数据源。
@@ -867,6 +867,94 @@ const CITY_BASE = {
       "wood": 30,
       "iron": 35,
       "horses": 80
+    }
+  },
+  "xiaopei": {
+    "name": "小沛",
+    "q": 62,
+    "r": 24,
+    "tags": [
+      "平原"
+    ],
+    "jun": "siyujun",
+    "size": "small",
+    "base": {
+      "food": 320,
+      "gold": 60,
+      "wood": 40,
+      "iron": 35,
+      "horses": 2
+    }
+  },
+  "donghai": {
+    "name": "东海",
+    "q": 74,
+    "r": 28,
+    "tags": [
+      "平原"
+    ],
+    "jun": "siyujun",
+    "size": "small",
+    "base": {
+      "food": 300,
+      "gold": 55,
+      "wood": 35,
+      "iron": 35,
+      "horses": 2
+    }
+  },
+  "wuling": {
+    "name": "武陵",
+    "q": 44,
+    "r": 47,
+    "tags": [
+      "水乡",
+      "山地"
+    ],
+    "jun": "jingzhoujun",
+    "size": "small",
+    "base": {
+      "food": 280,
+      "gold": 50,
+      "wood": 80,
+      "iron": 30,
+      "horses": 2
+    }
+  },
+  "shangdang": {
+    "name": "上党",
+    "q": 36,
+    "r": 14,
+    "tags": [
+      "山地",
+      "产铁"
+    ],
+    "jun": "xibejun",
+    "size": "small",
+    "base": {
+      "food": 260,
+      "gold": 55,
+      "wood": 60,
+      "iron": 75,
+      "horses": 30
+    }
+  },
+  "anding": {
+    "name": "安定",
+    "q": 23,
+    "r": 20,
+    "tags": [
+      "山地",
+      "产马"
+    ],
+    "jun": "xibejun",
+    "size": "small",
+    "base": {
+      "food": 220,
+      "gold": 45,
+      "wood": 30,
+      "iron": 35,
+      "horses": 100
     }
   }
 };

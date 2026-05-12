@@ -146,10 +146,10 @@ const SCENARIO_214 = {
     // ...
   ],
 
-  // ── 城市(必列全 CITY_BASE; 1a 阶段 45 城, 1f 扩 3 → 48 城)──
+  // ── 城市(必列全 CITY_BASE; 1a 阶段 45 城, 1f 扩 8 → 53 城)──
   cities: {
     xuchang: { fac:'wei', pop:425000, troops:4000, isCapital:true },
-    // ... 全 45 城 (阶段 1a) / 48 城 (阶段 1f 之后, 加 bohai/pingyuan/zhuojun 河北)
+    // ... 全 45 城 (阶段 1a) / 53 城 (阶段 1f 之后, 加 河北 bohai/pingyuan/zhuojun + 徐州 xiaopei/donghai + 荆南 wuling + 关陇 shangdang/anding)
   },
 
   // ── 武将(只列出场,unavailable 不列;validator 用 GEN_BASE.birthYear/deathYear filter)──
@@ -441,7 +441,7 @@ function initGame(scenarioId = DEFAULT_SCENARIO_ID) {
 | 1c | hardcoded 214 字面 id cleanup(grep + 替换,module by module) | refactor 守底 | 3-4 |
 | 1d | 删 top-level const FAC/ALL_FACS/FAC_IDENTITY/AI_PERSONALITY(全模块迁移完成后)| refactor 守底 | 1-2 |
 | 1e | Validators 实装 + tests/scenario_validate.js | refactor 守底 | 1-2 |
-| 1f | 3 新城扩(bohai/pingyuan/zhuojun, 河北一带, 全 wei)| feature 改 baseline | 1-2 |
+| 1f | 8 新城扩(河北 bohai/pingyuan/zhuojun + 徐州 xiaopei/donghai + 荆南 wuling + 关陇 shangdang/anding)| feature 改 baseline | 1-2 |
 | 2 | 190 势力 + 外交 | feature | 1-2 |
 | 3 | 190 城市归属 | feature | 1-2 |
 | 4 | 190 武将归属 + 关系(数据量大头) | feature | 3-4 |
@@ -674,7 +674,7 @@ rg "FAC_IDENTITY\[" src/ --type js -n
 | 阶段 | 守底方式 |
 |---|---|
 | 1a-1e | smoke vs main byte-identical(SHA256 51 snapshots identical) |
-| 1f | lock 新 baseline(48 cities) |
+| 1f | lock 新 baseline(53 cities) |
 | 2-7 | scenario init snapshot + targeted smoke |
 
 **targeted smoke 加列**(codex P2.3):

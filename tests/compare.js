@@ -3,7 +3,7 @@
 // 用法:
 //   node tests/compare.js [baseline_path] [current_path]
 // 默认:
-//   baseline = tests/baseline/phase1f_complete.json (最新阶段 baseline)
+//   baseline = tests/baseline/phase1f_p2_complete.json (最新阶段 baseline)
 //   current  = tests/current.json
 //
 // Baseline 演进顺序(每阶段完成时锁定一份,旧 baseline 保留供回归):
@@ -12,7 +12,8 @@
 //     → phase2_complete (phase 2 渲染层抽离完成)
 //     → phase3_complete (phase 3 机制 chain 抽离完成)
 //     → data_completion_complete (data-completion sprint 数据补完)
-//     → phase1f_complete (scenario 1f 3 新城扩 bohai/pingyuan/zhuojun, 48 cities, **当前默认**)
+//     → phase1f_complete (scenario 1f 河北 3 新城 bohai/pingyuan/zhuojun, 48 cities)
+//     → phase1f_p2_complete (1f-p2 +徐州 xiaopei/donghai +荆南 wuling +关陇 shangdang/anding, 53 cities, **当前默认**)
 //
 // 退出码:
 //   0 = PASS(完全一致)
@@ -24,7 +25,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const BASELINE_DEFAULT = path.resolve(__dirname, 'baseline', 'phase1f_complete.json');
+const BASELINE_DEFAULT = path.resolve(__dirname, 'baseline', 'phase1f_p2_complete.json');
 const CURRENT_DEFAULT  = path.resolve(__dirname, 'current.json');
 
 function diff(a, b, p, out, max) {

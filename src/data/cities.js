@@ -1,10 +1,10 @@
 // src/data/cities.js
 //
-// 城市初始数据 + 地理关系 — 48 城市 (1a: 45 + 1f: bohai/pingyuan/zhuojun 河北 3 新城) + 道路网 + 河流路径 + 地域分组
+// 城市初始数据 + 地理关系 — 53 城市 (1a: 45 + 1f: 河北 bohai/pingyuan/zhuojun + 1f-p2: 徐州 xiaopei/donghai + 荆南 wuling + 关陇 shangdang/anding) + 道路网 + 河流路径 + 地域分组
 //
 // 来源:从 project_romance_v181.html 整体抽离(Session 1.3 / 阶段 1)
 // 抽离方式:**只搬运,不改逻辑**(verbatim relocation)。
-//   - CITIES_DEF(原 L2090-L2152):45 城市初始定义(hex 坐标 q/r、属性、初始 fac/troops/pop/base 资源);1f 扩 3 新城 → 48
+//   - CITIES_DEF(原 L2090-L2152):45 城市初始定义(hex 坐标 q/r、属性、初始 fac/troops/pop/base 资源);1f 扩 8 新城 → 53
 //   - CITY_MAP(原 L2160):派生 O(1) 查表
 //   - JIANGDONG_CITIES / QINGXU_CITIES / JINGZHOU_CITIES(原 L2163-L2166):地域 Set,技能用
 //   - isJiangdong / isQingxu / isJingzhou(原 L2167-L2169):地域查询 helper
@@ -93,6 +93,12 @@ const CITIES_DEF = [
   {id:'bohai',    name:'南皮', q:64,r:11, tags:['平原','水乡'],       jun:'jiqingjun', fac:'wei',pop:180000, troops:1200,               size:'medium', base:{food:280,gold:80, wood:45,iron:30,horses:4}},
   {id:'pingyuan', name:'平原', q:60,r:14, tags:['平原'],              jun:'jiqingjun', fac:'wei',pop:130000, troops:900,                size:'small',  base:{food:280,gold:60, wood:35,iron:35,horses:3}},
   {id:'zhuojun',  name:'涿郡', q:53,r:8,  tags:['平原','产马'],       jun:'jiqingjun', fac:'wei',pop:110000, troops:800,                size:'small',  base:{food:220,gold:48, wood:30,iron:35,horses:80}},
+  // ── 1f-p2 扩 — 徐州 2 新城 + 荆南 1 新城 + 关陇 2 新城 ──
+  {id:'xiaopei',  name:'小沛', q:62,r:24, tags:['平原'],              jun:'siyujun',   fac:'wei',pop:120000, troops:1000,               size:'small',  base:{food:320,gold:60, wood:40,iron:35,horses:2}},
+  {id:'donghai',  name:'东海', q:74,r:28, tags:['平原'],              jun:'siyujun',   fac:'wei',pop:110000, troops:900,                size:'small',  base:{food:300,gold:55, wood:35,iron:35,horses:2}},
+  {id:'wuling',   name:'武陵', q:44,r:47, tags:['水乡','山地'],       jun:'jingzhoujun',fac:'shu',pop:100000, troops:700,                size:'small',  base:{food:280,gold:50, wood:80,iron:30,horses:2}},
+  {id:'shangdang',name:'上党', q:36,r:14, tags:['山地','产铁'],       jun:'xibejun',   fac:'wei',pop:120000, troops:900,                size:'small',  base:{food:260,gold:55, wood:60,iron:75,horses:30}},
+  {id:'anding',   name:'安定', q:23,r:20, tags:['山地','产马'],       jun:'xibejun',   fac:'wei',pop:90000,  troops:600,                size:'small',  base:{food:220,gold:45, wood:30,iron:35,horses:100}},
 ];
 // Note: CITIES_DEF.forEach 在 v181.html 主 script 中执行,会给每个 city 对象添加 x/y 像素坐标
 // (依赖 hexToPixel,后定义)
@@ -157,6 +163,12 @@ const ROADS = [
   ['bohai','ye'],['bohai','qingzhou'],['bohai','beiping'],          // 南皮连邺城+青州+北平 (河北沿海)
   ['pingyuan','ye'],['pingyuan','qingzhou'],['pingyuan','bohai'],   // 平原连邺城+青州+南皮 (河北中部)
   ['zhuojun','youzhou'],['zhuojun','ye'],['zhuojun','beiping'],     // 涿郡连蓟城+邺城+北平 (河北北部)
+  // ── 1f-p2 扩 — 徐州 / 荆南 / 关陇 5 新城路网 ──
+  ['xiaopei','xuchang'],['xiaopei','xuzhou'],['xiaopei','chenliu'], // 小沛连许昌+徐州+陈留 (徐州西门)
+  ['donghai','xiapi'],['donghai','guangling'],                     // 东海连下邳+广陵 (徐州东沿海)
+  ['wuling','jingzhou'],['wuling','lingling'],['wuling','yiling'], // 武陵连江陵+零陵+夷陵 (荆南山区)
+  ['shangdang','bingzhou'],['shangdang','hedong'],['shangdang','ye'], // 上党连晋阳+河东+邺城 (山西-河北枢纽)
+  ['anding','changan'],['anding','tianshui'],['anding','hedong'],  // 安定连长安+天水+河东 (关中-凉州枢纽)
 ];
 
 // G2: 城市邻接图（双向，从ROADS构建）
