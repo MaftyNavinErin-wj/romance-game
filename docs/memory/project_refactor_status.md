@@ -1,11 +1,58 @@
 ---
-name: Refactor phase status — scenario 1a/1b/1c/1d 全完成 (module migration 414 + backing 切换)
-description: 重构主体收官 + B sprint 7 链全 sweep + 战斗机制 5 fix. scenario 1a-1c module migration (413 sites) + 1d backing 切换 (6 顶层 const 删 + G.facIdentity / G._wildGenDefs / _scenarioMaterialized + 16 site 二次 migrate). 全 byte-identical 守底. 下次: 1e validators / 1f 4 新城.
+name: Refactor phase status — 阶段 1 scenario system 1a/1b/1c/1d/1e/1f 全完成 ✅
+description: scenario 1a-1f 阶段 1 整体收官. 1f 12 commit user-driven 多轮地图扩张 (11 新城 +1 hex 修订 → 55 cities) + 22 武将 home city 史实正确化 + v181 v170 籍贯系统 latent fix. codex sweep catch 8 latent bugs. 下次: 阶段 2 (190 势力 + 外交).
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
-## 2026-05-12 session 末状态(本 session 累计 1d-α + 1d-a + 1d-b + 1d-c + 1d-c-p2, 5 commits pushed origin/main)
+## 2026-05-12 (晚) session — scenario 1e/1f 全完成
+
+**main HEAD (待 push): `f28b0eb` fix(v181-latent): getGenBirthplace 读 GEN_META 不是 GEN_TAGS**
+
+12 commits (local 累积, 一次性 push):
+- `f73fb39` scenario-1e validator (设计 doc §9 A-M 全 13 节, scenario_validate.js)
+- `432694c` scenario-1e-p2 (codex P1.1 F.1 missing pair + P1.2 squads guard)
+- `4bbf5e4` scenario-1f (河北 3 新城 bohai/pingyuan/zhuojun → 48 cities)
+- `199d028` scenario-1f-p2 (+5 城 徐州 xiaopei/donghai + 荆南 wuling + 关陇 shangdang/anding → 53)
+- `75cee4e` scenario-1f-p2-p2 (region set QINGXU/JINGZHOU + history split)
+- `186a54e` scenario-1f-p3 (江东 suzhou + 徐州东北 langya + bingzhou r=11→8 上移 → 55)
+- `3d0f0da` scenario-1f-p3-p2 (STATE_CITIES 10 新城分州 + npm compare default)
+- `45a6ded` scenario-1f-p3-p3 (STATE_TIER 4 升级 yu/xu→large, qing/you→medium)
+- `3ab4005` scenario-1f-p4 (COUNTY_DATA 10 + 3 magnate move 谯县/朐县/吴县 history-correct)
+- `8d6534e` scenario-1f-p4-p2 (suzhou 吴县 type='clan_base' + 娄县 seat — gentry trigger)
+- `68fe3d7` doc nit (compare.js header baseline doc 同步)
+- `f28b0eb` **v181 latent fix** (getGenBirthplace 读 GEN_META 不是 GEN_TAGS — v170 籍贯系统终于 work)
+
+**最终状态**: 55 cities (wei 29 / shu 11 / wu 14 / nanman 1), 完整 COUNTY_DATA (10 新城 + 3 magnate move),
+22 武将 home city 史实正确化 (曹氏×9/夏侯氏×3/许褚 → xiaopei; 糜竺/糜芳 → donghai; 顾雍/陆逊/陆抗/朱然/朱桓 → suzhou).
+
+**baseline 演进**: data_completion_complete → phase1f (48) → phase1f_p2 (53) → phase1f_p3 → p3_p2 → phase1f_p4 → p4_p2 → **phase1f_p4_p3 (当前)**.
+旧 baseline 全保留作回归.
+
+**codex sweep 8 latent bug catch**:
+1. F.1 missing pair (1e validator scope)
+2. squads.forEach crash (1e validator scope)
+3. region set QINGXU/JINGZHOU 缺新城 (1f-p2)
+4. STATE_CITIES 10 新城分州 (1f-p3)
+5. STATE_TIER 4 州升级 (1f-p3)
+6. suzhou 吴县 type='seat' clan logic 不 trigger (1f-p4)
+7. v181 latent getGenBirthplace 读错表 (v170 籍贯系统 silent broken from抽离起)
+8. baseline doc 同步 (×2 nit)
+
+**Scenario system 整体进度** (24-36 session 路线):
+- ✅ Design doc v3.3
+- ✅ 1a.1 主表 + 1a.2 SCENARIO_214 + 1a.3 generals 切片
+- ✅ 1b materializeScenario + 10 accessor
+- ✅ 1c module migration (413 sites)
+- ✅ 1d const 删 + backing 切 G runtime
+- ✅ 1e validators 全表 (设计 doc §9 A-M)
+- ✅ **1f 11 新城 +1 hex 修订 + COUNTY_DATA + magnate history-correct + v181 latent fix**
+- 🔄 下次 session: **阶段 2** (190 势力 + 外交, feature, 1-2 session)
+- ⏳ 阶段 3 (190 城市归属) / 4 (190 武将归属) / 5-7
+
+---
+
+## 2026-05-12 (早) session 末状态(本 session 1d 累计 5 commits)
 
 **main HEAD: `6893cc0` refactor(1d-c-p2): codex trial 1 P2 — battle_anim 4 site typeof FAC 守卫删除**
 
