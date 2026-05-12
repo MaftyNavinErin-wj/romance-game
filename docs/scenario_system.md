@@ -441,7 +441,7 @@ function initGame(scenarioId = DEFAULT_SCENARIO_ID) {
 | 1c | hardcoded 214 字面 id cleanup(grep + 替换,module by module) | refactor 守底 | 3-4 |
 | 1d | 删 top-level const FAC/ALL_FACS/FAC_IDENTITY/AI_PERSONALITY(全模块迁移完成后)| refactor 守底 | 1-2 |
 | 1e | Validators 实装 + tests/scenario_validate.js | refactor 守底 | 1-2 |
-| 1f | 8 新城扩(河北 bohai/pingyuan/zhuojun + 徐州 xiaopei/donghai + 荆南 wuling + 关陇 shangdang/anding)| feature 改 baseline | 1-2 |
+| 1f | 3 新城扩 河北 (bohai/pingyuan/zhuojun) → 48 cities; 1f-p2 追加 5 新城 (徐州 xiaopei/donghai + 荆南 wuling + 关陇 shangdang/anding) → 53 cities | feature 改 baseline | 1-2 |
 | 2 | 190 势力 + 外交 | feature | 1-2 |
 | 3 | 190 城市归属 | feature | 1-2 |
 | 4 | 190 武将归属 + 关系(数据量大头) | feature | 3-4 |

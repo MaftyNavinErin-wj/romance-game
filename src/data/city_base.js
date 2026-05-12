@@ -3,7 +3,7 @@
 // 城市主表(cross-scenario fix,地理 immutable 字段)
 // 字段:name/q/r/tags/jun/size/base(产出基数)
 // 不进 CITY_BASE 的字段:fac/pop/troops/isCapital(留 SCENARIO_xxx.cities)
-// 1a 阶段 45 城,阶段 1f 扩 8 城(河北 bohai/pingyuan/zhuojun + 徐州 xiaopei/donghai + 荆南 wuling + 关陇 shangdang/anding)→ 53 城
+// 1a 阶段 45 城; 1f 扩 3 城 河北 (bohai/pingyuan/zhuojun) → 48; 1f-p2 +5 城 (徐州 xiaopei/donghai + 荆南 wuling + 关陇 shangdang/anding) → 53
 //
 // 来源:阶段 1a.1 由 tools/extract_scenario_214.js 自动抽取自 project_romance_v181.html。
 // 1a 阶段不被任何 code 引用,仅为后续阶段 1b 的 materializeScenario() 数据源。

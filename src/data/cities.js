@@ -1,10 +1,10 @@
 // src/data/cities.js
 //
-// 城市初始数据 + 地理关系 — 53 城市 (1a: 45 + 1f: 河北 bohai/pingyuan/zhuojun + 1f-p2: 徐州 xiaopei/donghai + 荆南 wuling + 关陇 shangdang/anding) + 道路网 + 河流路径 + 地域分组
+// 城市初始数据 + 地理关系 — 53 城市 (1a: 45; 1f: +3 河北 bohai/pingyuan/zhuojun → 48; 1f-p2: +5 徐州 xiaopei/donghai + 荆南 wuling + 关陇 shangdang/anding → 53) + 道路网 + 河流路径 + 地域分组
 //
 // 来源:从 project_romance_v181.html 整体抽离(Session 1.3 / 阶段 1)
 // 抽离方式:**只搬运,不改逻辑**(verbatim relocation)。
-//   - CITIES_DEF(原 L2090-L2152):45 城市初始定义(hex 坐标 q/r、属性、初始 fac/troops/pop/base 资源);1f 扩 8 新城 → 53
+//   - CITIES_DEF(原 L2090-L2152):45 城市初始定义(hex 坐标 q/r、属性、初始 fac/troops/pop/base 资源);1f +3 → 48;1f-p2 +5 → 53
 //   - CITY_MAP(原 L2160):派生 O(1) 查表
 //   - JIANGDONG_CITIES / QINGXU_CITIES / JINGZHOU_CITIES(原 L2163-L2166):地域 Set,技能用
 //   - isJiangdong / isQingxu / isJingzhou(原 L2167-L2169):地域查询 helper
@@ -108,9 +108,9 @@ const CITY_MAP = Object.fromEntries(CITIES_DEF.map(c => [c.id, c]));
 
 // ★ v126: 地域城市集合（技能用）
 const JIANGDONG_CITIES = new Set(['jianye','jingkou','huiji','wuchang','chaigang','jiaozhou','panyu','changsha','yuzhang','lingling','hefei','shouchun','lujiang']);
-const QINGXU_CITIES = new Set(['xuzhou','qingzhou','beihai','guangling','xiapi','puyang']);
+const QINGXU_CITIES = new Set(['xuzhou','qingzhou','beihai','guangling','xiapi','puyang','xiaopei','donghai']);  // 1f-p2: +xiaopei/donghai (徐州西门 + 徐州东沿海, 臧霸 isQingxu boost 覆盖)
 // v128: 荆州城市集合（文聘·镇荆用）
-const JINGZHOU_CITIES = new Set(['xiangyang','jingzhou','yiling','shangyong','changsha','lingling']);
+const JINGZHOU_CITIES = new Set(['xiangyang','jingzhou','yiling','shangyong','changsha','lingling','wuling']);  // 1f-p2: +wuling (荆南山区, 文聘 isJingzhou boost 覆盖)
 function isJiangdong(cityId){ return JIANGDONG_CITIES.has(cityId); }
 function isQingxu(cityId){ return QINGXU_CITIES.has(cityId); }
 function isJingzhou(cityId){ return JINGZHOU_CITIES.has(cityId); }
