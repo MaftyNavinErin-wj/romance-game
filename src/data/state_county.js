@@ -437,11 +437,12 @@ const COUNTY_DATA = {
   ],
   // ── 1f-p3: 江东 1 + 徐州东北 1 ──
   suzhou:[
-    // 1f-p4: '吴县' moved from jianye (吴郡治 history-correct, 吴县是 seat 兼 clan_base magnate)
-    {name:'吴县',type:'seat',clanFamily:[CLAN_FAMILIES.wj_gu, CLAN_FAMILIES.wj_lu, CLAN_FAMILIES.wj_zhu],magnate:true,popShare:0.40},
-    {name:'娄县',type:'common',clanFamily:null,popShare:0.25},
-    {name:'富春',type:'common',clanFamily:null,popShare:0.20},
-    {name:'乌程',type:'common',clanFamily:null,popShare:0.15},
+    // 1f-p4-p2 (codex catch): 跟 chenliu (陈留县 seat + 谯县 clan_base) 模式一致 — type 单值 限制下,
+    // 吴县 用 type='clan_base' 让 顾/陆/朱 clan logic trigger; 娄县 (西汉始置, 史实苏州属县) 做 seat.
+    {name:'娄县',type:'seat',clanFamily:null,popShare:0.35},
+    {name:'吴县',type:'clan_base',clanFamily:[CLAN_FAMILIES.wj_gu, CLAN_FAMILIES.wj_lu, CLAN_FAMILIES.wj_zhu],magnate:true,popShare:0.35},
+    {name:'富春',type:'common',clanFamily:null,popShare:0.18},
+    {name:'乌程',type:'common',clanFamily:null,popShare:0.12},
   ],
   langya:[
     {name:'开阳',type:'seat',clanFamily:null,popShare:0.40},
