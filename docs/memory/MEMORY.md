@@ -1,6 +1,6 @@
 - [User role](user_role.md) — 用户是 Project Romance 制作人,亲自定 session 范围 + 设计 approval
 - [Project Romance overview](project_overview.md) — 三国题材策略游戏,v181 单 HTML,正在做 data/render/chains/core 四层重构
-- [Refactor phase status](project_refactor_status.md) — **scenario 1a/1b/1c/1d/1e/1f 全完成 ✅** (main f28b0eb, 1f 含 11 新城 +1 hex 修订, 55 cities, codex sweep catch 8 latent + v181 v170 籍贯 bug). 下次: phase 2 (190 势力)
+- [Refactor phase status](project_refactor_status.md) — **scenario 1a-1f 全完成 + audit sweep 闭环 ✅** (main 46bf5a8, 55 cities, 全 131 武将 birthplace 98 matched / 33 OFFMAP / 0 should-fix orphan). 下次: phase 2 (190 势力)
 - [战斗机制 systematic bug fix sprint](project_combat_mechanism_bugfix.md) — 批 1+2 close 5 fix (§5.1/§5.2/§5.7/§5.10/§5.3); audit pass 2 S1-S6 完结 robust by design; 剩余 §5.7 P4 / §5.8 P6 / §5.9 设计层 低优
 - [Scenario system design](../scenario_system.md) — 多剧本架构 design doc v3.3; 1a-1f 全完成 ✅ (55 cities, 1f 8 新城 河北/徐州/荆南/关陇 + 1f-p3 江东 1 + 徐州东北 1 + 晋阳上移 + 1f-p4 COUNTY_DATA + 3 magnate history-correct move 22 武将 home city)
 - [Chain master scout](project_chain_master_scout.md) — 8 链总图 + map.js carry-over;顺序 ethos→gentry→politics→diplomacy→economy→event→military→general

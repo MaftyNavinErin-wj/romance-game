@@ -1,8 +1,33 @@
 ---
-name: Refactor phase status — 阶段 1 scenario system 1a/1b/1c/1d/1e/1f 全完成 ✅
-description: scenario 1a-1f 阶段 1 整体收官. 1f 12 commit user-driven 多轮地图扩张 (11 新城 +1 hex 修订 → 55 cities) + 22 武将 home city 史实正确化 + v181 v170 籍贯系统 latent fix. codex sweep catch 8 latent bugs. 下次: 阶段 2 (190 势力 + 外交).
+name: Refactor phase status — 阶段 1 scenario system 1a-1f 全完成 + audit sweep 闭环 ✅
+description: scenario 1a-1f 阶段 1 整体收官 + 1f audit sweep 全图 0 orphan. 1f 15 commit (12 主体 + 2 audit p4_p4/p4_p5 + 1 memory). 55 cities, 22 武将 home city 史实正确化, 全 131 武将 birthplace 链路 98 matched / 33 真 OFFMAP / 0 should-fix. 下次: 阶段 2 (190 势力 + 外交).
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
+---
+
+## 2026-05-13 (audit follow-up) — 1f-p4-p4 / 1f-p4-p5 全图 orphan sweep
+
+**main HEAD pushed: `46bf5a8` refactor(scenario-1f-p4-p5)**
+
+2 commit (audit-driven, session 末 user ask 触发):
+- `92e636f` 1f-p4-p4: COUNTY_DATA langya +莒县 / suzhou +钱唐 — 徐盛/全琮 fix (codex LGTM 62K)
+- `46bf5a8` 1f-p4-p5: **audit sweep full** — 12 city 补 15 县 + 13 birthplace 字符串改 (codex LGTM 46K zero findings)
+
+**audit sweep 流程**:
+1. CC 写 audit script (载 GEN_META + WILD_GEN_META 合 131 武将, 跑 birthplace → COUNTY_NAME_TO_CITY 后缀匹配)
+2. 初版 audit script 漏 WILD_GEN_META, 用户 全修 决定后才扩 audit, catch 5 个 wild 武将 (李严/申耽/蒋琬/费祎/郝昭)
+3. 分级: 类 A (县名缺) → state_county 加 county; 类 B (同义县名) → 改 generals.js birthplace 字符串; 类 C (郡级 birthplace) → generals.js 加县级后缀
+
+**audit 战绩**:
+- 修前 (1f session 末): 31 orphan (徐盛/全琮 + 1a 遗留 23 + WILD_GEN_META 漏覆盖 5)
+- 修后: 98 matched / 33 真 OFFMAP (地图未覆盖) / 0 should-fix
+- popShare sum 33 city all-clear sum=[0.99, 1.01]
+- cascade diff (vs phase1f_p4_p4): factions.{wei,wu,nanman}.res.gold 微变 + event RNG drift (合理 cascade)
+
+**baseline 演进** (1f-p4-p3 之后):
+- phase1f_p4_p4_complete (莒县/钱唐)
+- phase1f_p4_p5_complete (全图 audit sweep, **当前默认**)
+
 ---
 
 ## 2026-05-12 (晚) session — scenario 1e/1f 全完成
