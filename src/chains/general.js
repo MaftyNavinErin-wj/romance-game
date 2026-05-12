@@ -359,8 +359,11 @@ function getGenLocalBonus(genName, fid){
 
 // 政治链 P3.a (官职 helpers + TRIBUTE_RATES const,L4488-L4558) 已抽离到 src/chains/politics.js
 /** ★ v170: 读取武将出身地字符串（纯查表，不做任何解析） */
+// 1f-p4-p3 latent bug fix: birthplace 字段在 GEN_META (generals.js:408+) 不在 GEN_TAGS;
+// 之前读 GEN_TAGS[name].birthplace 永远 undefined, 整个 v170 籍贯系统 (getGenHomeCounty /
+// getGenHomeCity / isGenHomeInFac + 县属 loyalty 中本族放大 ×2.0) silent 失效. 改读 getGenMeta.
 function getGenBirthplace(genName){
-  return GEN_TAGS[genName]?.birthplace || null;
+  return getGenMeta(genName)?.birthplace || null;
 }
 
 // 政治链 P3.b (官职 mutators + merit + seniority,L4564-L4711) 已抽离到 src/chains/politics.js
