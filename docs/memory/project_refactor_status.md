@@ -1,11 +1,63 @@
 ---
-name: Refactor phase status — scenario 1a + 1b + 1c 全完成 (module migration 414 sites)
-description: 重构主体收官 + B sprint 7 链全 sweep + 战斗机制 5 fix. scenario system 1a 全完成 + 1b sync/accessor + 1c 全 4 子阶段 (1c-a 28 / 1c-b 134 / 1c-c 242 / 1c-d 9 = 413 sites migrate). 全 byte-identical 守底, 79/79 sprint_verify. 下次: 1d top-level const 删 + accessor backing 切 G runtime state.
+name: Refactor phase status — scenario 1a/1b/1c/1d 全完成 (module migration 414 + backing 切换)
+description: 重构主体收官 + B sprint 7 链全 sweep + 战斗机制 5 fix. scenario 1a-1c module migration (413 sites) + 1d backing 切换 (6 顶层 const 删 + G.facIdentity / G._wildGenDefs / _scenarioMaterialized + 16 site 二次 migrate). 全 byte-identical 守底. 下次: 1e validators / 1f 4 新城.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
-## 2026-05-11 session 末状态(本 session 累计 1a.2 + 1a.3 + 1b-1, 10 commits 待 push)
+## 2026-05-12 session 末状态(本 session 累计 1d-α + 1d-a + 1d-b + 1d-c + 1d-c-p2, 5 commits pushed origin/main)
+
+**main HEAD: `6893cc0` refactor(1d-c-p2): codex trial 1 P2 — battle_anim 4 site typeof FAC 守卫删除**
+
+本 session 1d 全 5 sub-session:
+- **14e6a4c 1d-α**: _serializeG / _deserializeG verbatim 抽 v181 L1489-L1662 → src/core/persist.js (174 行, byte-identical)
+  - C 路线决议: 1d 原 plan "删 const + 切 backing" 受阻 — v181 内 8 site 1c 没扫到, 三选 A (装作没见) / B (v181 in-place 违反 CLAUDE.md) / C (抽离 + migrate). 选 C 最 robust.
+- **aee32df 1d-a**: WILD_GENS 集合操作 (forEach/filter/some/push) 7 site → getAllWildGenDefs / addWildGenDef (1c-d 留下的非 .find 操作)
+  - chains/general.js (×3) + core/main.js + dev/audit.js (×2) + render/ui_panels.js
+  - 故意留 data/generals.js:1030 ALL_GENS spread (data 层自引用 + 加载顺序约束)
+- **afb5dea 1d-b**: persist.js 8 site + data/generals.js getGenMeta 1 site (FAC_IDENTITY / ALL_FACS / ETHOS_INIT / WILD_GEN_META) → accessor
+  - 新增 getAllFactionIdentities accessor (_serializeG 整 map 迭代用例)
+- **be267b1 1d-c**: 设计层 backing 切换 + 删 6 顶层 const
+  - 静态 (immutable scenario init): FAC / ALL_FACS / PLAYABLE_FACS / ETHOS_INIT / DIPLO_INIT → scenario_loader.js `let _scenarioMaterialized` 模块级 cache
+  - 运行时 mutable: FAC_IDENTITY → G.facIdentity (随 G save/load); WILD_GENS pool → G._wildGenDefs (shared-ref 初始 from WILD_GENS const, byte-identical)
+  - 数据源 const 保留: WILD_GENS / WILD_GEN_META (materialize 输入 + ALL_GENS spread)
+  - data/factions.js: 删 6 const, 留历史 doc + 'use strict' (phase 4 移除)
+  - persist.js: 删 _serializeG `meta.facIdentity` 字段 (G.facIdentity 现 runtime on G, 自动入 snap); _deserializeG 加 fallback `if(!G.facIdentity||!G._wildGenDefs) applyScenario('214')` (旧存档兼容)
+  - 设计 doc §8.3 invariant 守住: src/ + v181 grep G.facIdentity[ / G._wildGenDefs[ 仅 accessor/loader 内部, 0 外部 leak
+- **6893cc0 1d-c-p2**: codex trial 1 P2 catch — battle_anim.js 4 site `typeof FAC !== 'undefined' && getFactionDef(...).color` 守卫删除
+  - 1c-c 漏改 latent: pre-1d-c FAC empty obj (typeof='object') 守卫永真; 1d-c 删 const 后永远 falsy → 颜色永远 fallback ('#888'/'#c96'/'#806040')
+  - fix: 删 typeof FAC 守卫, getFactionDef 已内置 null safety (4 site, byte-identical)
+
+**5 commit 累加 smoke vs HEAD baseline byte-identical (除 timestamp)**. captureState 不抓 G.facIdentity / G._wildGenDefs, backing 切换不影响 smoke 输出. codex trial 2 LGTM 0 finding.
+
+**实机测**: 后续做 (push 已授权, 测后如有问题单独 commit fix).
+
+**1d 整体成果**:
+- v181: 1805 → 1631 (-174 行, 累计 -95.9%)
+- src/core/persist.js 新建 (222 行 = 48 header + 174 verbatim)
+- 16 accessor migration site (1d-a 7 + 1d-b 9) + 3 new accessor (getAllWildGenDefs / addWildGenDef / getAllFactionIdentities)
+- 6 顶层 const 删 (data/factions.js)
+- 设计 doc §8.3 1d row 完成: accessor backing 切 G.facIdentity + _scenarioMaterialized, FAC_IDENTITY 退化为 init snapshot (实际改 G.facIdentity)
+
+**Scenario system 整体进度** (24-36 session 路线):
+- ✅ Design doc v3.3
+- ✅ 1a.1 主表 + 1a.2 SCENARIO_214 主体 + 1a.3 generals 切片
+- ✅ 1b-1 materializeScenario + sync + 1b-2 10 accessor additive
+- ✅ 1c-a/b/c/d module migration (413 sites)
+- ✅ **1d-α/a/b/c/c-p2 const 删 + backing 切 G runtime + save 格式简化**
+- 🔄 下次 session: **1e validators** 实装 + tests/scenario_validate.js
+- ⏳ 1f 4 新城 / 2-7 (路线见 docs/scenario_system.md §8)
+
+---
+
+**1d 教训沉淀 (留 followup)**:
+- `typeof X !== 'undefined' && X[...]` 守卫模式: 删 const 时容易漏改 (1c-c 漏改 battle_anim 4 site; 1d-c 暴露). 未来类似 const 删除 sub-session 必须 grep `typeof X` 一并清.
+- save 格式 meta.facIdentity 字段简化: G runtime state 自动随 snap 序列化, 不需在 meta 单独保存. 同模式可参考: 任何"模块级常量 + 运行时 mutate 字段单独 meta 序列化"的 v172-style hack 都可在切 G 后简化.
+- 1d 5 sub-session 拆分模式 (verbatim 抽离 → migration → backing 切换): scenario 4 新城 / 后续 phase 4 可复用.
+
+---
+
+## 2026-05-11 session 末状态(scenario 1a + 1b + 1c 完成历史快照)
 
 **main HEAD: `4308212` refactor(scenario-1b1-p2)**
 

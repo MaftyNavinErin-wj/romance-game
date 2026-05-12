@@ -1,6 +1,6 @@
 - [User role](user_role.md) — 用户是 Project Romance 制作人,亲自定 session 范围 + 设计 approval
 - [Project Romance overview](project_overview.md) — 三国题材策略游戏,v181 单 HTML,正在做 data/render/chains/core 四层重构
-- [Refactor phase status](project_refactor_status.md) — **scenario 1a + 1b + 1c 全完成 ✅** (main local a29a8bf, 1c 总 413 sites migrate). 全 byte-identical 守底. 下次: 1d top-level const 删 + accessor backing 切 G runtime state
+- [Refactor phase status](project_refactor_status.md) — **scenario 1a + 1b + 1c + 1d 全完成 ✅** (main origin 6893cc0, 1d 5 sub-session = α 抽离 + a/b 16 site migrate + c const 删 + backing 切 G.facIdentity / _scenarioMaterialized + c-p2 typeof FAC 守卫 fix). 全 byte-identical 守底. 下次: 1e validators
 - [战斗机制 systematic bug fix sprint](project_combat_mechanism_bugfix.md) — 批 1+2 close 5 fix (§5.1/§5.2/§5.7/§5.10/§5.3); audit pass 2 S1-S6 完结 robust by design; 剩余 §5.7 P4 / §5.8 P6 / §5.9 设计层 低优
 - [Scenario system design](../scenario_system.md) — 多剧本架构 design doc v3.3 + 1a.3 扩展 (pendingFac + initialUnits 字段); 1a 阶段全完成 ✅ (主表 + SCENARIO_214 + generals 125 + initialUnits 7); 1b-1 下次
 - [Chain master scout](project_chain_master_scout.md) — 8 链总图 + map.js carry-over;顺序 ethos→gentry→politics→diplomacy→economy→event→military→general
@@ -16,3 +16,4 @@
 - [Cross-machine memory sync](feedback_memory_sync.md) — pull 后用 cp 命令把 in-repo docs/memory/ 覆盖本机 auto-memory(in-repo 是权威, auto-memory 不跟 git 走)
 - [_exec sprint codex review streamline](feedback_exec_sprint_streamline.md) — _exec 归位 5 batch 同质, 默认集中 codex review 一次, 异常 batch 单独 escalate
 - [Layer-3 sprint_verify 模板](reference_layer3_verify.md) — tests/sprint_verify.js 自动 verify 模板, 替代 F12 console paste, 后续 sprint 复用
+- [typeof X !== 'undefined' guard sweep](feedback_typeof_guard_sweep.md) — 删 top-level const 前必 grep `typeof X` 守卫 (1c-c 漏改 + 1d-c 暴露 battle_anim 4 site 教训)
