@@ -1,11 +1,52 @@
 ---
-name: Refactor phase status — 阶段 1 scenario system 1a-1f 全完成 + audit sweep 闭环 ✅
-description: scenario 1a-1f 阶段 1 整体收官 + 1f audit sweep 全图 0 orphan. 1f 15 commit (12 主体 + 2 audit p4_p4/p4_p5 + 1 memory). 55 cities, 22 武将 home city 史实正确化, 全 131 武将 birthplace 链路 98 matched / 33 真 OFFMAP / 0 should-fix. 下次: 阶段 2 (190 势力 + 外交).
+name: Refactor phase status — 阶段 2/3/4 SCENARIO_190 minimum viable playable ✅
+description: 阶段 1 scenario 1a-1f 全完成 + audit 闭环. 阶段 2-4 SCENARIO_190 完成 (14 fac/91 diplo/55 cities/83 active 武将/relations/initialUnits/foundingCore). 7 commit local 未 push. 下次: wild/pending 池 + 平衡 + phase 5 启动 UI.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
-## 2026-05-13 (audit follow-up) — 1f-p4-p4 / 1f-p4-p5 全图 orphan sweep
+## 2026-05-13 (streamline push) — 阶段 2-a/2-b/3/4-a/4-b/4-c/4-d SCENARIO_190 7 commit
+
+**main HEAD local: `976cb1e` scenario-4d** (origin/main 仍在 `0b3e043`, 7 commit 未 push)
+
+7 commit (streamline mode, user-driven 自决进度):
+- `9261720` 2-a: 基础设施 — 14 faction_base entry (190 诸侯) + scenarios/index.js + scenarios/190.js stub + scenario_loader.js 通用化 (SCENARIOS register lookup, 删 hardcoded 214 throw). codex LGTM 16K zero findings.
+- `528fc70` 2-b: SCENARIO_190 factions 14 势力 + diplo 91 pair (F.1 invariant). codex trial 1 NEEDS-WORK (catch F.1 missing 48 pair) → trial 2 NEEDS-WORK (catch 真 P1 again) → trial 3 LGTM (37K).
+- `597c981` 3:   SCENARIO_190 cities 55 城 fac/pop/troops/isCapital + emperor luoyang/dongzhuo. codex LGTM 49K (1 P3 nit emperor null 顺手补).
+- `e04b7f5` 4-a: GEN_BASE +80 个 190 期武将 entries (133→213). 14 fac × 5-10 武将, 含 KOEI 数值经验推理. codex LGTM 57K zero findings.
+- `dcb259b` 4-b: SCENARIO_190.generals 60 active 武将 (14 ruler + 46 心腹). 不调 codex, scenario_validate.js 190 PASS 0 errors 自验.
+- `56e6d49` 4-c: relations 双向 + initialUnits[] 24 squads + foundingCore. 不调 codex, validator PASS.
+- `976cb1e` 4-d: **user feedback driven** — 60 active 太少 (田丰/沮授/张辽 应在 fac 不应"消失"). 重 audit GEN_BASE 内 history-correct 190 任职武将 → +23 active (60→83). validator PASS 0 errors 1 informational warning (孙策 16 岁<18).
+
+**SCENARIO_190 最终状态** (minimum viable playable):
+- 14 fac × ruler + 心腹 active (caocao 12 / yuanshao 9 / dongzhuo 8 / gongsunzan 7 / sunjian/matenghan 6 / liubiao/liuyan/taoqian/yuanshu 5 / hanfu/liubei/liuyu 4 / kongrong 3)
+- 91 diplo pair (43 史实 + 48 default neutral)
+- 55 cities 全分配
+- 24 squads × 14 fac initial 部队
+- 38 relations 关系条目 (刘关张/曹氏宗族/卢植同门/袁兄弟反目/孙坚孙策父子/马腾马超父子/糜氏兄弟 等)
+- foundingCore 83 members (14 fac × 3-12)
+
+**Codex review 经验沉淀** (CC streamline 决策):
+- architectural / invariant 复杂 batch → codex 调 (2-a/2-b/3/4-a)
+- data 填充 batch → 跳过 codex, scenario_validate.js 自验 (4-b/4-c/4-d)
+- 2-b trial 1 false alarm (GB2312 乱码) + 真 P1 (F.1 91 pair) — codex 真实价值
+- 节省 ~120K tokens + ~20 分钟
+
+**剩余 future work** (留下次 session):
+- wild 池: GEN_BASE 内 130 武将不在 190 active. 其中部分 should be wild (e.g. 陈宫 190 未仕 但 190 已成年; 徐庶 同). 需 mini-sprint 决定 wild 范围 + wildData (title/post/loyalty/merit/retainer)
+- pending 池: 200+ 出山武将 (诸葛亮/陆逊/邓艾/钟会/姜维 等) availableYear 字段
+- skills 设计: GEN_BASE +80 现 skills=[] stub (单独 sprint 给 80 武将设计技能)
+- 平衡 phase: res/troops/pop 数值实玩调
+- phase 5: 启动 UI scenario 选择
+- phase 6: 年龄 hook (birthYear/deathYear 数据补全 GEN_BASE)
+
+**Session 不变 (smoke 守底)**:
+- 默认 applyScenario('214') 行为 完全不变
+- 7 commit 全 smoke 214 51 snapshots byte-identical PASS
+
+---
+
+## 2026-05-12 (audit follow-up) — 1f-p4-p4 / 1f-p4-p5 全图 orphan sweep
 
 **main HEAD pushed: `46bf5a8` refactor(scenario-1f-p4-p5)**
 
