@@ -2,10 +2,10 @@
 //
 // SCENARIO_190 — 诸侯讨董(190 年初平元年)初始 state 切片
 //
-// 状态: phase 2-b — factions (14 势力) + diplo (双向外交) 实数据填. cities/generals 仍空:
+// 状态: phase 3 — factions + diplo + cities 全部填. generals 仍空 (phase 4):
 //   - phase 2-a (done): 元字段 + scenarios register 基础设施
-//   - phase 2-b (本):   factions 14 势力 + diplo 关系 (本 commit)
-//   - phase 3:          cities (190 ~55 城归属)
+//   - phase 2-b (done): factions 14 势力 + diplo 91 pair (F.1 invariant)
+//   - phase 3   (本):   cities 55 城 fac/pop/troops/isCapital
 //   - phase 4:          generals (190 武将归属 + 关系图)
 //
 // 字段 schema 同 SCENARIO_214 (见 214.js header + docs/scenario_system.md §3.4).
@@ -14,19 +14,21 @@
 // 注意:
 // - nanman 190 期不参与中原讨董, 不列入 factions
 // - foundingCore=[] stub (phase 4 才填, 当前 GEN_BASE 不含 dongzhuo/sunjian 等 190 武将)
-// - validator (tests/scenario_validate.js) 跑 190 会有 B.1/B.4 errors — expected for stub state
+// - validator (tests/scenario_validate.js) 跑 190 仍有 B.4 (generals 未填) errors — expected
 // - 默认 applyScenario('214') 不会真 init 190, smoke 不受影响
 
 const SCENARIO_190 = {
   "id": "190",
-  "version": "0.2",
+  "version": "0.3",
   "name": "诸侯讨董",
   "startYear": 190,
   "description": "东汉初平元年,董卓废少帝立献帝,关东诸侯起兵讨董,群雄并起。",
-  "provenance": "phase 2-b: factions+diplo 实数据; cities/generals 留 phase 3/4",
+  "provenance": "phase 3: factions/diplo/cities 实数据; generals 留 phase 4",
   // startYear=190 (初平元年) 时天子献帝仍在洛阳, 董卓持. 191 年才西迁长安.
-  // emperor.cityId 留 phase 3 装 (luoyang), emperor.holder='dongzhuo'.
-  "emperor": null,
+  "emperor": {
+    "cityId": "luoyang",
+    "holder": "dongzhuo"
+  },
   "factions": {
     // ── 强势 (regime / regional, 持献帝或盟主) ──
     "dongzhuo": {
@@ -374,7 +376,107 @@ const SCENARIO_190 = {
     ["matenghan", "yuanshu",     0, "neutral"],
     ["sunjian", "taoqian",       0, "neutral"]
   ],
-  "cities": {},
+  // ─── 55 城归属 ─────────────────────────────────────────────────────
+  // fac 分配按 190 期史实 + 简化处理 (整年合并 + 主要诸侯版图):
+  //   dongzhuo (司隶+并州+关中): luoyang/changan/hedong/bingzhou/shangdang
+  //   yuanshao (渤海起家): bohai
+  //   yuanshu (南阳+淮南): nanyang/xinye/lujiang/shouchun/hefei
+  //   caocao (兖州陈留): chenliu/guandu/puyang/xuchang
+  //   sunjian (长沙+江东): changsha/jianye/jingkou/huiji/chaigang/yuzhang/suzhou/lingling/wuling
+  //   liubiao (荆州主体): xiangyang/jingzhou/yiling/shangyong/jiaozhou/panyu/wuchang
+  //   liuyan (益州): chengdu/yizhou_n/hanzhong/bazhong/luocheng/yongan/jianning
+  //   liuyu (幽州): youzhou/zhuojun
+  //   gongsunzan (北平): beiping
+  //   taoqian (徐州): xuzhou/xiapi/guangling/donghai/langya/xiaopei
+  //   hanfu (冀州): ye
+  //   matenghan (凉州): liangzhou/wuwei/tianshui/anding
+  //   kongrong (青州): beihai/qingzhou
+  //   liubei (平原相): pingyuan
+  // pop 沿用 214 数据 (24 年人口变化不大, 实玩后再调); troops 同 (后续 balance 调).
+  "cities": {
+    // ── dongzhuo (5): 司隶 + 并州 + 关中 ──
+    "luoyang":   { "fac": "dongzhuo",  "pop": 325000, "troops": 3000, "isCapital": true  }, // 司隶治, 持献帝
+    "changan":   { "fac": "dongzhuo",  "pop": 275000, "troops": 2500, "isCapital": false },
+    "hedong":    { "fac": "dongzhuo",  "pop": 200000, "troops": 1200, "isCapital": false },
+    "bingzhou":  { "fac": "dongzhuo",  "pop": 140000, "troops": 1000, "isCapital": false }, // 并州治晋阳 (丁原死后中央控)
+    "shangdang": { "fac": "dongzhuo",  "pop": 120000, "troops":  900, "isCapital": false }, // 并州上党 (1f 新城)
+
+    // ── yuanshao (1): 渤海起家 ──
+    "bohai":     { "fac": "yuanshao",  "pop": 180000, "troops": 1200, "isCapital": true  }, // 渤海郡治南皮 (1f 新城)
+
+    // ── yuanshu (5): 南阳 + 淮南 ──
+    "nanyang":   { "fac": "yuanshu",   "pop": 300000, "troops": 2200, "isCapital": true  },
+    "xinye":     { "fac": "yuanshu",   "pop": 125000, "troops": 1000, "isCapital": false },
+    "lujiang":   { "fac": "yuanshu",   "pop": 160000, "troops": 1000, "isCapital": false }, // 庐江 (袁术后期淮南势力)
+    "shouchun":  { "fac": "yuanshu",   "pop": 210000, "troops": 1000, "isCapital": false }, // 九江郡治
+    "hefei":     { "fac": "yuanshu",   "pop": 190000, "troops": 1500, "isCapital": false }, // 扬州治
+
+    // ── caocao (4): 兖州陈留 ──
+    "chenliu":   { "fac": "caocao",    "pop": 240000, "troops": 1800, "isCapital": true  }, // 起兵地
+    "guandu":    { "fac": "caocao",    "pop": 125000, "troops": 1500, "isCapital": false }, // 兖州西门
+    "puyang":    { "fac": "caocao",    "pop": 190000, "troops": 1200, "isCapital": false }, // 兖州东郡治
+    "xuchang":   { "fac": "caocao",    "pop": 425000, "troops": 4000, "isCapital": false }, // 颍川许县 (荀彧/颍川士族归附)
+
+    // ── sunjian (9): 长沙 + 江东主体 + 荆南 ──
+    "changsha":  { "fac": "sunjian",   "pop": 200000, "troops": 1200, "isCapital": true  }, // 长沙太守起家
+    "jianye":    { "fac": "sunjian",   "pop": 350000, "troops": 3500, "isCapital": false }, // 丹阳郡治 (190 时尚称秣陵)
+    "jingkou":   { "fac": "sunjian",   "pop": 175000, "troops": 1000, "isCapital": false },
+    "huiji":     { "fac": "sunjian",   "pop": 210000, "troops": 1500, "isCapital": false },
+    "chaigang":  { "fac": "sunjian",   "pop": 190000, "troops": 1500, "isCapital": false },
+    "yuzhang":   { "fac": "sunjian",   "pop": 175000, "troops": 1000, "isCapital": false },
+    "suzhou":    { "fac": "sunjian",   "pop": 210000, "troops": 1500, "isCapital": false }, // 吴郡 (1f 新城)
+    "lingling":  { "fac": "sunjian",   "pop": 110000, "troops":  600, "isCapital": false }, // 荆南零陵
+    "wuling":    { "fac": "sunjian",   "pop": 100000, "troops":  700, "isCapital": false }, // 荆南武陵 (1f 新城)
+
+    // ── liubiao (7): 荆州主体 + 交州名义 ──
+    "xiangyang": { "fac": "liubiao",   "pop": 210000, "troops": 2000, "isCapital": true  }, // 刘表治襄阳
+    "jingzhou":  { "fac": "liubiao",   "pop": 325000, "troops": 2500, "isCapital": false }, // 南郡江陵
+    "yiling":    { "fac": "liubiao",   "pop": 150000, "troops": 1000, "isCapital": false },
+    "shangyong": { "fac": "liubiao",   "pop":  90000, "troops":  800, "isCapital": false },
+    "wuchang":   { "fac": "liubiao",   "pop": 260000, "troops": 2000, "isCapital": false }, // 江夏郡治
+    "jiaozhou":  { "fac": "liubiao",   "pop":  75000, "troops":  500, "isCapital": false }, // 交州 (荆州刺史远控)
+    "panyu":     { "fac": "liubiao",   "pop": 125000, "troops":  800, "isCapital": false },
+
+    // ── liuyan (7): 益州 + 南中 ──
+    "chengdu":   { "fac": "liuyan",    "pop": 390000, "troops": 3500, "isCapital": true  },
+    "yizhou_n":  { "fac": "liuyan",    "pop":  90000, "troops":  500, "isCapital": false },
+    "hanzhong":  { "fac": "liuyan",    "pop": 175000, "troops": 2000, "isCapital": false }, // 实际 191 张鲁占
+    "bazhong":   { "fac": "liuyan",    "pop": 140000, "troops":  800, "isCapital": false },
+    "luocheng":  { "fac": "liuyan",    "pop": 150000, "troops": 1000, "isCapital": false },
+    "yongan":    { "fac": "liuyan",    "pop": 110000, "troops":  800, "isCapital": false },
+    "jianning":  { "fac": "liuyan",    "pop":  60000, "troops":  400, "isCapital": false }, // 南中 (益州牧管辖)
+
+    // ── liuyu (2): 幽州 ──
+    "youzhou":   { "fac": "liuyu",     "pop": 150000, "troops": 1000, "isCapital": true  }, // 幽州治蓟城
+    "zhuojun":   { "fac": "liuyu",     "pop": 110000, "troops":  800, "isCapital": false }, // 涿郡 (1f 新城)
+
+    // ── gongsunzan (1): 北平 ──
+    "beiping":   { "fac": "gongsunzan", "pop": 100000, "troops":  600, "isCapital": true  }, // 右北平太守
+
+    // ── taoqian (6): 徐州 ──
+    "xuzhou":    { "fac": "taoqian",   "pop": 310000, "troops": 3000, "isCapital": true  }, // 徐州治彭城
+    "xiapi":     { "fac": "taoqian",   "pop": 200000, "troops": 1500, "isCapital": false },
+    "guangling": { "fac": "taoqian",   "pop": 175000, "troops": 1000, "isCapital": false },
+    "donghai":   { "fac": "taoqian",   "pop": 110000, "troops":  900, "isCapital": false }, // 东海郡 (1f 新城)
+    "langya":    { "fac": "taoqian",   "pop": 120000, "troops":  800, "isCapital": false }, // 琅琊国 (1f 新城)
+    "xiaopei":   { "fac": "taoqian",   "pop": 120000, "troops": 1000, "isCapital": false }, // 沛国 (1f 新城; 名义属豫州但徐州西门 taoqian 控)
+
+    // ── hanfu (1): 冀州治 ──
+    "ye":        { "fac": "hanfu",     "pop": 400000, "troops": 2500, "isCapital": true  }, // 邺城 (191 让给 yuanshao)
+
+    // ── matenghan (4): 凉州 ──
+    "liangzhou": { "fac": "matenghan", "pop": 110000, "troops":  800, "isCapital": true  }, // 凉州治姑臧
+    "wuwei":     { "fac": "matenghan", "pop":  90000, "troops":  500, "isCapital": false },
+    "tianshui":  { "fac": "matenghan", "pop": 100000, "troops": 1000, "isCapital": false },
+    "anding":    { "fac": "matenghan", "pop":  90000, "troops":  600, "isCapital": false }, // 安定郡 (1f 新城)
+
+    // ── kongrong (2): 青州 ──
+    "beihai":    { "fac": "kongrong",  "pop": 160000, "troops":  800, "isCapital": true  }, // 北海相
+    "qingzhou":  { "fac": "kongrong",  "pop": 275000, "troops": 1500, "isCapital": false }, // 青州治 (孔融名义控)
+
+    // ── liubei (1): 平原相 ──
+    "pingyuan":  { "fac": "liubei",    "pop": 130000, "troops":  900, "isCapital": true  }  // 平原郡 (1f 新城)
+  },
   "generals": {},
   "initialUnits": []
 };
