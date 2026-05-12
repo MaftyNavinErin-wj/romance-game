@@ -3,7 +3,7 @@
 // 用法:
 //   node tests/compare.js [baseline_path] [current_path]
 // 默认:
-//   baseline = tests/baseline/phase1f_p3_p2_complete.json (最新阶段 baseline)
+//   baseline = tests/baseline/phase1f_p4_complete.json (最新阶段 baseline)
 //   current  = tests/current.json
 //
 // Baseline 演进顺序(每阶段完成时锁定一份,旧 baseline 保留供回归):
@@ -14,8 +14,9 @@
 //     → data_completion_complete (data-completion sprint 数据补完)
 //     → phase1f_complete (scenario 1f 河北 3 新城 bohai/pingyuan/zhuojun, 48 cities)
 //     → phase1f_p2_complete (1f-p2 +徐州 xiaopei/donghai +荆南 wuling +关陇 shangdang/anding, 53 cities)
-//     → phase1f_p3_complete (1f-p3 +江东 suzhou +徐州东北 langya + bingzhou r=11→8, 55 cities;STATE_CITIES 漏更新 latent)
-//     → phase1f_p3_p2_complete (1f-p3-p2 STATE_CITIES 全 10 新城分州 + npm compare default, 55 cities, **当前默认**)
+//     → phase1f_p3_complete (1f-p3 +江东 suzhou +徐州东北 langya + bingzhou r=11→8, 55 cities)
+//     → phase1f_p3_p2_complete (1f-p3-p2 STATE_CITIES 10 新城分州 + STATE_TIER 升级)
+//     → phase1f_p4_complete (1f-p4 10 新城 COUNTY_DATA + 3 magnate move 谯县/朐县/吴县 history-correct, 55 cities, **当前默认**)
 //
 // 退出码:
 //   0 = PASS(完全一致)
@@ -27,7 +28,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const BASELINE_DEFAULT = path.resolve(__dirname, 'baseline', 'phase1f_p3_p2_complete.json');
+const BASELINE_DEFAULT = path.resolve(__dirname, 'baseline', 'phase1f_p4_complete.json');
 const CURRENT_DEFAULT  = path.resolve(__dirname, 'current.json');
 
 function diff(a, b, p, out, max) {

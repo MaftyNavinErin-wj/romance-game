@@ -138,11 +138,11 @@ const COUNTY_DATA = {
     {name:'缑氏',type:'common',clanFamily:null,popShare:0.12},
   ],
   xuzhou:[
-    {name:'彭城',type:'seat',clanFamily:null,popShare:0.35},
-    {name:'下邳',type:'clan_base',clanFamily:CLAN_FAMILIES.xp_chen,popShare:0.20},
-    {name:'朐县',type:'clan_base',clanFamily:CLAN_FAMILIES.dh_mi,magnate:true,popShare:0.15}, // ★ v170
-    {name:'东海',type:'common',clanFamily:null,popShare:0.12},
-    {name:'广戚',type:'common',clanFamily:null,popShare:0.10},
+    {name:'彭城',type:'seat',clanFamily:null,popShare:0.40},
+    {name:'下邳',type:'clan_base',clanFamily:CLAN_FAMILIES.xp_chen,popShare:0.25},
+    // 1f-p4: '朐县' (dh_mi magnate) moved → donghai (东海郡治, history-correct)
+    {name:'东海',type:'common',clanFamily:null,popShare:0.15},
+    {name:'广戚',type:'common',clanFamily:null,popShare:0.12},
     {name:'兰陵',type:'common',clanFamily:null,popShare:0.08},
   ],
   ye:[
@@ -167,11 +167,11 @@ const COUNTY_DATA = {
     {name:'繁县',type:'common',clanFamily:null,popShare:0.12},
   ],
   jianye:[
-    {name:'建业县',type:'seat',clanFamily:null,popShare:0.35},
-    {name:'吴县',type:'clan_base',clanFamily:[CLAN_FAMILIES.wj_gu, CLAN_FAMILIES.wj_lu, CLAN_FAMILIES.wj_zhu],magnate:true,popShare:0.20}, // ★ v170: 一县多族
-    {name:'丹阳',type:'common',clanFamily:null,popShare:0.18},
-    {name:'句容',type:'common',clanFamily:null,popShare:0.15},
-    {name:'秣陵',type:'common',clanFamily:null,popShare:0.12},
+    {name:'建业县',type:'seat',clanFamily:null,popShare:0.45},
+    // 1f-p4: '吴县' (wj_gu/wj_lu/wj_zhu magnate) moved → suzhou (吴郡治, history-correct)
+    {name:'丹阳',type:'common',clanFamily:null,popShare:0.22},
+    {name:'句容',type:'common',clanFamily:null,popShare:0.18},
+    {name:'秣陵',type:'common',clanFamily:null,popShare:0.15},
   ],
   jingzhou:[
     {name:'江陵',type:'seat',clanFamily:null,popShare:0.35},
@@ -225,11 +225,11 @@ const COUNTY_DATA = {
     {name:'邓县',type:'common',clanFamily:null,popShare:0.18},
   ],
   chenliu:[
-    {name:'陈留县',type:'seat',clanFamily:null,popShare:0.35},
-    {name:'谯县',type:'clan_base',clanFamily:[CLAN_FAMILIES.pg_cao, CLAN_FAMILIES.pg_xhs, CLAN_FAMILIES.qg_xu],magnate:true,popShare:0.15}, // ★ v170: magnate家族落地
-    {name:'雍丘',type:'common',clanFamily:null,popShare:0.20},
-    {name:'尉氏',type:'common',clanFamily:null,popShare:0.17},
-    {name:'扶沟',type:'common',clanFamily:null,popShare:0.13},
+    {name:'陈留县',type:'seat',clanFamily:null,popShare:0.40},
+    // 1f-p4: '谯县' (pg_cao/pg_xhs/qg_xu magnate) moved → xiaopei (沛国治, history-correct)
+    {name:'雍丘',type:'common',clanFamily:null,popShare:0.25},
+    {name:'尉氏',type:'common',clanFamily:null,popShare:0.20},
+    {name:'扶沟',type:'common',clanFamily:null,popShare:0.15},
   ],
   xiapi:[
     {name:'下邳县',type:'seat',clanFamily:null,popShare:0.35},
@@ -386,6 +386,67 @@ const COUNTY_DATA = {
     {name:'建宁县',type:'seat',clanFamily:null,popShare:0.45},
     {name:'味县',type:'common',clanFamily:null,popShare:0.30},
     {name:'牂牁',type:'common',clanFamily:null,popShare:0.25},
+  ],
+  // ═══════════════════════════════════════════════════════
+  // ★ 1f / 1f-p2 / 1f-p3 — 10 新城 COUNTY_DATA (1f-p4 加)
+  // ═══════════════════════════════════════════════════════
+  // ── 1f: 河北 3 新城 ──
+  bohai:[
+    {name:'南皮县',type:'seat',clanFamily:null,popShare:0.40},
+    {name:'高城',type:'common',clanFamily:null,popShare:0.25},
+    {name:'章武',type:'common',clanFamily:null,popShare:0.20},
+    {name:'重合',type:'common',clanFamily:null,popShare:0.15},
+  ],
+  pingyuan:[
+    {name:'平原县',type:'seat',clanFamily:null,popShare:0.45},
+    {name:'般县',type:'common',clanFamily:null,popShare:0.30},
+    {name:'高唐',type:'common',clanFamily:null,popShare:0.25},
+  ],
+  zhuojun:[
+    {name:'涿县',type:'seat',clanFamily:null,popShare:0.45},
+    {name:'故安',type:'common',clanFamily:null,popShare:0.30},
+    {name:'良乡',type:'common',clanFamily:null,popShare:0.25},
+  ],
+  // ── 1f-p2: 徐州 2 + 荆南 1 + 关陇 2 ──
+  xiaopei:[
+    {name:'沛县',type:'seat',clanFamily:null,popShare:0.40},
+    // 1f-p4: '谯县' moved from chenliu (沛国曹氏/沛国夏侯氏/谯国许氏 history-correct)
+    {name:'谯县',type:'clan_base',clanFamily:[CLAN_FAMILIES.pg_cao, CLAN_FAMILIES.pg_xhs, CLAN_FAMILIES.qg_xu],magnate:true,popShare:0.35},
+    {name:'相县',type:'common',clanFamily:null,popShare:0.25},
+  ],
+  donghai:[
+    {name:'郯县',type:'seat',clanFamily:null,popShare:0.40},
+    // 1f-p4: '朐县' moved from xuzhou (东海糜氏 history-correct)
+    {name:'朐县',type:'clan_base',clanFamily:CLAN_FAMILIES.dh_mi,magnate:true,popShare:0.35},
+    {name:'戚县',type:'common',clanFamily:null,popShare:0.25},
+  ],
+  wuling:[
+    {name:'临沅',type:'seat',clanFamily:null,popShare:0.45},
+    {name:'汉寿',type:'common',clanFamily:null,popShare:0.30},
+    {name:'索县',type:'common',clanFamily:null,popShare:0.25},
+  ],
+  shangdang:[
+    {name:'长子',type:'seat',clanFamily:null,popShare:0.45},
+    {name:'壶关',type:'common',clanFamily:null,popShare:0.30},
+    {name:'屯留',type:'common',clanFamily:null,popShare:0.25},
+  ],
+  anding:[
+    {name:'临泾',type:'seat',clanFamily:null,popShare:0.45},
+    {name:'高平',type:'common',clanFamily:null,popShare:0.30},
+    {name:'乌氏',type:'common',clanFamily:null,popShare:0.25},
+  ],
+  // ── 1f-p3: 江东 1 + 徐州东北 1 ──
+  suzhou:[
+    // 1f-p4: '吴县' moved from jianye (吴郡治 history-correct, 吴县是 seat 兼 clan_base magnate)
+    {name:'吴县',type:'seat',clanFamily:[CLAN_FAMILIES.wj_gu, CLAN_FAMILIES.wj_lu, CLAN_FAMILIES.wj_zhu],magnate:true,popShare:0.40},
+    {name:'娄县',type:'common',clanFamily:null,popShare:0.25},
+    {name:'富春',type:'common',clanFamily:null,popShare:0.20},
+    {name:'乌程',type:'common',clanFamily:null,popShare:0.15},
+  ],
+  langya:[
+    {name:'开阳',type:'seat',clanFamily:null,popShare:0.40},
+    {name:'阳都',type:'common',clanFamily:null,popShare:0.30}, // 史实诸葛亮籍贯
+    {name:'即丘',type:'common',clanFamily:null,popShare:0.30},
   ],
 };
 
