@@ -414,7 +414,7 @@ const _baCore = (() => {
       wu:   'rgba(248,225,222,.95)',
       nanman:'rgba(248,240,210,.95)',
     };
-    const col = (typeof FAC !== 'undefined' && getFactionDef(unit.fac)?.color) || '#888';
+    const col = getFactionDef(unit.fac)?.color || '#888';
     const darkFill = FAC_FLAG_COL[unit.fac] || 'rgba(240,235,220,.95)';
     const gname = unit.squads?.[0]?.genName || '?';
     const dispName = gname.length > 2 ? gname.slice(0,2) : gname;
@@ -467,7 +467,7 @@ const _baCore = (() => {
       wu:   'rgba(248,225,222,.95)',
       nanman:'rgba(248,240,210,.95)',
     };
-    const col = (typeof FAC !== 'undefined' && getFactionDef(unit.fac)?.color) || '#888';
+    const col = getFactionDef(unit.fac)?.color || '#888';
     const sailFill = FAC_SAIL_COL[unit.fac] || 'rgba(240,235,220,.95)';
     const gname = unit.squads?.[0]?.genName || '?';
     const dispName = gname.length > 2 ? gname.slice(0,2) : gname;
@@ -2191,7 +2191,7 @@ async function _playSiegeBattleAnim(report, attackers, defenders, posSnap, city)
     // 攀爬小圆点
     ladders.forEach((L, idx) => {
       const atkFac = atkPhantoms[idx]?.unit?.fac;
-      const climberCol = (typeof FAC !== 'undefined' && getFactionDef(atkFac)?.color) || '#c96';
+      const climberCol = getFactionDef(atkFac)?.color || '#c96';
       for(let k = 0; k < 2; k++){
         const climber = document.createElementNS(_baCore.SVG_NS, 'circle');
         climber.setAttribute('r', (1.5*invS).toFixed(2));
@@ -2260,7 +2260,7 @@ async function _playSiegeBattleAnim(report, attackers, defenders, posSnap, city)
 
     // ── Ph4 (3400-4200ms) 结果大字 + 飘字 + 归阵 ──
     const defFac = city.fac || effectiveDefenders[0]?.fac || 'wei';
-    const defColor = (typeof FAC !== 'undefined' && getFactionDef(defFac)?.color) || '#806040';
+    const defColor = getFactionDef(defFac)?.color || '#806040';
     let resultText, resultColor;
     if(atkWins && cityBreach){ resultText = '城破'; resultColor = '#c03030'; }
     else if(atkWins){ resultText = '攻占得手'; resultColor = '#c03030'; }
