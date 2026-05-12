@@ -44,16 +44,16 @@
 // ═══════════════════════════════════════════════════════
 const STATE_CITIES = {
   si:       ['luoyang','changan','hedong'],                                          // 司隶
-  yu:       ['xuchang','chenliu','nanyang','xinye'],                                 // 豫州（含颍川·陈留·南阳）
+  yu:       ['xuchang','chenliu','nanyang','xinye','xiaopei'],                       // 豫州（含颍川·陈留·南阳·沛国小沛 1f-p2）
   yan:      ['guandu','puyang'],                                                     // 兖州
-  xu:       ['xuzhou','xiapi','guangling'],                                          // 徐州
-  qing:     ['qingzhou','beihai'],                                                   // 青州
-  ji:       ['ye'],                                                                  // 冀州
-  you:      ['youzhou','beiping'],                                                   // 幽州
-  bing:     ['bingzhou'],                                                            // 并州
-  liang:    ['liangzhou','wuwei','tianshui'],                                        // 凉州
-  jing:     ['xiangyang','jingzhou','yiling','shangyong','changsha','lingling','wuchang'], // 荆州（江夏含武昌）
-  yang:     ['hefei','shouchun','lujiang','jianye','jingkou','huiji','chaigang','yuzhang'], // 扬州
+  xu:       ['xuzhou','xiapi','guangling','donghai','langya'],                       // 徐州（含东海郡 1f-p2 + 琅琊郡 1f-p3）
+  qing:     ['qingzhou','beihai','pingyuan'],                                        // 青州（含平原郡 1f）
+  ji:       ['ye','bohai'],                                                          // 冀州（含渤海郡南皮 1f）
+  you:      ['youzhou','beiping','zhuojun'],                                         // 幽州（含涿郡 1f）
+  bing:     ['bingzhou','shangdang'],                                                // 并州（含上党郡 1f-p2）
+  liang:    ['liangzhou','wuwei','tianshui','anding'],                               // 凉州（含安定郡 1f-p2）
+  jing:     ['xiangyang','jingzhou','yiling','shangyong','changsha','lingling','wuchang','wuling'], // 荆州（含武陵郡 1f-p2）
+  yang:     ['hefei','shouchun','lujiang','jianye','jingkou','huiji','chaigang','yuzhang','suzhou'], // 扬州（含吴郡 1f-p3）
   yi:       ['chengdu','yizhou_n','bazhong','hanzhong','yongan','luocheng'],         // 益州
   jiao:     ['jiaozhou','panyu'],                                                    // 交州
   nanzhong: ['jianning'],                                                            // 南中（非十三州，蛮地）
