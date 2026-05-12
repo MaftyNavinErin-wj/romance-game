@@ -268,6 +268,16 @@ function validateScenario(scenarioId) {
         errors.push(`F/K diplo[${i}] suzerain='${suzerain}' but status='${status}' (only vassal allows)`);
       }
     }
+    // F.1 强制 — 每对 fac (a < b) 必须有 1 entry. materialize 时 G.diplo['a-b'] / G.diplo['b-a']
+    // 双向 mirror 都从此 entry 派生; 缺则 runtime 访问 crash. (codex trial 1 P1.1)
+    const sortedFids = Array.from(facIds).sort();
+    for (let i = 0; i < sortedFids.length; i++) {
+      for (let j = i + 1; j < sortedFids.length; j++) {
+        const expectedKey = [sortedFids[i], sortedFids[j]].sort().join('|');
+        if (!seenPairs.has(expectedKey))
+          errors.push(`F.1 diplo missing entry for pair ${sortedFids[i]}-${sortedFids[j]}`);
+      }
+    }
   }
 
   // ── D. 年龄一致性 (warning-only, null 字段 skip) ─────────────────
@@ -326,10 +336,14 @@ function validateScenario(scenarioId) {
       // I.4 post {name,rank,...} or null
       if (g.post !== null && (typeof g.post !== 'object' || !g.post.name || !g.post.rank))
         errors.push(`I.4 active['${name}'].post invalid (need {name,rank,...} or null)`);
-      // I.6 initialUnit=true → retainer.count>0 + type 合法 (C.5 重叠)
+      // I.6 / C.5 initialUnit=true → retainer.count>0 + type 合法
+      // (设计 doc §9 标 required, 但 1a.3 verify_scenario_214 已 explicit relax 为 warning:
+      //  v181 RETAINER_PRESET 4 个 active 漏 (乐进/满宠/廖化/张翼) — 这是 v181 数据 deficiency,
+      //  retainer 字段 src/ 内 无 runtime 读取 (1a.2 抽离 future-use 元数据), 不影响行为.
+      //  fix 数据是 data quality sprint 工作 (out of 1e validator scope), validator 仅 surface.)
       if (g.initialUnit) {
         if (!g.retainer || g.retainer.count <= 0)
-          warnings.push(`I.6/C.5 active['${name}'] initialUnit=true but retainer.count=${g.retainer && g.retainer.count} (v181 RETAINER_PRESET 可能漏)`);
+          warnings.push(`I.6/C.5 active['${name}'] initialUnit=true but retainer.count=${g.retainer && g.retainer.count} (v181 RETAINER_PRESET 可能漏 — data sprint followup)`);
         if (g.retainer && !RETAINER_TYPE_ENUM.has(g.retainer.type))
           errors.push(`I.6 active['${name}'] retainer.type='${g.retainer.type}' invalid (must be cavalry/light/heavy/archer/siege/naval/null)`);
       }
@@ -450,8 +464,11 @@ function validateScenario(scenarioId) {
       });
     });
     // every active.initialUnit=true must appear in initialUnits[].squads
+    // (codex trial 1 P1.2: 用 Array.isArray guard, 防 malformed scenario u.squads=undefined 时 forEach crash)
     const inUnit = new Set();
-    iu.forEach(u => u.squads.forEach(s => inUnit.add(s.genName)));
+    iu.forEach(u => {
+      if (Array.isArray(u.squads)) u.squads.forEach(s => inUnit.add(s.genName));
+    });
     for (const [name, g] of Object.entries(S.generals)) {
       if (g.status === 'active' && g.initialUnit && !inUnit.has(name))
         errors.push(`active['${name}'] initialUnit=true but not in initialUnits[].squads`);
