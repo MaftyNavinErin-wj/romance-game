@@ -439,15 +439,17 @@ const COUNTY_DATA = {
   suzhou:[
     // 1f-p4-p2 (codex catch): 跟 chenliu (陈留县 seat + 谯县 clan_base) 模式一致 — type 单值 限制下,
     // 吴县 用 type='clan_base' 让 顾/陆/朱 clan logic trigger; 娄县 (西汉始置, 史实苏州属县) 做 seat.
-    {name:'娄县',type:'seat',clanFamily:null,popShare:0.35},
-    {name:'吴县',type:'clan_base',clanFamily:[CLAN_FAMILIES.wj_gu, CLAN_FAMILIES.wj_lu, CLAN_FAMILIES.wj_zhu],magnate:true,popShare:0.35},
-    {name:'富春',type:'common',clanFamily:null,popShare:0.18},
-    {name:'乌程',type:'common',clanFamily:null,popShare:0.12},
+    {name:'娄县',type:'seat',clanFamily:null,popShare:0.30},
+    {name:'吴县',type:'clan_base',clanFamily:[CLAN_FAMILIES.wj_gu, CLAN_FAMILIES.wj_lu, CLAN_FAMILIES.wj_zhu],magnate:true,popShare:0.32},
+    {name:'富春',type:'common',clanFamily:null,popShare:0.16}, // 史实孙氏籍贯
+    {name:'钱唐',type:'common',clanFamily:null,popShare:0.12}, // 1f-audit: 全琮 "吴郡钱唐" 史实属县, 此前 orphan
+    {name:'乌程',type:'common',clanFamily:null,popShare:0.10},
   ],
   langya:[
-    {name:'开阳',type:'seat',clanFamily:null,popShare:0.40},
-    {name:'阳都',type:'common',clanFamily:null,popShare:0.30}, // 史实诸葛亮籍贯
-    {name:'即丘',type:'common',clanFamily:null,popShare:0.30},
+    {name:'开阳',type:'seat',clanFamily:null,popShare:0.35},
+    {name:'莒县',type:'common',clanFamily:null,popShare:0.25}, // 1f-audit: 徐盛 "琅邪莒县" 史实属县, 此前 orphan
+    {name:'阳都',type:'common',clanFamily:null,popShare:0.20}, // 史实诸葛亮籍贯
+    {name:'即丘',type:'common',clanFamily:null,popShare:0.20},
   ],
 };
 
