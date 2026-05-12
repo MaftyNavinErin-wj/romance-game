@@ -42,8 +42,10 @@
 // v181 内 saveToSlot/loadFromSlot 及 src/dev/debug.js 调用时函数可见)。
 //
 // ── 1d 后续 sub-session ──
-//   1d-a: WILD_GENS 集合操作 8 site migrate
-//   1d-b: 本文件内 FAC_IDENTITY / ALL_FACS / ETHOS_INIT → accessor migrate (~8 site)
+//   1d-α ✅ 抽离 _serializeG / _deserializeG (本文件)
+//   1d-a ✅ WILD_GENS 集合操作 7 site migrate
+//   1d-b ✅ 本文件 8 site FAC_IDENTITY/ALL_FACS/ETHOS_INIT → accessor (getAllFactionIdentities / getFactionIdentity / setFactionIdentity / getScenarioFactions / getEthos)
+//        ✅ data/generals.js getGenMeta 内 WILD_GEN_META → getWildGenMeta
 //   1d-c: 切 backing G.facIdentity / G._wildGenDefs + 删 top-level const
 
 // ── 存档序列化/反序列化 ──────────────────────────────
@@ -64,7 +66,7 @@ function _serializeG(){
     _pendingVassalOffer: _pendingVassalOffer,
     tutorialDone: G.tutorialDone || false,
     // v172: FAC_IDENTITY 是模块级常量，其运行时字段（type/stage/anchorState）需单独存档
-    facIdentity: Object.fromEntries(Object.entries(FAC_IDENTITY).map(([f, id]) => [f, {
+    facIdentity: Object.fromEntries(Object.entries(getAllFactionIdentities()).map(([f, id]) => [f, {
       type: id.type,
       stage: id.stage,
       anchorState: id.anchorState,
@@ -92,22 +94,23 @@ function _deserializeG(jsonStr){
   // 旧存档（无 facIdentity 字段）兼容：保持 initGame 初始值
   if(meta.facIdentity){
     Object.entries(meta.facIdentity).forEach(([f, s]) => {
-      if(FAC_IDENTITY[f]){
-        if(s.type != null)        FAC_IDENTITY[f].type = s.type;
-        if(s.stage != null)       FAC_IDENTITY[f].stage = s.stage;
-        if(s.anchorState !== undefined) FAC_IDENTITY[f].anchorState = s.anchorState;
+      if(getFactionIdentity(f)){
+        if(s.type != null)        setFactionIdentity(f, 'type', s.type);
+        if(s.stage != null)       setFactionIdentity(f, 'stage', s.stage);
+        if(s.anchorState !== undefined) setFactionIdentity(f, 'anchorState', s.anchorState);
       }
     });
   }
   // v172: 兜底——确保所有势力都有 stage 字段（旧存档加载时 initGame 已设过，双保险）
-  ALL_FACS.forEach(fid => {
-    if(FAC_IDENTITY[fid] && !FAC_IDENTITY[fid].stage){
-      FAC_IDENTITY[fid].stage = (fid === 'nanman') ? 'warlord' : 'regime';
-      FAC_IDENTITY[fid].anchorState = null;
+  getScenarioFactions().forEach(fid => {
+    const id = getFactionIdentity(fid);
+    if(id && !id.stage){
+      setFactionIdentity(fid, 'stage', (fid === 'nanman') ? 'warlord' : 'regime');
+      setFactionIdentity(fid, 'anchorState', null);
     }
   });
   // 恢复科技树Set（JSON.parse的reviver已处理，但双保险）
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     const tech = G.factions[fid]?._tech;
     if(tech && tech.researched && !(tech.researched instanceof Set)){
       tech.researched = new Set(tech.researched);
@@ -146,9 +149,9 @@ function _deserializeG(jsonStr){
   _fastForward = false;
   // ★ v167fix #6: 删除 _pendingPeaceOffer/_pendingVassalOffer = null（L29848已从meta恢复，此处重置会丢失读档时的求和/附庸请求）
   // ★ v151: 价值观系统旧存档兼容
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     if(G.factions[fid] && !G.factions[fid].ethos){
-      G.factions[fid].ethos = {...(ETHOS_INIT[fid] || {mandate:0,power:0,civil:0,military:0,strategy:0})};
+      G.factions[fid].ethos = {...(getEthos(fid) || {mandate:0,power:0,civil:0,military:0,strategy:0})};
       G.factions[fid]._ethosLog = [];
       G.factions[fid]._ethosSnap = {};
     }
@@ -214,7 +217,7 @@ function _deserializeG(jsonStr){
   if(!G._tradeAgreements) G._tradeAgreements = [];
   // ★ v166: 迁民系统旧存档兼容
   if(G._migratedThisTurn === undefined) G._migratedThisTurn = false;
-  ALL_FACS.forEach(fid => {
+  getScenarioFactions().forEach(fid => {
     if(G.strategyCD && G.strategyCD[fid] && G.strategyCD[fid].envoy === undefined){
       G.strategyCD[fid].envoy = 0;
     }

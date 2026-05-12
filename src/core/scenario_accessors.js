@@ -18,6 +18,7 @@
 //   isPlayableFaction(fid)          → boolean (convenience)
 //   getFactionIdentity(fid)         → FAC_IDENTITY[fid] 或 null
 //   setFactionIdentity(fid, k, v)   → FAC_IDENTITY[fid][k] = v (写口, 1d 后会改写 G.facIdentity)
+//   getAllFactionIdentities()       → FAC_IDENTITY (ref, 1d-b 新加) — _serializeG 整 map 迭代用 (1d-c 切 G.facIdentity)
 //   getEthos(fid)                   → ETHOS_INIT[fid] 或 null
 //   getDiploInit()                  → DIPLO_INIT (ref)
 //   getWildGenDef(name)             → WILD_GENS.find(g => g.name === name) (1d 会改 G._wildGenDefs[name])
@@ -64,6 +65,13 @@ function setFactionIdentity(fid, key, value) {
   if (typeof FAC_IDENTITY === 'undefined') return;
   if (!FAC_IDENTITY[fid]) return;
   FAC_IDENTITY[fid][key] = value;
+}
+
+// 1d-b: 整 map ref (Object.entries / serialize / 整迭代 用例).
+// _serializeG 需把全 fid 的 type/stage/anchorState 序列化, 单 fid getFactionIdentity 不够用.
+// 1d-c backing 切换后改 G.facIdentity.
+function getAllFactionIdentities() {
+  return (typeof FAC_IDENTITY !== 'undefined') ? FAC_IDENTITY : {};
 }
 
 // ── ethos / diplo accessors ──

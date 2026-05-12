@@ -93,7 +93,10 @@ const WILD_GEN_META = {
 }; 
 
 // ★ v130fix: 统一武将元数据查找（GEN_META优先，fallback WILD_GEN_META）
-function getGenMeta(genName){ return GEN_META[genName] || WILD_GEN_META[genName] || {}; }
+// 1d-b: WILD_GEN_META → getWildGenMeta accessor (函数体在 getWildGenMeta hoist 后才被 call,
+// data/generals.js L808 早于 scenario_accessors.js L820 装 — 但 getGenMeta 实际 call 在 initGame 之后,
+// 两文件均已 load, accessor 可见).
+function getGenMeta(genName){ return GEN_META[genName] || getWildGenMeta(genName) || {}; }
 
 /** 武将五维静态标签
  *  politics:    uniHan(尊汉) | warlord(枭雄) | regional(地域) | pragmatic(实用)
