@@ -3,7 +3,7 @@
 // 城市主表(cross-scenario fix,地理 immutable 字段)
 // 字段:name/q/r/tags/jun/size/base(产出基数)
 // 不进 CITY_BASE 的字段:fac/pop/troops/isCapital(留 SCENARIO_xxx.cities)
-// 1a 阶段 45 城; 1f 扩 3 城 河北 (bohai/pingyuan/zhuojun) → 48; 1f-p2 +5 城 (徐州 xiaopei/donghai + 荆南 wuling + 关陇 shangdang/anding) → 53
+// 1a 阶段 45 城; 1f 扩 3 城 河北 (bohai/pingyuan/zhuojun) → 48; 1f-p2 +5 (徐州 xiaopei/donghai + 荆南 wuling + 关陇 shangdang/anding) → 53; 1f-p3 +2 (江东 suzhou + 徐州东北 langya) + bingzhou 上移 r=11→8 → 55
 //
 // 来源:阶段 1a.1 由 tools/extract_scenario_214.js 自动抽取自 project_romance_v181.html。
 // 1a 阶段不被任何 code 引用,仅为后续阶段 1b 的 materializeScenario() 数据源。
@@ -175,7 +175,7 @@ const CITY_BASE = {
   "bingzhou": {
     "name": "晋阳",
     "q": 37,
-    "r": 11,
+    "r": 8,
     "tags": [
       "产马"
     ],
@@ -955,6 +955,42 @@ const CITY_BASE = {
       "wood": 30,
       "iron": 35,
       "horses": 100
+    }
+  },
+  "suzhou": {
+    "name": "吴郡",
+    "q": 78,
+    "r": 39,
+    "tags": [
+      "都市",
+      "港口",
+      "水乡"
+    ],
+    "jun": "yangzhoujun",
+    "size": "medium",
+    "base": {
+      "food": 380,
+      "gold": 145,
+      "wood": 70,
+      "iron": 40,
+      "horses": 1
+    }
+  },
+  "langya": {
+    "name": "琅琊",
+    "q": 75,
+    "r": 20,
+    "tags": [
+      "平原"
+    ],
+    "jun": "siyujun",
+    "size": "small",
+    "base": {
+      "food": 300,
+      "gold": 60,
+      "wood": 40,
+      "iron": 40,
+      "horses": 2
     }
   }
 };

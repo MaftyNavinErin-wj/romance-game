@@ -28,7 +28,7 @@
 
 const SCENARIO_214 = {
   "id": "214",
-  "version": "1.2",
+  "version": "1.3",
   "name": "三足鼎立",
   "startYear": 214,
   "description": "东汉建安十九年,曹操称魏公,刘备入蜀,孙权割据江东,三国鼎足之势已成。",
@@ -566,6 +566,18 @@ const SCENARIO_214 = {
       "fac": "wei",
       "pop": 90000,
       "troops": 600,
+      "isCapital": false
+    },
+    "suzhou": {
+      "fac": "wu",
+      "pop": 210000,
+      "troops": 1500,
+      "isCapital": false
+    },
+    "langya": {
+      "fac": "wei",
+      "pop": 120000,
+      "troops": 800,
       "isCapital": false
     }
   },

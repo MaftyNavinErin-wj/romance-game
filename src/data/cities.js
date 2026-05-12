@@ -1,10 +1,10 @@
 // src/data/cities.js
 //
-// 城市初始数据 + 地理关系 — 53 城市 (1a: 45; 1f: +3 河北 bohai/pingyuan/zhuojun → 48; 1f-p2: +5 徐州 xiaopei/donghai + 荆南 wuling + 关陇 shangdang/anding → 53) + 道路网 + 河流路径 + 地域分组
+// 城市初始数据 + 地理关系 — 55 城市 (1a: 45; 1f: +3 河北 → 48; 1f-p2: +5 徐州/荆南/关陇 → 53; 1f-p3: +2 江东 suzhou + 徐州东北 langya + bingzhou 上移 r=11→8 → 55) + 道路网 + 河流路径 + 地域分组
 //
 // 来源:从 project_romance_v181.html 整体抽离(Session 1.3 / 阶段 1)
 // 抽离方式:**只搬运,不改逻辑**(verbatim relocation)。
-//   - CITIES_DEF(原 L2090-L2152):45 城市初始定义(hex 坐标 q/r、属性、初始 fac/troops/pop/base 资源);1f +3 → 48;1f-p2 +5 → 53
+//   - CITIES_DEF(原 L2090-L2152):45 城市初始定义(hex 坐标 q/r、属性、初始 fac/troops/pop/base 资源);1f +3 → 48;1f-p2 +5 → 53;1f-p3 +2 → 55 (含 bingzhou r 修订)
 //   - CITY_MAP(原 L2160):派生 O(1) 查表
 //   - JIANGDONG_CITIES / QINGXU_CITIES / JINGZHOU_CITIES(原 L2163-L2166):地域 Set,技能用
 //   - isJiangdong / isQingxu / isJingzhou(原 L2167-L2169):地域查询 helper
@@ -41,7 +41,7 @@ const CITIES_DEF = [
   {id:'qingzhou', name:'青州', q:66,r:16, tags:['平原'],              jun:'jiqingjun',  fac:'wei',pop:275000, troops:1500,               size:'medium', base:{food:520,gold:92, wood:45,iron:50,horses:3}},
   {id:'youzhou',  name:'蓟城', q:56,r:6, tags:['产马','都市'],       jun:'jiqingjun',  fac:'wei',pop:150000, troops:1000,               size:'medium', base:{food:320,gold:71, wood:45,iron:40,horses:180}},
   // ── 魏 西北 ──
-  {id:'bingzhou', name:'晋阳', q:37,r:11, tags:['产马'],              jun:'xibejun',    fac:'wei',pop:140000, troops:1000,               size:'small',  base:{food:300,gold:58, wood:40,iron:50,horses:160}},
+  {id:'bingzhou', name:'晋阳', q:37,r:8,  tags:['产马'],              jun:'xibejun',    fac:'wei',pop:140000, troops:1000,               size:'small',  base:{food:300,gold:58, wood:40,iron:50,horses:160}},
   {id:'liangzhou',name:'姑臧', q:8,r:18, tags:['产马','山地'],       jun:'xibejun',    fac:'wei',pop:110000, troops:800,                size:'small',  base:{food:240,gold:52, wood:30,iron:45,horses:200}},
   {id:'wuwei',    name:'武威', q:12,r:15, tags:['产马'],               jun:'xibejun',    fac:'wei',pop:90000, troops:500,                size:'small',  base:{food:220,gold:45, wood:25,iron:35,horses:170}},
   {id:'tianshui', name:'天水', q:19,r:24, tags:['雄关','山地','产铁'],jun:'xibejun',    fac:'wei',pop:100000, troops:1000,               size:'small',  base:{food:230,gold:54, wood:35,iron:80,horses:5}},
@@ -99,6 +99,9 @@ const CITIES_DEF = [
   {id:'wuling',   name:'武陵', q:44,r:47, tags:['水乡','山地'],       jun:'jingzhoujun',fac:'shu',pop:100000, troops:700,                size:'small',  base:{food:280,gold:50, wood:80,iron:30,horses:2}},
   {id:'shangdang',name:'上党', q:36,r:14, tags:['山地','产铁'],       jun:'xibejun',   fac:'wei',pop:120000, troops:900,                size:'small',  base:{food:260,gold:55, wood:60,iron:75,horses:30}},
   {id:'anding',   name:'安定', q:23,r:20, tags:['山地','产马'],       jun:'xibejun',   fac:'wei',pop:90000,  troops:600,                size:'small',  base:{food:220,gold:45, wood:30,iron:35,horses:100}},
+  // ── 1f-p3 扩 — 江东 1 + 徐州东北 1 (+ bingzhou 上移 r=11→8) ──
+  {id:'suzhou',   name:'吴郡', q:78,r:39, tags:['都市','港口','水乡'], jun:'yangzhoujun',fac:'wu', pop:210000, troops:1500,               size:'medium', base:{food:380,gold:145,wood:70,iron:40,horses:1}},
+  {id:'langya',   name:'琅琊', q:75,r:20, tags:['平原'],              jun:'siyujun',   fac:'wei',pop:120000, troops:800,                size:'small',  base:{food:300,gold:60, wood:40,iron:40,horses:2}},
 ];
 // Note: CITIES_DEF.forEach 在 v181.html 主 script 中执行,会给每个 city 对象添加 x/y 像素坐标
 // (依赖 hexToPixel,后定义)
@@ -107,8 +110,8 @@ const CITIES_DEF = [
 const CITY_MAP = Object.fromEntries(CITIES_DEF.map(c => [c.id, c]));
 
 // ★ v126: 地域城市集合（技能用）
-const JIANGDONG_CITIES = new Set(['jianye','jingkou','huiji','wuchang','chaigang','jiaozhou','panyu','changsha','yuzhang','lingling','hefei','shouchun','lujiang']);
-const QINGXU_CITIES = new Set(['xuzhou','qingzhou','beihai','guangling','xiapi','puyang','xiaopei','donghai']);  // 1f-p2: +xiaopei/donghai (徐州西门 + 徐州东沿海, 臧霸 isQingxu boost 覆盖)
+const JIANGDONG_CITIES = new Set(['jianye','jingkou','huiji','wuchang','chaigang','jiaozhou','panyu','changsha','yuzhang','lingling','hefei','shouchun','lujiang','suzhou']);  // 1f-p3: +suzhou (吴郡, 江东东部)
+const QINGXU_CITIES = new Set(['xuzhou','qingzhou','beihai','guangling','xiapi','puyang','xiaopei','donghai','langya']);  // 1f-p2: +xiaopei/donghai (徐州西门 + 徐州东沿海); 1f-p3: +langya (徐州东北 琅琊郡)
 // v128: 荆州城市集合（文聘·镇荆用）
 const JINGZHOU_CITIES = new Set(['xiangyang','jingzhou','yiling','shangyong','changsha','lingling','wuling']);  // 1f-p2: +wuling (荆南山区, 文聘 isJingzhou boost 覆盖)
 function isJiangdong(cityId){ return JIANGDONG_CITIES.has(cityId); }
@@ -169,6 +172,9 @@ const ROADS = [
   ['wuling','jingzhou'],['wuling','lingling'],['wuling','yiling'], // 武陵连江陵+零陵+夷陵 (荆南山区)
   ['shangdang','bingzhou'],['shangdang','hedong'],['shangdang','ye'], // 上党连晋阳+河东+邺城 (山西-河北枢纽)
   ['anding','changan'],['anding','tianshui'],['anding','hedong'],  // 安定连长安+天水+河东 (关中-凉州枢纽)
+  // ── 1f-p3 扩 — 江东 + 徐州东北 路网 ──
+  ['suzhou','jianye'],['suzhou','huiji'],['suzhou','jingkou'],     // 吴郡连建业+会稽+京口 (江东东部)
+  ['langya','beihai'],['langya','donghai'],['langya','qingzhou'],  // 琅琊连北海+东海+青州 (徐州东北)
 ];
 
 // G2: 城市邻接图（双向，从ROADS构建）
