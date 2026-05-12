@@ -41,12 +41,14 @@
 // 在 v181 inline script body 之前(_serializeG/_deserializeG 函数声明 hoist 到 global script scope,
 // v181 内 saveToSlot/loadFromSlot 及 src/dev/debug.js 调用时函数可见)。
 //
-// ── 1d 后续 sub-session ──
+// ── 1d 各 sub-session ──
 //   1d-α ✅ 抽离 _serializeG / _deserializeG (本文件)
 //   1d-a ✅ WILD_GENS 集合操作 7 site migrate
 //   1d-b ✅ 本文件 8 site FAC_IDENTITY/ALL_FACS/ETHOS_INIT → accessor (getAllFactionIdentities / getFactionIdentity / setFactionIdentity / getScenarioFactions / getEthos)
 //        ✅ data/generals.js getGenMeta 内 WILD_GEN_META → getWildGenMeta
-//   1d-c: 切 backing G.facIdentity / G._wildGenDefs + 删 top-level const
+//   1d-c ✅ accessor backing 切 _scenarioMaterialized + G.facIdentity / G._wildGenDefs;
+//        ✅ 删 6 个 top-level const (FAC/ALL_FACS/PLAYABLE_FACS/FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT);
+//        ✅ _serializeG meta.facIdentity 字段删 (G.facIdentity 已在 snap, 旧存档 meta.facIdentity 仍兼容).
 
 // ── 存档序列化/反序列化 ──────────────────────────────
 function _serializeG(){
@@ -65,12 +67,8 @@ function _serializeG(){
     _pendingPeaceOffer: _pendingPeaceOffer,
     _pendingVassalOffer: _pendingVassalOffer,
     tutorialDone: G.tutorialDone || false,
-    // v172: FAC_IDENTITY 是模块级常量，其运行时字段（type/stage/anchorState）需单独存档
-    facIdentity: Object.fromEntries(Object.entries(getAllFactionIdentities()).map(([f, id]) => [f, {
-      type: id.type,
-      stage: id.stage,
-      anchorState: id.anchorState,
-    }])),
+    // 1d-c: facIdentity 字段删 — G.facIdentity 现 runtime mutable on G, 已随 snap 自动序列化.
+    // 旧存档 (v172-v181 格式) 仍带 meta.facIdentity, _deserializeG 兼容 overlay (见下).
   };
   return JSON.stringify(snap);
 }
@@ -90,8 +88,14 @@ function _deserializeG(jsonStr){
   _pendingPeaceOffer = meta._pendingPeaceOffer || null;
   _pendingVassalOffer = meta._pendingVassalOffer || null;
   G.tutorialDone = meta.tutorialDone || false;
-  // v172: 恢复 FAC_IDENTITY 运行时字段（type/stage/anchorState）
-  // 旧存档（无 facIdentity 字段）兼容：保持 initGame 初始值
+  // 1d-c backing 兼容:
+  //   - 新存档 (post-1d-c): snap.facIdentity / snap._wildGenDefs 已在 Object.assign(G, snap) 后存在.
+  //   - 旧存档 (v172-v181): snap 顶层无这两字段, 调 applyScenario 重新 init backing (含 _scenarioMaterialized).
+  if(!G.facIdentity || !G._wildGenDefs){
+    applyScenario('214');
+  }
+  // v172 旧存档兼容: meta.facIdentity overlay (runtime type/stage/anchorState 字段)
+  // 新存档无 meta.facIdentity 字段, if check false, 不动 G.facIdentity (snap 已含完整状态).
   if(meta.facIdentity){
     Object.entries(meta.facIdentity).forEach(([f, s]) => {
       if(getFactionIdentity(f)){

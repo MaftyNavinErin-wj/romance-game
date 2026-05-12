@@ -1,108 +1,108 @@
 // src/core/scenario_accessors.js
 //
-// 阶段 1b-2: scenario accessor functions
+// 阶段 1b-2: scenario accessor functions (additive API)
+// 阶段 1d-c: backing 切换 — 顶层 const → _scenarioMaterialized (静态) + G runtime state (mutable)
 //
 // 设计 doc 参考: docs/scenario_system.md §5.4 + §8.2 + §8.3
 //
-// 目的:
-//   - 给 module-by-module 1c 阶段 grep+替换提供稳定 API 表面
-//   - accessor backing 在阶段 1d 切换到 G runtime state, 时 module 端 0 改
+// ── backing 策略 (1d-c 落地) ──
+// 静态数据 (init snapshot, immutable) → _scenarioMaterialized (scenario_loader.js 模块级 cache):
+//   - FAC (faction def: name/full/ruler/color/cls)
+//   - ALL_FACS / PLAYABLE_FACS
+//   - ETHOS_INIT (起手 ethos)
+//   - DIPLO_INIT (起手外交边)
 //
-// 1b-2 范围: 仅新增 accessor 函数 (additive API). 现有模块仍直接读 FAC[fid] 等顶层 const,
-//   行为 byte-identical. 模块迁移在 1c, accessor backing 切换在 1d.
+// 运行时 mutable (随 G save/load) → G runtime state:
+//   - G.facIdentity (FAC_IDENTITY 后继, 称帝 / 政体变迁 都 mutate 此)
+//   - G._wildGenDefs (WILD_GENS pool 后继, 下野 / audit 修复时 add)
 //
-// accessor 列表 (设计 doc §8.2 + §5.4):
-//   getFactionDef(fid)              → FAC[fid] 或 null
-//   getScenarioFactions()           → ALL_FACS (ref, 不复制 — 保 forEach byte-identical)
-//   getPlayableFactions()           → PLAYABLE_FACS (ref)
-//   isPlayableFaction(fid)          → boolean (convenience)
-//   getFactionIdentity(fid)         → FAC_IDENTITY[fid] 或 null
-//   setFactionIdentity(fid, k, v)   → FAC_IDENTITY[fid][k] = v (写口, 1d 后会改写 G.facIdentity)
-//   getAllFactionIdentities()       → FAC_IDENTITY (ref, 1d-b 新加) — _serializeG 整 map 迭代用 (1d-c 切 G.facIdentity)
-//   getEthos(fid)                   → ETHOS_INIT[fid] 或 null
-//   getDiploInit()                  → DIPLO_INIT (ref)
-//   getWildGenDef(name)             → WILD_GENS.find(g => g.name === name) (1d 会改 G._wildGenDefs[name])
-//   getAllWildGenDefs()             → WILD_GENS (ref, 1d-a 新加) — collection forEach/filter/some/spread (1d-c 切 Object.values(G._wildGenDefs))
-//   addWildGenDef(genData)          → WILD_GENS.push(genData)   (1d-a 新加) — 下野 / audit 修复写口
-//   getWildGenMeta(name)            → WILD_GEN_META[name] (1d 会改 G.wildPoolMeta[name] | G._wildGenMetaInit[name])
+// 数据源 (top-level const 保留, 不 mutate):
+//   - WILD_GEN_META (in src/data/generals.js, 武将元数据, immutable)
+//   - WILD_GENS (in src/data/generals.js, 用于 materialize 初始 G._wildGenDefs + data 层 ALL_GENS spread)
 //
-// 加载顺序: 在 src/data/factions.js + src/core/scenario_loader.js 之后,
-//   src/data/generals.js (WILD_GENS / WILD_GEN_META) 也已 load.
-//   src/core/main.js initGame 之前.
+// ── accessor 列表 ──
+//   getFactionDef(fid)              → _scenarioMaterialized.FAC[fid] 或 null
+//   getAllFactions()                → _scenarioMaterialized.FAC ref (Object.entries/keys 用例)
+//   getScenarioFactions()           → _scenarioMaterialized.ALL_FACS ref
+//   getPlayableFactions()           → _scenarioMaterialized.PLAYABLE_FACS ref
+//   isPlayableFaction(fid)          → boolean
+//   getFactionIdentity(fid)         → G.facIdentity[fid] 或 null
+//   setFactionIdentity(fid, k, v)   → G.facIdentity[fid][k] = v (写口)
+//   getAllFactionIdentities()       → G.facIdentity ref (Object.entries serialize 用例)
+//   getEthos(fid)                   → _scenarioMaterialized.ETHOS_INIT[fid] 或 null
+//   getDiploInit()                  → _scenarioMaterialized.DIPLO_INIT ref
+//   getWildGenDef(name)             → G._wildGenDefs[name] 或 null
+//   getAllWildGenDefs()             → Object.values(G._wildGenDefs) (空时 [])
+//   addWildGenDef(genData)          → G._wildGenDefs[genData.name] = genData
+//   getWildGenMeta(name)            → WILD_GEN_META[name] 或 null (data 源 const)
+//
+// 加载顺序: 在 src/core/scenario_loader.js 之后 (依赖 _scenarioMaterialized 已 populated +
+// G.facIdentity / G._wildGenDefs 已 init). scenario_loader.js 末尾 auto applyScenario('214')
+// 确保 src/ 其他 script 加载时 backing 已就位.
 
 'use strict';
 
-// ── faction accessors ──
+// ── faction accessors (1d-c: backing → _scenarioMaterialized) ──
 
 function getFactionDef(fid) {
-  return (typeof FAC !== 'undefined' && FAC[fid]) || null;
+  return (_scenarioMaterialized && _scenarioMaterialized.FAC[fid]) || null;
 }
 
-// 1c-c: 返回 FAC 整 object ref (Object.entries / .keys 用例)
 function getAllFactions() {
-  return (typeof FAC !== 'undefined') ? FAC : {};
+  return (_scenarioMaterialized && _scenarioMaterialized.FAC) || {};
 }
 
 function getScenarioFactions() {
-  return (typeof ALL_FACS !== 'undefined') ? ALL_FACS : [];
+  return (_scenarioMaterialized && _scenarioMaterialized.ALL_FACS) || [];
 }
 
 function getPlayableFactions() {
-  return (typeof PLAYABLE_FACS !== 'undefined') ? PLAYABLE_FACS : [];
+  return (_scenarioMaterialized && _scenarioMaterialized.PLAYABLE_FACS) || [];
 }
 
 function isPlayableFaction(fid) {
-  return (typeof PLAYABLE_FACS !== 'undefined') && PLAYABLE_FACS.indexOf(fid) >= 0;
+  if (!_scenarioMaterialized) return false;
+  return _scenarioMaterialized.PLAYABLE_FACS.indexOf(fid) >= 0;
 }
 
-// ── faction identity accessors (1d 后 backing 切到 G.facIdentity) ──
+// ── faction identity accessors (1d-c: backing → G.facIdentity) ──
 
 function getFactionIdentity(fid) {
-  return (typeof FAC_IDENTITY !== 'undefined' && FAC_IDENTITY[fid]) || null;
+  return (G && G.facIdentity && G.facIdentity[fid]) || null;
 }
 
 function setFactionIdentity(fid, key, value) {
-  if (typeof FAC_IDENTITY === 'undefined') return;
-  if (!FAC_IDENTITY[fid]) return;
-  FAC_IDENTITY[fid][key] = value;
+  if (!G || !G.facIdentity || !G.facIdentity[fid]) return;
+  G.facIdentity[fid][key] = value;
 }
 
-// 1d-b: 整 map ref (Object.entries / serialize / 整迭代 用例).
-// _serializeG 需把全 fid 的 type/stage/anchorState 序列化, 单 fid getFactionIdentity 不够用.
-// 1d-c backing 切换后改 G.facIdentity.
 function getAllFactionIdentities() {
-  return (typeof FAC_IDENTITY !== 'undefined') ? FAC_IDENTITY : {};
+  return (G && G.facIdentity) || {};
 }
 
-// ── ethos / diplo accessors ──
+// ── ethos / diplo accessors (1d-c: backing → _scenarioMaterialized) ──
 
 function getEthos(fid) {
-  return (typeof ETHOS_INIT !== 'undefined' && ETHOS_INIT[fid]) || null;
+  return (_scenarioMaterialized && _scenarioMaterialized.ETHOS_INIT[fid]) || null;
 }
 
 function getDiploInit() {
-  return (typeof DIPLO_INIT !== 'undefined') ? DIPLO_INIT : {};
+  return (_scenarioMaterialized && _scenarioMaterialized.DIPLO_INIT) || {};
 }
 
-// ── wild general accessors (设计 doc §5.4; 1b-2 仍读 WILD_GENS / WILD_GEN_META literal) ──
+// ── wild general accessors (1d-c: collection backing → G._wildGenDefs, meta 保留 WILD_GEN_META const) ──
 
 function getWildGenDef(name) {
-  if (typeof WILD_GENS === 'undefined') return null;
-  return WILD_GENS.find(g => g.name === name) || null;
+  return (G && G._wildGenDefs && G._wildGenDefs[name]) || null;
 }
 
-// 1d-a: 集合 ref (forEach / filter / some / spread 用例).
-// 1c-d 留下的 collection 操作 (1c 只迁移 .find): forEach/filter/some/spread/push.
-// 1d-c backing 切换后改 Object.values(G._wildGenDefs).
 function getAllWildGenDefs() {
-  return (typeof WILD_GENS !== 'undefined') ? WILD_GENS : [];
+  return (G && G._wildGenDefs) ? Object.values(G._wildGenDefs) : [];
 }
 
-// 1d-a: 写口 — 新条目入池 (下野 / audit 修复).
-// 1d-c backing 切换后改 G._wildGenDefs[genData.name] = genData.
 function addWildGenDef(genData) {
-  if (typeof WILD_GENS === 'undefined') return;
-  WILD_GENS.push(genData);
+  if (!G || !G._wildGenDefs || !genData) return;
+  G._wildGenDefs[genData.name] = genData;
 }
 
 function getWildGenMeta(name) {
