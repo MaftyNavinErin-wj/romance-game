@@ -31,19 +31,20 @@ let _scenarioMaterialized = null;
 
 // ── pure transforms ──
 
-// 输入: scenarioId (currently only '214')
+// 输入: scenarioId (string, lookup in SCENARIOS register; 2-a: '214' / '190' stub)
 // 输出: { scenarioId, startYear, FAC, ALL_FACS, PLAYABLE_FACS, FAC_IDENTITY, ETHOS_INIT, DIPLO_INIT }
 //
-// 数据源: 全局 SCENARIO_214 + FACTION_BASE (已 load 至顶层 const)
+// 数据源: 全局 SCENARIOS[scenarioId] + FACTION_BASE (已 load 至顶层 const)
 //
-// 守底 invariant: 输出值 跟 v181 原 src/data/factions.js literal 字符级一致 (smoke 验证)
+// 守底 invariant: scenarioId='214' 输出值 跟 v181 原 src/data/factions.js literal 字符级一致
+//                 (smoke 验证; SCENARIOS['214'] === SCENARIO_214 同 object).
+// 2-a 改: phase 1a 的 hardcoded `if(scenarioId !== '214')` 改 SCENARIOS register lookup,
+//        为 phase 2-b/3/4 渐进填充 SCENARIO_190 铺路.
 function materializeScenario(scenarioId) {
-  if (scenarioId !== '214') {
-    throw new Error(`materializeScenario: unsupported scenarioId '${scenarioId}' (1b-1 only supports 214)`);
-  }
-  if (typeof SCENARIO_214 === 'undefined') throw new Error('materializeScenario: SCENARIO_214 not loaded');
+  if (typeof SCENARIOS === 'undefined') throw new Error('materializeScenario: SCENARIOS register not loaded (scenarios/index.js missing)');
   if (typeof FACTION_BASE === 'undefined') throw new Error('materializeScenario: FACTION_BASE not loaded');
-  const sc = SCENARIO_214;
+  const sc = SCENARIOS[scenarioId];
+  if (!sc) throw new Error(`materializeScenario: unknown scenarioId '${scenarioId}' (registered: ${Object.keys(SCENARIOS).join(',')})`);
 
   // FAC: { fid: { name, full, ruler, color, cls } }
   // name/full/color/cls from FACTION_BASE; ruler scenario-specific
