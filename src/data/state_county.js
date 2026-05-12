@@ -66,10 +66,11 @@ const STATE_NAMES = {
 };
 
 // 州分级：large(≥5城，能培养政权)·medium(3-4城，能培养一方之主)·small(≤2城，边缘州)
+// 1f/1f-p2/1f-p3 +10 新城 tier 升级: yu 4→5 / xu 3→5 → large; qing 2→3 / you 2→3 → medium
 const STATE_TIER = {
-  jing:'large', yang:'large', yi:'large',
-  si:'medium', yu:'medium', xu:'medium', liang:'medium',
-  yan:'small', qing:'small', ji:'small', you:'small', bing:'small', jiao:'small', nanzhong:'small',
+  jing:'large', yang:'large', yi:'large', yu:'large', xu:'large',
+  si:'medium', liang:'medium', qing:'medium', you:'medium',
+  yan:'small', ji:'small', bing:'small', jiao:'small', nanzhong:'small',
 };
 
 // 城市→州反查
