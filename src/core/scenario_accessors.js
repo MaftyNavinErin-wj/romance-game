@@ -21,6 +21,8 @@
 //   getEthos(fid)                   → ETHOS_INIT[fid] 或 null
 //   getDiploInit()                  → DIPLO_INIT (ref)
 //   getWildGenDef(name)             → WILD_GENS.find(g => g.name === name) (1d 会改 G._wildGenDefs[name])
+//   getAllWildGenDefs()             → WILD_GENS (ref, 1d-a 新加) — collection forEach/filter/some/spread (1d-c 切 Object.values(G._wildGenDefs))
+//   addWildGenDef(genData)          → WILD_GENS.push(genData)   (1d-a 新加) — 下野 / audit 修复写口
 //   getWildGenMeta(name)            → WILD_GEN_META[name] (1d 会改 G.wildPoolMeta[name] | G._wildGenMetaInit[name])
 //
 // 加载顺序: 在 src/data/factions.js + src/core/scenario_loader.js 之后,
@@ -79,6 +81,20 @@ function getDiploInit() {
 function getWildGenDef(name) {
   if (typeof WILD_GENS === 'undefined') return null;
   return WILD_GENS.find(g => g.name === name) || null;
+}
+
+// 1d-a: 集合 ref (forEach / filter / some / spread 用例).
+// 1c-d 留下的 collection 操作 (1c 只迁移 .find): forEach/filter/some/spread/push.
+// 1d-c backing 切换后改 Object.values(G._wildGenDefs).
+function getAllWildGenDefs() {
+  return (typeof WILD_GENS !== 'undefined') ? WILD_GENS : [];
+}
+
+// 1d-a: 写口 — 新条目入池 (下野 / audit 修复).
+// 1d-c backing 切换后改 G._wildGenDefs[genData.name] = genData.
+function addWildGenDef(genData) {
+  if (typeof WILD_GENS === 'undefined') return;
+  WILD_GENS.push(genData);
 }
 
 function getWildGenMeta(name) {

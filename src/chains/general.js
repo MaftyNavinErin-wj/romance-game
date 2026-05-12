@@ -286,7 +286,7 @@ function _rebuildGEN_MAP(){
   });
   (G.genPendingPool||[]).forEach(gen => { if(gen.name) GEN_MAP[gen.name] = gen; });
   // 在野武将：WILD_GENS中未被招募的仍需可查（profile/关系），用原始引用
-  WILD_GENS.forEach(g => { if(!GEN_MAP[g.name]) GEN_MAP[g.name] = g; });
+  getAllWildGenDefs().forEach(g => { if(!GEN_MAP[g.name]) GEN_MAP[g.name] = g; });
 }
 
 // ═══════════════════════════════════════════════════════
@@ -876,7 +876,7 @@ function getAllRecruitedNames(){
 /** 刷新在野武将池（从 WILD_GENS 中随机抽取，排除已被招募者和未到出场时间者） */
 function refreshWildPool(){
   const recruited = getAllRecruitedNames();
-  const available = WILD_GENS.filter(g =>
+  const available = getAllWildGenDefs().filter(g =>
     !recruited.has(g.name) &&
     G.turn >= (g.minTurn || 1)   // 未到出场时间的武将不进池
   );
@@ -1480,7 +1480,7 @@ function checkLoyaltyThresholds(){
         if(!getWildGenDef(name)){
           // 用GENS_FULL中的数据重建在野条目（标记下野信息）
           const genData = {...g, defectedFrom: fid, defectedTurn: G.turn, minTurn: G.turn};
-          WILD_GENS.push(genData);
+          addWildGenDef(genData);
         } else {
           const wg = getWildGenDef(name);
           if(wg){ wg.defectedFrom = fid; wg.defectedTurn = G.turn; wg.minTurn = G.turn; }

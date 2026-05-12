@@ -290,7 +290,7 @@ function initGame(scenarioId){
   });
   // 初始功绩赋值
   ALL_GENS.forEach(g=>{ G.genMerit[g.name] = MERIT_INIT[g.name] || 20; });
-  WILD_GENS.forEach(g=>{ G.genMerit[g.name] = MERIT_INIT[g.name] || 10; });
+  getAllWildGenDefs().forEach(g=>{ G.genMerit[g.name] = MERIT_INIT[g.name] || 10; });
   INTIMACY_PRESET.forEach(([a,b,v])=>setIntimacy(a,b,v));
   refreshWildPool(); // 游戏开始时生成初始在野武将池
   ALL_GENS.forEach(g=>{

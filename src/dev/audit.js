@@ -157,7 +157,7 @@ function runIntegrityAudit(){
       if(!allAliveGens.has(name)){
         // 检查是否在在野系统中（不算错误）
         const inWildPool = (G.wildPool||[]).includes(name);
-        const inWildGens = typeof WILD_GENS !== 'undefined' && WILD_GENS.some(w => w.name === name);
+        const inWildGens = getAllWildGenDefs().some(w => w.name === name);
         if(!inWildPool && !inWildGens) warn('结构', `genLoyalty['${name}'] 存在但武将不在任何势力/在野池/WILD_GENS`);
       }
     });
@@ -255,7 +255,7 @@ function checkElimination(){
         clearPrefectByGen(g.name);
         clearAllPostsByGen(g.name);
         if(!getWildGenDef(g.name)){
-          WILD_GENS.push({...g, defectedFrom: fid, defectedTurn: G.turn, minTurn: G.turn});
+          addWildGenDef({...g, defectedFrom: fid, defectedTurn: G.turn, minTurn: G.turn});
         }
         if(!G.wildPool.includes(g.name) && G.wildPool.length < 8) G.wildPool.push(g.name);
       });

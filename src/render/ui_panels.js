@@ -678,7 +678,7 @@ function renderGenTab(c){
 
     return `<div style="font-size:10px;color:#6b5530;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center">
       <span>🌿 在野人才</span>
-      <span style="font-size:8px;color:rgba(92,74,50,.35)">${(()=>{const rec=getAllRecruitedNames();const ny=WILD_GENS.filter(g=>!rec.has(g.name)&&G.turn<(g.minTurn||1)).length;return ny>0?`另有${ny}人尚未入世 · `:'';})()}共${G.wildPool.length}人 · ${nextRefresh}旬后刷新</span>
+      <span style="font-size:8px;color:rgba(92,74,50,.35)">${(()=>{const rec=getAllRecruitedNames();const ny=getAllWildGenDefs().filter(g=>!rec.has(g.name)&&G.turn<(g.minTurn||1)).length;return ny>0?`另有${ny}人尚未入世 · `:'';})()}共${G.wildPool.length}人 · ${nextRefresh}旬后刷新</span>
     </div>
     ${cards}
     <div style="border-top:1px solid rgba(80,65,40,.08);margin:10px 0 9px"></div>`;
