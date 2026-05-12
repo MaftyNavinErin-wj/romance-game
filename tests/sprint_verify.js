@@ -2054,6 +2054,21 @@ const VERIFIES = [
       }
     },
   },
+  {
+    // 1e validators: 全 13 节 (A-M) static schema check
+    // scenario_validate.js 直接 require (in-proc),0 errors 才 PASS; warnings 仅 informational
+    // (J.4 regionHint optional / E.3 mirror 缺失 / D.* 年龄 null / I.6 v181 retainer 数据 bug)
+    id: 'scenario-1e-validate-full',
+    name: 'tests/scenario_validate.js 全 13 节 (A-M) 在 SCENARIO_214 上 0 errors',
+    fn(G, win){
+      const { validateScenario } = require('./scenario_validate.js');
+      const { errors, warnings } = validateScenario('214');
+      if(errors.length){
+        return { passed: false, detail: `${errors.length} errors: ` + errors.slice(0, 3).join('; ') };
+      }
+      return { passed: true, detail: `${warnings.length} warnings (informational)` };
+    },
+  },
 ];
 
 // ═══════════════════════════════════════════════════════════════════
