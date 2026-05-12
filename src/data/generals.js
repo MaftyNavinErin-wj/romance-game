@@ -64,21 +64,21 @@ const WILD_GENS = [
 ];
 // 在野武将元数据
 const WILD_GEN_META = {
-  '徐庶' :{title:'单福·颍川名士',  post:{name:'军师',rank:'文官',desc:'早年化名单福投刘备，智谋出众，识人极准。'},skills:[],loyalty:70,values:['忠义'],birthplace:'颍川',clan:'颍川徐氏',gentry:'颍川士族',relations:[{name:'诸葛亮',type:'挚友',icon:'🤝'},{name:'庞统',type:'同窗',icon:'📚'}]},
+  '徐庶' :{title:'单福·颍川名士',  post:{name:'军师',rank:'文官',desc:'早年化名单福投刘备，智谋出众，识人极准。'},skills:[],loyalty:70,values:['忠义'],birthplace:'颍川长社',clan:'颍川徐氏',gentry:'颍川士族',relations:[{name:'诸葛亮',type:'挚友',icon:'🤝'},{name:'庞统',type:'同窗',icon:'📚'}]},
   '陈宫' :{title:'宁死不屈',  post:{name:'谋主',rank:'文官',desc:'智谋深远，尤擅分析天下大势，主公决策准确率+15%。'},skills:[{name:'犄角',type:'被动',icon:'🏴',desc:'己方units≥2时，陈宫unit ATK×1.05。（已实装）'}],loyalty:65,values:['忠义'],birthplace:'东郡',clan:'东郡陈氏',relations:[{name:'吕布',type:'旧主',icon:'👑'},{name:'曹操',type:'宿敌',icon:'⚔'}]},
   '田丰' :{title:'刚而犯上',        post:{name:'上计',rank:'文官',desc:'内政全才，己方城市粮产+6%，人口增长+5%。'},skills:[{name:'极谏',type:'被动',icon:'📢',desc:'当官时己方情报精度+2（INT阈值降低）。（已实装）'}],loyalty:75,values:[],birthplace:'巨鹿',clan:'冀州田氏',gentry:'冀州士族',relations:[{name:'沮授',type:'同僚',icon:'🤝'},{name:'袁绍',type:'旧主',icon:'👑'}]},
   '沮授' :{title:'河北谋主', post:{name:'监军',rank:'文官',desc:'军政双修，行军期间部队粮耗-10%，补给线不易被截断。'},skills:[],loyalty:72,values:['忠义'],birthplace:'广平',clan:'冀州沮氏',relations:[{name:'田丰',type:'同僚',icon:'🤝'}]},
   '张松' :{title:'倒持西蜀',        post:{name:'别驾',rank:'文官',desc:'熟知益州山川地理，己方在蜀地行军AP消耗-20%。'},skills:[{name:'献图',type:'被动',icon:'🗺',desc:'当官时细作探报花费减半（800→400金）。（已实装）'}],loyalty:55,values:['投机'],birthplace:'益州',clan:'益州张氏',relations:[{name:'法正',type:'同谋',icon:'🤝'}]},
   '庞德' :{title:'抬棺决死',        post:{name:'先锋',rank:'将',desc:'万人敌之勇，正面冲阵时部队战力+12%。'},skills:[{name:'抬棺',type:'被动',icon:'⚰',desc:'敌总兵力≥己方×3时，庞德squad ATK/DEF×1.20。（已实装）'}],loyalty:80,values:['忠义'],birthplace:'南安',clan:'南安庞氏',relations:[{name:'马超',type:'旧主',icon:'👑'},{name:'关羽',type:'宿敌',icon:'⚔'}]},
-  '文聘' :{title:'荆州柱石',        post:{name:'守将',rank:'将',desc:'长于守备，驻守城市防御加成+15%。'},skills:[{name:'镇荆',type:'被动',icon:'🏰',desc:'荆州城市守城时DEF×1.20。（已实装）'}],loyalty:75,values:['忠义'],birthplace:'南阳',clan:'南阳文氏',relations:[]},
+  '文聘' :{title:'荆州柱石',        post:{name:'守将',rank:'将',desc:'长于守备，驻守城市防御加成+15%。'},skills:[{name:'镇荆',type:'被动',icon:'🏰',desc:'荆州城市守城时DEF×1.20。（已实装）'}],loyalty:75,values:['忠义'],birthplace:'南阳宛县',clan:'南阳文氏',relations:[]},
   '高顺' :{title:'陷阵营统领',      post:{name:'陷阵将',rank:'将',desc:'统率陷阵营，所部重步兵战力+18%，营寨战强攻成功率+15%。'},skills:[{name:'陷阵',type:'被动',icon:'💥',desc:'所在部队经验获取×1.50。（已实装）'}],loyalty:90,values:['忠义'],birthplace:'未详',clan:'',relations:[{name:'吕布',type:'旧主',icon:'👑'}]},
-  '李严' :{title:'托孤重臣',          post:{name:'尚书令',rank:'文官',desc:'蜀汉重臣，主持内政可加速建设速度-1旬。'},skills:[{name:'误期',type:'被动',icon:'⚠',desc:'当官时缓解派系孤立(阈值5→3%/10→7%)，调粮损耗×1.20。（已实装）'}],loyalty:65,values:[],birthplace:'南阳',clan:'荆州李氏',relations:[{name:'诸葛亮',type:'政敌',icon:'⚔'}]},
+  '李严' :{title:'托孤重臣',          post:{name:'尚书令',rank:'文官',desc:'蜀汉重臣，主持内政可加速建设速度-1旬。'},skills:[{name:'误期',type:'被动',icon:'⚠',desc:'当官时缓解派系孤立(阈值5→3%/10→7%)，调粮损耗×1.20。（已实装）'}],loyalty:65,values:[],birthplace:'南阳宛县',clan:'荆州李氏',relations:[{name:'诸葛亮',type:'政敌',icon:'⚔'}]},
   '邓艾' :{title:'偷渡阴平',        post:{name:'合围',rank:'将',desc:'善用险道奇兵，山地行军AP消耗减半，奇袭成功率+20%。'},skills:[{name:'裹毡',type:'被动',icon:'🏔',desc:'山地/丘陵ATK/DEF×1.10，全地形AP消耗×0.85。（已实装）'}],loyalty:78,values:['忠义'],birthplace:'义阳棘阳',clan:'',relations:[{name:'钟会',type:'宿敌',icon:'⚔'}]},
   '钟会' :{title:'志大才疏',        post:{name:'谋帅',rank:'文官',desc:'文武兼备，统率与智谋均衡，伏击识破率+25%。'},skills:[{name:'矜功',type:'被动',icon:'👑',desc:'敌方侦查本部队INT阈值+15；同队亲密度每战-1。（已实装）'}],loyalty:55,values:['野心'],birthplace:'颍川长社',clan:'颍川钟氏',gentry:'颍川士族',relations:[{name:'邓艾',type:'宿敌',icon:'⚔'},{name:'司马懿',type:'旧主后人',icon:'👑'}]},
   '孟达' :{title:'反复无常',        post:{name:'守将',rank:'将',desc:'善守关隘，驻守山城防御加成+10%。'},skills:[],loyalty:40,values:['投机'],birthplace:'扶风',clan:'',relations:[{name:'刘封',type:'同僚',icon:'🤝'},{name:'司马懿',type:'宿敌',icon:'⚔'}]},
-  '申耽' :{title:'上庸豪族',        post:{name:'郡守',rank:'将',desc:'上庸地方豪族，驻守上庸城城防+8%。'},skills:[],loyalty:50,values:[],birthplace:'上庸',clan:'上庸申氏',relations:[]},
+  '申耽' :{title:'上庸豪族',        post:{name:'郡守',rank:'将',desc:'上庸地方豪族，驻守上庸城城防+8%。'},skills:[],loyalty:50,values:[],birthplace:'上庸县',clan:'上庸申氏',relations:[]},
   '马谡' :{title:'言过其实',        post:{name:'参军',rank:'文官',desc:'熟读兵书，制定作战计划时战力评估误差-10%。'},skills:[],loyalty:75,values:[],birthplace:'荆州宜城',clan:'荆州马氏',gentry:'荆州士族',relations:[{name:'诸葛亮',type:'恩主',icon:'👑'},{name:'王平',type:'同僚',icon:'🤝'}]},
-  '郝昭' :{title:'陈仓坚守',        post:{name:'守将',rank:'将',desc:'守城专家，攻城方攻城兵器效果对己方城市减半。'},skills:[{name:'拒蜀',type:'被动',icon:'🏯',desc:'守城战守方有郝昭时，城防倍率+0.15。（已实装）'}],loyalty:82,values:['忠义'],birthplace:'太原',clan:'',relations:[]},
+  '郝昭' :{title:'陈仓坚守',        post:{name:'守将',rank:'将',desc:'守城专家，攻城方攻城兵器效果对己方城市减半。'},skills:[{name:'拒蜀',type:'被动',icon:'🏯',desc:'守城战守方有郝昭时，城防倍率+0.15。（已实装）'}],loyalty:82,values:['忠义'],birthplace:'太原阳曲',clan:'',relations:[]},
   '张任' :{title:'落凤之弓',        post:{name:'先锋',rank:'将',desc:'蜀道险关守将，山地伏击成功率+20%。'},skills:[{name:'落凤',type:'被动',icon:'🏹',desc:'设伏方有张任时，中伏率+15%。（已实装）'}],loyalty:88,values:['忠义'],birthplace:'益州',clan:'',relations:[]},
   '杨洪' :{title:'蜀中干吏',        post:{name:'郡守',rank:'文官',desc:'精于内政，辖区人口增长+8%，民心稳定。'},skills:[],loyalty:80,values:[],birthplace:'犍为武阳',clan:'蜀地杨氏',relations:[]},
   '蒋琬' :{title:'社稷之器',          post:{name:'丞相继任',rank:'文官',desc:'诸葛亮身后蜀汉柱石，内政全面加成+8%。'},skills:[{name:'稳政',type:'被动',icon:'⚖',desc:'当官/君主时粮产+5%。（已实装）'}],loyalty:88,values:['忠义'],birthplace:'零陵湘乡',clan:'荆州蒋氏',relations:[{name:'诸葛亮',type:'继承者',icon:'📜'},{name:'费祎',type:'同僚',icon:'🤝'}]},
@@ -87,7 +87,7 @@ const WILD_GEN_META = {
   // ── v143: 姜维从蜀移入在野 ──
   '姜维' :{title:'天水麒麟儿',post:{name:'镇军将军',rank:'将',desc:'文武双全，诸葛亮衣钵传人，蜀汉后期柱石。'},skills:[{name:'取将',type:'被动',icon:'🎯',desc:'伏击战/劫营中ATK×1.10、命中优先敌主将。（已实装）'}],loyalty:90,values:['忠义'],birthplace:'天水冀县',clan:'天水姜氏',gentry:'西凉士族',relations:[{name:'诸葛亮',type:'恩师',icon:'📜'}]},
   // ── v143 B类在野 ──
-  '文鸯' :{title:'单骑退雄兵',post:{name:'前将军',rank:'将',desc:'勇冠三军，单骑冲阵退敌。'},skills:[],loyalty:70,values:[],birthplace:'谯郡',clan:'',relations:[]},
+  '文鸯' :{title:'单骑退雄兵',post:{name:'前将军',rank:'将',desc:'勇冠三军，单骑冲阵退敌。'},skills:[],loyalty:70,values:[],birthplace:'谯郡谯县',clan:'',relations:[]},
   '羊祜' :{title:'襄阳儒帅',post:{name:'征南大将军',rank:'文官',desc:'以德服人，镇守襄阳，为灭吴奠基。'},skills:[],loyalty:85,values:['忠义'],birthplace:'泰山南城',clan:'泰山羊氏',gentry:'中原士族',relations:[]},
   '王濬' :{title:'楼船灭吴',post:{name:'龙骧将军',rank:'将',desc:'建造楼船，顺江而下灭吴，水军统帅。'},skills:[],loyalty:80,values:[],birthplace:'弘农湖县',clan:'',relations:[]},
 }; 
@@ -729,7 +729,7 @@ const GEN_META = {
     ],
     loyalty:90,
     values:[],
-    birthplace:'襄阳',
+    birthplace:'襄阳襄阳县',
     gentry:'荆州士族',
     relations:[{name:'诸葛亮',type:'同僚',icon:'🤝'},{name:'刘备',type:'主公',icon:'👑'}],
   },
@@ -772,7 +772,7 @@ const GEN_META = {
     skills:[],
     loyalty:88,
     values:['忠义'],
-    birthplace:'襄阳中卢',
+    birthplace:'襄阳中庐',
     relations:[{name:'诸葛亮',type:'上司',icon:'📜'},{name:'姜维',type:'同僚',icon:'🤝'}],
   },
   '马岱':{
@@ -947,7 +947,7 @@ const GEN_META = {
   '刘晔' :{title:'佐世之才',   post:{name:'太中大夫',rank:'文官',desc:'善造攻城器械，攻城部队攻城效率+12%。'},skills:[{name:'巧思',type:'被动',icon:'⚙',desc:'当官时己方围城消耗+10%，攻城ATK+5%。（已实装）'}],loyalty:80,values:[],birthplace:'淮南成德',clan:'淮南刘氏',faction_clan:'中原',relations:[{name:'曹操',type:'主公',icon:'👑'}]},
   '牛金' :{title:'南郡虎将',   post:{name:'后将军',rank:'将',desc:'冲锋型将领，野战首轮战力+8%。'},skills:[],loyalty:88,values:['忠义'],birthplace:'未详',faction_clan:'谯沛',relations:[{name:'曹仁',type:'主将',icon:'👑'}]},
   '朱灵' :{title:'铁壁先锋',   post:{name:'后将军',rank:'将',desc:'中坚战将，所部重步兵防御+8%。'},skills:[],loyalty:75,values:[],birthplace:'清河鄃县',clan:'清河朱氏',faction_clan:'冀州',relations:[{name:'曹操',type:'主公',icon:'👑'}]},
-  '陈群' :{title:'九品宗师',   post:{name:'司空',rank:'文官',desc:'内政大才，所在势力每旬金产+10%，武将征辟效率+20%。'},skills:[{name:'九品',type:'被动',icon:'📋',desc:'当官时，全体招募（劝降/在野/挖角）成功率+5%。（已实装）'}],loyalty:86,values:[],birthplace:'颍川许昌',clan:'颍川陈氏',gentry:'颍川士族',faction_clan:'颍川',relations:[{name:'荀彧',type:'同乡',icon:'🏠'},{name:'曹操',type:'主公',icon:'👑'},{name:'司马懿',type:'同僚',icon:'🤝'}]},
+  '陈群' :{title:'九品宗师',   post:{name:'司空',rank:'文官',desc:'内政大才，所在势力每旬金产+10%，武将征辟效率+20%。'},skills:[{name:'九品',type:'被动',icon:'📋',desc:'当官时，全体招募（劝降/在野/挖角）成功率+5%。（已实装）'}],loyalty:86,values:[],birthplace:'颍川许县',clan:'颍川陈氏',gentry:'颍川士族',faction_clan:'颍川',relations:[{name:'荀彧',type:'同乡',icon:'🏠'},{name:'曹操',type:'主公',icon:'👑'},{name:'司马懿',type:'同僚',icon:'🤝'}]},
   // ── 魏v124新增 ──
   '曹真' :{title:'伐蜀主帅',post:{name:'大将军',rank:'将',desc:'宗室统帅，守备战略要地。'},skills:[{name:'缓进',type:'被动',icon:'🛡',desc:'在围城部队中时，城防衰减速度+20%。（已实装）'}],loyalty:92,values:['忠义'],birthplace:'沛国谯县',clan:'谯县曹氏',faction_clan:'谯沛',relations:[{name:'曹操',type:'养父',icon:'👑'},{name:'曹休',type:'宗族',icon:'🏠'},{name:'司马懿',type:'同僚',icon:'🤝'}]},
   '曹彰' :{title:'黄须儿',post:{name:'征北将军',rank:'将',desc:'武勇无双的曹氏猛将。'},skills:[{name:'黄须',type:'被动',icon:'⚔',desc:'主将骑兵非攻城时ATK/DEF×1.05。（已实装）'}],loyalty:90,values:[],birthplace:'沛国谯县',clan:'谯县曹氏',faction_clan:'谯沛',relations:[{name:'曹操',type:'父',icon:'👑'},{name:'曹仁',type:'宗族',icon:'🏠'}]},
@@ -955,7 +955,7 @@ const GEN_META = {
   '张绣' :{title:'北地枪王',post:{name:'破虏将军',rank:'将',desc:'宛城降将，骑兵突击型。'},skills:[],loyalty:55,values:['投机'],birthplace:'武威祖厉',clan:'武威张氏',faction_clan:'凉州',relations:[{name:'贾诩',type:'谋主',icon:'🧠'},{name:'曹操',type:'主公',icon:'👑'}]},
   '曹休' :{title:'千里驹',post:{name:'征东大将军',rank:'将',desc:'宗室统帅，擅长指挥大军团作战。'},skills:[{name:'千里驹',type:'被动',icon:'🏇',desc:'骑兵主将时AP+1。（已实装）'}],loyalty:90,values:['忠义'],birthplace:'沛国谯县',clan:'谯县曹氏',faction_clan:'谯沛',relations:[{name:'曹操',type:'族父',icon:'👑'},{name:'曹真',type:'宗族',icon:'🏠'}]},
   // ── 魏v128新增 ──
-  '徐庶' :{title:'颍川名士',post:{name:'右中郎将',rank:'文官',desc:'身在曹营心在汉，识人极准。'},skills:[{name:'识才',type:'被动',icon:'🧠',desc:'当官时招募在野武将成功率+10%。（已实装）'}],loyalty:55,values:['忠义'],birthplace:'颍川',clan:'颍川徐氏',gentry:'颍川士族',faction_clan:'颍川',relations:[{name:'诸葛亮',type:'挚友',icon:'🤝'},{name:'庞统',type:'同窗',icon:'📚'}]},
+  '徐庶' :{title:'颍川名士',post:{name:'右中郎将',rank:'文官',desc:'身在曹营心在汉，识人极准。'},skills:[{name:'识才',type:'被动',icon:'🧠',desc:'当官时招募在野武将成功率+10%。（已实装）'}],loyalty:55,values:['忠义'],birthplace:'颍川长社',clan:'颍川徐氏',gentry:'颍川士族',faction_clan:'颍川',relations:[{name:'诸葛亮',type:'挚友',icon:'🤝'},{name:'庞统',type:'同窗',icon:'📚'}]},
   // ── 魏v143新增 ──
   '曹纯' :{title:'虎豹骑督',post:{name:'虎豹骑督',rank:'将',desc:'统率曹操精锐虎豹骑，骑兵战力冠绝天下。'},skills:[],loyalty:92,values:['忠义'],birthplace:'沛国谯县',clan:'谯县曹氏',faction_clan:'谯沛',relations:[{name:'曹操',type:'族弟',icon:'🏠'}]},
   '毛玠' :{title:'清廉选才',post:{name:'东曹掾',rank:'文官',desc:'主管选拔人才，为曹操推行唯才是举。'},skills:[],loyalty:80,values:['忠义'],birthplace:'陈留平丘',clan:'陈留毛氏',gentry:'中原士族',relations:[{name:'曹操',type:'主公',icon:'👑'}]},
@@ -963,25 +963,25 @@ const GEN_META = {
   '曹丕' :{title:'魏文帝',post:{name:'五官中郎将',rank:'文官',desc:'曹操继承人，文武兼备，善诗赋。'},skills:[],loyalty:95,values:['野心'],birthplace:'沛国谯县',clan:'谯县曹氏',faction_clan:'谯沛',relations:[{name:'曹操',type:'父',icon:'👑'},{name:'曹植',type:'兄弟',icon:'🏠'},{name:'司马懿',type:'近臣',icon:'🤝'}]},
   '曹植' :{title:'七步成诗',post:{name:'临淄侯',rank:'文官',desc:'才高八斗，以文采名动天下。'},skills:[],loyalty:82,values:[],birthplace:'沛国谯县',clan:'谯县曹氏',faction_clan:'谯沛',relations:[{name:'曹操',type:'父',icon:'👑'},{name:'曹丕',type:'兄弟',icon:'🏠'}]},
   '郭女王':{title:'曹丕贤内',post:{name:'贵嫔',rank:'文官',desc:'善察人心，宫廷政治手腕高超。'},skills:[],loyalty:88,values:[],birthplace:'安平广宗',clan:'安平郭氏',gentry:'中原士族',relations:[{name:'曹丕',type:'夫君',icon:'🏠'}]},
-  '文聘' :{title:'荆州柱石',post:{name:'守将',rank:'将',desc:'长于守备，驻守城市防御加成+15%。'},skills:[{name:'镇荆',type:'被动',icon:'🏰',desc:'荆州城市守城时DEF×1.20。（已实装）'}],loyalty:75,values:['忠义'],birthplace:'南阳',clan:'南阳文氏',relations:[]},
+  '文聘' :{title:'荆州柱石',post:{name:'守将',rank:'将',desc:'长于守备，驻守城市防御加成+15%。'},skills:[{name:'镇荆',type:'被动',icon:'🏰',desc:'荆州城市守城时DEF×1.20。（已实装）'}],loyalty:75,values:['忠义'],birthplace:'南阳宛县',clan:'南阳文氏',relations:[]},
   '王平' :{title:'无当飞军',post:{name:'镇北大将军',rank:'将',desc:'出身寒门，治军严谨，善用无当飞军。'},skills:[{name:'险守',type:'被动',icon:'🏔',desc:'山地/丘陵守方有王平时DEF×1.10。（已实装）'}],loyalty:78,values:['忠义'],birthplace:'巴西宕渠',clan:'',relations:[{name:'诸葛亮',type:'恩主',icon:'👑'},{name:'马谡',type:'同僚',icon:'🤝'}]},
   // ── v143 B类魏 ──
   '司马昭':{title:'路人皆知',post:{name:'大将军',rank:'文官',desc:'司马懿之子，权倾朝野。'},skills:[],loyalty:88,values:['野心'],birthplace:'河内温县',clan:'河内司马氏',gentry:'中原士族',relations:[{name:'司马懿',type:'父',icon:'👑'}]},
-  '陈泰' :{title:'抗蜀名将',post:{name:'征西将军',rank:'将',desc:'陈群之子，善于防守反击。'},skills:[],loyalty:82,values:['忠义'],birthplace:'颍川许昌',clan:'颍川陈氏',gentry:'中原士族',relations:[{name:'陈群',type:'父',icon:'🏠'}]},
+  '陈泰' :{title:'抗蜀名将',post:{name:'征西将军',rank:'将',desc:'陈群之子，善于防守反击。'},skills:[],loyalty:82,values:['忠义'],birthplace:'颍川许县',clan:'颍川陈氏',gentry:'中原士族',relations:[{name:'陈群',type:'父',icon:'🏠'}]},
   '王基' :{title:'笃行之士',post:{name:'征南将军',rank:'将',desc:'文武兼备，治军严明。'},skills:[],loyalty:85,values:['忠义'],birthplace:'东莱曲城',clan:'',relations:[]},
 
   // ── 蜀二线武将元数据 ──
   '董允' :{title:'秉公侍中',       post:{name:'侍中',rank:'文官',desc:'清廉持正，所在城市叛乱概率-30%，民心+0.4/旬。'},skills:[{name:'秉公',type:'被动',icon:'⚖',desc:'当官/君主时，武将属性经验成长×1.20。（已实装）'}],loyalty:92,values:['忠义'],birthplace:'南郡枝江',clan:'荆州董氏',faction_clan:'荆州',relations:[{name:'诸葛亮',type:'恩主',icon:'👑'},{name:'费祎',type:'同僚',icon:'🤝'}]},
   '张翼' :{title:'犍为铁壁', post:{name:'左车骑将军',rank:'将',desc:'守城型良将，驻守城市防御加成+10%。'},skills:[],loyalty:80,values:['忠义'],birthplace:'犍为武阳',clan:'益州张氏',faction_clan:'东州',relations:[{name:'诸葛亮',type:'部属',icon:'📜'}]},
-  '吴懿' :{title:'东州皇亲',   post:{name:'车骑将军',rank:'将',desc:'皇亲武将，招募部队金钱消耗-8%。'},skills:[],loyalty:85,values:[],birthplace:'陈留',clan:'荆州吴氏',faction_clan:'东州',relations:[{name:'刘备',type:'国舅',icon:'👑'}]},
+  '吴懿' :{title:'东州皇亲',   post:{name:'车骑将军',rank:'将',desc:'皇亲武将，招募部队金钱消耗-8%。'},skills:[],loyalty:85,values:[],birthplace:'陈留陈留县',clan:'荆州吴氏',faction_clan:'东州',relations:[{name:'刘备',type:'国舅',icon:'👑'}]},
   '马忠' :{title:'南中柱石', post:{name:'镇南大将军',rank:'将',desc:'南中平叛专家，平叛行动效率+20%。'},skills:[],loyalty:88,values:['忠义'],birthplace:'巴西阆中',clan:'益州马氏',faction_clan:'益州',relations:[{name:'诸葛亮',type:'部属',icon:'📜'}]},
   '霍峻' :{title:'孤城不屈',   post:{name:'梓潼太守',rank:'将',desc:'守城专家，驻守时兵力损耗减少15%。'},skills:[{name:'葭萌',type:'被动',icon:'🏯',desc:'garrison状态时ATK/DEF×1.05。（已实装）'}],loyalty:90,values:['忠义'],birthplace:'南郡枝江',clan:'荆州霍氏',faction_clan:'荆州',relations:[{name:'刘备',type:'主公',icon:'👑'}]},
   '黄权' :{title:'持节巴臣',   post:{name:'车骑将军',rank:'文官',desc:'善析大势，战前敌方部署信息可见范围+1格。'},skills:[{name:'持节',type:'被动',icon:'📜',desc:'被俘后劝降概率-20%，被挖角概率-20%。（已实装）'}],loyalty:82,values:['忠义'],birthplace:'巴西阆中',clan:'巴西黄氏',faction_clan:'益州',relations:[{name:'刘备',type:'主公',icon:'👑'},{name:'诸葛亮',type:'同僚',icon:'🤝'}]},
   '邓芝' :{title:'使吴良臣',   post:{name:'车骑将军',rank:'文官',desc:'外交使臣，出使任务友好度加成+12%。'},skills:[{name:'使吴',type:'被动',icon:'🤝',desc:'当官时，议和/结盟成功率+5%。（已实装）'}],loyalty:86,values:['忠义'],birthplace:'义阳新野',clan:'南阳邓氏',faction_clan:'荆州',relations:[{name:'诸葛亮',type:'上司',icon:'📜'}]},
   '严颜' :{title:'断头将军',   post:{name:'前将军',rank:'将',desc:'老将不屈，守城时士气不低于45。'},skills:[],loyalty:78,values:['忠义'],birthplace:'巴郡临江',clan:'巴郡严氏',faction_clan:'益州',relations:[{name:'张飞',type:'义友',icon:'🤝'},{name:'刘备',type:'主公',icon:'👑'}]},
   // ── 蜀v124新增 ──
-  '关平' :{title:'忠孝随父',post:{name:'校尉',rank:'将',desc:'关羽之子，随父征战。'},skills:[{name:'孝义',type:'被动',icon:'🤝',desc:'与关羽同部队时，关平squad士气+5、ATK+5%。（已实装）'}],loyalty:95,values:['忠义'],birthplace:'河东解良',clan:'河东关氏',faction_clan:'荆州',relations:[{name:'关羽',type:'父',icon:'👑'},{name:'关兴',type:'兄弟',icon:'🏠'},{name:'刘备',type:'主公',icon:'👑'}]},
-  '关兴' :{title:'小关张',post:{name:'侍中',rank:'将',desc:'继承父志的二代骁将。'},skills:[{name:'过关',type:'被动',icon:'⚔',desc:'单挑触发率+5%、score+5（小关羽）。（已实装）'}],loyalty:92,values:['忠义'],birthplace:'河东解良',clan:'河东关氏',faction_clan:'荆州',relations:[{name:'关羽',type:'父',icon:'👑'},{name:'关平',type:'兄弟',icon:'🏠'},{name:'张苞',type:'义兄弟',icon:'🤝'}]},
+  '关平' :{title:'忠孝随父',post:{name:'校尉',rank:'将',desc:'关羽之子，随父征战。'},skills:[{name:'孝义',type:'被动',icon:'🤝',desc:'与关羽同部队时，关平squad士气+5、ATK+5%。（已实装）'}],loyalty:95,values:['忠义'],birthplace:'河东解县',clan:'河东关氏',faction_clan:'荆州',relations:[{name:'关羽',type:'父',icon:'👑'},{name:'关兴',type:'兄弟',icon:'🏠'},{name:'刘备',type:'主公',icon:'👑'}]},
+  '关兴' :{title:'小关张',post:{name:'侍中',rank:'将',desc:'继承父志的二代骁将。'},skills:[{name:'过关',type:'被动',icon:'⚔',desc:'单挑触发率+5%、score+5（小关羽）。（已实装）'}],loyalty:92,values:['忠义'],birthplace:'河东解县',clan:'河东关氏',faction_clan:'荆州',relations:[{name:'关羽',type:'父',icon:'👑'},{name:'关平',type:'兄弟',icon:'🏠'},{name:'张苞',type:'义兄弟',icon:'🤝'}]},
   '张苞' :{title:'猛虎之子',post:{name:'校尉',rank:'将',desc:'张飞之子，武勇过人。'},skills:[{name:'喝阵',type:'被动',icon:'📣',desc:'开战时敌方全体士气-5（小张飞）。（已实装）'}],loyalty:90,values:['忠义'],birthplace:'涿郡涿县',clan:'涿郡张氏',faction_clan:'元从',relations:[{name:'张飞',type:'父',icon:'👑'},{name:'关兴',type:'义兄弟',icon:'🤝'}]},
   '刘封' :{title:'刚猛养子',post:{name:'安东将军',rank:'将',desc:'刘备养子，武艺出众但性情刚烈。'},skills:[{name:'刚愎',type:'被动',icon:'⚡',desc:'单squad unit时ATK/DEF×1.08，忠诚每旬-0.1。（已实装）'}],loyalty:60,values:['野心'],birthplace:'长沙罗侯',faction_clan:'元从',relations:[{name:'刘备',type:'养父',icon:'👑'},{name:'孟达',type:'同僚',icon:'🤝'}]},
   '吴班' :{title:'外戚柱石',post:{name:'骠骑将军',rank:'将',desc:'吴懿族弟，可靠的中坚力量。'},skills:[],loyalty:85,values:['忠义'],birthplace:'陈留圉县',clan:'陈留吴氏',faction_clan:'外戚',relations:[{name:'吴懿',type:'族兄',icon:'🏠'},{name:'刘备',type:'主公',icon:'👑'}]},
@@ -991,7 +991,7 @@ const GEN_META = {
   // ── 蜀v143新增 ──
   '糜竺' :{title:'安汉将军',post:{name:'安汉将军',rank:'文官',desc:'倾家资助刘备起兵，忠心不二。'},skills:[],loyalty:95,values:['忠义'],birthplace:'东海朐县',clan:'东海糜氏',relations:[{name:'刘备',type:'主公',icon:'👑'},{name:'糜芳',type:'兄弟',icon:'🏠'}]},
   '糜芳' :{title:'南郡太守',post:{name:'南郡太守',rank:'将',desc:'糜竺之弟，守荆州不力，性情摇摆。'},skills:[],loyalty:40,values:['投机'],birthplace:'东海朐县',clan:'东海糜氏',relations:[{name:'糜竺',type:'兄弟',icon:'🏠'},{name:'关羽',type:'上司',icon:'👑'}]},
-  '孙乾' :{title:'从事中郎',post:{name:'从事中郎',rank:'文官',desc:'刘备元老，善外交斡旋。'},skills:[],loyalty:88,values:['忠义'],birthplace:'北海',clan:'',relations:[{name:'刘备',type:'主公',icon:'👑'}]},
+  '孙乾' :{title:'从事中郎',post:{name:'从事中郎',rank:'文官',desc:'刘备元老，善外交斡旋。'},skills:[],loyalty:88,values:['忠义'],birthplace:'北海营陵',clan:'',relations:[{name:'刘备',type:'主公',icon:'👑'}]},
   '简雍' :{title:'说降辩士',post:{name:'昭德将军',rank:'文官',desc:'最早追随刘备，以辩才著称，说降刘璋。'},skills:[],loyalty:85,values:['忠义'],birthplace:'涿郡涿县',clan:'',relations:[{name:'刘备',type:'主公/挚友',icon:'👑'}]},
   // ── 蜀v143 B类 ──
   '夏侯霸':{title:'降蜀宗亲',post:{name:'车骑将军',rank:'将',desc:'夏侯渊之子，因司马氏篡权而降蜀。'},skills:[],loyalty:72,values:[],birthplace:'沛国谯县',clan:'谯县夏侯氏',relations:[{name:'夏侯渊',type:'父',icon:'🏠'}]},
@@ -1007,7 +1007,7 @@ const GEN_META = {
   '步骘' :{title:'南疆安石',   post:{name:'骠骑将军',rank:'文官',desc:'南疆治理者，交州城市产出+15%。'},skills:[{name:'安南',type:'被动',icon:'🌏',desc:'当官时南方城市(row≥50)叛乱阈值下调5点。（已实装）'}],loyalty:86,values:[],birthplace:'临淮淮阴',clan:'临淮步氏',gentry:'江东士族',faction_clan:'流寓',relations:[{name:'孙权',type:'主公',icon:'👑'},{name:'诸葛瑾',type:'同僚',icon:'🤝'}]},
   // ── 吴v124新增 ──
   '周泰' :{title:'以命护主',post:{name:'奋威将军',rank:'将',desc:'孙权贴身护卫，忠勇无双。'},skills:[{name:'护主',type:'被动',icon:'🛡',desc:'孙权同部队时全队DEF×1.10，孙权免疫被俘。（已实装）'}],loyalty:95,values:['忠义'],birthplace:'九江下蔡',clan:'下蔡周氏',faction_clan:'淮泗',relations:[{name:'孙权',type:'主公',icon:'👑'},{name:'孙策',type:'旧主',icon:'👑'},{name:'蒋钦',type:'同僚',icon:'🤝'}]},
-  '蒋钦' :{title:'公正宿将',post:{name:'荡寇将军',rank:'将',desc:'早期宿将，治军严整。'},skills:[{name:'严整',type:'被动',icon:'⚖',desc:'被伏击时士气惩罚减半。（已实装）'}],loyalty:88,values:['忠义'],birthplace:'九江寿春',clan:'寿春蒋氏',faction_clan:'淮泗',relations:[{name:'孙权',type:'主公',icon:'👑'},{name:'周泰',type:'同僚',icon:'🤝'},{name:'徐盛',type:'旧怨→推荐',icon:'🤝'}]},
+  '蒋钦' :{title:'公正宿将',post:{name:'荡寇将军',rank:'将',desc:'早期宿将，治军严整。'},skills:[{name:'严整',type:'被动',icon:'⚖',desc:'被伏击时士气惩罚减半。（已实装）'}],loyalty:88,values:['忠义'],birthplace:'九江寿春县',clan:'寿春蒋氏',faction_clan:'淮泗',relations:[{name:'孙权',type:'主公',icon:'👑'},{name:'周泰',type:'同僚',icon:'🤝'},{name:'徐盛',type:'旧怨→推荐',icon:'🤝'}]},
   '全琮' :{title:'石亭功臣',post:{name:'右大司马',rank:'将',desc:'孙权女婿，善于指挥大规模作战。'},skills:[{name:'合围',type:'被动',icon:'⚔',desc:'己方参战units≥2时，全琮unit ATK×1.05。（已实装）'}],loyalty:82,values:[],birthplace:'吴郡钱唐',clan:'钱唐全氏',gentry:'江东士族',faction_clan:'江东',relations:[{name:'孙权',type:'女婿',icon:'👑'},{name:'陆逊',type:'同僚',icon:'🤝'}]},
   '陆抗' :{title:'末代名将',post:{name:'大都督',rank:'将',desc:'吴国最后的栋梁，文武兼备。'},skills:[],loyalty:92,values:['忠义'],birthplace:'吴郡吴县',clan:'吴郡陆氏',gentry:'江东士族',faction_clan:'江东',relations:[{name:'陆逊',type:'父',icon:'👑'},{name:'孙权',type:'主公',icon:'👑'}]},
   '吕范' :{title:'元从干才',post:{name:'大司马',rank:'文官',desc:'文武全才的创业元老，善理财务。'},skills:[],loyalty:90,values:['忠义'],birthplace:'汝南细阳',clan:'细阳吕氏',faction_clan:'淮泗',relations:[{name:'孙策',type:'旧主',icon:'👑'},{name:'孙权',type:'主公',icon:'👑'}]},
@@ -1022,8 +1022,8 @@ const GEN_META = {
   '施绩' :{title:'朱然之嗣',post:{name:'上大将军',rank:'将',desc:'朱然之子，改姓施，继父业镇守边疆。'},skills:[],loyalty:80,values:['忠义'],birthplace:'丹阳故鄣',clan:'',relations:[{name:'朱然',type:'父',icon:'🏠'}]},
 
   // ── ★ v144 南蛮 ──
-  '孟获' :{title:'南蛮王',post:{name:'蛮王',rank:'王',desc:'南中蛮族首领，勇猛善战，统领南中诸蛮部族。'},skills:[],loyalty:95,values:['蛮勇'],birthplace:'建宁',clan:'南蛮孟氏',relations:[{name:'祝融',type:'妻',icon:'❤'}]},
-  '祝融' :{title:'烈焰夫人',post:{name:'蛮将',rank:'将',desc:'孟获之妻，善使飞刀，擅长火攻，勇悍不让须眉。'},skills:[],loyalty:95,values:['蛮勇'],birthplace:'建宁',clan:'南蛮祝氏',relations:[{name:'孟获',type:'夫',icon:'❤'}]},
+  '孟获' :{title:'南蛮王',post:{name:'蛮王',rank:'王',desc:'南中蛮族首领，勇猛善战，统领南中诸蛮部族。'},skills:[],loyalty:95,values:['蛮勇'],birthplace:'建宁建宁县',clan:'南蛮孟氏',relations:[{name:'祝融',type:'妻',icon:'❤'}]},
+  '祝融' :{title:'烈焰夫人',post:{name:'蛮将',rank:'将',desc:'孟获之妻，善使飞刀，擅长火攻，勇悍不让须眉。'},skills:[],loyalty:95,values:['蛮勇'],birthplace:'建宁建宁县',clan:'南蛮祝氏',relations:[{name:'孟获',type:'夫',icon:'❤'}]},
 
 };
 

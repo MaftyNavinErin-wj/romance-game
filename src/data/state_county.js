@@ -124,11 +124,12 @@ const MAGNATE_CLANS = new Set([
 const COUNTY_DATA = {
   // ── 大城(5县) ──
   xuchang:[
-    {name:'许县',type:'seat',clanFamily:null,popShare:0.35},
-    {name:'颍阴',type:'clan_base',clanFamily:CLAN_FAMILIES.yc_xun,popShare:0.20},
-    {name:'长社',type:'clan_base',clanFamily:CLAN_FAMILIES.yc_zhong,magnate:true,popShare:0.18},
-    {name:'鄢陵',type:'common',clanFamily:null,popShare:0.15},
-    {name:'临颍',type:'common',clanFamily:null,popShare:0.12},
+    {name:'许县',type:'seat',clanFamily:null,popShare:0.30},
+    {name:'颍阴',type:'clan_base',clanFamily:CLAN_FAMILIES.yc_xun,popShare:0.18},
+    {name:'长社',type:'clan_base',clanFamily:CLAN_FAMILIES.yc_zhong,magnate:true,popShare:0.15},
+    {name:'阳翟',type:'common',clanFamily:null,popShare:0.15}, // 1f-audit: 郭嘉 "颍川阳翟" 史实属县
+    {name:'鄢陵',type:'common',clanFamily:null,popShare:0.12},
+    {name:'临颍',type:'common',clanFamily:null,popShare:0.10},
   ],
   luoyang:[
     {name:'洛阳',type:'seat',clanFamily:null,popShare:0.35},
@@ -153,11 +154,13 @@ const COUNTY_DATA = {
     {name:'临漳',type:'common',clanFamily:null,popShare:0.12},
   ],
   changan:[
-    {name:'长安',type:'seat',clanFamily:null,popShare:0.35},
-    {name:'扶风',type:'clan_base',clanFamily:CLAN_FAMILIES.ff_ma,magnate:true,popShare:0.20},
-    {name:'华阴',type:'clan_base',clanFamily:CLAN_FAMILIES.hy_yang,popShare:0.18},
-    {name:'新丰',type:'common',clanFamily:null,popShare:0.15},
-    {name:'蓝田',type:'common',clanFamily:null,popShare:0.12},
+    {name:'长安',type:'seat',clanFamily:null,popShare:0.30},
+    {name:'扶风',type:'clan_base',clanFamily:CLAN_FAMILIES.ff_ma,magnate:true,popShare:0.18},
+    {name:'华阴',type:'clan_base',clanFamily:CLAN_FAMILIES.hy_yang,popShare:0.15},
+    {name:'新丰',type:'common',clanFamily:null,popShare:0.12},
+    {name:'蓝田',type:'common',clanFamily:null,popShare:0.10},
+    {name:'茂陵',type:'common',clanFamily:null,popShare:0.08}, // 1f-audit: 马超/马岱 "扶风茂陵" 史实属县
+    {name:'郿县',type:'common',clanFamily:null,popShare:0.07}, // 1f-audit: 法正 "扶风郿县" 史实属县
   ],
   chengdu:[
     {name:'成都县',type:'seat',clanFamily:null,popShare:0.35},
@@ -167,11 +170,12 @@ const COUNTY_DATA = {
     {name:'繁县',type:'common',clanFamily:null,popShare:0.12},
   ],
   jianye:[
-    {name:'建业县',type:'seat',clanFamily:null,popShare:0.45},
+    {name:'建业县',type:'seat',clanFamily:null,popShare:0.40},
     // 1f-p4: '吴县' (wj_gu/wj_lu/wj_zhu magnate) moved → suzhou (吴郡治, history-correct)
-    {name:'丹阳',type:'common',clanFamily:null,popShare:0.22},
-    {name:'句容',type:'common',clanFamily:null,popShare:0.18},
+    {name:'丹阳',type:'common',clanFamily:null,popShare:0.20},
+    {name:'句容',type:'common',clanFamily:null,popShare:0.15},
     {name:'秣陵',type:'common',clanFamily:null,popShare:0.15},
+    {name:'故鄣',type:'common',clanFamily:null,popShare:0.10}, // 1f-audit: 朱然/施绩 "丹阳故鄣" 史实属县
   ],
   jingzhou:[
     {name:'江陵',type:'seat',clanFamily:null,popShare:0.35},
@@ -181,11 +185,12 @@ const COUNTY_DATA = {
     {name:'公安',type:'common',clanFamily:null,popShare:0.12},
   ],
   wuchang:[
-    {name:'武昌县',type:'seat',clanFamily:null,popShare:0.35},
-    {name:'吴陵',type:'clan_base',clanFamily:CLAN_FAMILIES.wj_zhu,magnate:true,popShare:0.20}, // ★ v170: wj_lu→wj_zhu
-    {name:'鄂县',type:'common',clanFamily:null,popShare:0.18},
-    {name:'阳新',type:'common',clanFamily:null,popShare:0.15},
+    {name:'武昌县',type:'seat',clanFamily:null,popShare:0.30},
+    {name:'吴陵',type:'clan_base',clanFamily:CLAN_FAMILIES.wj_zhu,magnate:true,popShare:0.18}, // ★ v170: wj_lu→wj_zhu
+    {name:'鄂县',type:'common',clanFamily:null,popShare:0.15},
+    {name:'阳新',type:'common',clanFamily:null,popShare:0.14},
     {name:'下雉',type:'common',clanFamily:null,popShare:0.12},
+    {name:'鄳县',type:'common',clanFamily:null,popShare:0.11}, // 1f-audit: 费祎 "江夏鄳县" 史实属县
   ],
   // ── 中城(4县) ──
   nanyang:[
@@ -195,10 +200,11 @@ const COUNTY_DATA = {
     {name:'穰县',type:'common',clanFamily:null,popShare:0.18},
   ],
   hedong:[
-    {name:'安邑',type:'seat',clanFamily:null,popShare:0.35},
-    {name:'闻喜',type:'common',clanFamily:null,popShare:0.25},
-    {name:'解县',type:'common',clanFamily:null,popShare:0.22},
+    {name:'安邑',type:'seat',clanFamily:null,popShare:0.30},
+    {name:'闻喜',type:'common',clanFamily:null,popShare:0.22},
+    {name:'解县',type:'common',clanFamily:null,popShare:0.20},
     {name:'蒲坂',type:'common',clanFamily:null,popShare:0.18},
+    {name:'杨县',type:'common',clanFamily:null,popShare:0.10}, // 1f-audit: 徐晃 "河东杨县" 史实属县
   ],
   qingzhou:[
     {name:'临淄',type:'seat',clanFamily:null,popShare:0.35},
@@ -225,11 +231,14 @@ const COUNTY_DATA = {
     {name:'邓县',type:'common',clanFamily:null,popShare:0.18},
   ],
   chenliu:[
-    {name:'陈留县',type:'seat',clanFamily:null,popShare:0.40},
+    {name:'陈留县',type:'seat',clanFamily:null,popShare:0.30},
     // 1f-p4: '谯县' (pg_cao/pg_xhs/qg_xu magnate) moved → xiaopei (沛国治, history-correct)
-    {name:'雍丘',type:'common',clanFamily:null,popShare:0.25},
-    {name:'尉氏',type:'common',clanFamily:null,popShare:0.20},
-    {name:'扶沟',type:'common',clanFamily:null,popShare:0.15},
+    {name:'雍丘',type:'common',clanFamily:null,popShare:0.18},
+    {name:'尉氏',type:'common',clanFamily:null,popShare:0.14},
+    {name:'扶沟',type:'common',clanFamily:null,popShare:0.10},
+    {name:'己吾',type:'common',clanFamily:null,popShare:0.10}, // 1f-audit: 典韦 "陈留己吾" 史实属县
+    {name:'平丘',type:'common',clanFamily:null,popShare:0.10}, // 1f-audit: 毛玠 "陈留平丘" 史实属县
+    {name:'圉县',type:'common',clanFamily:null,popShare:0.08}, // 1f-audit: 吴班 "陈留圉县" 史实属县
   ],
   xiapi:[
     {name:'下邳县',type:'seat',clanFamily:null,popShare:0.35},
@@ -256,16 +265,19 @@ const COUNTY_DATA = {
     {name:'居巢',type:'common',clanFamily:null,popShare:0.18},
   ],
   shouchun:[
-    {name:'寿春县',type:'seat',clanFamily:null,popShare:0.35},
-    {name:'安丰',type:'common',clanFamily:null,popShare:0.25},
-    {name:'下蔡',type:'common',clanFamily:null,popShare:0.22},
+    {name:'寿春县',type:'seat',clanFamily:null,popShare:0.30},
+    {name:'安丰',type:'common',clanFamily:null,popShare:0.22},
+    {name:'下蔡',type:'common',clanFamily:null,popShare:0.20},
     {name:'义成',type:'common',clanFamily:null,popShare:0.18},
+    {name:'成德',type:'common',clanFamily:null,popShare:0.10}, // 1f-audit: 刘晔 "淮南成德" 史实属县
   ],
   huiji:[
-    {name:'山阴',type:'seat',clanFamily:null,popShare:0.35},
-    {name:'余姚',type:'common',clanFamily:null,popShare:0.25},
-    {name:'上虞',type:'common',clanFamily:null,popShare:0.22},
-    {name:'剡县',type:'common',clanFamily:null,popShare:0.18},
+    {name:'山阴',type:'seat',clanFamily:null,popShare:0.28},
+    {name:'余姚',type:'common',clanFamily:null,popShare:0.20},
+    {name:'上虞',type:'common',clanFamily:null,popShare:0.18},
+    {name:'剡县',type:'common',clanFamily:null,popShare:0.15},
+    {name:'乌伤',type:'common',clanFamily:null,popShare:0.12}, // 1f-audit: 骆统 "会稽乌伤" 史实属县
+    {name:'长山',type:'common',clanFamily:null,popShare:0.07}, // 1f-audit: 留赞 "会稽长山" 史实属县
   ],
   chaigang:[
     {name:'柴桑县',type:'seat',clanFamily:null,popShare:0.35},
@@ -274,10 +286,11 @@ const COUNTY_DATA = {
     {name:'鄱阳',type:'common',clanFamily:null,popShare:0.18},
   ],
   changsha:[
-    {name:'临湘',type:'seat',clanFamily:null,popShare:0.35},
-    {name:'醴陵',type:'common',clanFamily:null,popShare:0.25},
-    {name:'益阳',type:'common',clanFamily:null,popShare:0.22},
+    {name:'临湘',type:'seat',clanFamily:null,popShare:0.30},
+    {name:'醴陵',type:'common',clanFamily:null,popShare:0.22},
+    {name:'益阳',type:'common',clanFamily:null,popShare:0.20},
     {name:'湘南',type:'common',clanFamily:null,popShare:0.18},
+    {name:'罗侯',type:'common',clanFamily:null,popShare:0.10}, // 1f-audit: 刘封 "长沙罗侯" 史实属县
   ],
   yuzhang:[
     {name:'南昌',type:'seat',clanFamily:null,popShare:0.35},
@@ -308,9 +321,10 @@ const COUNTY_DATA = {
     {name:'张掖',type:'common',clanFamily:null,popShare:0.25},
   ],
   wuwei:[
-    {name:'武威县',type:'seat',clanFamily:null,popShare:0.45},
-    {name:'揟次',type:'common',clanFamily:null,popShare:0.30},
-    {name:'鸾鸟',type:'common',clanFamily:null,popShare:0.25},
+    {name:'武威县',type:'seat',clanFamily:null,popShare:0.40},
+    {name:'揟次',type:'common',clanFamily:null,popShare:0.25},
+    {name:'鸾鸟',type:'common',clanFamily:null,popShare:0.22},
+    {name:'祖厉',type:'common',clanFamily:null,popShare:0.13}, // 1f-audit: 张绣 "武威祖厉" 史实属县
   ],
   tianshui:[
     {name:'冀县',type:'seat',clanFamily:null,popShare:0.45},
@@ -378,9 +392,10 @@ const COUNTY_DATA = {
     {name:'鱼复',type:'common',clanFamily:null,popShare:0.25},
   ],
   lingling:[
-    {name:'零陵县',type:'seat',clanFamily:null,popShare:0.45},
-    {name:'泉陵',type:'common',clanFamily:null,popShare:0.30},
-    {name:'营道',type:'common',clanFamily:null,popShare:0.25},
+    {name:'零陵县',type:'seat',clanFamily:null,popShare:0.40},
+    {name:'泉陵',type:'common',clanFamily:null,popShare:0.25},
+    {name:'营道',type:'common',clanFamily:null,popShare:0.22},
+    {name:'湘乡',type:'common',clanFamily:null,popShare:0.13}, // 1f-audit: 蒋琬 "零陵湘乡" 史实属县
   ],
   jianning:[
     {name:'建宁县',type:'seat',clanFamily:null,popShare:0.45},
@@ -439,11 +454,12 @@ const COUNTY_DATA = {
   suzhou:[
     // 1f-p4-p2 (codex catch): 跟 chenliu (陈留县 seat + 谯县 clan_base) 模式一致 — type 单值 限制下,
     // 吴县 用 type='clan_base' 让 顾/陆/朱 clan logic trigger; 娄县 (西汉始置, 史实苏州属县) 做 seat.
-    {name:'娄县',type:'seat',clanFamily:null,popShare:0.30},
-    {name:'吴县',type:'clan_base',clanFamily:[CLAN_FAMILIES.wj_gu, CLAN_FAMILIES.wj_lu, CLAN_FAMILIES.wj_zhu],magnate:true,popShare:0.32},
-    {name:'富春',type:'common',clanFamily:null,popShare:0.16}, // 史实孙氏籍贯
-    {name:'钱唐',type:'common',clanFamily:null,popShare:0.12}, // 1f-audit: 全琮 "吴郡钱唐" 史实属县, 此前 orphan
-    {name:'乌程',type:'common',clanFamily:null,popShare:0.10},
+    {name:'娄县',type:'seat',clanFamily:null,popShare:0.28},
+    {name:'吴县',type:'clan_base',clanFamily:[CLAN_FAMILIES.wj_gu, CLAN_FAMILIES.wj_lu, CLAN_FAMILIES.wj_zhu],magnate:true,popShare:0.30},
+    {name:'富春',type:'common',clanFamily:null,popShare:0.15}, // 史实孙氏籍贯
+    {name:'钱唐',type:'common',clanFamily:null,popShare:0.10}, // 1f-audit: 全琮 "吴郡钱唐" 史实属县
+    {name:'乌程',type:'common',clanFamily:null,popShare:0.09},
+    {name:'余杭',type:'common',clanFamily:null,popShare:0.08}, // 1f-audit: 凌统 "吴郡余杭" 史实属县
   ],
   langya:[
     {name:'开阳',type:'seat',clanFamily:null,popShare:0.35},
