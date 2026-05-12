@@ -3,7 +3,7 @@
 // 用法:
 //   node tests/compare.js [baseline_path] [current_path]
 // 默认:
-//   baseline = tests/baseline/phase1f_p4_complete.json (最新阶段 baseline)
+//   baseline = tests/baseline/phase1f_p4_p2_complete.json (最新阶段 baseline)
 //   current  = tests/current.json
 //
 // Baseline 演进顺序(每阶段完成时锁定一份,旧 baseline 保留供回归):
