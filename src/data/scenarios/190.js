@@ -621,7 +621,23 @@ const SCENARIO_190 = {
     "关羽":   { "status":"active", "fac":"liubei",     "city":"pingyuan",  "role":null,    "post":{"name":"别部司马","rank":"将"},   "title":null, "loyalty":100,"merit":200,"retainer":{"count":900, "type":"light"},  "initialUnit":true , "relations":[{"target":"刘备","type":"义兄弟","intimacy":95},{"target":"张飞","type":"义兄弟","intimacy":92}] },
     "张飞":   { "status":"active", "fac":"liubei",     "city":"pingyuan",  "role":null,    "post":{"name":"别部司马","rank":"将"},   "title":null, "loyalty":100,"merit":180,"retainer":{"count":900, "type":"cavalry"},"initialUnit":false, "relations":[{"target":"刘备","type":"义兄弟","intimacy":95},{"target":"关羽","type":"义兄弟","intimacy":92}] },
     "简雍":   { "status":"active", "fac":"liubei", "city":"pingyuan", "role":null, "post":{"name":"从事","rank":"文官"}, "title":null, "loyalty":95,"merit":150,"retainer":{"count":200,"type":"light"},"initialUnit":false, "relations":[] },
-  
+
+    // ── wild 池 (14) — 190 时已成年(≥18) 未仕 14 fac 之任何一方 ──
+    "陈宫":   { "status":"wild", "fac":"wild", "wildData":{ "title":"东郡名士",   "post":{"name":"郡吏","rank":"文官","desc":"东郡名士,智谋深远。"},          "loyalty":60, "merit":100, "retainer":{"count":300, "type":"light"},   "relations":[] }},
+    "王朗":   { "status":"wild", "fac":"wild", "wildData":{ "title":"会稽太守",   "post":{"name":"会稽太守","rank":"文官","desc":"经学名士,地方良吏,孤悬东南。"}, "loyalty":55, "merit":150, "retainer":{"count":600, "type":"light"},   "relations":[] }},
+    "张邈":   { "status":"wild", "fac":"wild", "wildData":{ "title":"陈留太守",   "post":{"name":"陈留太守","rank":"文官","desc":"反董盟主之一,与曹操早年友善。"},"loyalty":50, "merit":250, "retainer":{"count":1200,"type":"light"},   "relations":[{"target":"曹操","type":"故友","intimacy":70},{"target":"张超","type":"弟","intimacy":90}] }},
+    "张超":   { "status":"wild", "fac":"wild", "wildData":{ "title":"广陵太守",   "post":{"name":"广陵太守","rank":"文官","desc":"张邈之弟,与兄共反董。"},      "loyalty":55, "merit":150, "retainer":{"count":800, "type":"light"},   "relations":[{"target":"张邈","type":"兄长","intimacy":90}] }},
+    "王匡":   { "status":"wild", "fac":"wild", "wildData":{ "title":"河内太守",   "post":{"name":"河内太守","rank":"将","desc":"反董盟军先锋,与董卓战于河阳。"}, "loyalty":50, "merit":200, "retainer":{"count":1500,"type":"heavy"},   "relations":[{"target":"韩浩","type":"部曲","intimacy":75}] }},
+    "韩浩":   { "status":"wild", "fac":"wild", "wildData":{ "title":"王匡部将",   "post":{"name":"都督","rank":"将","desc":"王匡心腹,治军严整。"},            "loyalty":80, "merit":120, "retainer":{"count":600, "type":"heavy"},   "relations":[{"target":"王匡","type":"主君","intimacy":80}] }},
+    "笮融":   { "status":"wild", "fac":"wild", "wildData":{ "title":"下邳相",     "post":{"name":"下邳相","rank":"将","desc":"陶谦部边缘武装,奉佛大造浮图。"},  "loyalty":40, "merit":180, "retainer":{"count":800, "type":"light"},   "relations":[] }},
+    "钟繇":   { "status":"wild", "fac":"wild", "wildData":{ "title":"廷尉正",     "post":{"name":"廷尉正","rank":"文官","desc":"汉廷名臣,长安朝官。"},        "loyalty":55, "merit":200, "retainer":{"count":100, "type":"light"},   "relations":[] }},
+    "华歆":   { "status":"wild", "fac":"wild", "wildData":{ "title":"颍川名士",   "post":{"name":"尚书郎","rank":"文官","desc":"颍川名士,与荀彧同举孝廉。"},   "loyalty":50, "merit":150, "retainer":{"count":50,  "type":"light"},   "relations":[] }},
+    "董昭":   { "status":"wild", "fac":"wild", "wildData":{ "title":"廮陶长",     "post":{"name":"廮陶长","rank":"文官","desc":"河北人,未定主属。"},          "loyalty":50, "merit":120, "retainer":{"count":80,  "type":"light"},   "relations":[] }},
+    "贾诩":   { "status":"wild", "fac":"wild", "wildData":{ "title":"凉州参谋",   "post":{"name":"讨虏校尉","rank":"文官","desc":"凉州军参谋,谋深莫测。"},     "loyalty":40, "merit":200, "retainer":{"count":150, "type":"light"},   "relations":[] }},
+    "张绣":   { "status":"wild", "fac":"wild", "wildData":{ "title":"凉州后起",   "post":{"name":"军侯","rank":"将","desc":"张济之侄,凉州勇将。"},            "loyalty":60, "merit":80,  "retainer":{"count":500, "type":"cavalry"}, "relations":[{"target":"张济","type":"叔","intimacy":85}] }},
+    "于禁":   { "status":"wild", "fac":"wild", "wildData":{ "title":"鲍信部曲",   "post":{"name":"都伯","rank":"将","desc":"鲍信麾下,治军严整。"},             "loyalty":75, "merit":80,  "retainer":{"count":500, "type":"heavy"},   "relations":[{"target":"鲍信","type":"主君","intimacy":80}] }},
+    "臧霸":   { "status":"wild", "fac":"wild", "wildData":{ "title":"泰山豪强",   "post":{"name":"骑都尉","rank":"将","desc":"泰山地方豪强,黄巾募起家。"},     "loyalty":50, "merit":150, "retainer":{"count":800, "type":"cavalry"}, "relations":[] }},
+
   },
   "initialUnits": [
     {
