@@ -1,8 +1,41 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 W1-W3 + 4-e + codex tier A + GEN_BASE audit v1 + **audit v2 (user spot-check 黄忠 trigger)** 全完成. GEN_BASE 212 entries × {birth/death/debut/wildMeta} 字段口径定 (debutYear=首次仕官年, in header comment line 7-12). SCENARIO_190 active **103** / wild 14 / pending **95** = 212/212 (v2 加: 黄忠/鲜于银 pending→active + 宗宝 schema 一致 + 徐盛 availableYear 210→200). 5 commit local 待 push (HEAD `374ac8a`, origin/main `b5c68d4`). Audit 总 catch 33 错 (v1 29 + v2 4). Follow-up: 刘磐 应 active in liubiao (跟黄忠同问题, 留下次). 下次: phase 5 / phase 6 / 平衡.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 W1-W3 + 4-e + codex tier A + GEN_BASE audit v1+v2 (debut/death) + **stats audit (com/war/int/pol/cha/apt + classTag)** 全完成. GEN_BASE 212 entries 字段口径定 (debutYear=首次仕官年). SCENARIO_190 active 103/wild 14/pending 95 = 212/212. **已 push (HEAD `?`, 含 stats 8 entries fix: 吕布 com 75→88 + 袁术 classTag→civilian + 张允 war 60 + 刘琮 pol 60 + 蔡瑁/祖茂/陈登 naval 微调 + 袁绍 com 85)**. 数据层 audit 闭环. 下次: skills (80+ stub) / birthYear 补全 / phase 6 wire / 平衡.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
+---
+
+## 2026-05-13 (stats audit — com/war/int/pol/cha/apt + classTag, 8 entries 修)
+
+**main HEAD: `3d4a36f`**. User spot-check 吕布 com=75 偏低 → 改 88 → 跑 codex stats audit (212 entries 全量, KOEI 经验 + schema 阈值标准) → catch 9 finding → 修 7 (P1 schema 3 + P2 微差 4, P3 边界跳过).
+
+### 修值 (8 个 含吕布)
+- **吕布 com 75→88** (user spot-check, KOEI 经典 com 88 / war 100)
+- **袁术 classTag commander → civilian, classTagsAll [commander,ruler] → [civilian,ruler]** (com=60 < 70 commander 阈值; KOEI 袁术本就文官诸侯)
+- **张允 war 55→60** (warrior 阈值)
+- **刘琮 pol 55→60** (civilian 阈值; weak ruler 边界值不改 classTag)
+- **蔡瑁 naval S→A** (五维 65/60/60/55/55 不支撑 S, 跟周瑜/甘宁 S 级别混淆)
+- **祖茂 naval A→B** (孙坚亲卫勇将, naval A 略高)
+- **陈登 naval A→B** (双 A apt 功能性过强, 保留 siege A)
+- **袁绍 com 78→85** (河北统帅/讨董盟主, 78 跟 commander primary 略低)
+
+### Audit limitation 沉淀
+- **catch 量 9 vs debutYear 29** — codex 对数值精度低 (没有 historical anchor 像"刘表中郎将"那种), ±5-10 都算合理
+- audit confidence 中高 (KOEI 经验非联网 spot-check)
+- **GEN_BASE 数值整体 KOEI 风格 OK** — phase 4-a 80+ "小将"批次也没找到大错
+- **P3 跳过** — codex 说"没错但偏模板化" (田楷 com:70/war:70/int:65 + 关靖 int:70 边界阈值)
+
+### Codex 提议 follow-up (不做)
+- 二轮 apt 专审 (naval S/A + cavalry S 分布) — 按"不出戏"标准跳过, 微差不出戏
+
+### 数据层 audit 闭环
+- ✅ debutYear / deathYear (v1+v2 audit)
+- ✅ com/war/int/pol/cha/apt (stats audit)
+- ✅ classTag schema 一致性
+- ❌ skills (80+ stub) 待 sprint
+- ❌ birthYear (大量 null) 待 sprint
+- ❌ wildMeta 合理性 (codex 不擅长, user spot-check)
+
 ---
 
 ## 2026-05-13 (audit v2 — user spot-check 黄忠 trigger 4 entries 补)

@@ -1,6 +1,6 @@
 - [User role](user_role.md) — 用户是 Project Romance 制作人,亲自定 session 范围 + 设计 approval
 - [Project Romance overview](project_overview.md) — 三国题材策略游戏,v181 单 HTML,正在做 data/render/chains/core 四层重构
-- [Refactor phase status](project_refactor_status.md) — **GEN_BASE audit v1+v2 ✅ done local (HEAD 374ac8a, 5 commit 待 push)** SCENARIO_190 active 103/wild 14/pending 95 = 212/212; v2 user spot-check 黄忠 trigger 4 补 (黄忠/鲜于银/宗宝/徐盛); 不出戏标准 (user 原话); 下次: phase 5 / phase 6 / 平衡 / 刘磐 active follow-up
+- [Refactor phase status](project_refactor_status.md) — **GEN_BASE 数据层 audit 闭环 ✅** (debut/death + stats + classTag), SCENARIO_190 212/212; 下次: skills (80+ stub) / birthYear / phase 6 wire / 平衡 / 刘磐 active follow-up
 - [战斗机制 systematic bug fix sprint](project_combat_mechanism_bugfix.md) — 批 1+2 close 5 fix (§5.1/§5.2/§5.7/§5.10/§5.3); audit pass 2 S1-S6 完结 robust by design; 剩余 §5.7 P4 / §5.8 P6 / §5.9 设计层 低优
 - [Scenario system design](../scenario_system.md) — 多剧本架构 design doc v3.3; 1a-1f 全完成 ✅ (55 cities, 1f 8 新城 河北/徐州/荆南/关陇 + 1f-p3 江东 1 + 徐州东北 1 + 晋阳上移 + 1f-p4 COUNTY_DATA + 3 magnate history-correct move 22 武将 home city)
 - [Chain master scout](project_chain_master_scout.md) — 8 链总图 + map.js carry-over;顺序 ethos→gentry→politics→diplomacy→economy→event→military→general
