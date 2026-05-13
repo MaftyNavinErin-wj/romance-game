@@ -1,6 +1,6 @@
 - [User role](user_role.md) — 用户是 Project Romance 制作人,亲自定 session 范围 + 设计 approval
 - [Project Romance overview](project_overview.md) — 三国题材策略游戏,v181 单 HTML,正在做 data/render/chains/core 四层重构
-- [Refactor phase status](project_refactor_status.md) — **W1-W3 + 4-e ✅ 已 push (17dab5b) + codex post-sprint final review NEEDS-WORK** (实际 212/213 桥瑁 dead 漏; tier A 5 数据错 fix 待 / tier B 设计层 2 类待决; 下次 codex tier A fix / tier B 决 / phase 5 / phase 6)
+- [Refactor phase status](project_refactor_status.md) — **W1-W3 + 4-e + codex tier A fix ✅ 已 push (b5c68d4)** GEN_BASE 212 (删桥瑁) / SCENARIO_190 212/212; 下次 sprint: GEN_BASE 全量 debutYear+deathYear audit (B.1 8 改库 + B.2 孙策/马超 pending 塞一起)
 - [战斗机制 systematic bug fix sprint](project_combat_mechanism_bugfix.md) — 批 1+2 close 5 fix (§5.1/§5.2/§5.7/§5.10/§5.3); audit pass 2 S1-S6 完结 robust by design; 剩余 §5.7 P4 / §5.8 P6 / §5.9 设计层 低优
 - [Scenario system design](../scenario_system.md) — 多剧本架构 design doc v3.3; 1a-1f 全完成 ✅ (55 cities, 1f 8 新城 河北/徐州/荆南/关陇 + 1f-p3 江东 1 + 徐州东北 1 + 晋阳上移 + 1f-p4 COUNTY_DATA + 3 magnate history-correct move 22 武将 home city)
 - [Chain master scout](project_chain_master_scout.md) — 8 链总图 + map.js carry-over;顺序 ethos→gentry→politics→diplomacy→economy→event→military→general

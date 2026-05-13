@@ -1,8 +1,46 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 sprint W1-W3 + 4-e 闭环全完成. GEN_BASE 213 entries × {birth/death/debut/wildMeta} cross-scenario data. SCENARIO_190 active 103 / wild 14 / pending 95 / dead **0** = **212/213** (桥瑁 dead 漏列,memory 旧描述 1 dead 错). 已 push origin/main (HEAD 17dab5b). **codex post-sprint final review NEEDS-WORK** — Tier A 5 数据错 fix 待 (桥瑁 dead 补 + 刘虞/公孙瓒/严纲 debutYear 硬错 + 曹丕 availableYear off by 1) + Tier B 设计层 2 类待制作人决 (B.1 9 武将 debutYear>190 / B.2 孙策 15 / 马超 14 active <18). 下次: codex tier A fix / tier B 决策 / 平衡 / phase 5 / phase 6.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 sprint W1-W3 + 4-e + codex tier A fix 全完成. GEN_BASE 212 entries (桥瑁 删 — 最早剧本 190, 190 死永不登场) × {birth/death/debut/wildMeta}. SCENARIO_190 active 103 / wild 14 / pending 95 = 212/212 全覆盖. **已 push origin/main (HEAD b5c68d4)**. **下次 sprint: GEN_BASE 212 entries debutYear + deathYear 全量 audit** (codex review 仅 catch 190 active 触发 query 的 9 错, 其他 200 entries 同类风险未审; B.1 8 改库 + B.2 孙策/马超 改 pending 191/194 塞 audit sprint 一起 fix). 跨剧本 apply 已满足 (debutYear 在 GEN_BASE 是 cross-scenario invariant).
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
+---
+
+## 2026-05-13 (codex tier A fix + B.1/B.2 决策修正 + audit sprint todo)
+
+**main HEAD: `b5c68d4` (origin/main 已同步)** — `fix(scenario-190-tier-a): codex final review tier A 5 finding`.
+
+### Tier A 5 finding 已 fix (1 commit)
+- **A.1 改方案**: 不补 dead entry — **删 GEN_BASE.桥瑁** (deathYear=190, 最早剧本 190, 永不登场, dead shape 设计需求消失). GEN_BASE 213 → 212; SCENARIO_190 212/212 全覆盖.
+- A.2 刘虞 debutYear 200 → 188 ✓
+- A.3 公孙瓒 debutYear 200 → 184 ✓
+- A.4 严纲 debutYear 200 → 190 ✓
+- A.5 曹丕 availableYear 204 → 205 ✓ (+ wildData.post.desc "204 才出仕" → "205 才出仕")
+- smoke + compare PASS (51 snapshots identical, src/data/ 未 wire 到 runtime).
+
+### B.1 决策修正 (mixed → 8 改库)
+制作人反问"文聘 208 也可以早点出道(刘表手下), 是不是数据库有误?" — **答:是**. 重审 9 武将 debutYear:
+- 文聘 208 实是"投曹"时间, 刘表大将早就在了 → 改库 ~188
+- 鲜于辅 204 / 田畴 200 同类错误 (前者刘虞 188 上任就在, 后者 192 给刘虞当使者史载明确)
+- 全部 9 个都是数据库错, **8 个改库 + 1 个 (马超) 归 B.2** (而非 mixed)
+
+### B.2 决策修正 (孙策不豁免)
+制作人提议**孙策晚 1 年 (191 出场) 简单, 别引入豁免规则**. 同意.
+- 孙策 改 pending availableYear=191 (而非 active 史实豁免)
+- 马超 改 pending availableYear=194
+- 18 岁标准不动 (改 16 不解决问题, 改 14 影响面太大)
+- 跨剧本 apply ✓ (debutYear 在 GEN_BASE)
+
+### 下次 sprint: GEN_BASE 212 entries debutYear + deathYear 全量 audit
+**Rationale**: codex final review 仅 catch "190 active 但 debutYear > 190" 的 query, GEN_BASE 其他 200 entries 同类错风险未审. CC spot-check 庞德 189 / 公孙瓒 184 / 卫兹 189 等数也是 history estimate, 精度不一定够.
+**做法**:
+1. codex 跑全量 audit query ("212 entries 的 debutYear / deathYear 跟 history 比对, catch 明显错")
+2. codex 不 reliable 部分 (细年份) 制作人 spot-check
+3. audit 完后 batch fix: B.1 8 改库 + B.2 孙策/马超 改 pending 一起进
+**预估**: 几小时 codex + 整理 + 拍板.
+
+### Schema 备忘: availableYear vs debutYear 冗余
+大部分 pending 武将 availableYear == debutYear (诸葛亮 207=207, 司马懿 208=208 etc.), 唯一例外是剧情驱动延后 (可能不存在). phase 6 wire 时考虑 availableYear 完全 derived from GEN_BASE.debutYear, 删 SCENARIO 内字段. 现在不动.
+
 ---
 
 ## 2026-05-14 (post-push final review) — codex sprint final review NEEDS-WORK + todo
