@@ -2006,12 +2006,6 @@ const SCENARIO_214 = {
       "pendingFac": "wei",
       "availableYear": 218,
       "wildData": {
-        "title": "路人皆知",
-        "post": {
-          "name": "大将军",
-          "rank": "文官",
-          "desc": "司马懿之子，权倾朝野。"
-        },
         "loyalty": 88,
         "merit": 10,
         "retainer": {
@@ -2034,12 +2028,6 @@ const SCENARIO_214 = {
       "pendingFac": "wei",
       "availableYear": 218,
       "wildData": {
-        "title": "抗蜀名将",
-        "post": {
-          "name": "征西将军",
-          "rank": "将",
-          "desc": "陈群之子，善于防守反击。"
-        },
         "loyalty": 82,
         "merit": 10,
         "retainer": {
@@ -2062,12 +2050,6 @@ const SCENARIO_214 = {
       "pendingFac": "wei",
       "availableYear": 217,
       "wildData": {
-        "title": "笃行之士",
-        "post": {
-          "name": "征南将军",
-          "rank": "将",
-          "desc": "文武兼备，治军严明。"
-        },
         "loyalty": 85,
         "merit": 10,
         "retainer": {
@@ -2881,12 +2863,6 @@ const SCENARIO_214 = {
       "pendingFac": "shu",
       "availableYear": 215,
       "wildData": {
-        "title": "小关张",
-        "post": {
-          "name": "侍中",
-          "rank": "将",
-          "desc": "继承父志的二代骁将。"
-        },
         "loyalty": 92,
         "merit": 10,
         "retainer": {
@@ -2919,12 +2895,6 @@ const SCENARIO_214 = {
       "pendingFac": "shu",
       "availableYear": 215,
       "wildData": {
-        "title": "猛虎之子",
-        "post": {
-          "name": "校尉",
-          "rank": "将",
-          "desc": "张飞之子，武勇过人。"
-        },
         "loyalty": 90,
         "merit": 10,
         "retainer": {
@@ -3187,12 +3157,6 @@ const SCENARIO_214 = {
       "pendingFac": "shu",
       "availableYear": 218,
       "wildData": {
-        "title": "降蜀宗亲",
-        "post": {
-          "name": "车骑将军",
-          "rank": "将",
-          "desc": "夏侯渊之子，因司马氏篡权而降蜀。"
-        },
         "loyalty": 72,
         "merit": 10,
         "retainer": {
@@ -4160,12 +4124,6 @@ const SCENARIO_214 = {
       "pendingFac": "wu",
       "availableYear": 217,
       "wildData": {
-        "title": "东兴大捷",
-        "post": {
-          "name": "大将军",
-          "rank": "将",
-          "desc": "诸葛瑾之子，少年成名，东兴之战大破魏军。"
-        },
         "loyalty": 78,
         "merit": 10,
         "retainer": {
@@ -4193,12 +4151,6 @@ const SCENARIO_214 = {
       "pendingFac": "wu",
       "availableYear": 218,
       "wildData": {
-        "title": "朱然之嗣",
-        "post": {
-          "name": "上大将军",
-          "rank": "将",
-          "desc": "朱然之子，改姓施，继父业镇守边疆。"
-        },
         "loyalty": 80,
         "merit": 10,
         "retainer": {
@@ -4273,12 +4225,6 @@ const SCENARIO_214 = {
       "status": "wild",
       "fac": "wild",
       "wildData": {
-        "title": "倒持西蜀",
-        "post": {
-          "name": "别驾",
-          "rank": "文官",
-          "desc": "熟知益州山川地理，己方在蜀地行军AP消耗-20%。"
-        },
         "loyalty": 55,
         "merit": 20,
         "retainer": {
@@ -4299,12 +4245,6 @@ const SCENARIO_214 = {
       "status": "wild",
       "fac": "wild",
       "wildData": {
-        "title": "抬棺决死",
-        "post": {
-          "name": "先锋",
-          "rank": "将",
-          "desc": "万人敌之勇，正面冲阵时部队战力+12%。"
-        },
         "loyalty": 80,
         "merit": 50,
         "retainer": {
@@ -4331,12 +4271,6 @@ const SCENARIO_214 = {
       "fac": "wild",
       "availableYear": 215,
       "wildData": {
-        "title": "托孤重臣",
-        "post": {
-          "name": "尚书令",
-          "rank": "文官",
-          "desc": "蜀汉重臣，主持内政可加速建设速度-1旬。"
-        },
         "loyalty": 65,
         "merit": 30,
         "retainer": {
@@ -4358,12 +4292,6 @@ const SCENARIO_214 = {
       "fac": "wild",
       "availableYear": 219,
       "wildData": {
-        "title": "偷渡阴平",
-        "post": {
-          "name": "合围",
-          "rank": "将",
-          "desc": "善用险道奇兵，山地行军AP消耗减半，奇袭成功率+20%。"
-        },
         "loyalty": 78,
         "merit": 15,
         "retainer": {
@@ -4385,12 +4313,6 @@ const SCENARIO_214 = {
       "fac": "wild",
       "availableYear": 221,
       "wildData": {
-        "title": "志大才疏",
-        "post": {
-          "name": "谋帅",
-          "rank": "文官",
-          "desc": "文武兼备，统率与智谋均衡，伏击识破率+25%。"
-        },
         "loyalty": 55,
         "merit": 10,
         "retainer": {
@@ -4416,12 +4338,6 @@ const SCENARIO_214 = {
       "status": "wild",
       "fac": "wild",
       "wildData": {
-        "title": "反复无常",
-        "post": {
-          "name": "守将",
-          "rank": "将",
-          "desc": "善守关隘，驻守山城防御加成+10%。"
-        },
         "loyalty": 40,
         "merit": 20,
         "retainer": {
@@ -4447,12 +4363,6 @@ const SCENARIO_214 = {
       "status": "wild",
       "fac": "wild",
       "wildData": {
-        "title": "上庸豪族",
-        "post": {
-          "name": "郡守",
-          "rank": "将",
-          "desc": "上庸地方豪族，驻守上庸城城防+8%。"
-        },
         "loyalty": 50,
         "merit": 15,
         "retainer": {
@@ -4468,12 +4378,6 @@ const SCENARIO_214 = {
       "fac": "wild",
       "availableYear": 215,
       "wildData": {
-        "title": "陈仓坚守",
-        "post": {
-          "name": "守将",
-          "rank": "将",
-          "desc": "守城专家，攻城方攻城兵器效果对己方城市减半。"
-        },
         "loyalty": 82,
         "merit": 30,
         "retainer": {
@@ -4488,12 +4392,6 @@ const SCENARIO_214 = {
       "status": "wild",
       "fac": "wild",
       "wildData": {
-        "title": "落凤之弓",
-        "post": {
-          "name": "先锋",
-          "rank": "将",
-          "desc": "蜀道险关守将，山地伏击成功率+20%。"
-        },
         "loyalty": 88,
         "merit": 35,
         "retainer": {
@@ -4508,12 +4406,6 @@ const SCENARIO_214 = {
       "status": "wild",
       "fac": "wild",
       "wildData": {
-        "title": "蜀中干吏",
-        "post": {
-          "name": "郡守",
-          "rank": "文官",
-          "desc": "精于内政，辖区人口增长+8%，民心稳定。"
-        },
         "loyalty": 80,
         "merit": 15,
         "retainer": {
@@ -4529,12 +4421,6 @@ const SCENARIO_214 = {
       "fac": "wild",
       "availableYear": 217,
       "wildData": {
-        "title": "社稷之器",
-        "post": {
-          "name": "丞相继任",
-          "rank": "文官",
-          "desc": "诸葛亮身后蜀汉柱石，内政全面加成+8%。"
-        },
         "loyalty": 88,
         "merit": 15,
         "retainer": {
@@ -4566,12 +4452,6 @@ const SCENARIO_214 = {
       "fac": "wild",
       "availableYear": 217,
       "wildData": {
-        "title": "折冲良臣",
-        "post": {
-          "name": "大将军",
-          "rank": "文官",
-          "desc": "调和文武，外交行动成功率+15%。"
-        },
         "loyalty": 85,
         "merit": 15,
         "retainer": {
@@ -4603,12 +4483,6 @@ const SCENARIO_214 = {
       "fac": "wild",
       "availableYear": 216,
       "wildData": {
-        "title": "天水麒麟儿",
-        "post": {
-          "name": "镇军将军",
-          "rank": "将",
-          "desc": "文武双全，诸葛亮衣钵传人，蜀汉后期柱石。"
-        },
         "loyalty": 90,
         "merit": 40,
         "retainer": {
@@ -4635,12 +4509,6 @@ const SCENARIO_214 = {
       "fac": "wild",
       "availableYear": 221,
       "wildData": {
-        "title": "单骑退雄兵",
-        "post": {
-          "name": "前将军",
-          "rank": "将",
-          "desc": "勇冠三军，单骑冲阵退敌。"
-        },
         "loyalty": 70,
         "merit": 10,
         "retainer": {
@@ -4656,12 +4524,6 @@ const SCENARIO_214 = {
       "fac": "wild",
       "availableYear": 221,
       "wildData": {
-        "title": "襄阳儒帅",
-        "post": {
-          "name": "征南大将军",
-          "rank": "文官",
-          "desc": "以德服人，镇守襄阳，为灭吴奠基。"
-        },
         "loyalty": 85,
         "merit": 10,
         "retainer": {
@@ -4677,12 +4539,6 @@ const SCENARIO_214 = {
       "fac": "wild",
       "availableYear": 219,
       "wildData": {
-        "title": "楼船灭吴",
-        "post": {
-          "name": "龙骧将军",
-          "rank": "将",
-          "desc": "建造楼船，顺江而下灭吴，水军统帅。"
-        },
         "loyalty": 80,
         "merit": 10,
         "retainer": {
