@@ -1,8 +1,22 @@
 ---
-name: Refactor phase status — 阶段 5/6 数据部分前移 ✅ (跨剧本武将信息梳理 sprint 完成)
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 sprint 全完成. GEN_BASE 213 entries × {birth/death/debut/wildMeta} cross-scenario data 完整. SCENARIO_190 active 83 / wild 14 / pending 94 (192/213). SCENARIO_214 wild/pending 24 内 title/post 删除 (从 GEN_BASE.wildMeta 派生). 15 commit local 未 push. 下次: 23 active 漏列 fix / 平衡 / phase 5 启动 UI / phase 6 runtime wire.
+name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 sprint W1-W3 + 4-e 闭环全完成. GEN_BASE 213 entries × {birth/death/debut/wildMeta} cross-scenario data. SCENARIO_190 active 103 / wild 14 / pending 95 / dead 1 = 213/213 GEN_BASE 全覆盖. 16 commit local 未 push. 下次: 平衡 / phase 5 启动 UI / phase 6 runtime wire.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
+---
+
+## 2026-05-14 (streamline 续) — 4-e SCENARIO_190 23 漏列闭环 (1 commit)
+
+**main HEAD local: `25d1c51` scenario-190-4e** (origin/main 仍 `2c55abe`, 16 commit 未 push)
+
+- `25d1c51` 4-e: 23 应 active/pending 漏列武将补 + W2.2 dedup fix (文聘/鲜于辅 误重复)
+  - active 20 entries 按 fac 补: caocao 4 / dongzhuo 4 / yuanshao 2 / liubiao 2 / liuyan 3 /
+    taoqian 1 / matenghan 2 / hanfu 1 / kongrong 1
+  - pending 3 entries (liubiao 漏): 刘磐/刘琦/刘琮
+
+**SCENARIO_190 最终**: active 103 / wild 14 / pending 95 / dead 1 (桥瑁) = 213/213 ✓
+GEN_BASE 全 213 entries 在 SCENARIO_190 内有归属.
+
 ---
 
 ## 2026-05-14 (streamline push) — 跨剧本武将信息梳理 sprint W1-W3 (8 commit)
