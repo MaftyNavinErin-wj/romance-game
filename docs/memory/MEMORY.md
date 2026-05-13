@@ -15,6 +15,7 @@
 - [Sprint streamline 多 batch 集中测](feedback_sprint_streamline_batches.md) — 连续简单 batch commit 留 local,集中给一份实机测 checklist,user 一次测完一次性 push 所有 batches
 - [Cross-machine memory sync](feedback_memory_sync.md) — pull 后用 cp 命令把 in-repo docs/memory/ 覆盖本机 auto-memory(in-repo 是权威, auto-memory 不跟 git 走)
 - [_exec sprint codex review streamline](feedback_exec_sprint_streamline.md) — _exec 归位 5 batch 同质, 默认集中 codex review 一次, 异常 batch 单独 escalate
+- [Single final-state codex review (streamline)](feedback_codex_single_final_review.md) — 多 batch sprint 末是否做 single 集中 codex review (待定), 价值在 schema/invariant catch, 史实精度 codex 不强
 - [Layer-3 sprint_verify 模板](reference_layer3_verify.md) — tests/sprint_verify.js 自动 verify 模板, 替代 F12 console paste, 后续 sprint 复用
 - [typeof X !== 'undefined' guard sweep](feedback_typeof_guard_sweep.md) — 删 top-level const 前必 grep `typeof X` 守卫 (1c-c 漏改 + 1d-c 暴露 battle_anim 4 site 教训)
 - [v170 籍贯系统 latent broken](reference_v170_birthplace_bug.md) — getGenBirthplace 读 GEN_TAGS (无 birthplace) 而非 GEN_META, 县属 loyalty 本族放大 / magnate shock 从未真正 trigger; 1f-p4-p3 修
