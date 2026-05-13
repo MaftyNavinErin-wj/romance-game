@@ -1,8 +1,67 @@
 ---
-name: Refactor phase status — 阶段 2/3/4 SCENARIO_190 minimum viable playable ✅
-description: 阶段 1 scenario 1a-1f 全完成 + audit 闭环. 阶段 2-4 SCENARIO_190 完成 (14 fac/91 diplo/55 cities/83 active 武将/relations/initialUnits/foundingCore). 7 commit local 未 push. 下次: wild/pending 池 + 平衡 + phase 5 启动 UI.
+name: Refactor phase status — 阶段 5/6 数据部分前移 ✅ (跨剧本武将信息梳理 sprint 完成)
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 sprint 全完成. GEN_BASE 213 entries × {birth/death/debut/wildMeta} cross-scenario data 完整. SCENARIO_190 active 83 / wild 14 / pending 94 (192/213). SCENARIO_214 wild/pending 24 内 title/post 删除 (从 GEN_BASE.wildMeta 派生). 15 commit local 未 push. 下次: 23 active 漏列 fix / 平衡 / phase 5 启动 UI / phase 6 runtime wire.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
+---
+
+## 2026-05-14 (streamline push) — 跨剧本武将信息梳理 sprint W1-W3 (8 commit)
+
+**main HEAD local: `b6c335e` scenario-214-w3** (origin/main 仍在 `0b3e043`, 15 commit 未 push: 7 SCENARIO_190 + 8 跨剧本梳理)
+
+**design 决策** (session 开头确认):
+- A 类 cross-scenario invariant → GEN_BASE: birthYear/deathYear/debutYear + wildMeta {title,post}
+- B 类 scenario-specific → scenario.generals.wildData: loyalty/merit/retainer/relations + pendingFac/availableYear
+- "未出生" (birthYear > startYear) 也进 scenario as pending (按 GEN_BASE.debutYear)
+- 不加 GEN_BASE.historicalFaction (scenario 显式填 pendingFac)
+- 成年标准 ≥18 (确实成年才算 active/wild, 否则 pending)
+
+**8 commit (streamline mode, sprint W1.1 a/b/c/d + W1.2 + W2.1 + W2.2 + W3)**:
+- `9931b30` W1.1-a: GEN_BASE wei 45 武将 三年字段 (155 曹操 → 235 司马昭)
+- `66dfad6` W1.1-b: GEN_BASE shu 32 武将 三年字段
+- `862789d` W1.1-c: GEN_BASE wu 30 武将 三年字段
+- `aa86438` W1.1-d: GEN_BASE wild 16 + inactive 8 + nanman 2 + 80 新加 = 106 武将 三年字段
+- `166fbe3` W1.2: GEN_BASE 加 24 wildMeta {title,post} (源 WILD_GEN_META) + GEN_POOL_INACTIVE 8 三年字段补 + **cross-pollution bug fix** (典韦/陈宫/田丰 birthYear 误填邻 entry 值 phase 1a 历史 bug)
+- `2d4b820` W2.1: SCENARIO_190 wild 池 14 武将 (audit 派生)
+- `dc2a4d5` W2.2: SCENARIO_190 pending 池 94 武将 (audit 派生, pendingFac 14 fac 映射)
+- `b6c335e` W3: SCENARIO_214 跨剧本对齐 — wildMeta +8 (32 total) + SCENARIO_214 24 entries 删 title/post
+
+**SCENARIO_190 最终状态** (193/213 entries covered):
+- active 83 (phase 4-d) / wild 14 (W2.1) / pending 94 (W2.2) / dead 1 桥瑁
+- 23 应 active 漏 (留下次 sprint):
+  - caocao 漏 4: 乐进/李典/曹纯/史涣
+  - dongzhuo 漏 4: 胡轸/樊稠/张济/高顺
+  - yuanshao 漏 2: 高览/淳于琼
+  - liubiao 漏 5: 张允/王威/刘磐/刘琦/刘琮
+  - liuyan 漏 3: 刘璋/王累/吴兰
+  - taoqian 漏 1: 张闿
+  - matenghan 漏 2: 马铁/马休
+  - hanfu 漏 1: 张郃
+  - 无 fac 1: 宗宝 (小说人物)
+
+**GEN_BASE 最终状态**:
+- 213 entries × {com/war/int/pol/cha/apt/birthplace/clan/gentry/classTag/skills/values} ✓
+- × {**birthYear/deathYear/debutYear**} ✓ (本 sprint W1.1)
+- × {**wildMeta** {title,post}} 32 entries ✓ (本 sprint W1.2 + W3)
+- 仍未填: birthYear 大量 null (生年史载缺), deathYear 部分 null
+- 0 runtime consumer (wire 留 phase 6)
+
+**SCENARIO_214 最终状态**:
+- 101 active / 6 wild / 18 pending = 125 武将
+- wild/pending 24 内 wildData.title/post 全删 (从 GEN_BASE.wildMeta 派生)
+- wildData 内只留 loyalty/merit/retainer/relations + pendingFac/availableYear/skillsOverride
+
+**Codex review 跳过** (sprint streamline 数据填充类 batch — 同 phase 4-b/4-c/4-d 模式).
+
+**剩余 future work**:
+- 23 应 active 漏 fix (4-e 类型 sprint)
+- 平衡 phase: res/troops/pop 数值实玩调
+- phase 5: 启动 UI scenario 选择 (214 / 190 切换)
+- phase 6: runtime wire — scenario.generals 字段消费 + tick deathYear 自然死亡 + debutYear 出场触发 + wildMeta fallback
+
+**Session 不变 (smoke 守底)**:
+- 默认 applyScenario('214') 完全不变, 8 commit 全 smoke 51 snapshots byte-identical PASS
+
 ---
 
 ## 2026-05-13 (streamline push) — 阶段 2-a/2-b/3/4-a/4-b/4-c/4-d SCENARIO_190 7 commit
