@@ -1,8 +1,57 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 sprint W1-W3 + 4-e + codex tier A fix 全完成. GEN_BASE 212 entries (桥瑁 删 — 最早剧本 190, 190 死永不登场) × {birth/death/debut/wildMeta}. SCENARIO_190 active 103 / wild 14 / pending 95 = 212/212 全覆盖. **已 push origin/main (HEAD b5c68d4)**. **下次 sprint: GEN_BASE 212 entries debutYear + deathYear 全量 audit** (codex review 仅 catch 190 active 触发 query 的 9 错, 其他 200 entries 同类风险未审; B.1 8 改库 + B.2 孙策/马超 改 pending 191/194 塞 audit sprint 一起 fix). 跨剧本 apply 已满足 (debutYear 在 GEN_BASE 是 cross-scenario invariant).
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 sprint W1-W3 + 4-e + codex tier A + **GEN_BASE 全量 audit sprint** 全完成. GEN_BASE 212 entries × {birth/death/debut/wildMeta} 字段口径定 (debutYear=首次仕官年, in header comment). SCENARIO_190 active **101** / wild 14 / pending **97** = 212/212 全覆盖 (孙策/马超 active→pending availableYear=191/195). 3 commit local 待 push (HEAD `82b4e5c`, origin/main `b5c68d4`): memory + audit batch fix 35 entries + B.2. Audit sprint catch 29 个新错 (W1.1-c 期 line 4550-4582 批量 cross-pollution + 田楷/赵浮 debutYear 太早 + 张邈/文聘 deathYear null + 华雄串后三国人物). 下次: phase 5 (剧本切换 UI) / phase 6 (runtime wire scenario.generals 消费).
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
+---
+
+## 2026-05-13 (GEN_BASE 全量 audit sprint — 35 entries + B.2 fix)
+
+**main HEAD local: `82b4e5c`** (origin/main 仍 `b5c68d4`, 3 commit 待 push).
+
+### Commit 序列 (3 commit)
+- `4d2a844` docs(memory): tier A done + B.1/B.2 决策修正 + audit sprint todo
+- `016479c` fix(gen-base-audit): codex full audit P1 + P2 + B.1 batch fix (35 entries)
+- `82b4e5c` fix(scenario-190-b2): 孙策/马超 active → pending (codex audit B.2)
+
+### Codex audit 结果 (0 P0 / 21 P1 / 8 P2 / 0 blocker)
+**报告**: `tmp/audit_gen_base_result.md` (gitignored). prompt: `tmp/audit_gen_base_prompt.md`.
+
+**主战场**: line 4550-4582 (W1.1-c 期"wild+inactive+nanman+new 106"批次) 批量 cross-pollution, 18 个 deathYear 全错. 关键例:
+- 华雄 deathYear 274 / debutYear 246 → 串到后三国人物 (W1.1 期复制粘贴拿错 row)
+- 董卓 200→192 / 李傕 206→198 / 袁绍 191→202 / 文丑 197→200 etc.
+- 刘表 191→208 (荆州病死) / 蒯越 191→214 (208 投曹后多年)
+
+**新发现 (上次 final review 没 catch)**:
+- 田楷 debutYear=170 / 赵浮 172 (1a 期填错? 太早, 改 184/190)
+- 张邈 deathYear null → 195 (兖州兵败死)
+- 文聘 deathYear null → 226 (codex P2 catch); debutYear 208→188 (B.1 已决)
+
+### 字段口径决策 (制作人 approve)
+`debutYear = 首次仕官年` (不是"成名年" / 不是"投靠某主年" / 不是"首次见于史载"年).
+- 例: 文聘 188 (原刘表大将), 不是 208 (投曹年)
+- 例: 司马懿 208 (曹操辟为文学掾, 首次仕官)
+- 加 header comment to `src/data/general_base.js` line 7-12.
+
+### B.2 决策 (孙策不豁免)
+制作人指明"晚 1 年简单, 别引入豁免规则". 孙策/马超统一改 pending, availableYear == GEN_BASE.debutYear (191/195, future-proof for phase 6 derive).
+- foundingCore 数组保留 (含孙策/马超, 语义"集团核心", 出场后再算)
+- 反引 relations 保留 (孙坚/马腾/马铁/马休 → 孙策/马超, 亲属跟 status 无关)
+
+### Value 来源分层 (audit 责任审计)
+- ~27 codex 给具体值 (P1 cross-pollution 18 + P2 8 + 张邈/文聘 deathYear)
+- 6 CC 推 + codex flag (华雄 189 / 田楷 184 / 赵浮 190 / 庞德 189 / 鲜于辅 188 / 文聘 debutYear 188), anchor 在史实事件
+- 5 之前 B.1 已决 (卫兹 189 / 纪灵 190 / 田畴 192 / 韩遂 184 / 阎行 189)
+
+### smoke + compare
+两次都 PASS (51 snapshots identical, src/data/ 未 wire 到 runtime).
+
+### 后续 (下次 sprint)
+- **availableYear vs debutYear 冗余**: 现 pending 武将的 availableYear 基本 == GEN_BASE.debutYear. phase 6 wire 时考虑 availableYear 完全 derived 删 SCENARIO 字段.
+- **birthYear 大量 null** 补全 (单独 sprint).
+- **GEN_BASE +80 skills=[] stub** (单独 sprint).
+- **平衡 / phase 5 UI / phase 6 wire**: audit sprint 完, 可以启动这些 work.
+
 ---
 
 ## 2026-05-13 (codex tier A fix + B.1/B.2 决策修正 + audit sprint todo)
