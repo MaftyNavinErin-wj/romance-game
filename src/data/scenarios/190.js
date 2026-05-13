@@ -495,6 +495,10 @@ const SCENARIO_190 = {
     "李傕":   { "status":"active", "fac":"dongzhuo",   "city":"changan",   "role":null,    "post":{"name":"中郎将","rank":"将"},     "title":null, "loyalty":85, "merit":300,"retainer":{"count":1200,"type":"cavalry"},"initialUnit":false, "relations":[{"target":"郭汜","type":"同僚","intimacy":65}] },
     "郭汜":   { "status":"active", "fac":"dongzhuo",   "city":"changan",   "role":null,    "post":{"name":"中郎将","rank":"将"},     "title":null, "loyalty":85, "merit":280,"retainer":{"count":1100,"type":"cavalry"},"initialUnit":false, "relations":[{"target":"李傕","type":"同僚","intimacy":65}] },
     "华雄":   { "status":"active", "fac":"dongzhuo",   "city":"hedong",    "role":null,    "post":{"name":"先锋","rank":"将"},       "title":null, "loyalty":80, "merit":150,"retainer":{"count":800, "type":"heavy"},  "initialUnit":false, "relations":[] },
+    "胡轸":   { "status":"active", "fac":"dongzhuo", "city":"luoyang", "role":null, "post":{"name":"中郎将","rank":"将"}, "title":null, "loyalty":80, "merit":120,"retainer":{"count":800, "type":"cavalry"},"initialUnit":false, "relations":[] },
+    "樊稠":   { "status":"active", "fac":"dongzhuo", "city":"changan", "role":null, "post":{"name":"中郎将","rank":"将"}, "title":null, "loyalty":85, "merit":150,"retainer":{"count":1000,"type":"cavalry"},"initialUnit":false, "relations":[] },
+    "张济":   { "status":"active", "fac":"dongzhuo", "city":"hedong",  "role":null, "post":{"name":"骁骑校尉","rank":"将"}, "title":null, "loyalty":85, "merit":130,"retainer":{"count":900, "type":"cavalry"},"initialUnit":false, "relations":[] },
+    "高顺":   { "status":"active", "fac":"dongzhuo", "city":"luoyang", "role":null, "post":{"name":"陷阵将","rank":"将"}, "title":null, "loyalty":90, "merit":150,"retainer":{"count":700, "type":"heavy"},  "initialUnit":false, "relations":[{"target":"吕布","type":"主君","intimacy":90}] },
 
     
     "张辽":   { "status":"active", "fac":"dongzhuo", "city":"luoyang", "role":null, "post":{"name":"骑都尉","rank":"将"}, "title":null, "loyalty":75,"merit":180,"retainer":{"count":1100,"type":"cavalry"},"initialUnit":false, "relations":[] },
@@ -513,6 +517,8 @@ const SCENARIO_190 = {
     "沮授":   { "status":"active", "fac":"yuanshao", "city":"bohai", "role":"strategist", "post":{"name":"监军","rank":"文官"}, "title":null, "loyalty":95,"merit":420,"retainer":{"count":350,"type":"cavalry"},"initialUnit":false, "relations":[] },
     "逢纪":   { "status":"active", "fac":"yuanshao", "city":"bohai", "role":null, "post":{"name":"谋士","rank":"文官"}, "title":null, "loyalty":85,"merit":280,"retainer":{"count":250,"type":"archer"},"initialUnit":false, "relations":[] },
     "许攸":   { "status":"active", "fac":"yuanshao", "city":"bohai", "role":null, "post":{"name":"谋士","rank":"文官"}, "title":null, "loyalty":60,"merit":300,"retainer":{"count":250,"type":"light"},"initialUnit":false, "relations":[] },
+    "高览":   { "status":"active", "fac":"yuanshao", "city":"ye", "role":null, "post":{"name":"校尉","rank":"将"}, "title":null, "loyalty":80, "merit":130,"retainer":{"count":800, "type":"heavy"},  "initialUnit":false, "relations":[] },
+    "淳于琼": { "status":"active", "fac":"yuanshao", "city":"ye", "role":null, "post":{"name":"虎贲中郎将","rank":"将"}, "title":null, "loyalty":75, "merit":200,"retainer":{"count":1200,"type":"light"},  "initialUnit":false, "relations":[] },
 
     // ── yuanshu 集团 (3) ──
     "袁术":   { "status":"active", "fac":"yuanshu",    "city":"nanyang",   "role":"ruler", "post":{"name":"南阳太守","rank":"将"},   "title":null, "loyalty":100,"merit":600,"retainer":{"count":1200,"type":"heavy"},  "initialUnit":true , "relations":[{"target":"袁绍","type":"弟","intimacy":25}] },
@@ -531,6 +537,10 @@ const SCENARIO_190 = {
     "曹洪":   { "status":"active", "fac":"caocao",     "city":"chenliu",   "role":null,    "post":{"name":"别部司马","rank":"将"},   "title":null, "loyalty":100,"merit":200,"retainer":{"count":900, "type":"cavalry"},"initialUnit":false, "relations":[{"target":"曹操","type":"宗族","intimacy":85}] },
     "典韦":   { "status":"active", "fac":"caocao",     "city":"chenliu",   "role":null,    "post":{"name":"校尉","rank":"将"},       "title":null, "loyalty":95, "merit":180,"retainer":{"count":800, "type":"heavy"},  "initialUnit":false, "relations":[] },
     "卫兹":   { "status":"active", "fac":"caocao",     "city":"chenliu",   "role":null,    "post":{"name":"长史","rank":"文官"},     "title":null, "loyalty":95, "merit":200,"retainer":{"count":400, "type":"light"},  "initialUnit":false, "relations":[] },
+    "乐进":   { "status":"active", "fac":"caocao", "city":"chenliu", "role":null, "post":{"name":"军假司马","rank":"将"}, "title":null, "loyalty":85, "merit":120,"retainer":{"count":600,"type":"heavy"},   "initialUnit":false, "relations":[] },
+    "李典":   { "status":"active", "fac":"caocao", "city":"chenliu", "role":null, "post":{"name":"军假司马","rank":"将"}, "title":null, "loyalty":80, "merit":100,"retainer":{"count":500,"type":"light"},   "initialUnit":false, "relations":[] },
+    "曹纯":   { "status":"active", "fac":"caocao", "city":"chenliu", "role":null, "post":{"name":"虎豹骑前身","rank":"将"}, "title":null, "loyalty":95, "merit":80, "retainer":{"count":400,"type":"cavalry"}, "initialUnit":false, "relations":[{"target":"曹操","type":"宗族","intimacy":90}] },
+    "史涣":   { "status":"active", "fac":"caocao", "city":"chenliu", "role":null, "post":{"name":"中军校尉","rank":"将"}, "title":null, "loyalty":85, "merit":80, "retainer":{"count":400,"type":"heavy"},   "initialUnit":false, "relations":[] },
     "荀彧":   { "status":"active", "fac":"caocao",     "city":"xuchang",   "role":"strategist","post":{"name":"司马","rank":"文官"},"title":null, "loyalty":95, "merit":350,"retainer":{"count":300, "type":"archer"}, "initialUnit":false, "relations":[{"target":"荀攸","type":"宗族","intimacy":88}] },
     "荀攸":   { "status":"active", "fac":"caocao",     "city":"xuchang",   "role":null,    "post":{"name":"参军","rank":"文官"},     "title":null, "loyalty":90, "merit":250,"retainer":{"count":250, "type":"archer"}, "initialUnit":false, "relations":[{"target":"荀彧","type":"宗族","intimacy":88}] },
 
@@ -554,12 +564,17 @@ const SCENARIO_190 = {
     "蒯越":   { "status":"active", "fac":"liubiao",    "city":"xiangyang", "role":"strategist","post":{"name":"别驾","rank":"文官"},"title":null, "loyalty":90, "merit":350,"retainer":{"count":300, "type":"archer"}, "initialUnit":false, "relations":[{"target":"蒯良","type":"兄长","intimacy":88}] },
     "蒯良":   { "status":"active", "fac":"liubiao",    "city":"xiangyang", "role":null,    "post":{"name":"主簿","rank":"文官"},     "title":null, "loyalty":90, "merit":280,"retainer":{"count":250, "type":"archer"}, "initialUnit":false, "relations":[{"target":"蒯越","type":"弟","intimacy":88}] },
     "蔡瑁":   { "status":"active", "fac":"liubiao",    "city":"xiangyang", "role":null,    "post":{"name":"水军都督","rank":"将"},   "title":null, "loyalty":75, "merit":220,"retainer":{"count":900, "type":"naval"},  "initialUnit":false, "relations":[] },
+    "张允":   { "status":"active", "fac":"liubiao", "city":"xiangyang", "role":null, "post":{"name":"水军将","rank":"将"}, "title":null, "loyalty":75, "merit":100,"retainer":{"count":500, "type":"naval"},  "initialUnit":false, "relations":[{"target":"蔡瑁","type":"同僚","intimacy":75}] },
+    "王威":   { "status":"active", "fac":"liubiao", "city":"xiangyang", "role":null, "post":{"name":"治中从事","rank":"文官"}, "title":null, "loyalty":80, "merit":80, "retainer":{"count":200, "type":"light"},   "initialUnit":false, "relations":[] },
 
     
     "文聘":   { "status":"active", "fac":"liubiao", "city":"xiangyang", "role":null, "post":{"name":"大将","rank":"将"}, "title":null, "loyalty":90,"merit":250,"retainer":{"count":1000,"type":"archer"},"initialUnit":false, "relations":[] },
 
     // ── liuyan 集团 (4) ──
     "刘焉":   { "status":"active", "fac":"liuyan",     "city":"chengdu",   "role":"ruler", "post":{"name":"益州牧","rank":"文官"},   "title":null, "loyalty":100,"merit":650,"retainer":{"count":700, "type":"light"},  "initialUnit":true , "relations":[] },
+    "刘璋":   { "status":"active", "fac":"liuyan", "city":"chengdu", "role":null, "post":{"name":"奉车都尉","rank":"将"}, "title":null, "loyalty":100,"merit":200,"retainer":{"count":600, "type":"light"},  "initialUnit":false, "relations":[{"target":"刘焉","type":"父","intimacy":95}] },
+    "王累":   { "status":"active", "fac":"liuyan", "city":"chengdu", "role":null, "post":{"name":"治中从事","rank":"文官"}, "title":null, "loyalty":95, "merit":120,"retainer":{"count":200, "type":"light"},  "initialUnit":false, "relations":[] },
+    "吴兰":   { "status":"active", "fac":"liuyan", "city":"chengdu", "role":null, "post":{"name":"校尉","rank":"将"}, "title":null, "loyalty":80, "merit":100,"retainer":{"count":600, "type":"heavy"},  "initialUnit":false, "relations":[] },
     "张任":   { "status":"active", "fac":"liuyan",     "city":"chengdu",   "role":null,    "post":{"name":"先锋","rank":"将"},       "title":null, "loyalty":95, "merit":250,"retainer":{"count":1000,"type":"archer"}, "initialUnit":true , "relations":[] },
     "严颜":   { "status":"active", "fac":"liuyan",     "city":"bazhong",   "role":null,    "post":{"name":"巴郡太守","rank":"将"},   "title":null, "loyalty":95, "merit":280,"retainer":{"count":900, "type":"heavy"},  "initialUnit":false, "relations":[] },
     "吴懿":   { "status":"active", "fac":"liuyan",     "city":"chengdu",   "role":null,    "post":{"name":"中郎将","rank":"将"},     "title":null, "loyalty":85, "merit":200,"retainer":{"count":700, "type":"heavy"},  "initialUnit":false, "relations":[] },
@@ -588,6 +603,7 @@ const SCENARIO_190 = {
     "陶谦":   { "status":"active", "fac":"taoqian",    "city":"xuzhou",    "role":"ruler", "post":{"name":"徐州牧","rank":"文官"},   "title":null, "loyalty":100,"merit":700,"retainer":{"count":900, "type":"light"},  "initialUnit":true , "relations":[] },
     "陈登":   { "status":"active", "fac":"taoqian",    "city":"xuzhou",    "role":"strategist","post":{"name":"典农校尉","rank":"文官"},"title":null, "loyalty":85, "merit":300,"retainer":{"count":400, "type":"archer"}, "initialUnit":false, "relations":[] },
     "曹豹":   { "status":"active", "fac":"taoqian",    "city":"xiapi",     "role":null,    "post":{"name":"丹阳兵都尉","rank":"将"}, "title":null, "loyalty":80, "merit":200,"retainer":{"count":1000,"type":"light"},  "initialUnit":false, "relations":[] },
+    "张闿":   { "status":"active", "fac":"taoqian", "city":"xiapi", "role":null, "post":{"name":"司马","rank":"将"}, "title":null, "loyalty":60, "merit":80, "retainer":{"count":500, "type":"cavalry"},"initialUnit":false, "relations":[] },
 
     
     "糜竺":   { "status":"active", "fac":"taoqian", "city":"xuzhou", "role":null, "post":{"name":"别驾","rank":"文官"}, "title":null, "loyalty":95,"merit":300,"retainer":{"count":400,"type":"light"},"initialUnit":false, "relations":[{"target":"糜芳","type":"兄长","intimacy":85}] },
@@ -600,6 +616,7 @@ const SCENARIO_190 = {
 
     
     "闵纯":   { "status":"active", "fac":"hanfu", "city":"ye", "role":null, "post":{"name":"治中","rank":"文官"}, "title":null, "loyalty":95,"merit":200,"retainer":{"count":250,"type":"archer"},"initialUnit":false, "relations":[] },
+    "张郃":   { "status":"active", "fac":"hanfu", "city":"ye", "role":null, "post":{"name":"司马","rank":"将"}, "title":null, "loyalty":70, "merit":100,"retainer":{"count":600, "type":"cavalry"},"initialUnit":false, "relations":[] },
 
     // ── matenghan 集团 (4) ──
     "马腾":   { "status":"active", "fac":"matenghan",  "city":"liangzhou", "role":"ruler", "post":{"name":"征西将军","rank":"将"},   "title":null, "loyalty":100,"merit":600,"retainer":{"count":1400,"type":"cavalry"},"initialUnit":true , "relations":[{"target":"韩遂","type":"义兄弟","intimacy":75},{"target":"马超","type":"父亲","intimacy":92}] },
@@ -610,11 +627,14 @@ const SCENARIO_190 = {
     
     "马超":   { "status":"active", "fac":"matenghan", "city":"liangzhou", "role":null, "post":{"name":"少将","rank":"将"}, "title":null, "loyalty":100,"merit":200,"retainer":{"count":1000,"type":"cavalry"},"initialUnit":false, "relations":[{"target":"马腾","type":"子嗣","intimacy":92}] },
     "成宜":   { "status":"active", "fac":"matenghan", "city":"liangzhou", "role":null, "post":{"name":"将","rank":"将"}, "title":null, "loyalty":85,"merit":150,"retainer":{"count":900,"type":"cavalry"},"initialUnit":false, "relations":[] },
+    "马铁":   { "status":"active", "fac":"matenghan", "city":"liangzhou", "role":null, "post":{"name":"校尉","rank":"将"}, "title":null, "loyalty":95, "merit":80, "retainer":{"count":400, "type":"cavalry"},"initialUnit":false, "relations":[{"target":"马腾","type":"父","intimacy":95},{"target":"马超","type":"兄","intimacy":85}] },
+    "马休":   { "status":"active", "fac":"matenghan", "city":"liangzhou", "role":null, "post":{"name":"校尉","rank":"将"}, "title":null, "loyalty":95, "merit":80, "retainer":{"count":400, "type":"cavalry"},"initialUnit":false, "relations":[{"target":"马腾","type":"父","intimacy":95},{"target":"马超","type":"兄","intimacy":85}] },
 
     // ── kongrong 集团 (3) ──
     "孔融":   { "status":"active", "fac":"kongrong",   "city":"beihai",    "role":"ruler", "post":{"name":"北海相","rank":"文官"},   "title":null, "loyalty":100,"merit":500,"retainer":{"count":500, "type":"light"},  "initialUnit":true , "relations":[] },
     "太史慈": { "status":"active", "fac":"kongrong",   "city":"beihai",    "role":null,    "post":{"name":"奉义校尉","rank":"将"},   "title":null, "loyalty":85, "merit":200,"retainer":{"count":900, "type":"archer"}, "initialUnit":true , "relations":[] },
     "武安国": { "status":"active", "fac":"kongrong",   "city":"beihai",    "role":null,    "post":{"name":"先锋","rank":"将"},       "title":null, "loyalty":90, "merit":150,"retainer":{"count":800, "type":"heavy"},  "initialUnit":false, "relations":[] },
+    "宗宝":   { "status":"active", "fac":"kongrong", "city":"beihai", "role":null, "post":{"name":"校尉","rank":"将"}, "title":null, "loyalty":85, "merit":80, "retainer":{"count":500, "type":"heavy"},  "initialUnit":false, "relations":[] },
 
     // ── liubei 集团 (3) ──
     "刘备":   { "status":"active", "fac":"liubei",     "city":"pingyuan",  "role":"ruler", "post":{"name":"平原相","rank":"文官"},   "title":null, "loyalty":100,"merit":300,"retainer":{"count":500, "type":"light"},  "initialUnit":true , "relations":[{"target":"关羽","type":"义兄弟","intimacy":95},{"target":"张飞","type":"义兄弟","intimacy":95},{"target":"公孙瓒","type":"同门","intimacy":80}] },
@@ -681,11 +701,9 @@ const SCENARIO_190 = {
     "曹丕": { "status":"pending", "fac":"wild", "pendingFac":"caocao", "availableYear":204, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"204 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "陆逊": { "status":"pending", "fac":"wild", "pendingFac":"sunjian", "availableYear":204, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"204 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "凌统": { "status":"pending", "fac":"wild", "pendingFac":"sunjian", "availableYear":204, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"204 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
-    "鲜于辅": { "status":"pending", "fac":"wild", "pendingFac":"liuyu", "availableYear":204, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"204 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "诸葛亮": { "status":"pending", "fac":"wild", "pendingFac":"liubei", "availableYear":207, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"207 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "司马懿": { "status":"pending", "fac":"wild", "pendingFac":"caocao", "availableYear":208, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"208 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "蒋济": { "status":"pending", "fac":"wild", "pendingFac":"caocao", "availableYear":208, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"208 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
-    "文聘": { "status":"pending", "fac":"wild", "pendingFac":"liubiao", "availableYear":208, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"208 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "鲜于银": { "status":"pending", "fac":"wild", "pendingFac":"liuyu", "availableYear":208, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"208 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "牛金": { "status":"pending", "fac":"wild", "pendingFac":"caocao", "availableYear":209, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"209 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "庞统": { "status":"pending", "fac":"wild", "pendingFac":"liubei", "availableYear":209, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"209 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
@@ -733,6 +751,9 @@ const SCENARIO_190 = {
     "陆抗": { "status":"pending", "fac":"wild", "pendingFac":"sunjian", "availableYear":246, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"246 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "钟会": { "status":"pending", "fac":"wild", "pendingFac":"caocao", "availableYear":247, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"247 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "文鸯": { "status":"pending", "fac":"wild", "pendingFac":"caocao", "availableYear":255, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"255 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
+    "刘磐":   { "status":"pending", "fac":"wild", "pendingFac":"liubiao", "availableYear":200, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"200 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
+    "刘琦":   { "status":"pending", "fac":"wild", "pendingFac":"liubiao", "availableYear":204, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"204 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
+    "刘琮":   { "status":"pending", "fac":"wild", "pendingFac":"liubiao", "availableYear":208, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"208 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
 
   },
   "initialUnits": [
