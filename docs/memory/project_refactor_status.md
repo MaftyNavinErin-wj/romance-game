@@ -1,8 +1,44 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 sprint W1-W3 + 4-e + codex tier A + **GEN_BASE 全量 audit sprint** 全完成. GEN_BASE 212 entries × {birth/death/debut/wildMeta} 字段口径定 (debutYear=首次仕官年, in header comment). SCENARIO_190 active **101** / wild 14 / pending **97** = 212/212 全覆盖 (孙策/马超 active→pending availableYear=191/195). 3 commit local 待 push (HEAD `82b4e5c`, origin/main `b5c68d4`): memory + audit batch fix 35 entries + B.2. Audit sprint catch 29 个新错 (W1.1-c 期 line 4550-4582 批量 cross-pollution + 田楷/赵浮 debutYear 太早 + 张邈/文聘 deathYear null + 华雄串后三国人物). 下次: phase 5 (剧本切换 UI) / phase 6 (runtime wire scenario.generals 消费).
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 W1-W3 + 4-e + codex tier A + GEN_BASE audit v1 + **audit v2 (user spot-check 黄忠 trigger)** 全完成. GEN_BASE 212 entries × {birth/death/debut/wildMeta} 字段口径定 (debutYear=首次仕官年, in header comment line 7-12). SCENARIO_190 active **103** / wild 14 / pending **95** = 212/212 (v2 加: 黄忠/鲜于银 pending→active + 宗宝 schema 一致 + 徐盛 availableYear 210→200). 5 commit local 待 push (HEAD `374ac8a`, origin/main `b5c68d4`). Audit 总 catch 33 错 (v1 29 + v2 4). Follow-up: 刘磐 应 active in liubiao (跟黄忠同问题, 留下次). 下次: phase 5 / phase 6 / 平衡.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
+---
+
+## 2026-05-13 (audit v2 — user spot-check 黄忠 trigger 4 entries 补)
+
+**main HEAD local: `374ac8a`**. User 抽查黄忠 debutYear=200 catch 与刘表中郎将史实不符 → 跑 codex v2 sweep (focus debutYear + 反例精确) → 21 新 finding → 按 user **"不出戏"** 标准筛选 4 必修.
+
+### "不出戏" 标准 (user 原话)
+> 我觉得我们也不是要特别精准，就不要出戏，比如这人比演义/历史提早出现很多，或者已经活跃了但还没出现。具体年份可以靠估，没必要100% accurate
+
+→ 精度宽松, 但**两种 case 必修**: (a) debutYear 太晚导致 active/pending 时实际已活跃; (b) debutYear 太早导致比演义提前太多.
+
+### v2 必修 4 (commit `374ac8a`)
+1. **黄忠**: GEN_BASE.debutYear 200→190 + SCENARIO_190 pending→active in liubiao xiangyang (中郎将, 史实刘表麾下与刘磐共守长沙攸县)
+2. **鲜于银**: GEN_BASE.debutYear 208→188 + SCENARIO_190 pending→active in liuyu youzhou (军候, 史实跟族兄鲜于辅 188 入刘虞幕)
+3. **宗宝**: GEN_BASE.debutYear 200→190 (SCENARIO_190 已 active in kongrong, schema 一致)
+4. **徐盛**: GEN_BASE.debutYear 210→200 + SCENARIO_190 availableYear 210→200
+
+### v2 不修 17 (按"不出戏"标准)
+- 军阀诸侯 8 (董卓/刘焉/陶谦/刘虞/孔融/马腾/袁绍/袁术) debutYear 188-190 vs codex 推 184: 都 ≤190 active 合理
+- 阎柔 178 / 笮融 180 / 田楷 184: 偏早 7-15 年, 190 期 active 都合理
+- 甘宁 200 / 丁奉 225 / 刘晔 198 (vs 199): marginal
+- 益州张松/王累/吴兰 190 vs codex 194+: codex 可能错 (刘焉 188 入益州, 他们 190 在刘焉麾下合理)
+
+### Audit limitation 沉淀 (memory)
+- **codex 反例都给了还漏黄忠** — training data 细节不够, 不能 100% 信
+- **codex v2 报告 GEN_BASE 数值自己报错** (说周瑜 GEN_BASE=200, 实 195)
+- **结论**: codex audit catch ~70-80%, 剩 ~20-30% 靠制作人 spot-check
+- **流程**: codex sweep → 制作人 spot-check 1-2 个熟知武将 → 如果 catch 漏 → 二次 sweep + 精确化 prompt
+
+### Follow-up todo
+- **刘磐** SCENARIO_190 pending availableYear=200, 史实刘表从子"与黄忠共守长沙攸县", 应 active in liubiao. 不在 audit list, 留下次 sprint.
+- 黄忠 active relations 暂留空 (蔡瑁同 pattern), 未来加 "刘磐 同僚 75".
+- **军阀诸侯 debutYear** (董卓 189 / 刘焉 189 / 孔融 190 etc.) 偏晚但不出戏, 留低优.
+
+smoke + compare PASS (1 次间歇 puppeteer race fail 后 re-run PASS).
+
 ---
 
 ## 2026-05-13 (GEN_BASE 全量 audit sprint — 35 entries + B.2 fix)
