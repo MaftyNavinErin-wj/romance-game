@@ -1,8 +1,56 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 sprint W1-W3 + 4-e 闭环全完成. GEN_BASE 213 entries × {birth/death/debut/wildMeta} cross-scenario data. SCENARIO_190 active 103 / wild 14 / pending 95 / dead 1 = 213/213 GEN_BASE 全覆盖. 16 commit local 未 push. 下次: 平衡 / phase 5 启动 UI / phase 6 runtime wire.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 sprint W1-W3 + 4-e 闭环全完成. GEN_BASE 213 entries × {birth/death/debut/wildMeta} cross-scenario data. SCENARIO_190 active 103 / wild 14 / pending 95 / dead **0** = **212/213** (桥瑁 dead 漏列,memory 旧描述 1 dead 错). 已 push origin/main (HEAD 17dab5b). **codex post-sprint final review NEEDS-WORK** — Tier A 5 数据错 fix 待 (桥瑁 dead 补 + 刘虞/公孙瓒/严纲 debutYear 硬错 + 曹丕 availableYear off by 1) + Tier B 设计层 2 类待制作人决 (B.1 9 武将 debutYear>190 / B.2 孙策 15 / 马超 14 active <18). 下次: codex tier A fix / tier B 决策 / 平衡 / phase 5 / phase 6.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
+---
+
+## 2026-05-14 (post-push final review) — codex sprint final review NEEDS-WORK + todo
+
+**main HEAD: `17dab5b` (origin/main 已同步)** — sprint W1-W3 + 4-e 9 commit 已 push 后做 single final-state codex review (2c55abe..17dab5b, src/data/ only, ~156K diff). codex 报 NEEDS-WORK, 0 P0 / 4 P1 / 1 P2 / 0 P3 finding. 全 verified valid.
+
+**Codex review 报告原文**: `tmp/codex_sprint_final_review.md` (gitignored, local only). prompt: `tmp/sprint_final_review_prompt.md`. diff: `tmp/sprint_final_review_diff.txt`.
+
+### Tier A — 纯数据错 (CC 可独立 fix, 待制作人 approve 启动)
+
+5 finding 同质, 建议 1 commit `fix(scenario-190-final-review): tier A 5 finding`:
+1. **A.1 桥瑁 dead entry 缺** — `src/data/scenarios/190.js:491` SCENARIO_190.generals 内无桥瑁; GEN_BASE.桥瑁 deathYear=190 存在. memory 旧描述 "dead 1 = 213/213" 与实际 "dead 0 = 212/213" 不符. fix: 加 `"桥瑁": { "status":"dead", ... }` (按 W2.2 dead shape).
+2. **A.2 刘虞 debutYear 200 > deathYear 193 硬错** — `src/data/general_base.js:4607`. fix: debutYear 200 → 188 (188 任幽州牧).
+3. **A.3 公孙瓒 debutYear 200 > deathYear 199 硬错** — `general_base.js:4615`. fix: 200 → 184 (184 黄巾起兵).
+4. **A.4 严纲 debutYear 200 > deathYear 192 硬错** — `general_base.js:4616`. fix: 200 → 190 (公孙瓒部下).
+5. **A.5 曹丕 availableYear:204 / birthYear:187 = 17 岁 off-by-1** — `scenarios/190.js:701` (W2.2). 成年 ≥18 标准下应 18 岁. fix: availableYear 204 → 205.
+
+### Tier B — 设计层 (需制作人决, 不擅自 fix)
+
+#### B.1 — 9 武将 debutYear > 190 但 SCENARIO_190 active
+
+| 武将 | debutYear | fac | 史实判断 | CC 建议 (选项 3 mixed) |
+|------|-----------|-----|---------|---------------------|
+| 纪灵 | 191 | yuanshu | 袁术部将 190 已仕 | debutYear → 190 |
+| 卫兹 | 191 (deathYear 199 也错史载 190 死) | caocao | 189 助曹起兵 | debutYear → 189 (deathYear 留下次) |
+| 文聘 | 208 | liubiao | 208 才仕曹, 190 时刘表年轻部下 | debutYear → 190 |
+| 鲜于辅 | 204 | liuyu | 原刘虞从事 | debutYear → 190 |
+| 田畴 | 200 (birthYear 169) | liuyu | 169 生 200 出仕 (31 岁), 190 才 21 岁士隐未仕 | **移 pending availableYear=200** |
+| 韩遂 | 194 | hanfu(?matenghan) | 184 凉州起兵已成名 | debutYear → 184 |
+| 庞德 | 194 | matenghan | 190s 仕马腾 | debutYear → 189 |
+| 阎行 | 196 | matenghan | 190 已仕韩遂 | debutYear → 189 |
+| 马超 | 195 (birthYear 176) | matenghan | 14 岁, 落 B.2 | 见 B.2 |
+
+**选项**: (1) 全调 debutYear ≤190 一刀切 (田畴 history-correct 被牺牲) / (2) 全移 pending (4-d active list 被推翻) / **(3) mixed** (上表, CC 推荐) / (4) 跳 B.1 留 future.
+
+#### B.2 — 孙策 (15 岁) / 马超 (14 岁) active < 18
+
+- **孙策** birthYear 175, fac=sunjian (heir). memory 4-d **明确 ack** "informational warning 孙策 16 岁<18" 保留 active. 历史宗子继承例外.
+- **马超** birthYear 176, fac=matenghan (heir). memory 4-e 加时**无 ack**, 可能漏检.
+
+**选项**: (1) **只马超改 pending availableYear=194** (CC 推荐 — 孙策 4-d 已 ack, 马超漏检纠) / (2) 都保留 active 走"宗子继承"例外 / (3) 都改 pending (孙策 4-d 决策被推翻).
+
+### Review workflow 验证 (memory 沉淀)
+
+- **single final-state codex review 性价比 verified** — 9 commit (~156K diff) 1 次 review, codex catch 5 类技术 finding 全 valid, 史实精度类 (12 武将 debutYear 具体年份对错) 仅作 flag 不强判, 与 `feedback_codex_single_final_review.md` 预期符合
+- **流程**: 探针 1465 tokens 通 → 正式 review → 报告读 → tier 分类 (A 纯技术 / B 设计) → user decision pending
+- Push 后 review 的 caveat: fix 必须新 commit (无法 amend), 但 audit trail 反而清晰
+
 ---
 
 ## 2026-05-14 (streamline 续) — 4-e SCENARIO_190 23 漏列闭环 (1 commit)
