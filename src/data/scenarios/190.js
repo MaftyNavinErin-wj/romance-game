@@ -557,7 +557,7 @@ const SCENARIO_190 = {
     "祖茂":   { "status":"active", "fac":"sunjian",    "city":"changsha",  "role":null,    "post":{"name":"校尉","rank":"将"},       "title":null, "loyalty":100,"merit":180,"retainer":{"count":700, "type":"light"},  "initialUnit":false, "relations":[] },
 
     
-    "孙策":   { "status":"active", "fac":"sunjian", "city":"changsha", "role":null, "post":{"name":"少将","rank":"将"}, "title":null, "loyalty":100,"merit":150,"retainer":{"count":800,"type":"cavalry"},"initialUnit":false, "relations":[{"target":"孙坚","type":"子嗣","intimacy":95}] },
+    "孙策":   { "status":"pending", "fac":"wild", "pendingFac":"sunjian", "availableYear":191, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"191 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[{"target":"孙坚","type":"子嗣","intimacy":95}] }},
 
     // ── liubiao 集团 (4) ──
     "刘表":   { "status":"active", "fac":"liubiao",    "city":"xiangyang", "role":"ruler", "post":{"name":"荆州牧","rank":"文官"},   "title":null, "loyalty":100,"merit":700,"retainer":{"count":800, "type":"light"},  "initialUnit":true , "relations":[] },
@@ -625,7 +625,7 @@ const SCENARIO_190 = {
     "阎行":   { "status":"active", "fac":"matenghan",  "city":"liangzhou", "role":null,    "post":{"name":"校尉","rank":"将"},       "title":null, "loyalty":85, "merit":200,"retainer":{"count":1000,"type":"cavalry"},"initialUnit":false, "relations":[] },
 
     
-    "马超":   { "status":"active", "fac":"matenghan", "city":"liangzhou", "role":null, "post":{"name":"少将","rank":"将"}, "title":null, "loyalty":100,"merit":200,"retainer":{"count":1000,"type":"cavalry"},"initialUnit":false, "relations":[{"target":"马腾","type":"子嗣","intimacy":92}] },
+    "马超":   { "status":"pending", "fac":"wild", "pendingFac":"matenghan", "availableYear":195, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"195 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[{"target":"马腾","type":"子嗣","intimacy":92}] }},
     "成宜":   { "status":"active", "fac":"matenghan", "city":"liangzhou", "role":null, "post":{"name":"将","rank":"将"}, "title":null, "loyalty":85,"merit":150,"retainer":{"count":900,"type":"cavalry"},"initialUnit":false, "relations":[] },
     "马铁":   { "status":"active", "fac":"matenghan", "city":"liangzhou", "role":null, "post":{"name":"校尉","rank":"将"}, "title":null, "loyalty":95, "merit":80, "retainer":{"count":400, "type":"cavalry"},"initialUnit":false, "relations":[{"target":"马腾","type":"父","intimacy":95},{"target":"马超","type":"兄","intimacy":85}] },
     "马休":   { "status":"active", "fac":"matenghan", "city":"liangzhou", "role":null, "post":{"name":"校尉","rank":"将"}, "title":null, "loyalty":95, "merit":80, "retainer":{"count":400, "type":"cavalry"},"initialUnit":false, "relations":[{"target":"马腾","type":"父","intimacy":95},{"target":"马超","type":"兄","intimacy":85}] },
