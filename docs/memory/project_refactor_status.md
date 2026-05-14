@@ -1,6 +1,6 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + 死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 213 entries (W4b +李儒). SCENARIO_190 104/13/96=213; SCENARIO_214 130 (104/8/18). **phase 6 wire W1+W2+W3 ✅ push'd (`63b5490`/`ad94d21`/`21514db`) + W4a step-1+2 + W4b ✅ local (`86843a3`/`49671ad`/`af83fe8`)**. W4b = 官职/功绩/部曲 wire + 190 stage 修正 (6 家 regional→warlord, 只刘焉真站稳) + 李儒/贾诩 roster 扩充 (董卓文官 court). **下次: W4c (关系+亲密度+meta+小传+忠诚)** — 顺带解 W4b 遗留 (loyalty/chronicle loop 迁名册 + GEN_CLASS 190-roster gap, 见 §8.4 W4b 遗留 followup). ⚠️ W4a-c 整组完成前不实机测/不 push.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + 死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 213 entries (W4b +李儒). SCENARIO_190 104/13/96=213; SCENARIO_214 130 (104/8/18). **phase 6 wire W1+W2+W3 ✅ push'd (`63b5490`/`ad94d21`/`21514db`) + W4a step-1+2 + W4b ✅ local (`86843a3`/`49671ad`/`af83fe8`)**. W4b = 官职/功绩/部曲 wire + 190 stage 修正 (6 家 regional→warlord, 只刘焉真站稳) + 李儒/贾诩 roster 扩充 (董卓文官 court). **下次: W4c (关系+亲密度+meta+小传+忠诚)** — 顺带解 W4b 遗留 (loyalty/chronicle loop 迁名册 + GEN_CLASS 190-roster gap, 见 §8.4 W4b 遗留 followup). ⚠️ W4a-c 整组完成前**不实机测**;但 **push 到 main 已放宽** (2026-05-15 制作人决: 单人项目, 半残态进 origin/main 问题不大, 且要换机做 — W4a/W4b 已 push `da30719`). 仍需明确授权才 push (feedback_push_authorization 不变).
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -55,6 +55,11 @@ W4a P2 半残 / +李儒贾诩。**190 initGame 末 renderAll 撞 pre-existing re
 
 **W4b 遗留 (→ W4c / sprint, 见 §8.4)**: ① loyalty/chronicle init loop 迁名册 = W4c;
 ② `GEN_CLASS` 190-roster 大面积缺漏 (phase 4-a 只扩 GEN_BASE 没扩 GEN_CLASS) = 后续 sprint。
+
+**push 策略放宽 (2026-05-15)**: 原 "W4a-c 整组完成前不 push" 改为 **push 到 main 已 OK** —
+制作人决 (单人项目, 半残态进 origin/main 影响有限 — 214 仍可玩 / 190 本就玩不了; 且需换机做)。
+W4a+W4b 已 push (`da30719`)。**仍保留**: W4a-c 整组完成前不实机测 (190 render bug 等);
+push 仍需制作人明确授权 ([[feedback_push_authorization]] 不变)。
 
 ## 2026-05-14 (phase 6 wire W4b scout — 撞设计墙, 决议 Option B, session 收尾)
 

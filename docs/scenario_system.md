@@ -513,7 +513,8 @@ regional→warlord,史实只刘焉真站稳)+ roster 扩充(贾诩 wild→dongzh
 GEN_BASE 条目 + dongzhuo active,补董卓文官 court:丞相李儒/尚书令贾诩)。
 W4b byte-identical 故意破,换网:全 G dump W4b-tree vs main 审差异 —— 214 `genPost` 零漂移、
 重叠武将 merit/retainer 零漂移、stats 零变化、0 NaN(190 `initGame` 末 `renderAll` 撞
-pre-existing 190 render bug,与 W4b 无关,main/W4b 同款)。约束同 W4a:W4a-c 整组完成再测/push。
+pre-existing 190 render bug,与 W4b 无关,main/W4b 同款)。约束:W4a-c 整组完成前不实机测
+(190 render bug 等);push 到 main 已放宽(2026-05-15 制作人决,单人项目 + 需换机)。
 
 **W4b 遗留 followup**(codex review round 2 flag,经核为 W4c / 后续 sprint 范围,W4b 不修):
 1. **loyalty/chronicle init loop 仍读 legacy `ALL_GENS`** —— `initGame` 的 `G.genLoyalty`/
