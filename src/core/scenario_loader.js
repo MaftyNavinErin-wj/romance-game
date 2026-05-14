@@ -37,11 +37,12 @@ let _scenarioMaterialized = null;
 //     FAC, ALL_FACS, PLAYABLE_FACS, FAC_IDENTITY, ETHOS_INIT, DIPLO_INIT,   // 1b 已实装
 //     initialRes, reputations, emperorHolder, techPreunlocks,              // W1 真值
 //     foundingCores, initLog,                                             // W1 真值
-//     CITIES_DEF, GENS_FULL, WILD_GENS, wildMeta, pendingGenPool,          // W2-W5 stub
+//     CITIES_DEF,                                                         // W2 真值
+//     GENS_FULL, WILD_GENS, wildMeta, pendingGenPool,                      // W4-W5 stub
 //     initialUnits, initialPosts, initialMerit, initialIntimacyPairs,      // W3-W4 stub
 //     aiPersonalities, relationsGraph }                                   // 未切片 / W4c stub
 //
-// 数据源: 全局 SCENARIOS[scenarioId] + FACTION_BASE (已 load 至顶层 const)
+// 数据源: 全局 SCENARIOS[scenarioId] + FACTION_BASE + CITY_BASE (已 load 至顶层 const)
 //
 // 守底 invariant: scenarioId='214' 输出值 跟 v181 原 src/data/factions.js literal 字符级一致
 //                 (smoke 验证; SCENARIOS['214'] === SCENARIO_214 同 object).
@@ -49,9 +50,11 @@ let _scenarioMaterialized = null;
 //        为 phase 2-b/3/4 渐进填充 SCENARIO_190 铺路.
 // §8.4 W1: 输出补成 §7.2 完整形状 — W1 真值字段派生自 sc.factions / sc.emperor / sc.initLog,
 //          W2-W6 stub 字段先占形状 (空集合, 渐进填充). pure transform 约束不变.
+// §8.4 W2: CITIES_DEF 真值化 — sc.cities + CITY_BASE merge (byte-identical legacy CITIES_DEF).
 function materializeScenario(scenarioId) {
   if (typeof SCENARIOS === 'undefined') throw new Error('materializeScenario: SCENARIOS register not loaded (scenarios/index.js missing)');
   if (typeof FACTION_BASE === 'undefined') throw new Error('materializeScenario: FACTION_BASE not loaded');
+  if (typeof CITY_BASE === 'undefined') throw new Error('materializeScenario: CITY_BASE not loaded');
   const sc = SCENARIOS[scenarioId];
   if (!sc) throw new Error(`materializeScenario: unknown scenarioId '${scenarioId}' (registered: ${Object.keys(SCENARIOS).join(',')})`);
 
@@ -147,6 +150,35 @@ function materializeScenario(scenarioId) {
   // initLog: [[msg, type], ...] — 开局叙事 log (initGame 末尾 verbatim)
   const initLog_m = (sc.initLog || []).map(e => [...e]);
 
+  // ── W2: 城市 — sc.cities + CITY_BASE merge → legacy CITIES_DEF-shaped array ──
+  // 守底 invariant: 跟 legacy CITIES_DEF const byte-identical (array order + key order + 值).
+  //   - CITY_BASE[cid]: name/q/r/tags/jun/size/base (地理 immutable)
+  //   - sc.cities[cid]: fac/pop/troops/isCapital (scenario state)
+  // x/y 像素坐标不在此 — pure transform 不能调 hexToPixel (load 顺序: 本文件早于 map.js);
+  //   initGame 消费时 stamp (legacy map.js:599 对 CITIES_DEF const 做同样 augment).
+  // isCapital: legacy CITIES_DEF 只在 capital 城带 isCapital:true, 非 capital 省略该 key —
+  //   严格复刻 (sc.cities 里非 capital 是 isCapital:false, 此处 falsy 不写, 保 key 集一致).
+  const CITIES_DEF_m = [];
+  for (const [cid, scity] of Object.entries(sc.cities)) {
+    const base = CITY_BASE[cid];
+    if (!base) throw new Error(`materializeScenario: CITY_BASE missing entry '${cid}'`);
+    const entry = {
+      id:     cid,
+      name:   base.name,
+      q:      base.q,
+      r:      base.r,
+      tags:   [...base.tags],
+      jun:    base.jun,
+      fac:    scity.fac,
+      pop:    scity.pop,
+      troops: scity.troops,
+    };
+    if (scity.isCapital) entry.isCapital = true;
+    entry.size = base.size;
+    entry.base = { ...base.base };
+    CITIES_DEF_m.push(entry);
+  }
+
   return {
     scenarioId,
     startYear: sc.startYear,
@@ -163,8 +195,9 @@ function materializeScenario(scenarioId) {
     techPreunlocks: techPreunlocks_m,
     foundingCores:  foundingCores_m,
     initLog:        initLog_m,
-    // ── §7.2 contract stub (W2-W6 渐进填充, 暂空集合占形状) ──
-    CITIES_DEF:           [],   // W2: 城市 SCENARIO.cities + CITY_BASE merge
+    // ── W2 真值 (城市) ──
+    CITIES_DEF:     CITIES_DEF_m,   // sc.cities + CITY_BASE merge (byte-identical legacy CITIES_DEF, 无 x/y)
+    // ── §7.2 contract stub (W3-W6 渐进填充, 暂空集合占形状) ──
     GENS_FULL:            {},   // W4a: 武将名册 { fid: [genObj,...] }
     WILD_GENS:            [],   // W4/W5: 在野武将 def
     wildMeta:             {},   // W4c: 在野武将 meta

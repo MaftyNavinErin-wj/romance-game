@@ -77,11 +77,14 @@ function initGame(scenarioId){
     };
   });
 
-  CITIES_DEF.forEach(c=>{
+  m.CITIES_DEF.forEach(c=>{   // §8.4 W2: ← m.CITIES_DEF (sc.cities + CITY_BASE merge), 原 legacy CITIES_DEF const
     // ★ 核心变更：每城初始化独立存粮 storage
     // ★ v136: 初始存粮从20旬→10旬，开局即有粮草紧迫感
     const initStorage = c.pop * 0.0004 * 10 + c.troops * 0.0012 * 10; // v107: pop×5, 费率÷5
-    G.cities[c.id]={...c,
+    // §8.4 W2: m.CITIES_DEF 是 pure geo (无 x/y); 像素坐标 initGame 时算 —
+    // legacy map.js:599 对 CITIES_DEF const 做同样的 hexToPixel augment, 此处复刻保 byte-identical
+    const px = hexToPixel(c.q, c.r);
+    G.cities[c.id]={...c, x:px.x, y:px.y,
       storage: Math.floor(initStorage),   // ★ 城市级存粮
       popQuality:65+Math.floor(Math.random()*20),
       morale:70+Math.floor(Math.random()*18),
