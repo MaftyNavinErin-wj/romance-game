@@ -1,6 +1,6 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 W1-W3 + 4-e + codex tier A + GEN_BASE audit v1+v2 (debut/death) + **stats audit (com/war/int/pol/cha/apt + classTag)** 全完成. GEN_BASE 212 entries 字段口径定 (debutYear=首次仕官年, skills=已实装 only). SCENARIO_190 active 103/wild 14/pending 95 = 212/212. **已 push (HEAD `3bba851`, 含 stats 8 entries fix)**. 数据层 audit 闭环. **skills 设计定:已实装 83 保留 + 其余 129 留 [], 不补 stub** (general_base.js header 已 lock). 下次: birthYear 补全 / phase 6 wire / 平衡 / 刘磐 active follow-up.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 W1-W3 + 4-e + codex tier A + GEN_BASE audit v1+v2 (debut/death) + **stats audit (com/war/int/pol/cha/apt + classTag)** + 刘磐 followup 全完成. GEN_BASE 212 entries 字段口径定 (debutYear=首次仕官年, skills=已实装 only). SCENARIO_190 active 104/wild 14/pending 94 = 212/212. **已 push (HEAD `3bba851`, 含 stats 8 entries fix)**. 数据层 audit 闭环. **skills 设计定:已实装 83 保留 + 其余 129 留 [], 不补 stub** (general_base.js header 已 lock). 下次: birthYear 补全 / phase 6 wire / 平衡.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -26,7 +26,37 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - birthYear 大量 null 补 sprint
 - phase 6 wire — src/data/ 真正接到 runtime (skills 关系: 届时考虑 generals.js skills 字段 vs general_base.js 怎么去重)
 - 平衡 sprint (等 phase 6 后)
-- 刘磐 SCENARIO_190 pending→active in liubiao xiangyang (audit v2 漏的 follow-up)
+
+---
+
+## 2026-05-14 (刘磐 followup — audit v2 漏的史实修)
+
+audit v2 (commit `374ac8a`) 把黄忠从 pending → active in liubiao xiangyang, 但**刘磐**(刘表从子, 史实「与黄忠共守长沙攸县」)当时不在 codex audit list, 留作 followup. 本次补.
+
+### 4 处改动
+1. `src/data/general_base.js:4605` — 刘磐 debutYear 200 → 190 (跟黄忠 audit v2 同步)
+2. `src/data/scenarios/190.js:682` — 黄忠 relations `[]` → `[{target:刘磐, 同僚, 75}]`
+3. `src/data/scenarios/190.js:683` — 刘磐 active entry (新增, fac:liubiao, city:xiangyang, post:裨将, loyalty:85, merit:180, retainer:700 cavalry, relations: 黄忠 同僚 75)
+4. `src/data/scenarios/190.js:754` — pending 池 刘磐 entry 删除
+
+### Bonus: stale count 修复 (codex review catch)
+- `provenance` 字段 "83 active" 是 phase 4-d 旧数, 实际累计到 103 (我改完 104)
+- 第 482 行 inline "─── 83 active 武将 (14 ruler + 69 心腹) ───" 同 stale, 修成 104 / 14 + 90 心腹
+- 这是 audit v2 / phase 4-c/4-e 都没更新的累积漂移, 本次顺手修
+
+### 字段选择 (codex LGTM)
+- city: xiangyang (长沙=sunjian, 不能放; 襄阳是州治, 跟黄忠捆)
+- post: 裨将 (中郎将下一级, 史载无具体官职给保守一档)
+- retainer: 700 cavalry (GEN_BASE 刘磐 cav/light/heavy 都 A; 比黄忠 900 略少)
+- loyalty: 85 (刘表从子 > 黄忠 80)
+- relations: 黄忠 同僚 75 mirror
+
+### Codex review (commit ?)
+Q1 史实 PASS / Q2 schema PASS / Q3 runtime 未 wire 验证 PASS / Overall LGTM (74K tokens)
+
+smoke + compare PASS (51 snapshots identical, src/data/scenarios/190.js 未被默认 runtime 加载 — scenario_loader.js 默认 applyScenario('214'), main.js initGame 入口未传 190, initGame 仍读 legacy GENS_FULL).
+
+SCENARIO_190 累计: **104 active / 14 wild / 94 pending = 212/212**.
 
 ---
 

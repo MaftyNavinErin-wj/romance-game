@@ -25,7 +25,7 @@ const SCENARIO_190 = {
   "name": "诸侯讨董",
   "startYear": 190,
   "description": "东汉初平元年,董卓废少帝立献帝,关东诸侯起兵讨董,群雄并起。",
-  "provenance": "phase 4-d: +23 active 武将 (史实重 allocate) — 83 active; wild/pending 留 future",
+  "provenance": "phase 4-d: +23 active 武将 (史实重 allocate); 后续 phase 4-c/4-e + audit v2 + 刘磐 followup 累计至 104 active / 14 wild / 94 pending = 212/212",
   // startYear=190 (初平元年) 时天子献帝仍在洛阳, 董卓持. 191 年才西迁长安.
   "emperor": {
     "cityId": "luoyang",
@@ -479,7 +479,7 @@ const SCENARIO_190 = {
     // ── liubei (1): 平原相 ──
     "pingyuan":  { "fac": "liubei",    "pop": 130000, "troops":  900, "isCapital": true  }  // 平原郡 (1f 新城)
   },
-  // ─── 83 active 武将 (14 ruler + 69 心腹/史实任职) ────────────────────
+  // ─── 104 active 武将 (14 ruler + 90 心腹/史实任职) ────────────────────
   // 14 ruler 必 active (validator B.4); 各 fac 起手 2-4 心腹武将.
   // 字段: status/fac/city/role/post/title/loyalty/merit/retainer/initialUnit/relations
   // - role: 'ruler' (14) / 'strategist' (谋主, ~8) / 'prefect' (太守, 0 此阶段) / null
@@ -679,7 +679,8 @@ const SCENARIO_190 = {
     "贺齐": { "status":"pending", "fac":"wild", "pendingFac":"sunjian", "availableYear":199, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"199 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "曹真": { "status":"pending", "fac":"wild", "pendingFac":"caocao", "availableYear":200, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"200 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "曹休": { "status":"pending", "fac":"wild", "pendingFac":"caocao", "availableYear":200, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"200 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
-    "黄忠":   { "status":"active", "fac":"liubiao",    "city":"xiangyang", "role":null,    "post":{"name":"中郎将","rank":"将"},     "title":null, "loyalty":80, "merit":250,"retainer":{"count":900, "type":"archer"},"initialUnit":false, "relations":[] },
+    "黄忠":   { "status":"active", "fac":"liubiao",    "city":"xiangyang", "role":null,    "post":{"name":"中郎将","rank":"将"},     "title":null, "loyalty":80, "merit":250,"retainer":{"count":900, "type":"archer"},"initialUnit":false, "relations":[{"target":"刘磐","type":"同僚","intimacy":75}] },
+    "刘磐":   { "status":"active", "fac":"liubiao",    "city":"xiangyang", "role":null,    "post":{"name":"裨将","rank":"将"},       "title":null, "loyalty":85, "merit":180,"retainer":{"count":700, "type":"cavalry"},"initialUnit":false, "relations":[{"target":"黄忠","type":"同僚","intimacy":75}] },
     "法正": { "status":"pending", "fac":"wild", "pendingFac":"liuyan", "availableYear":200, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"200 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "黄权": { "status":"pending", "fac":"wild", "pendingFac":"liuyan", "availableYear":200, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"200 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "关平": { "status":"pending", "fac":"wild", "pendingFac":"liubei", "availableYear":200, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"200 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
@@ -751,7 +752,6 @@ const SCENARIO_190 = {
     "陆抗": { "status":"pending", "fac":"wild", "pendingFac":"sunjian", "availableYear":246, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"246 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "钟会": { "status":"pending", "fac":"wild", "pendingFac":"caocao", "availableYear":247, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"247 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "文鸯": { "status":"pending", "fac":"wild", "pendingFac":"caocao", "availableYear":255, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"255 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
-    "刘磐":   { "status":"pending", "fac":"wild", "pendingFac":"liubiao", "availableYear":200, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"200 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "刘琦":   { "status":"pending", "fac":"wild", "pendingFac":"liubiao", "availableYear":204, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"204 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "刘琮":   { "status":"pending", "fac":"wild", "pendingFac":"liubiao", "availableYear":208, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"208 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
 
