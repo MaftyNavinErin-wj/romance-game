@@ -1,9 +1,60 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + 死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 212 entries 字段口径定 (含 deathCause). SCENARIO_190 102/14/96=212; SCENARIO_214 130 (104/8/18). **phase 6 wire W1+W2+W3 ✅ push'd (`63b5490`/`ad94d21`/`21514db`) + W4a step-1+step-2 ✅ local (`86843a3`/`49671ad`, 武将名册 adapter 两步走完成)**. **下次: W4b (官职+功绩+部曲)** — scout 完, 撞设计墙已回流: 官职走 **Option B** (SCENARIO 加新字段存开局游戏官职档位), 启动 checklist 见下方 W4b scout 条. ⚠️ W4a step-2 后是计划内半残态, W4a-c 整组完成前不实机测/不 push.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + 死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 213 entries (W4b +李儒). SCENARIO_190 104/13/96=213; SCENARIO_214 130 (104/8/18). **phase 6 wire W1+W2+W3 ✅ push'd (`63b5490`/`ad94d21`/`21514db`) + W4a step-1+2 + W4b ✅ local (`86843a3`/`49671ad`/`af83fe8`)**. W4b = 官职/功绩/部曲 wire + 190 stage 修正 (6 家 regional→warlord, 只刘焉真站稳) + 李儒/贾诩 roster 扩充 (董卓文官 court). **下次: W4c (关系+亲密度+meta+小传+忠诚)** — 顺带解 W4b 遗留 (loyalty/chronicle loop 迁名册 + GEN_CLASS 190-roster gap, 见 §8.4 W4b 遗留 followup). ⚠️ W4a-c 整组完成前不实机测/不 push.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
+
+## 2026-05-15 (phase 6 wire W4b ✅ — 官职/功绩/部曲 wire + 190 stage 修正 + 李儒/贾诩 roster)
+
+W4b done, commit `af83fe8` (local, 未 push). smoke 50 回合不崩 + 0 NaN + 全 G dump 审差异 PASS.
+
+**实装**:
+- SCENARIO schema 加 `gamePost` 字段 (① 游戏官职档位, 区别于 `post`=②招牌头衔)。
+  materializeScenario 单趟 active loop 派生 `initialPosts`/`initialMerit`/`initialRetainers`
+  (后者是新增 contract 槽位); initGame 改读 m.* — 替代 inline `INIT_POSTS` / `ALL_GENS`+`MERIT_INIT`
+  / `RETAINER_PRESET`。
+- **214 = 港旧 INIT_POSTS 26 条, genPost byte-identical** (荀彧/周瑜已死、蒋琬/费祎 pending
+  本就被旧 guard 跳过 → 现 main 上就是空的, 港 26 = 行为一致)。
+- **190 = 制作人 approve 派官表 65 条**, 守 stage 名额。
+- 配套 190 stage 修正 + roster 扩充 (见下条 "撞设计墙" 的最终决议)。
+- 工具: `tools/patch_w4b_scenarios.js` (一次性 patch) + `tools/dump_w4b.js` (全 G dump 验证 harness,
+  W4c 可复用)。
+
+**关键 lesson — 官职 stage 门槛**:
+游戏官职系统有 stage 门槛 (`src/data/constants.js`): `STAGE_TIER1_SLOTS` —— **只有 regime 阶段开
+一档 (大将军/丞相)**, warlord/regional 都 0; `POST_TIERS` —— 二/三档名额按城市数 × stage label cap。
+派官前必须 `getPostSlots(fid)` 核名额, 不能照 214 每势力塞满 10 个。190 十四家只董卓 regime →
+只董卓有一档。**制作人 catch 我第一版没核 stage 就派 = 错** (赵云/张郃 都被我错派 大将军)。
+
+**190 stage 修正决议** (制作人 + CC 史实讨论):
+"州牧/刺史只是任命的官, 没站稳脚跟还是军阀"。190 (初平元年) 实测: 袁绍=渤海太守 / 袁术=后将军
+(非州牧); 韩馥/刘虞/刘表/陶谦 是真州牧但任职短/暗弱/刚到任 (刘表本年才单骑入荆) / 不割据;
+**只刘焉 188 起治蜀已 ~2 年 + 杀豪强立威 + 借张鲁断斜谷自绝朝廷 = 唯一真·一方之主**。
+→ 董卓 regime / 刘焉 regional / 其余 12 全 warlord (190.js 改 6 家 regional→warlord)。
+机制对得上: regional 官职名额上限 > warlord (刘焉成熟政权有正经官僚体系)。
+
+**roster 扩充** (制作人要董卓有文官): 贾诩 wild→dongzhuo active (史实 190 在牛辅麾下讨虏校尉);
+新建 李儒 GEN_BASE 条目 (com52/war22/int90/pol78/cha38, strategist; birthYear/deathYear 估算值
+留 codex 史实 sweep) + dongzhuo active。董卓文官 court = 丞相李儒 / 尚书令贾诩。
+190: active 102→104, wild 14→13, GEN_BASE 212→213。
+
+**codex review (--uncommitted, 2 轮)**:
+- round1 **真 W4b bug 已修**: merit loop —— 剧本可把 legacy-wild 武将提为 active (190: 田丰/张任/
+  文聘/庞德…), active loop 写对剧本真值后 `getAllWildGenDefs()` wild loop 又用 legacy `MERIT_INIT`
+  覆盖。修: active 名册建 Set, wild loop 跳过已在 active 的。验证 田丰=400/张任=250 等剧本真值全对。
+- round2 P2(loyalty/chronicle loop 仍读 ALL_GENS)/ P3(`GEN_CLASS` 190-roster ~80 缺漏含李儒) —
+  **经核为 W4c / pre-existing gap, W4b 不修** (制作人 approve 收尾, 记 §8.4 W4b 遗留 followup + 后续 sprint)。
+
+**全 G dump 审差异** (W4b-tree vs main, byte-identical 故意破换网):
+214 genPost +0/-0/~0 byte-identical ✓ / genMerit +9(反向audit补,P2-fix)-14(6 audit移除+8 minTurn→pending,
+W4a-c 中间态)~0(零漂移) / genRetainers 扩展~0漂移 / stats 重叠武将零变化 / 0 NaN。
+190 genPost +65 (派官表) / 一档官越权检查 ✓ 仅董卓 / merit·retainer 修了 main 错读 legacy 214 数据的
+W4a P2 半残 / +李儒贾诩。**190 initGame 末 renderAll 撞 pre-existing render bug** (`_renderCityList`
+读 legacy `JUNS`, jun.fac 是 214 势力 id) — main/W4b 同款, 非 W4b 回归, 留 W6+。
+
+**W4b 遗留 (→ W4c / sprint, 见 §8.4)**: ① loyalty/chronicle init loop 迁名册 = W4c;
+② `GEN_CLASS` 190-roster 大面积缺漏 (phase 4-a 只扩 GEN_BASE 没扩 GEN_CLASS) = 后续 sprint。
 
 ## 2026-05-14 (phase 6 wire W4b scout — 撞设计墙, 决议 Option B, session 收尾)
 
