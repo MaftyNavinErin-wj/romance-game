@@ -38,8 +38,9 @@ let _scenarioMaterialized = null;
 //     initialRes, reputations, emperorHolder, techPreunlocks,              // W1 真值
 //     foundingCores, initLog,                                             // W1 真值
 //     CITIES_DEF,                                                         // W2 真值
+//     initialUnits,                                                       // W3 真值
 //     GENS_FULL, WILD_GENS, wildMeta, pendingGenPool,                      // W4-W5 stub
-//     initialUnits, initialPosts, initialMerit, initialIntimacyPairs,      // W3-W4 stub
+//     initialPosts, initialMerit, initialIntimacyPairs,                    // W4 stub
 //     aiPersonalities, relationsGraph }                                   // 未切片 / W4c stub
 //
 // 数据源: 全局 SCENARIOS[scenarioId] + FACTION_BASE + CITY_BASE (已 load 至顶层 const)
@@ -51,6 +52,7 @@ let _scenarioMaterialized = null;
 // §8.4 W1: 输出补成 §7.2 完整形状 — W1 真值字段派生自 sc.factions / sc.emperor / sc.initLog,
 //          W2-W6 stub 字段先占形状 (空集合, 渐进填充). pure transform 约束不变.
 // §8.4 W2: CITIES_DEF 真值化 — sc.cities + CITY_BASE merge (byte-identical legacy CITIES_DEF).
+// §8.4 W3: initialUnits 真值化 — sc.initialUnits deep-copy (byte-identical 原硬编码 initUnits).
 function materializeScenario(scenarioId) {
   if (typeof SCENARIOS === 'undefined') throw new Error('materializeScenario: SCENARIOS register not loaded (scenarios/index.js missing)');
   if (typeof FACTION_BASE === 'undefined') throw new Error('materializeScenario: FACTION_BASE not loaded');
@@ -179,6 +181,17 @@ function materializeScenario(scenarioId) {
     CITIES_DEF_m.push(entry);
   }
 
+  // ── W3: 起手野战部队 — sc.initialUnits deep-copy ──
+  // 守底 invariant: 跟 v181 initGame 硬编码 initUnits 数组 byte-identical
+  //   (unit 顺序 + {fac,city,squads} key order + 每 squad {genName,type,troops,maxTroops,morale}).
+  // deep-copy: 每次 materialize 产新结构 — 复刻 legacy 「literal 每次 initGame 新建」语义,
+  //   createUnit 消费 squads 不污染 _scenarioMaterialized.
+  const initialUnits_m = (sc.initialUnits || []).map(u => ({
+    fac:    u.fac,
+    city:   u.city,
+    squads: (u.squads || []).map(sq => ({ ...sq })),
+  }));
+
   return {
     scenarioId,
     startYear: sc.startYear,
@@ -197,12 +210,13 @@ function materializeScenario(scenarioId) {
     initLog:        initLog_m,
     // ── W2 真值 (城市) ──
     CITIES_DEF:     CITIES_DEF_m,   // sc.cities + CITY_BASE merge (byte-identical legacy CITIES_DEF, 无 x/y)
-    // ── §7.2 contract stub (W3-W6 渐进填充, 暂空集合占形状) ──
+    // ── W3 真值 (起手野战部队) ──
+    initialUnits:   initialUnits_m, // sc.initialUnits deep-copy (byte-identical 原硬编码 initUnits)
+    // ── §7.2 contract stub (W4-W6 渐进填充, 暂空集合占形状) ──
     GENS_FULL:            {},   // W4a: 武将名册 { fid: [genObj,...] }
     WILD_GENS:            [],   // W4/W5: 在野武将 def
     wildMeta:             {},   // W4c: 在野武将 meta
     pendingGenPool:       [],   // W5: 待出场池
-    initialUnits:         [],   // W3: 起手野战部队 spec
     initialPosts:         {},   // W4b: 起手官职 { genName: postName }
     initialMerit:         {},   // W4b: 起手功绩 { genName: number }
     initialIntimacyPairs: [],   // W4c: 起手亲密度 [[a,b,v],...]

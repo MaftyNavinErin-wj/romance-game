@@ -482,14 +482,15 @@ function materializeScenario(scenarioId) {
 
 (详细派生逻辑同 v2 §7.1 + 新增 initialMerit / initialIntimacyPairs / wildMeta 派生)
 
-**§8.4 W1-W2 实装状态**(v3.5):contract 形状已补全(`src/core/scenario_loader.js`)。
+**§8.4 W1-W3 实装状态**(v3.5):contract 形状已补全(`src/core/scenario_loader.js`)。
 真值已派生:`startYear` / `initialRes` / `reputations` / `emperorHolder` / `techPreunlocks`
-/ `foundingCores` / `initLog`(W1)/ `CITIES_DEF`(W2)(+ 1b 已有的 6 项)。
-其余 10 项 W3-W6 渐进填充,现返回空集合占形状。
+/ `foundingCores` / `initLog`(W1)/ `CITIES_DEF`(W2)/ `initialUnits`(W3)(+ 1b 已有的 6 项)。
+其余 9 项 W4-W6 渐进填充,现返回空集合占形状。
 `initLog`(`[[msg,type],...]` 开局叙事)是 codex design review 漏的 contract 槽位,
 W1 补入 §7.2 + §3.4(制作人 approve)。
 `CITIES_DEF`(W2)= `sc.cities` + `CITY_BASE` merge,byte-identical legacy `CITIES_DEF`,
 不含 x/y 像素坐标(pure transform 不调 `hexToPixel`;`initGame` 消费时 stamp)。
+`initialUnits`(W3)= `sc.initialUnits` deep-copy,byte-identical 原 `initGame` 硬编码 `initUnits` 数组。
 
 ### 7.3 initGame 调用
 

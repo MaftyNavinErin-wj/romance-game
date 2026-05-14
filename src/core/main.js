@@ -177,49 +177,8 @@ function initGame(scenarioId){
   // ── 初始野战部队 ──────────────────────────────────────
   // ★ v120: 缩编初始部队——逼迫发展期，需征兵才能扩军
   // 魏3支(~30k) / 蜀2支(~16.5k) / 吴2支(~16k)，大部分武将为闲将
-  const initUnits=[
-    // ═══ 魏国 3支 ═══ (总野战兵力~17,000)
-    // 中枢亲卫 — 许昌
-    {fac:'wei', city:'xuchang',  squads:[
-      {genName:'曹操',  type:'cavalry', troops:3000, maxTroops:3000, morale:88},
-      {genName:'许褚',  type:'heavy',   troops:2500, maxTroops:2500, morale:85},
-    ]},
-    // 南线守备 — 南阳
-    {fac:'wei', city:'nanyang',  squads:[
-      {genName:'曹仁',  type:'heavy',   troops:3500, maxTroops:3500, morale:85},
-      {genName:'满宠',  type:'archer',  troops:2000, maxTroops:2000, morale:80},
-    ]},
-    // 东线守备 — 下邳
-    {fac:'wei', city:'xiapi',    squads:[
-      {genName:'张辽',  type:'cavalry', troops:3500, maxTroops:3500, morale:88},
-      {genName:'乐进',  type:'light',   troops:2500, maxTroops:2500, morale:82},
-    ]},
-
-    // ═══ 蜀国 2支 ═══ (总野战兵力~10,500)
-    // 后方亲卫 — 成都
-    {fac:'shu', city:'chengdu',  squads:[
-      {genName:'赵云',  type:'cavalry', troops:3000, maxTroops:3000, morale:88},
-      {genName:'张翼',  type:'light',   troops:2000, maxTroops:2000, morale:78},
-    ]},
-    // 荆州守备 — 襄阳
-    {fac:'shu', city:'xiangyang',squads:[
-      {genName:'关羽',  type:'light',   troops:3500, maxTroops:3500, morale:90},
-      {genName:'廖化',  type:'cavalry', troops:2000, maxTroops:2000, morale:80},
-    ]},
-
-    // ═══ 吴国 2支 ═══ (总野战兵力~12,000)
-    // 首都守备 — 建业
-    {fac:'wu',  city:'jianye',   squads:[
-      {genName:'吕蒙',  type:'light',   troops:3500, maxTroops:3500, morale:88},
-      {genName:'程普',  type:'heavy',   troops:2500, maxTroops:2500, morale:80},
-    ]},
-    // 北线守备 — 合肥
-    {fac:'wu',  city:'hefei',    squads:[
-      {genName:'甘宁',  type:'cavalry', troops:3500, maxTroops:3500, morale:85},
-      {genName:'凌统',  type:'light',   troops:2500, maxTroops:2500, morale:82},
-    ]},
-  ];
-  initUnits.forEach(({fac,city,squads})=>{
+  // §8.4 W3: 硬编码 initUnits 数组 (7 unit) 收口到 SCENARIO_214.initialUnits — 现读 m.initialUnits
+  m.initialUnits.forEach(({fac,city,squads})=>{
     const u=createUnit({fac,spawnCityId:city,squads});
     if(u){
       const spawnCity = G.cities[city];
