@@ -1,6 +1,6 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + **死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit** 全完成. GEN_BASE 212 entries 字段口径定 (含 deathCause). SCENARIO_190 102/14/96=212; SCENARIO_214 130 (104/8/18, membership cleanup 删 8 + reverse audit 加 13). **已 push (HEAD `165bd0a` 起)**. 数据层 audit 闭环. **死亡机制 (deathCause + 机制1/2) 写进 scenario_system.md v3.4 §5.6 + deathCause 字段已实装, 等 phase 6 wire 实装 runtime**. 下次: phase 6 wire / 平衡.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + 死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 212 entries 字段口径定 (含 deathCause). SCENARIO_190 102/14/96=212; SCENARIO_214 130 (104/8/18). **已 push (HEAD `165bd0a` 起)**. 数据层 audit 闭环. **下次: phase 6 wire W1 启动 (势力杂项 + 入口/叙事, 低风险热身块)** — 计划见 scenario_system.md §8.4.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -26,6 +26,40 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - birthYear 大量 null 补 sprint
 - phase 6 wire — src/data/ 真正接到 runtime (skills 关系: 届时考虑 generals.js skills 字段 vs general_base.js 怎么去重)
 - 平衡 sprint (等 phase 6 后)
+
+---
+
+## 2026-05-14 (phase 6 wire 计划 — scenario_system.md v3.5 §8.4)
+
+制作人提"聊 phase 6 wire". scout 现状 + 出切片计划 + codex design review.
+
+### 现状澄清 (重要)
+"phase 6 wire" 实际是两块:
+- **Piece A 数据 wire**: materializeScenario 现只产势力层 6 项, initGame 仍从 legacy (GENS_FULL/CITIES_DEF/硬编码 initUnits) 读 cities/generals/units. GEN_BASE runtime 完全没消费. **SCENARIO_190 根本玩不了**. — 这是前置
+- **Piece B 年龄 hook**: §5.6 死亡机制 runtime 实装 (机制 1/2). 依赖 A. — 设计文档 §8.1 的"阶段 6"指的是这个
+
+### 安全网决策 (制作人 approve)
+- "byte-identical vs v181" 网接线后**对武将块必死** — 因为 GEN_BASE 故意 audit 改好了数据 + 214 名册改过. 这是目的不是 bug.
+- W1-W3 (势力/城市/部队, 数据 verbatim) → byte-identical 网保持. codex 实测确认 214 cities/initialUnits 仍 verbatim.
+- W4+ 新网: 跑满 50 回合不崩 + 数值合理 + 人工/codex 审差异
+- **稳妥技巧 / adapter 两步走**: W4 接线先做临时 adapter (旧数据 → materialized shape) 验证接线代码 byte-identical, 再换真 GEN_BASE — 差异可归因 (代码 vs 数据)
+- 全做完重拍 baseline
+
+### W1-W6 切片 (写进 §8.4)
+W1 势力杂项+入口 / W2 城市 / W3 部队 / W4a-c 武将 (心脏) / W5 在野待出场池 / W6 退役 legacy. 顺序 W1→...→W6. **估 10-13 session** (codex 修正, CC 原估 7-10 偏乐观).
+
+### codex design review (制作人无编程背景, 委托 codex 审计划)
+**Overall: 计划可行**, 3 处核心调整已吸收进 §8.4:
+1. 先定完整 materializeScenario contract (§7.2 形状) 再 wire, 不"边接边猜字段"
+2. W4 用 adapter 两步走, 不直接 GENS_FULL → GEN_BASE
+3. W2/W3 守 byte-identical, W4 后换 snapshot+validator+50回合 smoke
+
+codex 抓到 CC catalog 漏的: **入口层硬编码 214** (startAs 不传 scenarioId / initGame 默认 214 / G.year=0 / 结尾 2 条 log 是 214 叙事) — 不补 190 进不去, W1 必须解决.
+
+codex flag 最大风险: **武将 schema 合并** (GEN_BASE 史实字段 + SCENARIO.generals 剧本状态 + GENS_FULL 旧 runtime shape 三本数据, 必须明确 adapter).
+
+### 下次
+phase 6 wire **W1 启动** — 势力杂项 + 入口/叙事收口, 低风险热身块, byte-identical 网还在.
 
 ---
 

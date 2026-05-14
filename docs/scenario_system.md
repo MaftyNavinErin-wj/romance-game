@@ -1,6 +1,6 @@
-# Project Romance — Scenario System Design v3.4
+# Project Romance — Scenario System Design v3.5
 
-> 多剧本支持架构设计文档(v3.4,基于 codex trial 1+2+3+4+5 feedback 迭代)。
+> 多剧本支持架构设计文档(v3.5,基于 codex trial 1+2+3+4+5 feedback 迭代)。
 > 启动 190 剧本(讨董前夕)落地,长期支持 N scenarios。
 > 设计原则:**玩法机制 vs 数据正交,scenario 切的是初始状态,不是 rule**。
 > 状态:design phase v3.3,等 codex trial 6 LGTM + 制作人 approve 后启动阶段 1a。
@@ -17,7 +17,8 @@
 | v3.1 | codex trial 4 NEEDS-WORK | nanman 改 alias 延迟到 1d / wildData 加 accessor contract / 1b-1 sync mechanic 具体化 (mutable container) / validator 补 8 项 / FAC_IDENTITY runtime state 分离 |
 | v3.2 | codex trial 5 NEEDS-WORK | stale nanman_214/190 残留全清 / F.4 vs K.1 冲突 resolve / pending visibility filter 具体化 §5.5 / 1b-1→1c FAC_IDENTITY split-brain 防御规则 / validator 加 L (wild lookup safety) + M (stale ID grep gate) |
 | v3.3 | (制作人 approve 待) | §8.3 FAC_IDENTITY/G.facIdentity 两套迁移指令统一为单一 accessor backing switch 路径 / 代码任何阶段严禁直接读写 G.facIdentity[...] |
-| v3.4 | (本) | §5.6 武将死亡机制:GEN_BASE 加 deathCause(natural/violent/null)/ 机制 1 剧本成员过滤(史实 deathYear)/ 机制 2 游戏内自然死亡(natural 用 deathYear,violent/null 用算出来的自然寿命 birthYear+60+roll)|
+| v3.4 | (制作人 approve 待) | §5.6 武将死亡机制:GEN_BASE 加 deathCause(natural/violent/null)/ 机制 1 剧本成员过滤(史实 deathYear)/ 机制 2 游戏内自然死亡(natural 用 deathYear,violent/null 用算出来的自然寿命 birthYear+60+roll)|
+| v3.5 | (本) | §8.4 Runtime data wire 切片(W1-W6):§7.2 完整 materialized contract 实装补全 + initGame 改读 materialized output。codex design review 通过(计划可行 + 3 处核心调整已吸收)|
 
 ---
 
@@ -587,6 +588,75 @@ function initGame(scenarioId = DEFAULT_SCENARIO_ID) {
 - 单一迁移路径(accessor),消除 split-brain 风险
 - 任何阶段失败可回滚(每阶段 byte-identical)
 - 代码层不暴露 G.facIdentity 字段,future scenario 切换时只需 accessor backing 重新装配
+
+---
+
+### 8.4 Runtime data wire 切片(W1-W6,v3.5 新增)
+
+**背景**:§8.1 阶段 2-4 建好了 SCENARIO_190/214 的 cities/generals/units 数据,但 `materializeScenario`(`src/core/scenario_loader.js`)实测**只产出势力层 6 项**(FAC/ALL_FACS/PLAYABLE_FACS/FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT)。`initGame` 仍从 legacy const 读 cities/generals/units —— **§7.2 的完整 materialized contract 从未实装,GEN_BASE runtime 从未被消费,SCENARIO_190 无法游玩**。
+
+本节定义"把 §7.2 contract 补齐 + initGame 改读 materialized output"的切片计划。**codex design review 通过**(计划可行,无致命问题;3 处核心调整已吸收)。
+
+#### 前置:先定完整 materialized contract
+
+W1 开始前,先把 `materializeScenario` 输出补成 §7.2 的完整形状(定义字段 + 类型,暂可返回 stub/空值)。**不允许"边接边在 initGame 里零散读 scenario"** —— 否则 W4 会变成边 wire 边猜字段(codex 调整 ①)。
+
+#### initGame 还在 legacy 读什么(catalog)
+
+| 组 | legacy 来源 | 目标来源 |
+|---|---|---|
+| 入口/叙事 | `startAs()` 不传 scenarioId;`initGame` 默认 `'214'`;`G.year=0`;结尾 2 条 `log()` 是 214 叙事硬编码 | scenarioId 传参;消费 `startYear`;叙事改 scenario 字段 |
+| 势力杂项 | 硬编码 res/reputation/emperor;`G.factionRulers` ← `getFactionDef().ruler`;`TECH_PREUNLOCK`;`FOUNDING_CORE` | `SCENARIO.factions[fid]` + `.emperor` |
+| 城市 | `CITIES_DEF` | `SCENARIO.cities` + `CITY_BASE` |
+| 部队 | 硬编码 `initUnits` 数组 | `SCENARIO.initialUnits` |
+| 武将 | `GENS_FULL` / `ALL_GENS` / `getAllWildGenDefs` / `getGenMeta` / `GEN_TAGS` / `INIT_POSTS` / `MERIT_INIT` / `RETAINER_PRESET` / `INTIMACY_PRESET` | `SCENARIO.generals` + `GEN_BASE` |
+
+#### 切片表
+
+| 块 | 内容 | 风险 | 安全网 | 估 session |
+|---|---|---|---|---|
+| **W1** | 势力杂项 + 入口/叙事(res/reputation/emperor/tech/founding/factionRulers + scenarioId 传参 + startYear/log 全收口)| 低 | byte-identical 保持 | 1 |
+| **W2** | 城市 `CITIES_DEF` → `SCENARIO.cities` | 中 | byte-identical 保持(codex 实测 214 cities 跟 CITIES_DEF 一致)| 1 |
+| **W3** | 部队 硬编码 `initUnits` → `SCENARIO.initialUnits` | 中 | byte-identical 保持(codex 实测 214 initialUnits 跟硬编码一致)| 1 |
+| **W4a** | 武将名册 + 五维 + apt + role/status/city | 高(心脏)| 失效 → adapter 两步走 | 1-2 |
+| **W4b** | 官职 + 功绩 + 部曲 + founding/member source | 高 | 失效 | 1-2 |
+| **W4c** | 关系 + 亲密度 + meta + 小传 + 忠诚 | 高 | 失效 | 2 |
+| **W5** | 在野/待出场池(pending/wild 从 `SCENARIO.generals` status 来)| 中高 | 失效 + **必带回归测试** | 1-2 |
+| **W6** | 退役 legacy(删 `GENS_FULL`/`CITIES_DEF`/硬编码数组)| 低 | **重拍 baseline 后**做 | 1 |
+| — | snapshot/validator 补强 + 修回归 | — | — | 1-2 |
+
+**估算合计:10-13 session**(codex 修正;CC 原估 7-10 偏乐观。最大变数:W4 schema 合并)。
+
+**顺序**:W1→W2→W3→W4a→W4b→W4c→W5→W6。**W5 设计 + validator 必须在 W4a 之前定死**(pending/wild schema 跟 W4a 强绑定),实装放后。
+
+#### 隐含依赖(codex)
+
+- W3 依赖 W2(部队 spawn 需城市已初始化)
+- W3 `squad.genName` 需 validator 保证在 active generals 中(但不依赖 W4 实装,旧 GENS_FULL 期也能验)
+- W4b retainer/billetPool 依赖 W3(已出战武将不进国都 billetPool)
+- W4c intimacy/chronicle 依赖 W4a 武将全集稳定
+- W5 依赖 W4a(pending/wild 定义来自 `SCENARIO.generals` status)
+- **`materializeScenario` pure transform 约束全程保留**:只读 GEN_BASE/CITY_BASE/FACTION_BASE/SCENARIOS,不写 G / 不跑 RNG / 不调 `createUnit`/`garrisonCap`/`getInitLevel` 等 runtime helper。副作用留 `initGame` consuming materialized output。
+
+#### 安全网
+
+| 阶段 | 安全网 |
+|---|---|
+| W1-W3 | byte-identical vs 当前 v181-derived legacy runtime baseline(codex 实测确认 214 cities/initialUnits 仍 verbatim)|
+| W4+ | byte-identical **必死**(GEN_BASE 故意 audit 改好 + 214 名册经 membership/reverse audit 改过 —— 这是目的,不是 bug)。换新网:跑满 50 回合不崩 + 数值合理 + 人工/codex 审差异 |
+| W4 接线 | **adapter 两步走**(codex 调整 ②):先做临时 adapter(输入旧 `GENS_FULL/WILD_GENS/GEN_META/INIT_POSTS/MERIT_INIT/RETAINER_PRESET/INTIMACY_PRESET`,输出 = 未来 materialized shape)→ snapshot 证明 `adapter + new init path == 旧 runtime` → 再把 adapter 输入切到 `GEN_BASE + SCENARIO.generals`。差异可清楚归因:adapter/init-path 问题 vs 新数据问题 |
+| W6 后 | 重拍 baseline(修正版游戏),之后改动跟新 baseline 比 |
+
+#### 高风险点(codex flag)
+
+- **武将 schema 合并是最大风险**:`GEN_BASE`(史实不变字段)+ `SCENARIO.generals`(剧本状态字段)+ `GENS_FULL`(旧 runtime shape)三本数据,必须有明确 adapter,不然 W4 边 wire 边猜字段
+- `getGenMeta(name)` 是大量链路依赖点,W4c 前要决定:继续兼容旧 meta shape,还是改读 materialized wild/base meta
+- `refreshWildPool()` / recruit UI / pending 出场链 / `WILD_GENS` 关系易断,W5 必带回归测试(详 §5.4 / §5.5)
+- 入口层(`startAs` / 标题 UI)不传 scenarioId → 即使数据 wire 好 190 仍进不去,**W1 必须解决**
+
+#### 跟 §8.1 / phase 6 的关系
+
+§8.1 阶段总表的"阶段 6 = 年龄 hook"指的是 §5.6 的死亡机制 runtime 实装(机制 1/2)。本节 W1-W6 是其**前置** —— 年龄 hook 需要 GEN_BASE 先被 runtime 消费。W1-W6 完成 + 重拍 baseline 后,才能做阶段 6 年龄 hook。
 
 ---
 
