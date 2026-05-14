@@ -1,6 +1,6 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 W1-W3 + 4-e + codex tier A + GEN_BASE audit v1+v2 + stats audit + 刘磐 + birthYear 补全 + debutYear schema gap + **死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + GEN_BASE deathCause 字段 (212 entries)** 全完成. GEN_BASE 212 entries 字段口径定 (含 deathCause: natural 101/violent 75/null 36). SCENARIO_190 102/14/96=212; SCENARIO_214 95/4/18=117. **已 push (HEAD `4497810` 起)**. 数据层 audit 闭环. **死亡机制 (deathCause + 机制1/2) 已写进 scenario_system.md v3.4 §5.6 + deathCause 字段已实装, 等 phase 6 wire 实装机制 1/2 runtime**. 下次: SCENARIO_214 roster completeness 反向 audit / phase 6 wire / 平衡.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + **死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit** 全完成. GEN_BASE 212 entries 字段口径定 (含 deathCause). SCENARIO_190 102/14/96=212; SCENARIO_214 130 (104/8/18, membership cleanup 删 8 + reverse audit 加 13). **已 push (HEAD `165bd0a` 起)**. 数据层 audit 闭环. **死亡机制 (deathCause + 机制1/2) 写进 scenario_system.md v3.4 §5.6 + deathCause 字段已实装, 等 phase 6 wire 实装 runtime**. 下次: phase 6 wire / 平衡.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -26,6 +26,38 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - birthYear 大量 null 补 sprint
 - phase 6 wire — src/data/ 真正接到 runtime (skills 关系: 届时考虑 generals.js skills 字段 vs general_base.js 怎么去重)
 - 平衡 sprint (等 phase 6 后)
+
+---
+
+## 2026-05-14 (SCENARIO_214 roster completeness 反向 audit — Task A/B/C)
+
+membership cleanup (删死人) 的反向: "该活在 214 但漏列名册" 的武将补上.
+
+### 关键发现: deathYear=null 在做双重身份
+反向 audit 第一版用 "deathYear>=214 或 null = 活着", 但 **null 不等于活着** —— 王匡(~192死)/曹豹(~196)/田楷(~199) 这些 190s 就死了的, 因 deathYear=null 被误算成 "214 还活着". 根因: 设计 §5.6 "null → 永远可进" 规则太宽.
+
+### Task A — 18 个 null-deathYear 武将补 deathYear+deathCause (commit `165bd0a`)
+codex 史实估算 18 个不在 214 名册的 null-deathYear 武将:
+- 13 个 estDeathYear < 214 → membership filter 修正
+- 5 个 estDeathYear >= 214 (刘琮/鲜于辅/阎柔/阎行/韩浩, 降曹活到曹魏) → "该加" 候选
+
+### Task B — 重跑反向 audit
+干净清单 14 个 (13 active/wild + 陆抗 skip — b218 214还没出生).
+
+### Task C — 13 个加进 SCENARIO_214.generals
+归属 (制作人 approve, "不好归类→wild" 规则):
+- wei active 7: 史涣/韩浩/蒯越/蔡瑁/鲜于辅/阎柔/刘琮
+- shu active 2: 吴兰/雷铜
+- wild 4: 韩遂(凉州独立无faction)/阎行/刘璋(丢益州)/田畴(拒仕recluse)
+- count: 117 → **130** (active 104 / wild 8 / pending 18)
+- `tools/patch_214_roster_add.js` round-trip check + relation 目标存在性校验
+- Codex review LGTM (68K tokens); 修了 codex 指出的 史涣↔韩浩 单向 relation → 对称
+
+### Followup
+- **Group A 18 个 null-deathYear (在 214 名册的)**: 许褚/徐庶/周泰 等也 deathYear=null. 对 214 无害 (本就该在), 但未来 SCENARIO_250 之类会有同样 null 泄漏问题. 留 followup: 补 Group A deathYear.
+- 设计 §5.6 "null → 永远可进" 规则: Task A 缓解了 (大部分 null 现在有估算值), 但本质上 null 仍泄漏. 未来若 GEN_BASE 无 null deathYear 了, 规则可去掉.
+
+smoke + compare PASS (51 snapshots identical).
 
 ---
 

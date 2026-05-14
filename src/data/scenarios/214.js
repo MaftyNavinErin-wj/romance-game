@@ -4205,6 +4205,347 @@ const SCENARIO_214 = {
         "relations": [],
         "skillsOverride": null
       }
+    },
+    "史涣": {
+      "status": "active",
+      "fac": "wei",
+      "city": "xuchang",
+      "role": null,
+      "post": {
+        "name": "中领军",
+        "rank": "将",
+        "desc": "统领禁军中军，本势力部队补员速度+5%。"
+      },
+      "title": null,
+      "loyalty": 90,
+      "merit": 60,
+      "retainer": {
+        "count": 600,
+        "type": "cavalry"
+      },
+      "initialUnit": false,
+      "relations": [
+        {
+          "target": "曹操",
+          "type": "主公",
+          "intimacy": 70
+        },
+        {
+          "target": "韩浩",
+          "type": "同僚",
+          "intimacy": 70
+        }
+      ],
+      "skillsOverride": null
+    },
+    "韩浩": {
+      "status": "active",
+      "fac": "wei",
+      "city": "xuchang",
+      "role": null,
+      "post": {
+        "name": "中护军",
+        "rank": "将",
+        "desc": "统领禁军，督护诸将。"
+      },
+      "title": null,
+      "loyalty": 90,
+      "merit": 65,
+      "retainer": {
+        "count": 700,
+        "type": "heavy"
+      },
+      "initialUnit": false,
+      "relations": [
+        {
+          "target": "曹操",
+          "type": "主公",
+          "intimacy": 72
+        },
+        {
+          "target": "史涣",
+          "type": "同僚",
+          "intimacy": 70
+        }
+      ],
+      "skillsOverride": null
+    },
+    "蒯越": {
+      "status": "active",
+      "fac": "wei",
+      "city": "xuchang",
+      "role": null,
+      "post": {
+        "name": "光禄勋",
+        "rank": "文官",
+        "desc": "掌宫廷宿卫，参赞机要。"
+      },
+      "title": null,
+      "loyalty": 75,
+      "merit": 80,
+      "retainer": {
+        "count": 0,
+        "type": null
+      },
+      "initialUnit": false,
+      "relations": [
+        {
+          "target": "曹操",
+          "type": "主公",
+          "intimacy": 60
+        }
+      ],
+      "skillsOverride": null
+    },
+    "蔡瑁": {
+      "status": "active",
+      "fac": "wei",
+      "city": "xuchang",
+      "role": null,
+      "post": {
+        "name": "长水校尉",
+        "rank": "将",
+        "desc": "统领禁军骑兵。"
+      },
+      "title": null,
+      "loyalty": 70,
+      "merit": 50,
+      "retainer": {
+        "count": 0,
+        "type": null
+      },
+      "initialUnit": false,
+      "relations": [
+        {
+          "target": "曹操",
+          "type": "主公",
+          "intimacy": 55
+        }
+      ],
+      "skillsOverride": null
+    },
+    "鲜于辅": {
+      "status": "active",
+      "fac": "wei",
+      "city": "youzhou",
+      "role": null,
+      "post": {
+        "name": "度辽将军",
+        "rank": "将",
+        "desc": "镇守北疆，抵御乌桓鲜卑。"
+      },
+      "title": null,
+      "loyalty": 80,
+      "merit": 60,
+      "retainer": {
+        "count": 800,
+        "type": "cavalry"
+      },
+      "initialUnit": false,
+      "relations": [
+        {
+          "target": "曹操",
+          "type": "主公",
+          "intimacy": 60
+        },
+        {
+          "target": "阎柔",
+          "type": "同僚",
+          "intimacy": 65
+        }
+      ],
+      "skillsOverride": null
+    },
+    "阎柔": {
+      "status": "active",
+      "fac": "wei",
+      "city": "youzhou",
+      "role": null,
+      "post": {
+        "name": "护乌桓校尉",
+        "rank": "将",
+        "desc": "统辖乌桓部众，镇抚北疆。"
+      },
+      "title": null,
+      "loyalty": 78,
+      "merit": 55,
+      "retainer": {
+        "count": 700,
+        "type": "cavalry"
+      },
+      "initialUnit": false,
+      "relations": [
+        {
+          "target": "曹操",
+          "type": "主公",
+          "intimacy": 58
+        },
+        {
+          "target": "鲜于辅",
+          "type": "同僚",
+          "intimacy": 65
+        }
+      ],
+      "skillsOverride": null
+    },
+    "刘琮": {
+      "status": "active",
+      "fac": "wei",
+      "city": "qingzhou",
+      "role": null,
+      "post": {
+        "name": "青州刺史",
+        "rank": "文官",
+        "desc": "监察一州，提升治下城池治安。"
+      },
+      "title": null,
+      "loyalty": 60,
+      "merit": 30,
+      "retainer": {
+        "count": 0,
+        "type": null
+      },
+      "initialUnit": false,
+      "relations": [
+        {
+          "target": "曹操",
+          "type": "主公",
+          "intimacy": 40
+        }
+      ],
+      "skillsOverride": null
+    },
+    "吴兰": {
+      "status": "active",
+      "fac": "shu",
+      "city": "chengdu",
+      "role": null,
+      "post": {
+        "name": "牙门将",
+        "rank": "将",
+        "desc": "冲锋陷阵的先锋将领。"
+      },
+      "title": null,
+      "loyalty": 85,
+      "merit": 40,
+      "retainer": {
+        "count": 500,
+        "type": "light"
+      },
+      "initialUnit": false,
+      "relations": [
+        {
+          "target": "刘备",
+          "type": "主公",
+          "intimacy": 60
+        },
+        {
+          "target": "雷铜",
+          "type": "同僚",
+          "intimacy": 70
+        }
+      ],
+      "skillsOverride": null
+    },
+    "雷铜": {
+      "status": "active",
+      "fac": "shu",
+      "city": "chengdu",
+      "role": null,
+      "post": {
+        "name": "牙门将",
+        "rank": "将",
+        "desc": "冲锋陷阵的先锋将领。"
+      },
+      "title": null,
+      "loyalty": 85,
+      "merit": 40,
+      "retainer": {
+        "count": 500,
+        "type": "light"
+      },
+      "initialUnit": false,
+      "relations": [
+        {
+          "target": "刘备",
+          "type": "主公",
+          "intimacy": 60
+        },
+        {
+          "target": "吴兰",
+          "type": "同僚",
+          "intimacy": 70
+        }
+      ],
+      "skillsOverride": null
+    },
+    "韩遂": {
+      "status": "wild",
+      "fac": "wild",
+      "wildData": {
+        "loyalty": 50,
+        "merit": 50,
+        "retainer": {
+          "count": 0,
+          "type": null
+        },
+        "relations": [
+          {
+            "target": "阎行",
+            "type": "旧部",
+            "intimacy": 45
+          }
+        ],
+        "skillsOverride": null
+      }
+    },
+    "阎行": {
+      "status": "wild",
+      "fac": "wild",
+      "wildData": {
+        "loyalty": 50,
+        "merit": 40,
+        "retainer": {
+          "count": 0,
+          "type": null
+        },
+        "relations": [
+          {
+            "target": "韩遂",
+            "type": "旧主",
+            "intimacy": 45
+          }
+        ],
+        "skillsOverride": null
+      }
+    },
+    "刘璋": {
+      "status": "wild",
+      "fac": "wild",
+      "wildData": {
+        "loyalty": 50,
+        "merit": 30,
+        "retainer": {
+          "count": 0,
+          "type": null
+        },
+        "relations": [],
+        "skillsOverride": null
+      }
+    },
+    "田畴": {
+      "status": "wild",
+      "fac": "wild",
+      "wildData": {
+        "loyalty": 60,
+        "merit": 40,
+        "retainer": {
+          "count": 0,
+          "type": null
+        },
+        "relations": [],
+        "skillsOverride": null
+      }
     }
   },
   "initialUnits": [
