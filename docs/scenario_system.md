@@ -1,6 +1,6 @@
-# Project Romance — Scenario System Design v3.3
+# Project Romance — Scenario System Design v3.4
 
-> 多剧本支持架构设计文档(v3.3,基于 codex trial 1+2+3+4+5 feedback 迭代)。
+> 多剧本支持架构设计文档(v3.4,基于 codex trial 1+2+3+4+5 feedback 迭代)。
 > 启动 190 剧本(讨董前夕)落地,长期支持 N scenarios。
 > 设计原则:**玩法机制 vs 数据正交,scenario 切的是初始状态,不是 rule**。
 > 状态:design phase v3.3,等 codex trial 6 LGTM + 制作人 approve 后启动阶段 1a。
@@ -16,7 +16,8 @@
 | v3.0 | codex trial 3 NEEDS-WORK narrow | schema 字段补全(merit/intimacy/wildData)/ 1b 拆 4 步渐进 / pending wildData 完整 / 10+ validator corner case / nanman_190 vs nanman 拆 / Q1/Q2 close |
 | v3.1 | codex trial 4 NEEDS-WORK | nanman 改 alias 延迟到 1d / wildData 加 accessor contract / 1b-1 sync mechanic 具体化 (mutable container) / validator 补 8 项 / FAC_IDENTITY runtime state 分离 |
 | v3.2 | codex trial 5 NEEDS-WORK | stale nanman_214/190 残留全清 / F.4 vs K.1 冲突 resolve / pending visibility filter 具体化 §5.5 / 1b-1→1c FAC_IDENTITY split-brain 防御规则 / validator 加 L (wild lookup safety) + M (stale ID grep gate) |
-| v3.3 | (本) | §8.3 FAC_IDENTITY/G.facIdentity 两套迁移指令统一为单一 accessor backing switch 路径 / 代码任何阶段严禁直接读写 G.facIdentity[...] |
+| v3.3 | (制作人 approve 待) | §8.3 FAC_IDENTITY/G.facIdentity 两套迁移指令统一为单一 accessor backing switch 路径 / 代码任何阶段严禁直接读写 G.facIdentity[...] |
+| v3.4 | (本) | §5.6 武将死亡机制:GEN_BASE 加 deathCause(natural/violent)/ 机制 1 剧本成员过滤(史实 deathYear)/ 机制 2 游戏内自然死亡(natural 用 deathYear,violent 用算出来的自然寿命 birthYear+60+roll)|
 
 ---
 
@@ -39,7 +40,8 @@ const GEN_BASE = {
 
     // ── 时间线史实参考 ──
     birthYear: 160, deathYear: 220,
-    debutYear: 184,        // 史实出山年默认,scenario 可 override
+    debutYear: 184,            // 史实首次仕官年默认,scenario 可 override
+    deathCause: 'violent',     // 'natural'(病死/老死) | 'violent'(战死/处决/遇刺),详 §5.6
 
     // ── 史实不变 ──
     birthplace: '河东解县',
@@ -367,6 +369,57 @@ for (const [name, data] of Object.entries(G.pendingGenPool)) {
 - `refreshWildPool()` 现读 `WILD_GENS[].minTurn` → 改读 `G.scenarioWildList`(initGame 时 materialized.WILD_GENS 中 status='wild' filter,initialize 入 `G._wildGenDefs` 还是把 status field 留 entry 内供 filter — 后者更简洁)
 - recruit UI 现 grep `WILD_GENS.find(...)` 改用 `getWildGenDef(name)` accessor
 - "尚未入世"UI 当前未实装 → 阶段 5 启动 UI 时加(展示 G.pendingGenPool)
+
+### 5.6 武将死亡机制(v3.4 新增)
+
+#### 设计背景
+
+`GEN_BASE.deathYear` 是史实死亡年,但混了两种语义:
+
+- **病死/老死**(郭嘉 207 病逝、曹操 220 老死):跟历史情境无关,玩家改变不了 → 该作硬触发
+- **战死/横死**(颜良 200 战死、吕布 198 处决、孙坚 192 战死):特定历史情境下被杀,玩家可能已改变该情境(没让颜良去白马) → 不该作硬触发,否则壮年猛将"突然老死",伤害体验
+
+#### `deathCause` 字段
+
+GEN_BASE 加 `deathCause: 'natural' | 'violent'`,**史实不变字段**。分类依据硬史实(史料死因明确)。
+
+#### 机制 1 — 剧本成员过滤(load-time / audit-time)
+
+- 规则:`史实 deathYear >= scenario.startYear` → 武将可进该剧本名册;反之不进。`deathYear = null` 视为永远可进。
+- **全员适用,不分 deathCause**。
+- 例:颜良(史实 d.200)→ 190 剧本(startYear 190)在场;214 剧本(startYear 214)不在场。
+- 用途:剧本名册 audit / 新建剧本时筛选可出场武将。
+
+#### 机制 2 — 游戏内自然死亡(runtime,阶段 6 wire)
+
+| deathCause | 游戏内自然死亡年 |
+|---|---|
+| `natural` | 死于 `deathYear`(± 小随机)。郭嘉游戏内 ~207 病死,逆天改命无效 |
+| `violent` | **不用 `deathYear`**,改用算出来的自然寿命 `birthYear + 60 + roll(0..20)`(寿 60~80)。颜良 b169 → 自然死 ~229–249 |
+
+- `violent` 武将**提前死**只能靠 `killGen`(战斗 / 单挑 / 处决 / 事件),与年份无关 —— 同现有 v181 机制。
+- `deathYear = null` 武将:当 `violent` 处理(无横死记录 → 纯算自然寿命)。
+
+#### 自然寿命的归属
+
+算出来的自然寿命是 **runtime 值**,阶段 6 wire 时在 `materializeScenario` / load 时算入 G state(per-playthrough),**不进 GEN_BASE**(GEN_BASE 只存史实不变字段)。
+
+#### 为什么保留史实 deathYear 不覆盖
+
+机制 1 需要史实 deathYear,且对**每个未来剧本**都要用(多剧本架构)。若把 `violent` 的 deathYear 覆盖成算出来的寿命,史实丢失,机制 1 只能用一次后失效。`deathCause`(1 字段)成本远低于覆盖的代价。同时 GEN_BASE header 契约即"史实不变",覆盖违反契约。
+
+#### year 用途总表
+
+| 要算什么 | 调哪个 year |
+|---|---|
+| 武将进不进某剧本 | 史实 `deathYear`(全员,不分死因)|
+| `natural` 武将游戏内何时死 | 史实 `deathYear` |
+| `violent` 武将游戏内何时死 | `birthYear + 60 + roll(0..20)`(史实 deathYear 不用)|
+| `violent` 武将提前死 | `killGen`(战斗/事件),不靠年份 |
+
+#### 跟出场端(debutYear)的对称
+
+死亡端(本节)管"武将退场";出场端管"武将入场" —— `debutYear > scenario.startYear` → status `pending`(详 §5.3 / §3.5)。两端共同界定武将在某剧本的"生命窗口"。
 
 ---
 
