@@ -1,9 +1,24 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + 死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 212 entries 字段口径定 (含 deathCause). SCENARIO_190 102/14/96=212; SCENARIO_214 130 (104/8/18). **phase 6 wire W1 ✅ done (势力杂项 + 入口/叙事, commit `63b5490` local 未 push)**. **下次: W2 (城市 CITIES_DEF → SCENARIO.cities)** — 计划见 scenario_system.md §8.4.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + 死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 212 entries 字段口径定 (含 deathCause). SCENARIO_190 102/14/96=212; SCENARIO_214 130 (104/8/18). **phase 6 wire W1+W2 ✅ done (势力杂项+入口/叙事 `63b5490` / 城市 CITIES_DEF `ad94d21`, local 未 push)**. **下次: W3 (部队硬编码 initUnits → SCENARIO.initialUnits, 依赖 W2)** — 计划见 scenario_system.md §8.4.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
+
+## 2026-05-14 (phase 6 wire W2 ✅ — 城市 CITIES_DEF)
+
+W2 done, commit `ad94d21` (local, 未 push). smoke + compare PASS + 全 G dump 0 diffs.
+
+- materializeScenario CITIES_DEF stub → 真值: sc.cities + CITY_BASE merge, byte-identical
+  legacy CITIES_DEF const (55 城 array order + key order + 值 实测 0 drift — 这次没踩 W1 周瑜坑).
+- isCapital 坑: legacy CITIES_DEF 只 capital 城带 isCapital:true 非 capital 省 key;
+  sc.cities 里非 capital 是 isCapital:false. merge 时 `if(scity.isCapital)` falsy 不写, 保 key 集一致.
+- x/y 像素坐标坑: legacy `map.js:599 CITIES_DEF.forEach(c => c.x=hexToPixel(...))` 在 module load
+  augment CITIES_DEF const. m.CITIES_DEF 是 pure geo 无 x/y (pure transform 不能调 hexToPixel,
+  且 load 顺序 scenario_loader 早于 map.js). G.cities[cid].x/y **被 render_cache.js:233 读** —
+  必须保留. 解法: initGame 消费 m.CITIES_DEF 时 `hexToPixel(c.q,c.r)` stamp x/y (key order
+  正好接在 base 后, 跟 legacy `{...c}` 一致).
+- legacy CITIES_DEF const + CITY_MAP 不动 — 其他 chain/render 消费者 W2 不迁移 (留 W6).
 
 ## 2026-05-14 (phase 6 wire W1 ✅ — 势力杂项 + 入口/叙事)
 
