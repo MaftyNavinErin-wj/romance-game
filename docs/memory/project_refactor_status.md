@@ -1,6 +1,6 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 W1-W3 + 4-e + codex tier A + GEN_BASE audit v1+v2 (debut/death) + **stats audit** + 刘磐 + **birthYear 补全** + **debutYear schema gap** + **死亡机制设计 v3.4 + SCENARIO_214 membership cleanup** 全完成. GEN_BASE 212 entries 字段口径定. SCENARIO_190 102/14/96=212; SCENARIO_214 95/4/18=117 (清掉 8 个史实 d<214). **已 push (HEAD `f1d2653` 起)**. 数据层 audit 闭环. **死亡机制 (deathCause + 机制1/2) 已写进 scenario_system.md v3.4 §5.6, 等 phase 6 wire 实装**. 下次: GEN_BASE 加 deathCause 字段 (data sprint) / phase 6 wire / 平衡.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 W1-W3 + 4-e + codex tier A + GEN_BASE audit v1+v2 + stats audit + 刘磐 + birthYear 补全 + debutYear schema gap + **死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + GEN_BASE deathCause 字段 (212 entries)** 全完成. GEN_BASE 212 entries 字段口径定 (含 deathCause: natural 101/violent 75/null 36). SCENARIO_190 102/14/96=212; SCENARIO_214 95/4/18=117. **已 push (HEAD `4497810` 起)**. 数据层 audit 闭环. **死亡机制 (deathCause + 机制1/2) 已写进 scenario_system.md v3.4 §5.6 + deathCause 字段已实装, 等 phase 6 wire 实装机制 1/2 runtime**. 下次: SCENARIO_214 roster completeness 反向 audit / phase 6 wire / 平衡.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -26,6 +26,39 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - birthYear 大量 null 补 sprint
 - phase 6 wire — src/data/ 真正接到 runtime (skills 关系: 届时考虑 generals.js skills 字段 vs general_base.js 怎么去重)
 - 平衡 sprint (等 phase 6 后)
+
+---
+
+## 2026-05-14 (GEN_BASE 加 deathCause 字段 — 212 entries)
+
+机制 2 的前置数据 sprint. GEN_BASE 全 212 entries 加 `deathCause` 字段 (插在 debutYear 后).
+
+### 三态 (不是二态)
+- `natural` **101** — 病死/老死/忧愤而终 (codex 史实分类)
+- `violent` **75** — 战死/处决/遇刺/被杀 (codex 史实分类)
+- `null` **36** — deathYear 也是 null 的 (史载不详)
+
+### 决策: null deathYear 用 `null` 不用 `violent`
+原设计文档写"null → violent". 实装时改成 `deathCause: null`:
+- 36 个 null-deathYear 里有许褚/徐庶/简雍/周泰/徐盛 这种**病死**的, 贴 `violent` 是假 label
+- 对这 36 个 deathCause 行为上 moot (deathYear=null → runtime 无论如何只能算自然寿命), 既然纯 label 就选诚实的
+- `null` 跟 `deathYear: null` 语义一致 (都是史载不详)
+- runtime 规则: `deathCause==='natural' && deathYear!=null → 用 deathYear; 否则算自然寿命` — violent/null 同行为
+- scenario_system.md §5.6 + §3.1 已同步改三态
+
+### 流程
+codex sweep 176 个有 deathYear 的 → natural/violent 分类 → CC spot-check (关羽/吕布/孙坚 violent, 曹操/郭嘉/周瑜/荀彧 natural, 边界 荀彧/陆逊 忧愤→natural / 于禁 惭恚→natural 都合理) → 36 个 null-deathYear 强制 deathCause=null → patch 脚本插入.
+
+### 验证
+- parse OK, 212 全有 deathCause
+- invariant: `deathCause===null ⟺ deathYear===null` PASS
+- compact (79) + multi-line (133) 两种格式插入都正确
+- Codex review LGTM (139K tokens, Q1 schema / Q2 null 配对 / Q3 分类抽查 / Q4 doc 一致 / Q5 runtime 全 PASS; codex 沙箱跑不了 node, CC 自己 close parse caveat)
+
+### tools/
+`tools/patch_gen_base_deathcause.js` 可 reproduce (读 codex result + null 规则 + 双格式 regex 插入).
+
+smoke + compare PASS (51 snapshots identical).
 
 ---
 

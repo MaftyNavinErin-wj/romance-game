@@ -17,7 +17,7 @@
 | v3.1 | codex trial 4 NEEDS-WORK | nanman 改 alias 延迟到 1d / wildData 加 accessor contract / 1b-1 sync mechanic 具体化 (mutable container) / validator 补 8 项 / FAC_IDENTITY runtime state 分离 |
 | v3.2 | codex trial 5 NEEDS-WORK | stale nanman_214/190 残留全清 / F.4 vs K.1 冲突 resolve / pending visibility filter 具体化 §5.5 / 1b-1→1c FAC_IDENTITY split-brain 防御规则 / validator 加 L (wild lookup safety) + M (stale ID grep gate) |
 | v3.3 | (制作人 approve 待) | §8.3 FAC_IDENTITY/G.facIdentity 两套迁移指令统一为单一 accessor backing switch 路径 / 代码任何阶段严禁直接读写 G.facIdentity[...] |
-| v3.4 | (本) | §5.6 武将死亡机制:GEN_BASE 加 deathCause(natural/violent)/ 机制 1 剧本成员过滤(史实 deathYear)/ 机制 2 游戏内自然死亡(natural 用 deathYear,violent 用算出来的自然寿命 birthYear+60+roll)|
+| v3.4 | (本) | §5.6 武将死亡机制:GEN_BASE 加 deathCause(natural/violent/null)/ 机制 1 剧本成员过滤(史实 deathYear)/ 机制 2 游戏内自然死亡(natural 用 deathYear,violent/null 用算出来的自然寿命 birthYear+60+roll)|
 
 ---
 
@@ -41,7 +41,7 @@ const GEN_BASE = {
     // ── 时间线史实参考 ──
     birthYear: 160, deathYear: 220,
     debutYear: 184,            // 史实首次仕官年默认,scenario 可 override
-    deathCause: 'violent',     // 'natural'(病死/老死) | 'violent'(战死/处决/遇刺),详 §5.6
+    deathCause: 'violent',     // 'natural'(病死/老死) | 'violent'(战死/处决/遇刺) | null(史载不详),详 §5.6
 
     // ── 史实不变 ──
     birthplace: '河东解县',
@@ -381,7 +381,10 @@ for (const [name, data] of Object.entries(G.pendingGenPool)) {
 
 #### `deathCause` 字段
 
-GEN_BASE 加 `deathCause: 'natural' | 'violent'`,**史实不变字段**。分类依据硬史实(史料死因明确)。
+GEN_BASE 加 `deathCause: 'natural' | 'violent' | null`,**史实不变字段**。分类依据硬史实(史料死因明确)。
+
+- `natural` / `violent` —— 有 deathYear 且史料死因明确的(176 entries)
+- `null` —— `deathYear` 也是 null 的(36 entries,史载不详)。跟 `deathYear: null` 语义一致,runtime 当 `violent` 同样处理(算自然寿命),但不贴假 label。
 
 #### 机制 1 — 剧本成员过滤(load-time / audit-time)
 
@@ -396,9 +399,10 @@ GEN_BASE 加 `deathCause: 'natural' | 'violent'`,**史实不变字段**。分类
 |---|---|
 | `natural` | 死于 `deathYear`(± 小随机)。郭嘉游戏内 ~207 病死,逆天改命无效 |
 | `violent` | **不用 `deathYear`**,改用算出来的自然寿命 `birthYear + 60 + roll(0..20)`(寿 60~80)。颜良 b169 → 自然死 ~229–249 |
+| `null` | 同 `violent`:用算出来的自然寿命(`deathYear` 本身也是 null,无可用值)|
 
-- `violent` 武将**提前死**只能靠 `killGen`(战斗 / 单挑 / 处决 / 事件),与年份无关 —— 同现有 v181 机制。
-- `deathYear = null` 武将:当 `violent` 处理(无横死记录 → 纯算自然寿命)。
+- runtime 规则简化为:`deathCause === 'natural' && deathYear != null → 用 deathYear;否则 → 算自然寿命`。
+- `violent` / `null` 武将**提前死**只能靠 `killGen`(战斗 / 单挑 / 处决 / 事件),与年份无关 —— 同现有 v181 机制。
 
 #### 自然寿命的归属
 
@@ -414,8 +418,8 @@ GEN_BASE 加 `deathCause: 'natural' | 'violent'`,**史实不变字段**。分类
 |---|---|
 | 武将进不进某剧本 | 史实 `deathYear`(全员,不分死因)|
 | `natural` 武将游戏内何时死 | 史实 `deathYear` |
-| `violent` 武将游戏内何时死 | `birthYear + 60 + roll(0..20)`(史实 deathYear 不用)|
-| `violent` 武将提前死 | `killGen`(战斗/事件),不靠年份 |
+| `violent` / `null` 武将游戏内何时死 | `birthYear + 60 + roll(0..20)`(史实 deathYear 不用)|
+| `violent` / `null` 武将提前死 | `killGen`(战斗/事件),不靠年份 |
 
 #### 跟出场端(debutYear)的对称
 
