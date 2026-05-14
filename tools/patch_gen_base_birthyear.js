@@ -49,14 +49,18 @@ const CODEX_VALUES = {
 const MANUAL_OVERRIDE = {
   '夏侯霸': 195,  // codex 202 → 195: 父 夏侯渊 b160, 代差 35 更合理
   '陆抗':   218,  // codex 226 → 218: 父 陆逊 b183, 代差 35; 史载 274 卒 56 岁
-  '马休':   178,  // heuristic 170 → 178: 父 马腾 b156, 跟 马超 b176 同辈
-  '马铁':   178,  // 同 马休
   '刘琮':   177,  // codex 183 → 177: 父 刘表 b142, 代差 35
   '廖化':   180,  // heuristic 191 → 180: 折中, 史载"年八十余" → 寿 84
-  // 保留 (codex 提议不改):
+  // 不 override (CC second-pass sanity 后回退):
+  //   - 马休/马铁 heuristic b170 (debutAge 20, 父代差 14): codex final review 建议 178
+  //     但 b178 + debutYear=190 → debutAge 12 更出戏. 接受 代差 14 作 debutYear schema gap
+  //     (马铁/马休 实际 debutYear 应 200+, KOEI 经典). 留 debutYear sprint 修.
+  // 保留 codex 给/heuristic 值 (codex 提议改但 CC 判定免审):
   //   - 钟会 b225 (父 钟繇 b151, 代差 74): 史载钟繇高龄得子, 特殊
-  //   - 董卓 b132 (debut 189, debutAge 57): KOEI 史载经典, 矛盾来自 debutYear schema 局限 (董卓
-  //     早期凉州羽林郎未含), 留 debutYear followup, 不动 birthYear
+  //   - 董卓 b132 (debut 189, debutAge 57): KOEI 史载经典, debutYear schema 局限 (早期凉州羽
+  //     林郎未含). 留 debutYear followup.
+  //   - 陶谦 b132 (debut 190, debutAge 58): 同 董卓 (pre-existing data, debutYear schema gap).
+  //   - 程昱 b141 (debut 192, debutAge 51): 史载"年五十始仕" 明确, 不出戏.
 };
 
 function deriveHeuristic(entry){

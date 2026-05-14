@@ -60,7 +60,18 @@ User correction: 我第一版直接 156 全 heuristic 错, 应该"先查史实, 
 
 ### Followup
 - **董卓 debutYear**: 现 189 (audit "首次仕官年" = 入主洛阳年) 跟 birthYear b132 给 57 岁出仕, 矛盾来自 audit schema 没含"早期凉州羽林郎"(160 年代). 留 debutYear schema sprint 修.
+- **陶谦 debutYear**: 同 董卓 — 现 190 (任徐州刺史年) 但陶谦 184 黄巾时期已活跃, debutYear schema gap. 留同 sprint.
+- **马铁/马休 debutYear**: 现 190 (跟父马腾/兄马超同 debutYear), 但 KOEI 经典 200+ (他俩比马超晚出仕). CC 自审捕获 — codex final review 建议 b178 (代差 35) 但跟 debut=190 给 12岁出仕更出戏, 选 b170 (代差 14 ≥ debutAge 12). 留 debutYear sprint 同步修.
 - **陆抗 pre-existing b226 → 改 218**: 是 56 个 pre-existing filled 之一, 本批次本不该动. 但 codex final review catch 代差 43 出戏, scope 内修 (1 line). 注: 未来若严格 audit pre-existing, 可能还有类似 case.
+
+### CC second-pass sanity sweep (user 问 "都 check 过了?" 触发)
+跑 CC 独立 sanity (debutAge < 13 or > 50, lifespan < 25 or > 85) 在全 212 entries:
+- 5 flag → 3 keep (程昱 史载, 董卓+陶谦 debutYear schema gap) + 2 revert (马铁/马休 b178→b170)
+- 马铁/马休 issue: 我之前依 codex 建议 override 178 解决父代差 14, 但弄出 debutAge 12 (190-178=12), 比代差 14 更出戏. 回退 heuristic b170. 给 followup 标注 debutYear=190 schema gap.
+
+经验沉淀:
+- codex final review focus 父代差 (Type 3), miss 了 debutAge (Type 2)的 trade-off. CC 应该 second-pass sanity 验证 override 是否引入新 issue.
+- "all checked" 意味着 codex sweep + codex final + CC heuristic + **CC second-pass sanity**.
 
 ### tools/
 - `tools/patch_gen_base_birthyear.js` 完整 reproduce 整个流程 (CODEX_VALUES dict + heuristic + sanity + MANUAL_OVERRIDE dict)
