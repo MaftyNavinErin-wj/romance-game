@@ -5,6 +5,7 @@
 // 字段:
 //   id/version/name/startYear/description/provenance — 元信息
 //   emperor                  — {cityId, holder} 天子位置(initGame 字面)
+//   initLog                  — [[msg, type], ...] 开局叙事 log(initGame 末尾 verbatim;W1 §8.4)
 //   factions[fid]            — ruler/playable/type/_baseType/traits/stage/anchorState/
 //                              ethos/res/reputation/emperor/techPreunlock/aiPersonality/foundingCore
 //   diplo[]                  — 4-tuple [a, b, rel, status] (+ 5th suzerain 当 status='vassal')
@@ -37,6 +38,10 @@ const SCENARIO_214 = {
     "cityId": "ye",
     "holder": "wei"
   },
+  "initLog": [
+    ["⚔ 建安十九年，刘备入蜀，三分天下之势渐成", "event"],
+    ["📜 关羽镇守荆州，北伐之志蓄势待发", "event"]
+  ],
   "factions": {
     "wei": {
       "ruler": "曹操",
@@ -166,6 +171,7 @@ const SCENARIO_214 = {
       },
       "foundingCore": [
         "孙权",
+        "周瑜",
         "程普",
         "黄盖"
       ]

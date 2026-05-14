@@ -32,7 +32,14 @@ let _scenarioMaterialized = null;
 // ── pure transforms ──
 
 // 输入: scenarioId (string, lookup in SCENARIOS register; 2-a: '214' / '190' stub)
-// 输出: { scenarioId, startYear, FAC, ALL_FACS, PLAYABLE_FACS, FAC_IDENTITY, ETHOS_INIT, DIPLO_INIT }
+// 输出: §7.2 完整 materialized contract —
+//   { scenarioId, startYear,
+//     FAC, ALL_FACS, PLAYABLE_FACS, FAC_IDENTITY, ETHOS_INIT, DIPLO_INIT,   // 1b 已实装
+//     initialRes, reputations, emperorHolder, techPreunlocks,              // W1 真值
+//     foundingCores, initLog,                                             // W1 真值
+//     CITIES_DEF, GENS_FULL, WILD_GENS, wildMeta, pendingGenPool,          // W2-W5 stub
+//     initialUnits, initialPosts, initialMerit, initialIntimacyPairs,      // W3-W4 stub
+//     aiPersonalities, relationsGraph }                                   // 未切片 / W4c stub
 //
 // 数据源: 全局 SCENARIOS[scenarioId] + FACTION_BASE (已 load 至顶层 const)
 //
@@ -40,6 +47,8 @@ let _scenarioMaterialized = null;
 //                 (smoke 验证; SCENARIOS['214'] === SCENARIO_214 同 object).
 // 2-a 改: phase 1a 的 hardcoded `if(scenarioId !== '214')` 改 SCENARIOS register lookup,
 //        为 phase 2-b/3/4 渐进填充 SCENARIO_190 铺路.
+// §8.4 W1: 输出补成 §7.2 完整形状 — W1 真值字段派生自 sc.factions / sc.emperor / sc.initLog,
+//          W2-W6 stub 字段先占形状 (空集合, 渐进填充). pure transform 约束不变.
 function materializeScenario(scenarioId) {
   if (typeof SCENARIOS === 'undefined') throw new Error('materializeScenario: SCENARIOS register not loaded (scenarios/index.js missing)');
   if (typeof FACTION_BASE === 'undefined') throw new Error('materializeScenario: FACTION_BASE not loaded');
@@ -102,6 +111,42 @@ function materializeScenario(scenarioId) {
     DIPLO_INIT_m[`${a}-${b}`] = entry;
   }
 
+  // ── W1: 势力杂项 + 入口/叙事 真值派生 ──
+
+  // initialRes: { fid: { gold, wood, iron, horses } }
+  // 守底 invariant: 跟 v181 initGame 硬编码 res 字面值一致.
+  // rebel 势力不在 sc.factions, 仍由 initGame 硬编码 99999999.
+  const initialRes_m = {};
+  for (const [fid, sf] of Object.entries(sc.factions)) {
+    initialRes_m[fid] = { ...(sf.res || {}) };
+  }
+
+  // reputations: { fid: number } — 起手声望 (initGame G.reputation 字面)
+  const reputations_m = {};
+  for (const [fid, sf] of Object.entries(sc.factions)) {
+    reputations_m[fid] = sf.reputation;
+  }
+
+  // emperorHolder: { cityId, holder } — 天子位置 (initGame G.emperor 字面)
+  const emperorHolder_m = { ...(sc.emperor || {}) };
+
+  // techPreunlocks: { fid: [techId,...] } — 起手已研究科技
+  const techPreunlocks_m = {};
+  for (const [fid, sf] of Object.entries(sc.factions)) {
+    techPreunlocks_m[fid] = [...(sf.techPreunlock || [])];
+  }
+
+  // foundingCores: { fid: Set<genName> } — 创业班底.
+  // v181 const FOUNDING_CORE 是 Set, initGame coreSet.has() 调用保持 byte-identical;
+  // economy / general chain 仍直接读顶层 const FOUNDING_CORE (W1 不动).
+  const foundingCores_m = {};
+  for (const [fid, sf] of Object.entries(sc.factions)) {
+    foundingCores_m[fid] = new Set(sf.foundingCore || []);
+  }
+
+  // initLog: [[msg, type], ...] — 开局叙事 log (initGame 末尾 verbatim)
+  const initLog_m = (sc.initLog || []).map(e => [...e]);
+
   return {
     scenarioId,
     startYear: sc.startYear,
@@ -111,6 +156,25 @@ function materializeScenario(scenarioId) {
     FAC_IDENTITY: FAC_IDENTITY_m,
     ETHOS_INIT:   ETHOS_INIT_m,
     DIPLO_INIT:   DIPLO_INIT_m,
+    // ── W1 真值 (势力杂项 + 入口/叙事) ──
+    initialRes:     initialRes_m,
+    reputations:    reputations_m,
+    emperorHolder:  emperorHolder_m,
+    techPreunlocks: techPreunlocks_m,
+    foundingCores:  foundingCores_m,
+    initLog:        initLog_m,
+    // ── §7.2 contract stub (W2-W6 渐进填充, 暂空集合占形状) ──
+    CITIES_DEF:           [],   // W2: 城市 SCENARIO.cities + CITY_BASE merge
+    GENS_FULL:            {},   // W4a: 武将名册 { fid: [genObj,...] }
+    WILD_GENS:            [],   // W4/W5: 在野武将 def
+    wildMeta:             {},   // W4c: 在野武将 meta
+    pendingGenPool:       [],   // W5: 待出场池
+    initialUnits:         [],   // W3: 起手野战部队 spec
+    initialPosts:         {},   // W4b: 起手官职 { genName: postName }
+    initialMerit:         {},   // W4b: 起手功绩 { genName: number }
+    initialIntimacyPairs: [],   // W4c: 起手亲密度 [[a,b,v],...]
+    aiPersonalities:      {},   // (未切片) AI 性格 { fid: {...} }, 现仍走顶层 const AI_PERSONALITY
+    relationsGraph:       {},   // W4c: 武将关系图 (shape TBD — 派生 G.intimacy from relations)
   };
 }
 

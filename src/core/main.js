@@ -28,10 +28,13 @@
 // ── 反向调用(已 approve 设计原则 (c) 副作用通道)──
 // initGame 调用大量 v181 留下的 chain 初始化:
 //   - 数据 / 常量(部分已抽 src/data/):FAC / GENS_FULL / CITIES_DEF / DIPLO_INIT
-//     / TECH_PREUNLOCK / FAC_IDENTITY / FOUNDING_CORE / RETAINER_PRESET
+//     / FAC_IDENTITY / RETAINER_PRESET
 //     / RETAINER_LEVEL / INTIMACY_PRESET / ETHOS_INIT / MERIT_INIT / GEN_TAGS
 //     / GENS_FULL / ALL_GENS / getScenarioFactions() / ALL_POSTS / WILD_GENS / CITY_MAP
 //     / STATE_TO_GENTRY_FAC
+//   - §8.4 W1: 势力杂项 + 入口/叙事改读 materialized contract m.* —
+//     m.{startYear,initialRes,reputations,emperorHolder,techPreunlocks,foundingCores,initLog}
+//     (原 TECH_PREUNLOCK / FOUNDING_CORE const 直读 + res/reputation/emperor 硬编码字面 已收口)
 //   - chain primitive: garrisonCap / _deepCloneGen / createUnit / getInitLevel
 //     / getGenMeta / addGenChronicle / setIntimacy / refreshWildPool
 //     / initCityGentry / initFog / _rebuildGEN_MAP / calcUnitAP / setRetainers
@@ -45,10 +48,12 @@
 function initGame(scenarioId){
   // 1b-1: scenario materialize + sync top-level FAC/getScenarioFactions()/PLAYABLE_FACS/FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT
   // (src/core/scenario_loader.js); 守底 invariant: sync 后值 ≡ 原 src/data/factions.js literal
-  applyScenario(scenarioId || '214');
-  G.turn=1; G.year=0; G.seasonIdx=0; // 重置回合计数
+  // §8.4 W1: applyScenario 返回 §7.2 materialized contract, initGame 改读 m.* (势力杂项 + 入口/叙事)
+  const m = applyScenario(scenarioId || '214');
+  G.turn=1; G.year=0; G.seasonIdx=0; // 重置回合计数 (G.year 是 YEARS[] 索引, 每 36 旬 +1)
+  G.startYear = m.startYear;         // §8.4 W1: 消费 scenario startYear (绝对年, 阶段 6 年龄 hook 用)
   getScenarioFactions().forEach(fid=>{
-    G.factions[fid]={res:{gold:0,wood:2000,iron:1400,horses:4000},cityCount:0,totalTroops:0,totalPop:0, // ★ v145: 木铁砍~55%，马匹1:1消耗体系
+    G.factions[fid]={res:{...m.initialRes[fid]},cityCount:0,totalTroops:0,totalPop:0, // §8.4 W1: res ← m.initialRes (v181 硬编码字面搬到 SCENARIO.factions[fid].res)
       taxId:'norm',    // ★ 每势力独立赋税
       policyId:'bal',  // ★ 每势力独立补员政策
       corveeId:'low',  // ★ v163: 徭役档位
@@ -60,30 +65,17 @@ function initGame(scenarioId){
     cityCount:0,totalTroops:0,totalPop:0,taxId:'norm',policyId:'bal',corveeId:'low',_salaryDebt:0,_salaryDebtTurns:0};
   // ★ v179fix P14: 君主名进 G（FAC.ruler 是剧本初值常量；继任后写 G.factionRulers，序列化才能保住）
   G.factionRulers = {};
-  getScenarioFactions().forEach(fid => { G.factionRulers[fid] = getFactionDef(fid).ruler; });
-  // 初始金钱 — v111: 砍半，避免开局瞎征兵后期维持不了；蜀国+2000补偿官职负担
-  G.factions.wei.res.gold=10000;
-  G.factions.shu.res.gold=8000;
-  G.factions.wu.res.gold=8000;
-  G.factions.nanman.res.gold=1500; // ★ v144: 南蛮贫困
-  // ★ v145: 木材/铁矿初始储备差异化
-  G.factions.shu.res.wood=2400;    // 蜀产木优势
-  G.factions.wu.res.wood=2800;     // 吴多港口产木
-  G.factions.wu.res.iron=1000;     // 吴铁矿匮乏
-  G.factions.nanman.res.wood=1000; // ★ v144→v145: 南中产木但贫困
-  G.factions.nanman.res.iron=650;  // ★ v145: 南蛮铁匮乏
+  getScenarioFactions().forEach(fid => { G.factionRulers[fid] = m.FAC[fid].ruler; }); // §8.4 W1: ← m.FAC (= scenario.factions[fid].ruler)
+  // §8.4 W1: v181 硬编码 res 差异化 (gold/wood/iron/horses 共 17 行 override) 已收口到
+  // SCENARIO_214.factions[fid].res — 现由上方 res:{...m.initialRes[fid]} 一次性装配.
   // ★ v115: 科技树初始化
   getScenarioFactions().forEach(fid => {
-    const preunlock = TECH_PREUNLOCK[fid] || [];
+    const preunlock = m.techPreunlocks[fid] || []; // §8.4 W1: ← m.techPreunlocks (v181 TECH_PREUNLOCK const 搬到 SCENARIO)
     G.factions[fid]._tech = {
       researched: new Set(preunlock),
       current: null,
     };
   });
-  // ★ v145: 马匹初始储备（1:1消耗体系）— 默认4000(魏), 蜀/吴/蛮差异化
-  G.factions.shu.res.horses=2500;
-  G.factions.wu.res.horses=300;
-  G.factions.nanman.res.horses=200;
 
   CITIES_DEF.forEach(c=>{
     // ★ 核心变更：每城初始化独立存粮 storage
@@ -129,9 +121,9 @@ function initGame(scenarioId){
   }));
   _pendingPeaceOffer  = null;
   _pendingVassalOffer = null;
-  G.reputation = { wei:45, shu:80, wu:60, nanman:30 }; // C3 信誉度重置（v144: +nanman）
+  G.reputation = {...m.reputations}; // §8.4 W1: C3 信誉度 ← m.reputations (v181 硬编码字面搬到 SCENARIO.factions[fid].reputation)
   // ★ C3 宣称系统初始化
-  G.emperor = { cityId:'ye', holder:'wei' }; // 天子在邺城
+  G.emperor = {...m.emperorHolder}; // §8.4 W1: 天子位置 ← m.emperorHolder (v181 { cityId:'ye', holder:'wei' } 搬到 SCENARIO.emperor)
   G.claims = {};     // 宣称准备记录 'fid-target': {type, prepTurns, ready, usedTurn}
   G.cityHistory = {}; // 城市易手追踪 cityId: {takenBy, fromFac, turn}
   G.feuds = {};       // 血仇记录 'fid-target': {reason, turn}
@@ -166,7 +158,7 @@ function initGame(scenarioId){
   G.genAptExp = {};     // ★ D3: 适性经验 {genName: {cavalry,light,...}}
   // 开局将领：核心创始人标记 'founding'，其余为 'member'（老臣/同僚）
   getScenarioFactions().forEach(fid => {
-    const coreSet = FOUNDING_CORE[fid] || new Set();
+    const coreSet = m.foundingCores[fid] || new Set(); // §8.4 W1: ← m.foundingCores
     (G.generals[fid]||[]).forEach(gen => {
       G.genJoinTurn[gen.name] = 0;
       G.genJoinSource[gen.name] = coreSet.has(gen.name) ? 'founding' : 'member';
@@ -306,7 +298,7 @@ function initGame(scenarioId){
     const tags=GEN_TAGS[g.name]||{};
     // 身份标签
     const identParts=[];
-    const coreSet=FOUNDING_CORE[fid]||new Set();
+    const coreSet=m.foundingCores[fid]||new Set(); // §8.4 W1: ← m.foundingCores
     if(coreSet.has(g.name)) identParts.push('创始元勋');
     if(meta?.clan){
       const ruler=(GENS_FULL[fid]||[]).find(x=>x.role==='ruler');
@@ -386,15 +378,16 @@ function initGame(scenarioId){
     });
   }
   renderAll();
-  log('⚔ 建安十九年，刘备入蜀，三分天下之势渐成','event');
-  log('📜 关羽镇守荆州，北伐之志蓄势待发','event');
+  // §8.4 W1: 开局叙事 log 收口到 SCENARIO.initLog (v181 2 条硬编码 verbatim → m.initLog)
+  m.initLog.forEach(([msg,type]) => log(msg,type));
 }
 
-function startAs(fid){
+function startAs(fid, scenarioId){
+  // §8.4 W1: scenarioId 从势力选择界面透传到 initGame (缺省回退 214 — 老调用点 / 测试 harness 兼容)
   G.playerFac = fid;
   G.selFac = fid;
   const overlay = document.getElementById('factionSelectOverlay');
   if(overlay) overlay.remove();
-  initGame();
+  initGame(scenarioId || '214');
   if(!G.tutorialDone) showTutorial();
 }

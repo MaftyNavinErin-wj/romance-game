@@ -154,7 +154,7 @@ function showScenarioSelect(){
     <div style="font-family:'ZCOOL XiaoWei','Noto Serif SC',serif;font-size:20px;color:var(--ink);letter-spacing:6px;margin-bottom:6px">選擇劇本</div>
     <div style="font-size:10px;color:var(--ink-ll);letter-spacing:2px;margin-bottom:36px">请选择战役剧本开始游戏</div>
     <div style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin-bottom:36px">
-      <div class="scenario-card" onclick="onScenarioSelect('default')">
+      <div class="scenario-card" onclick="onScenarioSelect('214')">
         <div class="sc-badge">默认剧本</div>
         <div style="font-family:'ZCOOL XiaoWei','Noto Serif SC',serif;font-size:22px;color:var(--ink);letter-spacing:4px;margin-bottom:8px">三國鼎立</div>
         <div style="font-size:11px;color:var(--gold);letter-spacing:1px;margin-bottom:12px">建安十九年 · 公元214年</div>
@@ -178,8 +178,9 @@ function showScenarioSelect(){
 }
 
 function onScenarioSelect(scenarioId){
+  // §8.4 W1: scenarioId 入口传参 — 从剧本卡片一路透传到 startAs → initGame
   document.getElementById('scenarioScreen')?.remove();
-  showFactionSelect();
+  showFactionSelect(scenarioId || '214');
 }
 
 
@@ -866,7 +867,8 @@ function _positionTutCard(page){
 }
 
 // ── 开局势力选择（改造：加返回按钮）──────────────────
-function showFactionSelect(){
+function showFactionSelect(scenarioId){
+  scenarioId = scenarioId || '214'; // §8.4 W1: 入口 scenarioId 透传, 缺省回退 214
   document.getElementById('factionSelectOverlay')?.remove();
   const overlay = document.createElement('div');
   overlay.id = 'factionSelectOverlay';
@@ -892,7 +894,7 @@ function showFactionSelect(){
     <div style="color:var(--ink-ll);font-size:11px;letter-spacing:3px;margin-bottom:36px">选择你的势力</div>
     <div style="display:flex;gap:20px;margin-bottom:36px">
       ${facData.map(f=>`
-        <div onclick="startAs('${f.id}')" style="cursor:pointer;border:1px solid ${f.color}40;
+        <div onclick="startAs('${f.id}','${scenarioId}')" style="cursor:pointer;border:1px solid ${f.color}40;
           background:rgba(255,252,245,.6);padding:22px 20px;width:190px;transition:all .25s;border-radius:3px;
           box-shadow:0 2px 12px rgba(0,0,0,.06)"
           onmouseover="this.style.borderColor='${f.color}';this.style.background='rgba(255,252,245,.95)';this.style.boxShadow='0 4px 20px rgba(0,0,0,.1)'"

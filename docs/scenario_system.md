@@ -116,6 +116,12 @@ const SCENARIO_214 = {
   description: '东汉建安十九年...',
   provenance: '...',                      // 数据来源(三国志/演义/某 mod 等)
 
+  // ── 开局叙事 log(initGame 末尾 verbatim;§8.4 W1 加)──
+  initLog: [                              // [[msg, type], ...]
+    ['⚔ 建安十九年...', 'event'],
+    ['📜 关羽镇守荆州...', 'event'],
+  ],
+
   // ── 该剧本存在的势力 ──
   factions: {
     wei: {
@@ -469,12 +475,18 @@ function materializeScenario(scenarioId) {
     CITIES_DEF, GENS_FULL, WILD_GENS, wildMeta, pendingGenPool,
     initialUnits, initialPosts, initialMerit, initialIntimacyPairs,
     foundingCores, aiPersonalities, techPreunlocks, reputations,
-    emperorHolder, initialRes, relationsGraph,
+    emperorHolder, initialRes, initLog, relationsGraph,
   };
 }
 ```
 
 (详细派生逻辑同 v2 §7.1 + 新增 initialMerit / initialIntimacyPairs / wildMeta 派生)
+
+**§8.4 W1 实装状态**(v3.5):contract 形状已补全(`src/core/scenario_loader.js`)。
+真值已派生:`startYear` / `initialRes` / `reputations` / `emperorHolder` / `techPreunlocks`
+/ `foundingCores` / `initLog`(+ 1b 已有的 6 项)。其余 11 项 W2-W6 渐进填充,现返回空集合占形状。
+`initLog`(`[[msg,type],...]` 开局叙事)是 codex design review 漏的 contract 槽位,
+W1 补入 §7.2 + §3.4(制作人 approve)。
 
 ### 7.3 initGame 调用
 
