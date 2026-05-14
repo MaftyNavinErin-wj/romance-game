@@ -20,6 +20,35 @@
 // 字段说明见 docs/scenario_system.md §3。
 
 const GEN_BASE = {
+  "李儒": {
+    "com": 52,
+    "war": 22,
+    "int": 90,
+    "pol": 78,
+    "cha": 38,
+    "apt": {
+      "cavalry": "C",
+      "light": "C",
+      "heavy": "C",
+      "archer": "C",
+      "siege": "C",
+      "naval": "C"
+    },
+    "birthYear": 157,
+    "deathYear": 192,
+    "debutYear": 189,
+    "deathCause": "violent",
+    "birthplace": "司隶",
+    "clan": "",
+    "faction_clan": "凉州",
+    "gentry": "liang",
+    "classTag": "strategist",
+    "classTagsAll": [
+      "strategist"
+    ],
+    "skills": [],
+    "values": []
+  },
   "曹操": {
     "com": 97,
     "war": 80,

@@ -279,6 +279,7 @@ const SCENARIO_214_initialUnits_example = [
 | `city` | active | 旧 day-1 G.units 分配 |
 | `role` | active | 旧 G.generals[fac][i].role |
 | `post` | active(wild/pending 用 wildData.post) | 旧 GEN_META.post + 玩家任命 |
+| `gamePost` | active (optional, §8.4 W4b 新增) | 旧 `INIT_POSTS` — ① 游戏官职档位 (大将军/丞相/前将军…,有功绩门槛+加成,区别于 `post` ②招牌头衔)。开局预填,仅 stage 名额内有效;无则不带 |
 | `title` | active | 旧 GEN_META.title |
 | `loyalty` | active(wild/pending 用 wildData.loyalty) | 旧 GEN_META.loyalty |
 | `merit` | active | 旧 `MERIT_INIT` |
@@ -473,7 +474,7 @@ function materializeScenario(scenarioId) {
     startYear,
     FAC, ALL_FACS, PLAYABLE_FACS, FAC_IDENTITY, ETHOS_INIT, DIPLO_INIT,
     CITIES_DEF, GENS_FULL, WILD_GENS, wildMeta, pendingGenPool,
-    initialUnits, initialPosts, initialMerit, initialIntimacyPairs,
+    initialUnits, initialPosts, initialMerit, initialRetainers, initialIntimacyPairs,
     foundingCores, aiPersonalities, techPreunlocks, reputations,
     emperorHolder, initialRes, initLog, relationsGraph,
   };
@@ -482,11 +483,11 @@ function materializeScenario(scenarioId) {
 
 (详细派生逻辑同 v2 §7.1 + 新增 initialMerit / initialIntimacyPairs / wildMeta 派生)
 
-**§8.4 W1-W3 + W4a 实装状态**(v3.5):contract 形状已补全(`src/core/scenario_loader.js`)。
+**§8.4 W1-W3 + W4a + W4b 实装状态**(v3.5):contract 形状已补全(`src/core/scenario_loader.js`)。
 真值已派生:`startYear` / `initialRes` / `reputations` / `emperorHolder` / `techPreunlocks`
 / `foundingCores` / `initLog`(W1)/ `CITIES_DEF`(W2)/ `initialUnits`(W3)
-/ `GENS_FULL`(W4a step-1→step-2)(+ 1b 已有的 6 项)。
-其余 8 项 W4-W6 渐进填充,现返回空集合占形状。
+/ `GENS_FULL`(W4a step-1→step-2)/ `initialPosts` / `initialMerit` / `initialRetainers`(W4b)
+(+ 1b 已有的 6 项)。其余 5 项 W4c-W6 渐进填充,现返回空集合占形状。
 `initLog`(`[[msg,type],...]` 开局叙事)是 codex design review 漏的 contract 槽位,
 W1 补入 §7.2 + §3.4(制作人 approve)。
 `CITIES_DEF`(W2)= `sc.cities` + `CITY_BASE` merge,byte-identical legacy `CITIES_DEF`,
@@ -498,6 +499,31 @@ step-2 byte-identical 故意破 —— 实测差异:活跃名册 101→104(−6 
 五维/apt 重叠武将零变化;50 回合不崩 + 0 NaN。codex P2(下游 merit/loyalty/chronicle init loop
 仍读 legacy `ALL_GENS` → 9 新增武将半初始化)= §8.4 计划内中间态,W4b(merit)/ W4c(loyalty/小传)
 各自 init loop 迁新名册后即齐;约束:W4a step-2 单独 build 不实机测 / 不 push,等 W4a-c 整组完成再测。
+
+`initialPosts` / `initialMerit` / `initialRetainers`(W4b)= 单趟 active loop 派生自
+`sc.generals` 的 `.gamePost` / `.merit` / `.retainer`。`gamePost` 是 W4b 新增 SCENARIO schema
+字段(① 游戏官职档位,见 §3.4),`initialRetainers` 是 W4b 新增 contract 槽位。
+`initGame` 改读 `m.initialPosts`(替代 inline `INIT_POSTS` const)/ `m.initialMerit`(active 段
+替代 `ALL_GENS`+`MERIT_INIT`,wild 段留 W5)/ `m.initialRetainers`(替代 `RETAINER_PRESET`)。
+官职 stage 门槛(`STAGE_TIER1_SLOTS`:仅 regime 开 ① 一档大将军/丞相;`POST_TIERS` 按城数+stage
+卡二/三档名额)—— 214 港旧 `INIT_POSTS` 26 条(byte-identical;荀彧/周瑜已死、蒋琬/费祎 pending
+本就被旧 guard 跳过);190 按制作人 approve 的派官表 65 条(董卓 regime 才有一档,余 13 家
+warlord/regional 只二/三档)。配套:190 stage 修正(袁绍/袁术/刘表/刘虞/陶谦/韩馥 6 家
+regional→warlord,史实只刘焉真站稳)+ roster 扩充(贾诩 wild→dongzhuo active、新建 李儒
+GEN_BASE 条目 + dongzhuo active,补董卓文官 court:丞相李儒/尚书令贾诩)。
+W4b byte-identical 故意破,换网:全 G dump W4b-tree vs main 审差异 —— 214 `genPost` 零漂移、
+重叠武将 merit/retainer 零漂移、stats 零变化、0 NaN(190 `initGame` 末 `renderAll` 撞
+pre-existing 190 render bug,与 W4b 无关,main/W4b 同款)。约束同 W4a:W4a-c 整组完成再测/push。
+
+**W4b 遗留 followup**(codex review round 2 flag,经核为 W4c / 后续 sprint 范围,W4b 不修):
+1. **loyalty/chronicle init loop 仍读 legacy `ALL_GENS`** —— `initGame` 的 `G.genLoyalty`/
+   `G.loyaltyAccum`/`G.genChronicle` 初始化 loop 未迁;190 active(含新加 李儒)拿不到这些 runtime
+   state。**这是 W4c 范围**(§8.4 W4c 行 "忠诚 + 小传");跟 merit 同模式,W4c 迁 loop 即齐。
+2. **`GEN_CLASS` 190-roster 大面积缺漏** —— `src/data/generals.js` 的 `GEN_CLASS` 仅 133 条,
+   190 名册 ~80 个武将(华雄/李傕/卫兹/戏志才/李儒…)全缺,runtime class helper 默认 `['warrior']`。
+   这是 phase 4-a 建 190 名册时只扩 `GEN_BASE` 未扩 `GEN_CLASS` 的 pre-existing gap(非 W4b 引入);
+   李儒 class 已在 `GEN_BASE.classTag` 正确设 strategist。**留后续 sprint**(190-roster `GEN_CLASS`
+   扩充 / W4c meta 把 class 读法迁到 `GEN_BASE.classTag`)。
 
 ### 7.3 initGame 调用
 
@@ -641,8 +667,8 @@ W1 开始前,先把 `materializeScenario` 输出补成 §7.2 的完整形状(定
 | **W1** | 势力杂项 + 入口/叙事(res/reputation/emperor/tech/founding/factionRulers + scenarioId 传参 + startYear/log 全收口)| 低 | byte-identical 保持 | 1 |
 | **W2** | 城市 `CITIES_DEF` → `SCENARIO.cities` | 中 | byte-identical 保持(codex 实测 214 cities 跟 CITIES_DEF 一致)| 1 |
 | **W3** | 部队 硬编码 `initUnits` → `SCENARIO.initialUnits` | 中 | byte-identical 保持(codex 实测 214 initialUnits 跟硬编码一致)| 1 |
-| **W4a** | 武将名册 + 五维 + apt + role/status/city | 高(心脏)| 失效 → adapter 两步走 | 1-2 |
-| **W4b** | 官职 + 功绩 + 部曲 + founding/member source | 高 | 失效 | 1-2 |
+| **W4a** ✅ | 武将名册 + 五维 + apt + role/status/city | 高(心脏)| 失效 → adapter 两步走 | 1-2 |
+| **W4b** ✅ | 官职 + 功绩 + 部曲(founding/member source W1 已随 foundingCores 接好)| 高 | 失效 → 全 G dump 审差异 | 1-2 |
 | **W4c** | 关系 + 亲密度 + meta + 小传 + 忠诚 | 高 | 失效 | 2 |
 | **W5** | 在野/待出场池(pending/wild 从 `SCENARIO.generals` status 来)| 中高 | 失效 + **必带回归测试** | 1-2 |
 | **W6** | 退役 legacy(删 `GENS_FULL`/`CITIES_DEF`/硬编码数组)| 低 | **重拍 baseline 后**做 | 1 |

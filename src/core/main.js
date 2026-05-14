@@ -204,9 +204,10 @@ function initGame(scenarioId){
   G._pendingPrisoners=[]; // 待处置俘虏队列
   G.genWinCount={};       // v127 韩当·从征：per-general战胜计数器
   // ★ v164: 部曲系统初始化（{count, type}结构）
+  // §8.4 W4b: 部曲 ← m.initialRetainers (sc.generals active .retainer, 替代 legacy RETAINER_PRESET const)
   G.genRetainers={};
-  Object.entries(RETAINER_PRESET).forEach(([name, preset]) => {
-    G.genRetainers[name] = { count: preset.count, type: preset.type };
+  Object.entries(m.initialRetainers).forEach(([name, ret]) => {
+    G.genRetainers[name] = { count: ret.count, type: ret.type };
   });
   // ★ v130: 事件系统初始化
   G._eventCooldown={};     // {eventId: 剩余冷却旬数}
@@ -221,31 +222,27 @@ function initGame(scenarioId){
   // ★ D1 官职系统初始化
   G.genMerit = {};        // { [name]: number }，功绩值
   G.genPost  = {};        // { [name]: postName }，当前官职名
-  // ★ v95: 开局预填 tier 1 & 2 官职（直接写 G.genPost，不触发忠诚+8和派系事件）
-  const INIT_POSTS = {
-    wei: {
-      '夏侯惇':'大将军', '张辽':'前将军', '曹仁':'后将军', '于禁':'左将军', '徐晃':'右将军',
-      '荀彧':'丞相', '荀攸':'尚书令', '司马懿':'侍中', '陈群':'太常', '程昱':'光禄勋',
-    },
-    shu: {
-      '关羽':'大将军', '张飞':'前将军', '赵云':'后将军', '马超':'左将军', '黄忠':'右将军',
-      '诸葛亮':'丞相', '法正':'尚书令', '蒋琬':'侍中', '费祎':'太常', '董允':'光禄勋',
-    },
-    wu: {
-      '周瑜':'大将军', '吕蒙':'前将军', '甘宁':'后将军', '黄盖':'左将军', '陆逊':'右将军',
-      '张昭':'丞相', '鲁肃':'尚书令', '顾雍':'侍中', '诸葛瑾':'太常', '步骘':'光禄勋',
-    },
-  };
-  Object.entries(INIT_POSTS).forEach(([fid, mapping]) => {
-    Object.entries(mapping).forEach(([genName, postName]) => {
-      if((G.generals[fid]||[]).some(g=>g.name===genName) && ALL_POSTS.find(p=>p.name===postName)){
-        G.genPost[genName] = postName;
-      }
-    });
+  // ★ v95: 开局预填官职（直接写 G.genPost，不触发忠诚+8和派系事件）
+  // §8.4 W4b: 开局官职 ← m.initialPosts (sc.generals active .gamePost, 替代 inline INIT_POSTS const)
+  //   仅对在场武将生效 (genPendingPool 的延迟出场武将不算, 保留旧 (G.generals[fid]) guard 语义)
+  const _inPlayGens = new Set();
+  Object.values(G.generals).forEach(arr => arr.forEach(g => _inPlayGens.add(g.name)));
+  Object.entries(m.initialPosts).forEach(([genName, postName]) => {
+    if(_inPlayGens.has(genName) && ALL_POSTS.find(p=>p.name===postName)){
+      G.genPost[genName] = postName;
+    }
   });
   // 初始功绩赋值
-  ALL_GENS.forEach(g=>{ G.genMerit[g.name] = MERIT_INIT[g.name] || 20; });
-  getAllWildGenDefs().forEach(g=>{ G.genMerit[g.name] = MERIT_INIT[g.name] || 10; });
+  // §8.4 W4b: active 武将功绩 ← m.initialMerit (sc.generals active .merit, 替代 legacy ALL_GENS+MERIT_INIT);
+  //   wild 武将仍走 legacy getAllWildGenDefs+MERIT_INIT — 留 W5
+  const _activeMeritGens = new Set();
+  Object.values(m.GENS_FULL).forEach(arr=>arr.forEach(g=>{
+    _activeMeritGens.add(g.name);
+    G.genMerit[g.name] = (typeof m.initialMerit[g.name]==='number') ? m.initialMerit[g.name] : 20;
+  }));
+  // ★ codex W4b P2: 剧本可把 legacy-wild 武将提为 active (190: 田丰/张任/文聘…), 跳过已在 active 名册的,
+  //   否则 wild loop 会用 legacy MERIT_INIT 覆盖掉剧本真值
+  getAllWildGenDefs().forEach(g=>{ if(!_activeMeritGens.has(g.name)) G.genMerit[g.name] = MERIT_INIT[g.name] || 10; });
   INTIMACY_PRESET.forEach(([a,b,v])=>setIntimacy(a,b,v));
   refreshWildPool(); // 游戏开始时生成初始在野武将池
   ALL_GENS.forEach(g=>{

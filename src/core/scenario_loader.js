@@ -41,7 +41,8 @@ let _scenarioMaterialized = null;
 //     initialUnits,                                                       // W3 真值
 //     GENS_FULL,                                                          // W4a 真值 (step-2)
 //     WILD_GENS, wildMeta, pendingGenPool,                                // W4-W5 stub
-//     initialPosts, initialMerit, initialIntimacyPairs,                    // W4 stub
+//     initialPosts, initialMerit, initialRetainers,                        // W4b 真值
+//     initialIntimacyPairs,                                               // W4c stub
 //     aiPersonalities, relationsGraph }                                   // 未切片 / W4c stub
 //
 // 数据源: 全局 SCENARIOS[scenarioId] + FACTION_BASE + CITY_BASE + GEN_BASE (已 load 至顶层 const)
@@ -60,6 +61,9 @@ let _scenarioMaterialized = null;
 //   audit 改过 (这是目的)。换网: 跑满 50 回合不崩 + 数值合理 + 人工/codex 审差异。
 //   实测差异 (step-1 vs step-2): 纯名册 membership +9/-14 (多为史实 214 已死武将正确移除)
 //   + 数组顺序; 重叠武将五维/apt 零变化。
+// §8.4 W4b: initialPosts/initialMerit/initialRetainers 真值化 — 派生自 sc.generals active 的
+//   .gamePost / .merit / .retainer。gamePost = W4b 新增 SCENARIO schema 字段 (① 游戏官职档位,
+//   区别于 .post = 招牌头衔)。initialRetainers 是 W4b 新增 contract 槽位 (§7.2 原缺)。
 function materializeScenario(scenarioId) {
   if (typeof SCENARIOS === 'undefined') throw new Error('materializeScenario: SCENARIOS register not loaded (scenarios/index.js missing)');
   if (typeof FACTION_BASE === 'undefined') throw new Error('materializeScenario: FACTION_BASE not loaded');
@@ -211,6 +215,10 @@ function materializeScenario(scenarioId) {
   // 输出 shape 跟 step-1 一致 ({fid:[{name,com,war,int,pol,cha,role?,apt}]}) — initGame 名册 loop 不变。
   const GENS_FULL_m = {};
   for (const fid of ALL_FACS_m) GENS_FULL_m[fid] = [];   // 预 init, key order = {wei,shu,wu,nanman}
+  // §8.4 W4b: 起手官职 / 功绩 / 部曲 — 单趟 active loop 派生 (sc.generals .gamePost/.merit/.retainer)
+  const initialPosts_m = {};      // { genName: postName }      ← .gamePost (① 游戏官职档位)
+  const initialMerit_m = {};      // { genName: number }        ← .merit
+  const initialRetainers_m = {};  // { genName: {count,type} }  ← .retainer
   for (const [name, scGen] of Object.entries(sc.generals)) {
     if (scGen.status !== 'active') continue;
     const gb = GEN_BASE[name];
@@ -221,6 +229,9 @@ function materializeScenario(scenarioId) {
     if (scGen.role === 'ruler') entry.role = 'ruler';
     entry.apt = { ...gb.apt };
     GENS_FULL_m[fid].push(entry);
+    if (scGen.gamePost) initialPosts_m[name] = scGen.gamePost;
+    if (typeof scGen.merit === 'number') initialMerit_m[name] = scGen.merit;
+    if (scGen.retainer) initialRetainers_m[name] = { count: scGen.retainer.count, type: scGen.retainer.type };
   }
 
   return {
@@ -249,8 +260,9 @@ function materializeScenario(scenarioId) {
     WILD_GENS:            [],   // W4/W5: 在野武将 def
     wildMeta:             {},   // W4c: 在野武将 meta
     pendingGenPool:       [],   // W5: 待出场池
-    initialPosts:         {},   // W4b: 起手官职 { genName: postName }
-    initialMerit:         {},   // W4b: 起手功绩 { genName: number }
+    initialPosts:         initialPosts_m,     // W4b: 起手官职 { genName: postName } ← sc.generals active .gamePost
+    initialMerit:         initialMerit_m,     // W4b: 起手功绩 { genName: number } ← sc.generals active .merit
+    initialRetainers:     initialRetainers_m, // W4b: 起手部曲 { genName: {count,type} } ← sc.generals active .retainer
     initialIntimacyPairs: [],   // W4c: 起手亲密度 [[a,b,v],...]
     aiPersonalities:      {},   // (未切片) AI 性格 { fid: {...} }, 现仍走顶层 const AI_PERSONALITY
     relationsGraph:       {},   // W4c: 武将关系图 (shape TBD — 派生 G.intimacy from relations)

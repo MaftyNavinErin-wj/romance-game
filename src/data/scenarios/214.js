@@ -651,6 +651,7 @@ const SCENARIO_214 = {
     },
     "张辽": {
       "status": "active",
+      "gamePost": "前将军",
       "fac": "wei",
       "city": "xiapi",
       "role": null,
@@ -693,6 +694,7 @@ const SCENARIO_214 = {
     },
     "夏侯惇": {
       "status": "active",
+      "gamePost": "大将军",
       "fac": "wei",
       "city": "xuchang",
       "role": null,
@@ -735,6 +737,7 @@ const SCENARIO_214 = {
     },
     "曹仁": {
       "status": "active",
+      "gamePost": "后将军",
       "fac": "wei",
       "city": "nanyang",
       "role": null,
@@ -804,6 +807,7 @@ const SCENARIO_214 = {
     },
     "于禁": {
       "status": "active",
+      "gamePost": "左将军",
       "fac": "wei",
       "city": "xuchang",
       "role": null,
@@ -836,6 +840,7 @@ const SCENARIO_214 = {
     },
     "徐晃": {
       "status": "active",
+      "gamePost": "右将军",
       "fac": "wei",
       "city": "xuchang",
       "role": null,
@@ -900,6 +905,7 @@ const SCENARIO_214 = {
     },
     "司马懿": {
       "status": "active",
+      "gamePost": "侍中",
       "fac": "wei",
       "city": "xuchang",
       "role": null,
@@ -991,6 +997,7 @@ const SCENARIO_214 = {
     },
     "荀攸": {
       "status": "active",
+      "gamePost": "尚书令",
       "fac": "wei",
       "city": "xuchang",
       "role": null,
@@ -1018,6 +1025,7 @@ const SCENARIO_214 = {
     },
     "程昱": {
       "status": "active",
+      "gamePost": "光禄勋",
       "fac": "wei",
       "city": "xuchang",
       "role": null,
@@ -1371,6 +1379,7 @@ const SCENARIO_214 = {
     },
     "陈群": {
       "status": "active",
+      "gamePost": "太常",
       "fac": "wei",
       "city": "xuchang",
       "role": null,
@@ -1908,6 +1917,7 @@ const SCENARIO_214 = {
     },
     "关羽": {
       "status": "active",
+      "gamePost": "大将军",
       "fac": "shu",
       "city": "xiangyang",
       "role": null,
@@ -1965,6 +1975,7 @@ const SCENARIO_214 = {
     },
     "张飞": {
       "status": "active",
+      "gamePost": "前将军",
       "fac": "shu",
       "city": "chengdu",
       "role": null,
@@ -2002,6 +2013,7 @@ const SCENARIO_214 = {
     },
     "诸葛亮": {
       "status": "active",
+      "gamePost": "丞相",
       "fac": "shu",
       "city": "chengdu",
       "role": null,
@@ -2089,6 +2101,7 @@ const SCENARIO_214 = {
     },
     "赵云": {
       "status": "active",
+      "gamePost": "后将军",
       "fac": "shu",
       "city": "chengdu",
       "role": null,
@@ -2126,6 +2139,7 @@ const SCENARIO_214 = {
     },
     "马超": {
       "status": "active",
+      "gamePost": "左将军",
       "fac": "shu",
       "city": "chengdu",
       "role": null,
@@ -2158,6 +2172,7 @@ const SCENARIO_214 = {
     },
     "黄忠": {
       "status": "active",
+      "gamePost": "右将军",
       "fac": "shu",
       "city": "chengdu",
       "role": null,
@@ -2254,6 +2269,7 @@ const SCENARIO_214 = {
     },
     "法正": {
       "status": "active",
+      "gamePost": "尚书令",
       "fac": "shu",
       "city": "chengdu",
       "role": null,
@@ -2350,6 +2366,7 @@ const SCENARIO_214 = {
     },
     "董允": {
       "status": "active",
+      "gamePost": "光禄勋",
       "fac": "shu",
       "city": "chengdu",
       "role": null,
@@ -3001,6 +3018,7 @@ const SCENARIO_214 = {
     },
     "甘宁": {
       "status": "active",
+      "gamePost": "后将军",
       "fac": "wu",
       "city": "hefei",
       "role": null,
@@ -3033,6 +3051,7 @@ const SCENARIO_214 = {
     },
     "鲁肃": {
       "status": "active",
+      "gamePost": "尚书令",
       "fac": "wu",
       "city": "jianye",
       "role": null,
@@ -3065,6 +3084,7 @@ const SCENARIO_214 = {
     },
     "吕蒙": {
       "status": "active",
+      "gamePost": "前将军",
       "fac": "wu",
       "city": "jianye",
       "role": null,
@@ -3097,6 +3117,7 @@ const SCENARIO_214 = {
     },
     "陆逊": {
       "status": "active",
+      "gamePost": "右将军",
       "fac": "wu",
       "city": "jianye",
       "role": null,
@@ -3134,6 +3155,7 @@ const SCENARIO_214 = {
     },
     "黄盖": {
       "status": "active",
+      "gamePost": "左将军",
       "fac": "wu",
       "city": "jianye",
       "role": null,
@@ -3299,6 +3321,7 @@ const SCENARIO_214 = {
     },
     "张昭": {
       "status": "active",
+      "gamePost": "丞相",
       "fac": "wu",
       "city": "jianye",
       "role": null,
@@ -3326,6 +3349,7 @@ const SCENARIO_214 = {
     },
     "诸葛瑾": {
       "status": "active",
+      "gamePost": "太常",
       "fac": "wu",
       "city": "jianye",
       "role": null,
@@ -3486,6 +3510,7 @@ const SCENARIO_214 = {
     },
     "顾雍": {
       "status": "active",
+      "gamePost": "侍中",
       "fac": "wu",
       "city": "jianye",
       "role": null,
@@ -3518,6 +3543,7 @@ const SCENARIO_214 = {
     },
     "步骘": {
       "status": "active",
+      "gamePost": "光禄勋",
       "fac": "wu",
       "city": "jianye",
       "role": null,
