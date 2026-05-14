@@ -1,9 +1,22 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + 死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 212 entries 字段口径定 (含 deathCause). SCENARIO_190 102/14/96=212; SCENARIO_214 130 (104/8/18). **phase 6 wire W1+W2 ✅ done (势力杂项+入口/叙事 `63b5490` / 城市 CITIES_DEF `ad94d21`, local 未 push)**. **下次: W3 (部队硬编码 initUnits → SCENARIO.initialUnits, 依赖 W2)** — 计划见 scenario_system.md §8.4.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + 死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 212 entries 字段口径定 (含 deathCause). SCENARIO_190 102/14/96=212; SCENARIO_214 130 (104/8/18). **phase 6 wire W1+W2+W3 ✅ done (势力杂项+入口/叙事 `63b5490` / 城市 CITIES_DEF `ad94d21` / 起手部队 initUnits `21514db`, local 未 push)**. **下次: W4a (武将名册+五维+apt+role/status/city, 高风险「心脏」; W5 设计+validator 须先于 W4a 定死)** — 计划见 scenario_system.md §8.4.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
+
+## 2026-05-14 (phase 6 wire W3 ✅ — 起手部队 initUnits)
+
+W3 done, commit `21514db` (local, 未 push). smoke + compare PASS + 全 G dump 0 diffs.
+
+- materializeScenario initialUnits stub → 真值: sc.initialUnits deep-copy
+  ({fac,city,squads:[{...sq}]}). pure transform.
+- initGame 删硬编码 const initUnits=[...] (7 unit / 42 行), initUnits.forEach → m.initialUnits.forEach.
+- scout 实测 sc.initialUnits vs 硬编码 initUnits — 7 unit 全 byte-identical 0 drift (clean, 无 W1 周瑜坑).
+- initialUnits 无其他消费者, 只改 initGame. W3 依赖 W2 (部队 spawn 需城市初始化) — 满足.
+- W1-W3 都是低-中风险「搬数据」块, 顺. W4a 起是高风险「武将 schema 合并」(GEN_BASE +
+  SCENARIO.generals + GENS_FULL 三本), 且 W4 byte-identical 故意会破 (GEN_BASE audit 改过) —
+  换安全网: 跑满 50 回合不崩 + 数值合理 + adapter 两步走. W4a 前 W5 设计+validator 须先定死.
 
 ## 2026-05-14 (phase 6 wire W2 ✅ — 城市 CITIES_DEF)
 
