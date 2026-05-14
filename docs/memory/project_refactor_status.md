@@ -29,6 +29,20 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 
 ---
 
+## 2026-05-14 (Group A null-deathYear 收尾 — GEN_BASE 死亡数据全闭环)
+
+SCENARIO_214 反向 audit 的 Group A followup. GEN_BASE 最后 18 个 deathYear=null + deathCause=null 武将 (都在 214 名册, 活过 214) 补估算值.
+
+- codex 史实 sweep 18 entries → estDeathYear + deathCause: natural 17 / violent 1 (牛金 — 晋书载司马懿鸩杀, "牛继马后")
+- 全部 estDeathYear >= 214 (跟"在 214 名册"一致)
+- `tools/patch_gen_base_groupa_death.js` 应用
+- 改完 **GEN_BASE 0 个 deathYear=null / 0 个 deathCause=null** — 死亡数据彻底闭环
+- Codex review LGTM (20K tokens)
+
+smoke + compare PASS (51 snapshots identical).
+
+---
+
 ## 2026-05-14 (phase 6 wire 计划 — scenario_system.md v3.5 §8.4)
 
 制作人提"聊 phase 6 wire". scout 现状 + 出切片计划 + codex design review.
@@ -88,8 +102,8 @@ codex 史实估算 18 个不在 214 名册的 null-deathYear 武将:
 - Codex review LGTM (68K tokens); 修了 codex 指出的 史涣↔韩浩 单向 relation → 对称
 
 ### Followup
-- **Group A 18 个 null-deathYear (在 214 名册的)**: 许褚/徐庶/周泰 等也 deathYear=null. 对 214 无害 (本就该在), 但未来 SCENARIO_250 之类会有同样 null 泄漏问题. 留 followup: 补 Group A deathYear.
-- 设计 §5.6 "null → 永远可进" 规则: Task A 缓解了 (大部分 null 现在有估算值), 但本质上 null 仍泄漏. 未来若 GEN_BASE 无 null deathYear 了, 规则可去掉.
+- ~~**Group A 18 个 null-deathYear (在 214 名册的)**~~ ✅ **已做** (2026-05-14, commit 见下方 Group A 章): codex 史实估算补全, GEN_BASE 现 **0 个 deathYear=null / 0 个 deathCause=null** — 死亡数据全闭环.
+- 设计 §5.6 "null → 永远可进" 规则: GEN_BASE 已无 null deathYear, 规则现在是纯防御性 fallback (实际不会触发). 未来若确定永不引入 null deathYear, 可去掉规则.
 
 smoke + compare PASS (51 snapshots identical).
 
