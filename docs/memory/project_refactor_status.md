@@ -1,9 +1,34 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + 死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 212 entries 字段口径定 (含 deathCause). SCENARIO_190 102/14/96=212; SCENARIO_214 130 (104/8/18). **已 push (HEAD `165bd0a` 起)**. 数据层 audit 闭环. **下次: phase 6 wire W1 启动 (势力杂项 + 入口/叙事, 低风险热身块)** — 计划见 scenario_system.md §8.4.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + 死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 212 entries 字段口径定 (含 deathCause). SCENARIO_190 102/14/96=212; SCENARIO_214 130 (104/8/18). **phase 6 wire W1 ✅ done (势力杂项 + 入口/叙事, commit `63b5490` local 未 push)**. **下次: W2 (城市 CITIES_DEF → SCENARIO.cities)** — 计划见 scenario_system.md §8.4.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
+
+## 2026-05-14 (phase 6 wire W1 ✅ — 势力杂项 + 入口/叙事)
+
+W1 done, commit `63b5490` (local, 未 push). smoke + compare PASS (51 snapshots identical).
+
+### 做了什么
+- 前置: materializeScenario 输出补成 §7.2 完整 contract — W1 真值 6 项
+  (initialRes/reputations/emperorHolder/techPreunlocks/foundingCores/initLog) 派生真值,
+  其余 11 项 W2-W6 stub (空集合占形状). pure transform 约束不变.
+- initGame 改读 m.* — 删 v181 17 行硬编码 res override + 不再直读 TECH_PREUNLOCK/FOUNDING_CORE const.
+- G.startYear 新字段 (阶段 6 年龄 hook 用, persist 随 G 自动 save/load).
+- 入口层 scenarioId 全程透传: 剧本卡片 → onScenarioSelect → showFactionSelect → startAs → initGame.
+- initLog: codex design review 漏的 §7.2 contract 槽位 — 制作人 approve 加 SCENARIO 叙事字段
+  ([[msg,type],...]), 同步更新 docs §7.2 + §3.4.
+
+### 关键 lesson — W-wire 必须实测 slice vs legacy verbatim
+SCENARIO_214.factions.wu.foundingCore **漏列 周瑜** (phase 1a 抽取 gap;
+legacy FOUNDING_CORE.wu 含 周瑜). 周瑜 minTurn>1 → turn 8 入场 → smoke turn 8 divergence.
+smoke 第一层**没抓** genJoinSource/genChronicle/_tech 这些 hidden state — 定位靠**全 G dump**
+脚本 (initGame 后 dump 完整 G, clean main vs branch 对比) 才抓到. W2/W3 同理: codex 说
+"实测 214 cities/initialUnits verbatim" 也要自己 dump 验, 别信文档字面. 详见 [[feedback_phase3_scout_first]].
+
+### 小 gap (非阻塞)
+- §7.2 contract 的 `aiPersonalities` 字段无任何 W 切片 wire — 现 stub {}, 仍走顶层 const
+  AI_PERSONALITY. 后续补 W 切片或并入某块时处理.
 
 ## 2026-05-14 (skills design lock — by design, no sprint needed)
 
