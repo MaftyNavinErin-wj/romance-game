@@ -1,9 +1,37 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + 死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 212 entries 字段口径定 (含 deathCause). SCENARIO_190 102/14/96=212; SCENARIO_214 130 (104/8/18). **phase 6 wire W1+W2+W3 ✅ push'd (`63b5490`/`ad94d21`/`21514db`) + W4a step-1+step-2 ✅ local (`86843a3`/`49671ad`, 武将名册 adapter 两步走完成)**. **下次: W4b (官职+功绩+部曲, 把 merit init loop 迁到读新名册 — 解 W4a step-2 codex P2 半残之一)** — 计划见 scenario_system.md §8.4. ⚠️ W4a step-2 后是计划内半残态, W4a-c 整组完成前不实机测/不 push.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + 死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 212 entries 字段口径定 (含 deathCause). SCENARIO_190 102/14/96=212; SCENARIO_214 130 (104/8/18). **phase 6 wire W1+W2+W3 ✅ push'd (`63b5490`/`ad94d21`/`21514db`) + W4a step-1+step-2 ✅ local (`86843a3`/`49671ad`, 武将名册 adapter 两步走完成)**. **下次: W4b (官职+功绩+部曲)** — scout 完, 撞设计墙已回流: 官职走 **Option B** (SCENARIO 加新字段存开局游戏官职档位), 启动 checklist 见下方 W4b scout 条. ⚠️ W4a step-2 后是计划内半残态, W4a-c 整组完成前不实机测/不 push.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
+
+## 2026-05-14 (phase 6 wire W4b scout — 撞设计墙, 决议 Option B, session 收尾)
+
+W4b = 官职 + 功绩 + 部曲 + founding/member。scout 完, 未实装 (撞设计决策, 回流后收尾)。
+
+scout 结果:
+- **功绩 merit**: 干净。SCENARIO_214 104 个 active 全有 merit (10~150);旧 MERIT_INIT 仅 79 个
+  + 默认值。换 = 覆盖扩大 + 用剧本真值。
+- **部曲 retainer**: 干净, 但 §7.2 contract **无 retainer 槽位** (有 initialPosts/initialMerit
+  没 retainer) — 跟 W1 initLog 一样的漏。建议加 `initialRetainers`。SCENARIO active 全有
+  retainer {count,type};旧 RETAINER_PRESET 仅 24 个。**槽位名待定**。
+- **官职 post — 撞墙**: 游戏里有两种"官职头衔" —— ① INIT_POSTS/G.genPost = 游戏官职档位
+  (大将军/丞相, 有功绩门槛+加成, 旧仅 ~30 curated) ② GEN_META.post = 招牌头衔
+  (魏王/征东将军, name+rank+desc, 展示用)。**实测: SCENARIO_214.generals[].post 逐字 == 
+  GEN_META.post (是 ②招牌头衔, 属 W4c meta 范畴), 不是 ①INIT_POSTS**。→ W4b 的"官职"
+  (①游戏官职档位) 在 SCENARIO_214 里**没有数据源**。
+
+**制作人决议: Option B** —— SCENARIO schema **加新字段**专存"开局游戏官职档位"(①的等价物)。
+B 的执行含义: 新字段要命名 + 要 populate (至少 port 旧 INIT_POSTS 30 个 assignment;
+是否扩到 104 active 待定)。带数据工作量, 适合新 session 专做。
+
+**下次 W4b 启动 checklist (待制作人确认)**:
+1. 官职新字段名 (e.g. `initOfficialPost` / `gamePost` ?)
+2. 新字段 populate 范围 (仅旧 30, 还是扩到 104 active?)
+3. retainer contract 槽位名 (建议 `initialRetainers`)
+4. 定完后 W4b 可做: merit (m.initialMerit) + retainer (m.initialRetainers) + 官职
+   (新字段 → m.initialPosts), 各自 init loop 迁到读新名册 — 顺带解 W4a step-2 codex P2 半残。
+   注: SCENARIO_214.generals[].post (招牌头衔) 归 W4c (meta), 别跟①混。
 
 ## 2026-05-14 (phase 6 wire W4a step-2 ✅ — 武将名册 adapter 切 GEN_BASE+SCENARIO)
 

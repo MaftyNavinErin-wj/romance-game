@@ -1,6 +1,6 @@
 - [User role](user_role.md) — 用户是 Project Romance 制作人,亲自定 session 范围 + 设计 approval
 - [Project Romance overview](project_overview.md) — 三国题材策略游戏,v181 单 HTML,正在做 data/render/chains/core 四层重构
-- [Refactor phase status](project_refactor_status.md) — GEN_BASE audit 闭环 ✅ + **phase 6 wire W1-W3 ✅ push'd + W4a step-1+2 ✅ local** (`86843a3`/`49671ad` 武将名册 adapter 两步走); 下次 W4b (官职+功绩, 解 codex P2 半残)。lesson: W-wire 必须全 G dump 实测 slice vs legacy verbatim;hidden state 坑 (isCapital key 集 / x/y / GENS_FULL 有 8 个 minTurn);W4+ byte-identical 故意破→换网 50 回合不崩+0 NaN+审差异
+- [Refactor phase status](project_refactor_status.md) — GEN_BASE audit 闭环 ✅ + **phase 6 wire W1-W3 ✅ push'd + W4a step-1+2 ✅ local** (`86843a3`/`49671ad` 武将名册 adapter 两步走); 下次 W4b (官职+功绩+部曲, scout 完, 官职走 Option B = SCENARIO 加新字段)。lesson: W-wire 必须全 G dump 实测 slice vs legacy verbatim;hidden state 坑 (isCapital key 集 / x/y / GENS_FULL 有 8 个 minTurn);W4+ byte-identical 故意破→换网 50 回合不崩+0 NaN+审差异;SCENARIO_214.generals[].post 是招牌头衔(GEN_META.post)不是游戏官职(INIT_POSTS)
 - [战斗机制 systematic bug fix sprint](project_combat_mechanism_bugfix.md) — 批 1+2 close 5 fix (§5.1/§5.2/§5.7/§5.10/§5.3); audit pass 2 S1-S6 完结 robust by design; 剩余 §5.7 P4 / §5.8 P6 / §5.9 设计层 低优
 - [Scenario system design](../scenario_system.md) — 多剧本架构 design doc v3.3; 1a-1f 全完成 ✅ (55 cities, 1f 8 新城 河北/徐州/荆南/关陇 + 1f-p3 江东 1 + 徐州东北 1 + 晋阳上移 + 1f-p4 COUNTY_DATA + 3 magnate history-correct move 22 武将 home city)
 - [Chain master scout](project_chain_master_scout.md) — 8 链总图 + map.js carry-over;顺序 ethos→gentry→politics→diplomacy→economy→event→military→general
