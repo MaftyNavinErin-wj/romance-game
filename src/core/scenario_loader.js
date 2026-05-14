@@ -39,13 +39,13 @@ let _scenarioMaterialized = null;
 //     foundingCores, initLog,                                             // W1 真值
 //     CITIES_DEF,                                                         // W2 真值
 //     initialUnits,                                                       // W3 真值
-//     GENS_FULL,                                                          // W4a step-1 真值
+//     GENS_FULL,                                                          // W4a 真值 (step-2)
 //     WILD_GENS, wildMeta, pendingGenPool,                                // W4-W5 stub
 //     initialPosts, initialMerit, initialIntimacyPairs,                    // W4 stub
 //     aiPersonalities, relationsGraph }                                   // 未切片 / W4c stub
 //
-// 数据源: 全局 SCENARIOS[scenarioId] + FACTION_BASE + CITY_BASE (已 load 至顶层 const)
-//   W4a step-1: + GENS_FULL const (adapter 两步走 step-1 输入; step-2 改 GEN_BASE+SCENARIO.generals)
+// 数据源: 全局 SCENARIOS[scenarioId] + FACTION_BASE + CITY_BASE + GEN_BASE (已 load 至顶层 const)
+//   W4a step-2: GENS_FULL adapter 输入 = GEN_BASE + sc.generals (step-1 的旧 GENS_FULL const 已弃)
 //
 // 守底 invariant: scenarioId='214' 输出值 跟 v181 原 src/data/factions.js literal 字符级一致
 //                 (smoke 验证; SCENARIOS['214'] === SCENARIO_214 同 object).
@@ -55,13 +55,16 @@ let _scenarioMaterialized = null;
 //          W2-W6 stub 字段先占形状 (空集合, 渐进填充). pure transform 约束不变.
 // §8.4 W2: CITIES_DEF 真值化 — sc.cities + CITY_BASE merge (byte-identical legacy CITIES_DEF).
 // §8.4 W3: initialUnits 真值化 — sc.initialUnits deep-copy (byte-identical 原硬编码 initUnits).
-// §8.4 W4a step-1: GENS_FULL adapter — 输入旧 GENS_FULL const, 输出 materialized shape
-//   (≈ pass-through deep-copy, byte-identical); step-2 再切 GEN_BASE + SCENARIO.generals.
+// §8.4 W4a step-2: GENS_FULL adapter 输入切到 GEN_BASE + SCENARIO.generals (替代 step-1 的旧
+//   GENS_FULL const)。byte-identical 故意破 — GEN_BASE deathYear audit + 214 名册 membership
+//   audit 改过 (这是目的)。换网: 跑满 50 回合不崩 + 数值合理 + 人工/codex 审差异。
+//   实测差异 (step-1 vs step-2): 纯名册 membership +9/-14 (多为史实 214 已死武将正确移除)
+//   + 数组顺序; 重叠武将五维/apt 零变化。
 function materializeScenario(scenarioId) {
   if (typeof SCENARIOS === 'undefined') throw new Error('materializeScenario: SCENARIOS register not loaded (scenarios/index.js missing)');
   if (typeof FACTION_BASE === 'undefined') throw new Error('materializeScenario: FACTION_BASE not loaded');
   if (typeof CITY_BASE === 'undefined') throw new Error('materializeScenario: CITY_BASE not loaded');
-  if (typeof GENS_FULL === 'undefined') throw new Error('materializeScenario: GENS_FULL not loaded');
+  if (typeof GEN_BASE === 'undefined') throw new Error('materializeScenario: GEN_BASE not loaded');
   const sc = SCENARIOS[scenarioId];
   if (!sc) throw new Error(`materializeScenario: unknown scenarioId '${scenarioId}' (registered: ${Object.keys(SCENARIOS).join(',')})`);
 
@@ -197,17 +200,27 @@ function materializeScenario(scenarioId) {
     squads: (u.squads || []).map(sq => ({ ...sq })),
   }));
 
-  // ── W4a step-1: 武将名册 — adapter 两步走 step-1 (输入旧 GENS_FULL const) ──
-  // §8.4 adapter 两步走: step-1 输入旧 runtime const → 输出 = materialized shape,
-  //   snapshot 证明「adapter + new init path == 旧 runtime」(byte-identical 可守);
-  //   step-2 (后续) 再把输入切到 GEN_BASE + SCENARIO.generals (byte-identical 故意破).
-  // GENS_FULL 的 step-1 adapter ≈ pass-through deep-copy — 旧 GENS_FULL shape
-  //   ({name,com,war,int,pol,cha,role?,apt}) 已是 initGame 名册 loop 想要的形状.
-  // deep-copy (含 apt) 复刻 initGame _deepCloneGen 语义 → m.GENS_FULL 独立于 legacy const;
-  //   initGame 仍 _deepCloneGen 一次 → G.generals 再独立于 _scenarioMaterialized.
+  // ── W4a step-2: 武将名册 — adapter 输入 = GEN_BASE + SCENARIO.generals ──
+  // §8.4 adapter 两步走 step-2: 输入从旧 GENS_FULL const 切到 GEN_BASE + sc.generals。
+  //   step-1 已证明「adapter + new init path == 旧 runtime」(plumbing 正确),
+  //   所以 step-2 任何差异都可归因于「新数据」, 不是 plumbing bug。
+  // 映射: sc.generals 中 status==='active' 的武将 → 按 fac 分组进 m.GENS_FULL[fid];
+  //   五维 (com/war/int/pol/cha) + apt ← GEN_BASE[name];
+  //   role: 旧 GENS_FULL 语义只 ruler 带 role, 故 sc.role==='ruler' 才写 entry.role。
+  // wild/pending 武将 (status!=='active') 不进 m.GENS_FULL — 留 W5 (m.WILD_GENS/pendingGenPool)。
+  // 输出 shape 跟 step-1 一致 ({fid:[{name,com,war,int,pol,cha,role?,apt}]}) — initGame 名册 loop 不变。
   const GENS_FULL_m = {};
-  for (const [fid, arr] of Object.entries(GENS_FULL)) {
-    GENS_FULL_m[fid] = arr.map(g => ({ ...g, apt: g.apt ? { ...g.apt } : undefined }));
+  for (const fid of ALL_FACS_m) GENS_FULL_m[fid] = [];   // 预 init, key order = {wei,shu,wu,nanman}
+  for (const [name, scGen] of Object.entries(sc.generals)) {
+    if (scGen.status !== 'active') continue;
+    const gb = GEN_BASE[name];
+    if (!gb) throw new Error(`materializeScenario: GEN_BASE missing active general '${name}'`);
+    const fid = scGen.fac;
+    if (!GENS_FULL_m[fid]) GENS_FULL_m[fid] = [];        // 防御 (active fac 应都在 ALL_FACS)
+    const entry = { name, com: gb.com, war: gb.war, int: gb.int, pol: gb.pol, cha: gb.cha };
+    if (scGen.role === 'ruler') entry.role = 'ruler';
+    entry.apt = { ...gb.apt };
+    GENS_FULL_m[fid].push(entry);
   }
 
   return {

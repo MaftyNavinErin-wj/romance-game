@@ -482,19 +482,22 @@ function materializeScenario(scenarioId) {
 
 (详细派生逻辑同 v2 §7.1 + 新增 initialMerit / initialIntimacyPairs / wildMeta 派生)
 
-**§8.4 W1-W3 + W4a step-1 实装状态**(v3.5):contract 形状已补全(`src/core/scenario_loader.js`)。
+**§8.4 W1-W3 + W4a 实装状态**(v3.5):contract 形状已补全(`src/core/scenario_loader.js`)。
 真值已派生:`startYear` / `initialRes` / `reputations` / `emperorHolder` / `techPreunlocks`
 / `foundingCores` / `initLog`(W1)/ `CITIES_DEF`(W2)/ `initialUnits`(W3)
-/ `GENS_FULL`(W4a step-1)(+ 1b 已有的 6 项)。
+/ `GENS_FULL`(W4a step-1→step-2)(+ 1b 已有的 6 项)。
 其余 8 项 W4-W6 渐进填充,现返回空集合占形状。
 `initLog`(`[[msg,type],...]` 开局叙事)是 codex design review 漏的 contract 槽位,
 W1 补入 §7.2 + §3.4(制作人 approve)。
 `CITIES_DEF`(W2)= `sc.cities` + `CITY_BASE` merge,byte-identical legacy `CITIES_DEF`,
 不含 x/y 像素坐标(pure transform 不调 `hexToPixel`;`initGame` 消费时 stamp)。
 `initialUnits`(W3)= `sc.initialUnits` deep-copy,byte-identical 原 `initGame` 硬编码 `initUnits` 数组。
-`GENS_FULL`(W4a step-1)= adapter 两步走 step-1:输入旧 `GENS_FULL` const → 输出 materialized shape
-(≈ pass-through deep-copy,byte-identical);step-2 再把输入切到 `GEN_BASE` + `SCENARIO.generals`
-(byte-identical 故意破 — GEN_BASE / 214 名册经 audit 改过)。
+`GENS_FULL`(W4a)= adapter 两步走:step-1 输入旧 `GENS_FULL` const(byte-identical,已 commit `86843a3`);
+step-2 输入切到 `GEN_BASE` + `SCENARIO_214.generals`(status==='active' 进名册,五维/apt ← GEN_BASE)。
+step-2 byte-identical 故意破 —— 实测差异:活跃名册 101→104(−6 史实已死/audit 修正 +9 反向 audit 补),
+五维/apt 重叠武将零变化;50 回合不崩 + 0 NaN。codex P2(下游 merit/loyalty/chronicle init loop
+仍读 legacy `ALL_GENS` → 9 新增武将半初始化)= §8.4 计划内中间态,W4b(merit)/ W4c(loyalty/小传)
+各自 init loop 迁新名册后即齐;约束:W4a step-2 单独 build 不实机测 / 不 push,等 W4a-c 整组完成再测。
 
 ### 7.3 initGame 调用
 
