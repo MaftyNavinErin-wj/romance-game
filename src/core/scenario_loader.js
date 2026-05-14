@@ -39,11 +39,13 @@ let _scenarioMaterialized = null;
 //     foundingCores, initLog,                                             // W1 真值
 //     CITIES_DEF,                                                         // W2 真值
 //     initialUnits,                                                       // W3 真值
-//     GENS_FULL, WILD_GENS, wildMeta, pendingGenPool,                      // W4-W5 stub
+//     GENS_FULL,                                                          // W4a step-1 真值
+//     WILD_GENS, wildMeta, pendingGenPool,                                // W4-W5 stub
 //     initialPosts, initialMerit, initialIntimacyPairs,                    // W4 stub
 //     aiPersonalities, relationsGraph }                                   // 未切片 / W4c stub
 //
 // 数据源: 全局 SCENARIOS[scenarioId] + FACTION_BASE + CITY_BASE (已 load 至顶层 const)
+//   W4a step-1: + GENS_FULL const (adapter 两步走 step-1 输入; step-2 改 GEN_BASE+SCENARIO.generals)
 //
 // 守底 invariant: scenarioId='214' 输出值 跟 v181 原 src/data/factions.js literal 字符级一致
 //                 (smoke 验证; SCENARIOS['214'] === SCENARIO_214 同 object).
@@ -53,10 +55,13 @@ let _scenarioMaterialized = null;
 //          W2-W6 stub 字段先占形状 (空集合, 渐进填充). pure transform 约束不变.
 // §8.4 W2: CITIES_DEF 真值化 — sc.cities + CITY_BASE merge (byte-identical legacy CITIES_DEF).
 // §8.4 W3: initialUnits 真值化 — sc.initialUnits deep-copy (byte-identical 原硬编码 initUnits).
+// §8.4 W4a step-1: GENS_FULL adapter — 输入旧 GENS_FULL const, 输出 materialized shape
+//   (≈ pass-through deep-copy, byte-identical); step-2 再切 GEN_BASE + SCENARIO.generals.
 function materializeScenario(scenarioId) {
   if (typeof SCENARIOS === 'undefined') throw new Error('materializeScenario: SCENARIOS register not loaded (scenarios/index.js missing)');
   if (typeof FACTION_BASE === 'undefined') throw new Error('materializeScenario: FACTION_BASE not loaded');
   if (typeof CITY_BASE === 'undefined') throw new Error('materializeScenario: CITY_BASE not loaded');
+  if (typeof GENS_FULL === 'undefined') throw new Error('materializeScenario: GENS_FULL not loaded');
   const sc = SCENARIOS[scenarioId];
   if (!sc) throw new Error(`materializeScenario: unknown scenarioId '${scenarioId}' (registered: ${Object.keys(SCENARIOS).join(',')})`);
 
@@ -192,6 +197,19 @@ function materializeScenario(scenarioId) {
     squads: (u.squads || []).map(sq => ({ ...sq })),
   }));
 
+  // ── W4a step-1: 武将名册 — adapter 两步走 step-1 (输入旧 GENS_FULL const) ──
+  // §8.4 adapter 两步走: step-1 输入旧 runtime const → 输出 = materialized shape,
+  //   snapshot 证明「adapter + new init path == 旧 runtime」(byte-identical 可守);
+  //   step-2 (后续) 再把输入切到 GEN_BASE + SCENARIO.generals (byte-identical 故意破).
+  // GENS_FULL 的 step-1 adapter ≈ pass-through deep-copy — 旧 GENS_FULL shape
+  //   ({name,com,war,int,pol,cha,role?,apt}) 已是 initGame 名册 loop 想要的形状.
+  // deep-copy (含 apt) 复刻 initGame _deepCloneGen 语义 → m.GENS_FULL 独立于 legacy const;
+  //   initGame 仍 _deepCloneGen 一次 → G.generals 再独立于 _scenarioMaterialized.
+  const GENS_FULL_m = {};
+  for (const [fid, arr] of Object.entries(GENS_FULL)) {
+    GENS_FULL_m[fid] = arr.map(g => ({ ...g, apt: g.apt ? { ...g.apt } : undefined }));
+  }
+
   return {
     scenarioId,
     startYear: sc.startYear,
@@ -212,8 +230,9 @@ function materializeScenario(scenarioId) {
     CITIES_DEF:     CITIES_DEF_m,   // sc.cities + CITY_BASE merge (byte-identical legacy CITIES_DEF, 无 x/y)
     // ── W3 真值 (起手野战部队) ──
     initialUnits:   initialUnits_m, // sc.initialUnits deep-copy (byte-identical 原硬编码 initUnits)
+    // ── W4a step-1 真值 (武将名册) ──
+    GENS_FULL:      GENS_FULL_m, // adapter step-1: 旧 GENS_FULL const deep-copy ({fid:[genObj]})
     // ── §7.2 contract stub (W4-W6 渐进填充, 暂空集合占形状) ──
-    GENS_FULL:            {},   // W4a: 武将名册 { fid: [genObj,...] }
     WILD_GENS:            [],   // W4/W5: 在野武将 def
     wildMeta:             {},   // W4c: 在野武将 meta
     pendingGenPool:       [],   // W5: 待出场池

@@ -97,10 +97,11 @@ function initGame(scenarioId){
   // ★ v144: 建宁(南中)：南蛮据点，低民心+半存粮，体现边陲蛮荒
   if(G.cities.jianning){ G.cities.jianning.morale=25; G.cities.jianning.storage=Math.floor(G.cities.jianning.storage*0.5); }
   // ★ v143: 延迟出场机制 — 有minTurn的武将暂不加入，放入待出场池
+  // §8.4 W4a step-1: 名册 ← m.GENS_FULL (adapter step-1: 旧 GENS_FULL const deep-copy); loop 逻辑 verbatim
   G.genPendingPool = [];
-  Object.keys(GENS_FULL).forEach(fid=>{
+  Object.keys(m.GENS_FULL).forEach(fid=>{
     const immediate = [];
-    GENS_FULL[fid].forEach(g => {
+    m.GENS_FULL[fid].forEach(g => {
       if(g.minTurn && g.minTurn > 1){
         G.genPendingPool.push({..._deepCloneGen(g), _pendingFac: fid}); // ★ v155fix P0: 深拷贝含apt
       } else {
