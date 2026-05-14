@@ -1,6 +1,6 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 W1-W3 + 4-e + codex tier A + GEN_BASE audit v1+v2 (debut/death) + **stats audit (com/war/int/pol/cha/apt + classTag)** + 刘磐 followup + **birthYear 补全 (156 entries, 0 null)** + **debutYear schema gap fix (董卓/陶谦/马铁/马休)** 全完成. GEN_BASE 212 entries 字段口径定 (debutYear=首次仕官年, skills=已实装 only). SCENARIO_190 active 102/wild 14/pending 96 = 212/212. **已 push (HEAD `dd71206`)**. 数据层 audit 闭环. **skills 设计定:已实装 83 保留 + 其余 129 留 [], 不补 stub** (general_base.js header 已 lock). 下次: phase 6 wire / 平衡.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 W1-W3 + 4-e + codex tier A + GEN_BASE audit v1+v2 (debut/death) + **stats audit** + 刘磐 + **birthYear 补全** + **debutYear schema gap** + **死亡机制设计 v3.4 + SCENARIO_214 membership cleanup** 全完成. GEN_BASE 212 entries 字段口径定. SCENARIO_190 102/14/96=212; SCENARIO_214 95/4/18=117 (清掉 8 个史实 d<214). **已 push (HEAD `f1d2653` 起)**. 数据层 audit 闭环. **死亡机制 (deathCause + 机制1/2) 已写进 scenario_system.md v3.4 §5.6, 等 phase 6 wire 实装**. 下次: GEN_BASE 加 deathCause 字段 (data sprint) / phase 6 wire / 平衡.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -26,6 +26,40 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - birthYear 大量 null 补 sprint
 - phase 6 wire — src/data/ 真正接到 runtime (skills 关系: 届时考虑 generals.js skills 字段 vs general_base.js 怎么去重)
 - 平衡 sprint (等 phase 6 后)
+
+---
+
+## 2026-05-14 (武将死亡机制设计 v3.4 + SCENARIO_214 membership cleanup)
+
+制作人提出设计问题: deathYear 混了"病死老死"(玩家避不掉)和"战死横死"(玩家本可避免). 若一律硬触发, 壮年猛将"突然老死"伤体验.
+
+### 设计讨论 → 定案 (写进 docs/scenario_system.md v3.4 §5.6)
+- GEN_BASE 加 `deathCause: 'natural' | 'violent'` 字段 (史实不变)
+- **机制 1 剧本成员过滤**: 史实 deathYear >= scenario.startYear → 可进名册 (全员, 不分死因)
+- **机制 2 游戏内自然死亡** (phase 6 wire): natural 用 deathYear (逆天改命无效); violent 用算出来的自然寿命 `birthYear + 60 + roll(0..20)` (60~80), 史实 deathYear 不用; violent 提前死只靠 killGen
+- 自然寿命是 runtime 值, load 时算入 G state, **不进 GEN_BASE**
+- **保留史实 deathYear 不覆盖**: 机制 1 对每个未来剧本都要用 (多剧本架构), 覆盖只能用一次; 且 GEN_BASE header 契约即"史实不变"
+- deathYear=null 武将当 violent 处理
+
+### 决策: deathCause 要不要存为字段
+制作人一度提议"CC 直接算好年份, 不需要 deathCause 字段". CC 反对并定案保留 —— 覆盖 deathYear 会永久毁史实, 机制 1 失效; deathCause (1 字段) 成本远低于覆盖代价. 制作人 approve.
+
+### SCENARIO_214 membership cleanup (机制 1 应用)
+audit SCENARIO_190 + 214 名册 vs 史实 deathYear:
+- **SCENARIO_190**: 0 脏数据 (全 212 entries deathYear >= 190)
+- **SCENARIO_214**: 8 脏数据 (史实 d < 214 却在名册): 郭嘉207/荀彧212/李典209/张绣207/曹纯210/周瑜210/张松212/张任213
+  - 这 8 个 deathYear 都史实正确, 是名册脏不是 GEN_BASE 错
+  - `tools/patch_214_membership_cleanup.js` (round-trip safety check): 删 8 entry + wu foundingCore 删周瑜 + 清 16 个 relations 反引
+  - count: 125 → **117** (active 101→95 / wild 6→4 / pending 18)
+  - wei -5 (郭嘉/荀彧/李典/张绣/曹纯), wu -1 (周瑜) — 史实准确性, 不是 bug
+- Codex review LGTM (62K tokens, Q1 史实 / Q2 下游清理 / Q3 schema / Q4 runtime 全 PASS)
+
+### Followup
+- **GEN_BASE 加 deathCause 字段**: 212 entries 分类 natural/violent, 独立 data sprint (codex 一轮扫, 死因硬史实)
+- **SCENARIO_214 roster completeness 反向 audit**: "该活着但没列进 214 名册"的武将 —— 本次只做了"删死人", 没做"补活人". 单独任务.
+- 机制 1/2 实装是 phase 6 wire 的事
+
+smoke + compare PASS (51 snapshots identical).
 
 ---
 

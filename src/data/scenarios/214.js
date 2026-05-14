@@ -166,7 +166,6 @@ const SCENARIO_214 = {
       },
       "foundingCore": [
         "孙权",
-        "周瑜",
         "程普",
         "黄盖"
       ]
@@ -617,16 +616,6 @@ const SCENARIO_214 = {
           "intimacy": 80
         },
         {
-          "target": "荀彧",
-          "type": "重臣",
-          "intimacy": 70
-        },
-        {
-          "target": "郭嘉",
-          "type": "谋主",
-          "intimacy": 85
-        },
-        {
           "target": "许褚",
           "type": null,
           "intimacy": 80
@@ -684,11 +673,6 @@ const SCENARIO_214 = {
           "intimacy": 65
         },
         {
-          "target": "李典",
-          "type": "同僚",
-          "intimacy": 50
-        },
-        {
           "target": "乐进",
           "type": "同僚",
           "intimacy": 55
@@ -697,43 +681,6 @@ const SCENARIO_214 = {
           "target": "于禁",
           "type": null,
           "intimacy": 50
-        }
-      ],
-      "skillsOverride": null
-    },
-    "郭嘉": {
-      "status": "active",
-      "fac": "wei",
-      "city": "xuchang",
-      "role": null,
-      "post": {
-        "name": "军师祭酒",
-        "rank": "文官",
-        "desc": "参赞军机，每旬可为一支部队提供情报加成。"
-      },
-      "title": "鬼才",
-      "loyalty": 92,
-      "merit": 85,
-      "retainer": {
-        "count": 0,
-        "type": null
-      },
-      "initialUnit": false,
-      "relations": [
-        {
-          "target": "荀彧",
-          "type": "同乡",
-          "intimacy": 50
-        },
-        {
-          "target": "荀攸",
-          "type": "同乡",
-          "intimacy": 55
-        },
-        {
-          "target": "曹操",
-          "type": "主公",
-          "intimacy": 85
         }
       ],
       "skillsOverride": null
@@ -776,48 +723,6 @@ const SCENARIO_214 = {
           "target": "曹洪",
           "type": null,
           "intimacy": 65
-        }
-      ],
-      "skillsOverride": null
-    },
-    "荀彧": {
-      "status": "active",
-      "fac": "wei",
-      "city": "xuchang",
-      "role": null,
-      "post": {
-        "name": "尚书令",
-        "rank": "文官",
-        "desc": "主持内政，所在势力每旬金产+8%，建筑建设速度+1旬。"
-      },
-      "title": "王佐之才",
-      "loyalty": 78,
-      "merit": 100,
-      "retainer": {
-        "count": 0,
-        "type": null
-      },
-      "initialUnit": false,
-      "relations": [
-        {
-          "target": "郭嘉",
-          "type": "同乡",
-          "intimacy": 50
-        },
-        {
-          "target": "荀攸",
-          "type": "族侄",
-          "intimacy": 70
-        },
-        {
-          "target": "曹操",
-          "type": "主公",
-          "intimacy": 70
-        },
-        {
-          "target": "钟繇",
-          "type": null,
-          "intimacy": 60
         }
       ],
       "skillsOverride": null
@@ -887,11 +792,6 @@ const SCENARIO_214 = {
           "target": "张辽",
           "type": "同僚",
           "intimacy": 55
-        },
-        {
-          "target": "李典",
-          "type": "同僚",
-          "intimacy": 50
         }
       ],
       "skillsOverride": null
@@ -1103,16 +1003,6 @@ const SCENARIO_214 = {
       "initialUnit": false,
       "relations": [
         {
-          "target": "荀彧",
-          "type": "族叔",
-          "intimacy": 70
-        },
-        {
-          "target": "郭嘉",
-          "type": "同乡",
-          "intimacy": 55
-        },
-        {
           "target": "钟繇",
           "type": null,
           "intimacy": 55
@@ -1138,18 +1028,7 @@ const SCENARIO_214 = {
         "type": null
       },
       "initialUnit": false,
-      "relations": [
-        {
-          "target": "郭嘉",
-          "type": "同僚",
-          "intimacy": 50
-        },
-        {
-          "target": "荀彧",
-          "type": "同僚",
-          "intimacy": 50
-        }
-      ],
+      "relations": [],
       "skillsOverride": null
     },
     "贾诩": {
@@ -1171,11 +1050,6 @@ const SCENARIO_214 = {
       },
       "initialUnit": false,
       "relations": [
-        {
-          "target": "张绣",
-          "type": "旧主",
-          "intimacy": 50
-        },
         {
           "target": "曹操",
           "type": "主公",
@@ -1230,11 +1104,6 @@ const SCENARIO_214 = {
       },
       "initialUnit": false,
       "relations": [
-        {
-          "target": "荀彧",
-          "type": "同乡",
-          "intimacy": 60
-        },
         {
           "target": "曹操",
           "type": "主公",
@@ -1344,43 +1213,6 @@ const SCENARIO_214 = {
         {
           "target": "夏侯渊",
           "type": "主将",
-          "intimacy": 50
-        },
-        {
-          "target": "曹操",
-          "type": "主公",
-          "intimacy": 50
-        }
-      ],
-      "skillsOverride": null
-    },
-    "李典": {
-      "status": "active",
-      "fac": "wei",
-      "city": "xuchang",
-      "role": null,
-      "post": {
-        "name": "破虏将军",
-        "rank": "将",
-        "desc": "儒将型将领，所辖部队行军不扰民，途经城市民心不降。"
-      },
-      "title": "儒侠将军",
-      "loyalty": 82,
-      "merit": 20,
-      "retainer": {
-        "count": 0,
-        "type": null
-      },
-      "initialUnit": false,
-      "relations": [
-        {
-          "target": "张辽",
-          "type": "同僚",
-          "intimacy": 50
-        },
-        {
-          "target": "乐进",
-          "type": "同僚",
           "intimacy": 50
         },
         {
@@ -1551,11 +1383,6 @@ const SCENARIO_214 = {
       "initialUnit": false,
       "relations": [
         {
-          "target": "荀彧",
-          "type": "同乡",
-          "intimacy": 50
-        },
-        {
           "target": "曹操",
           "type": "主公",
           "intimacy": 50
@@ -1669,38 +1496,6 @@ const SCENARIO_214 = {
       ],
       "skillsOverride": null
     },
-    "张绣": {
-      "status": "active",
-      "fac": "wei",
-      "city": "xuchang",
-      "role": null,
-      "post": {
-        "name": "破虏将军",
-        "rank": "将",
-        "desc": "宛城降将，骑兵突击型。"
-      },
-      "title": "北地枪王",
-      "loyalty": 55,
-      "merit": 20,
-      "retainer": {
-        "count": 0,
-        "type": null
-      },
-      "initialUnit": false,
-      "relations": [
-        {
-          "target": "贾诩",
-          "type": "谋主",
-          "intimacy": 50
-        },
-        {
-          "target": "曹操",
-          "type": "主公",
-          "intimacy": 50
-        }
-      ],
-      "skillsOverride": null
-    },
     "曹休": {
       "status": "active",
       "fac": "wei",
@@ -1766,33 +1561,6 @@ const SCENARIO_214 = {
           "target": "刘备",
           "type": null,
           "intimacy": 70
-        }
-      ],
-      "skillsOverride": null
-    },
-    "曹纯": {
-      "status": "active",
-      "fac": "wei",
-      "city": "xuchang",
-      "role": null,
-      "post": {
-        "name": "虎豹骑督",
-        "rank": "将",
-        "desc": "统率曹操精锐虎豹骑，骑兵战力冠绝天下。"
-      },
-      "title": "虎豹骑督",
-      "loyalty": 92,
-      "merit": 20,
-      "retainer": {
-        "count": 0,
-        "type": null
-      },
-      "initialUnit": false,
-      "relations": [
-        {
-          "target": "曹操",
-          "type": "族弟",
-          "intimacy": 50
         }
       ],
       "skillsOverride": null
@@ -2301,11 +2069,6 @@ const SCENARIO_214 = {
           "intimacy": 75
         },
         {
-          "target": "周瑜",
-          "type": null,
-          "intimacy": -40
-        },
-        {
           "target": "董允",
           "type": null,
           "intimacy": 70
@@ -2511,11 +2274,6 @@ const SCENARIO_214 = {
           "target": "诸葛亮",
           "type": "同僚",
           "intimacy": 50
-        },
-        {
-          "target": "张松",
-          "type": null,
-          "intimacy": 65
         }
       ],
       "skillsOverride": null
@@ -3193,11 +2951,6 @@ const SCENARIO_214 = {
       "initialUnit": false,
       "relations": [
         {
-          "target": "周瑜",
-          "type": "重臣",
-          "intimacy": 85
-        },
-        {
           "target": "陆逊",
           "type": "重臣",
           "intimacy": 80
@@ -3236,43 +2989,6 @@ const SCENARIO_214 = {
           "target": "诸葛瑾",
           "type": null,
           "intimacy": 80
-        }
-      ],
-      "skillsOverride": null
-    },
-    "周瑜": {
-      "status": "active",
-      "fac": "wu",
-      "city": "jianye",
-      "role": null,
-      "post": {
-        "name": "大都督",
-        "rank": "将",
-        "desc": "水军统帅，水路行军不消耗额外行动力，水战战斗力+20%。"
-      },
-      "title": "美周郎",
-      "loyalty": 96,
-      "merit": 130,
-      "retainer": {
-        "count": 1500,
-        "type": "cavalry"
-      },
-      "initialUnit": false,
-      "relations": [
-        {
-          "target": "孙权",
-          "type": "主公",
-          "intimacy": 85
-        },
-        {
-          "target": "鲁肃",
-          "type": "挚友",
-          "intimacy": 85
-        },
-        {
-          "target": "诸葛亮",
-          "type": "宿敌",
-          "intimacy": -40
         }
       ],
       "skillsOverride": null
@@ -3334,11 +3050,6 @@ const SCENARIO_214 = {
           "intimacy": 80
         },
         {
-          "target": "周瑜",
-          "type": "挚友",
-          "intimacy": 85
-        },
-        {
           "target": "诸葛亮",
           "type": "盟友",
           "intimacy": 50
@@ -3374,11 +3085,6 @@ const SCENARIO_214 = {
           "target": "陆逊",
           "type": "同僚",
           "intimacy": 65
-        },
-        {
-          "target": "周瑜",
-          "type": "前任",
-          "intimacy": 50
         }
       ],
       "skillsOverride": null
@@ -3413,11 +3119,6 @@ const SCENARIO_214 = {
           "intimacy": 65
         },
         {
-          "target": "周瑜",
-          "type": "前辈",
-          "intimacy": 50
-        },
-        {
           "target": "诸葛瑾",
           "type": null,
           "intimacy": 65
@@ -3448,11 +3149,6 @@ const SCENARIO_214 = {
           "target": "孙权",
           "type": "主公",
           "intimacy": 70
-        },
-        {
-          "target": "周瑜",
-          "type": "同僚",
-          "intimacy": 50
         },
         {
           "target": "韩当",
@@ -3554,11 +3250,6 @@ const SCENARIO_214 = {
           "target": "孙权",
           "type": "主公",
           "intimacy": 65
-        },
-        {
-          "target": "周瑜",
-          "type": "同僚",
-          "intimacy": 50
         },
         {
           "target": "韩当",
@@ -4221,26 +3912,6 @@ const SCENARIO_214 = {
       ],
       "skillsOverride": null
     },
-    "张松": {
-      "status": "wild",
-      "fac": "wild",
-      "wildData": {
-        "loyalty": 55,
-        "merit": 20,
-        "retainer": {
-          "count": 0,
-          "type": null
-        },
-        "relations": [
-          {
-            "target": "法正",
-            "type": "同谋",
-            "intimacy": 65
-          }
-        ],
-        "skillsOverride": null
-      }
-    },
     "庞德": {
       "status": "wild",
       "fac": "wild",
@@ -4380,20 +4051,6 @@ const SCENARIO_214 = {
       "wildData": {
         "loyalty": 82,
         "merit": 30,
-        "retainer": {
-          "count": 0,
-          "type": null
-        },
-        "relations": [],
-        "skillsOverride": null
-      }
-    },
-    "张任": {
-      "status": "wild",
-      "fac": "wild",
-      "wildData": {
-        "loyalty": 88,
-        "merit": 35,
         "retainer": {
           "count": 0,
           "type": null
