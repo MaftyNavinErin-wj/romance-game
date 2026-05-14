@@ -1,9 +1,30 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + 死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 212 entries 字段口径定 (含 deathCause). SCENARIO_190 102/14/96=212; SCENARIO_214 130 (104/8/18). **phase 6 wire W1+W2+W3 ✅ done (势力杂项+入口/叙事 `63b5490` / 城市 CITIES_DEF `ad94d21` / 起手部队 initUnits `21514db`, local 未 push)**. **下次: W4a (武将名册+五维+apt+role/status/city, 高风险「心脏」; W5 设计+validator 须先于 W4a 定死)** — 计划见 scenario_system.md §8.4.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + 死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 212 entries 字段口径定 (含 deathCause). SCENARIO_190 102/14/96=212; SCENARIO_214 130 (104/8/18). **phase 6 wire W1+W2+W3 ✅ push'd (`63b5490`/`ad94d21`/`21514db`) + W4a step-1 ✅ local (`86843a3`, GENS_FULL adapter step-1)**. **下次: W4a step-2 (adapter 输入切 GEN_BASE+SCENARIO.generals — byte-identical 故意破, 换网: 跑满 50 回合不崩+数值合理+审差异)** — 计划见 scenario_system.md §8.4.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
+
+## 2026-05-14 (phase 6 wire W4a step-1 ✅ — 武将名册 GENS_FULL adapter)
+
+W4a step-1 done, commit `86843a3` (local, 未 push). smoke + compare PASS + 全 G dump 0 diffs.
+
+- adapter 两步走 (codex 调整②): step-1 = adapter 输入旧 GENS_FULL const → 输出 materialized
+  shape, byte-identical 守得住; step-2 = 输入切 GEN_BASE + SCENARIO.generals, byte-identical
+  故意破 (GEN_BASE/214 名册 audit 改过), 换网跑满 50 回合不崩+数值合理+审差异.
+- materializeScenario GENS_FULL stub → 真值: 旧 GENS_FULL const deep-copy. 旧 shape 已 ≈
+  名册 loop 想要的, step-1 adapter 几乎 pass-through.
+- initGame 名册 loop Object.keys(GENS_FULL)/GENS_FULL[fid] → m.GENS_FULL, loop 逻辑 verbatim.
+- scout 关键发现: **GENS_FULL 实测 0 个 minTurn entry** (24 个 minTurn 全在 WILD_GENS) —
+  initGame 名册 loop 的 `if(g.minTurn>1)` 分支对 GENS_FULL 是 dead branch, G.genPendingPool
+  从这个 loop 出来是空的. pending 武将走 WILD_GENS minTurn → refreshWildPool, 不走这里.
+  → W4a step-2 / W5 设计时注意: SCENARIO_214 的 18 pending 在旧模型里对应 WILD_GENS,
+  不是 GENS_FULL.
+- 武将三本数据 shape 已 scout (见 git 历史 / scenario_system.md §3.4 §5):
+  GEN_BASE (史实不变 212) / SCENARIO_214.generals (130 = 104a/8w/18p) / 旧 7 本 runtime const.
+- getGenMeta = GEN_META[name] || getWildGenMeta(name) || {} — 大量链路依赖, §8.4 留 W4c 决定.
+- W4a step-2 是「心脏」最硬: GEN_BASE + SCENARIO.generals 合并成 GENS_FULL shape,
+  byte-identical 必破, 需 adapter 清楚归因 (adapter/init-path bug vs 新数据差异).
 
 ## 2026-05-14 (phase 6 wire W3 ✅ — 起手部队 initUnits)
 
