@@ -25,7 +25,7 @@ const SCENARIO_190 = {
   "name": "诸侯讨董",
   "startYear": 190,
   "description": "东汉初平元年,董卓废少帝立献帝,关东诸侯起兵讨董,群雄并起。",
-  "provenance": "phase 4-d: +23 active 武将 (史实重 allocate); 后续 phase 4-c/4-e + audit v2 + 刘磐 followup 累计至 104 active / 14 wild / 94 pending = 212/212",
+  "provenance": "phase 4-d: +23 active 武将 (史实重 allocate); 后续 phase 4-c/4-e + audit v2 + 刘磐 + debutYear schema gap (马铁/马休 active→pending) 累计至 102 active / 14 wild / 96 pending = 212/212",
   // startYear=190 (初平元年) 时天子献帝仍在洛阳, 董卓持. 191 年才西迁长安.
   "emperor": {
     "cityId": "luoyang",
@@ -479,7 +479,7 @@ const SCENARIO_190 = {
     // ── liubei (1): 平原相 ──
     "pingyuan":  { "fac": "liubei",    "pop": 130000, "troops":  900, "isCapital": true  }  // 平原郡 (1f 新城)
   },
-  // ─── 104 active 武将 (14 ruler + 90 心腹/史实任职) ────────────────────
+  // ─── 102 active 武将 (14 ruler + 88 心腹/史实任职) ────────────────────
   // 14 ruler 必 active (validator B.4); 各 fac 起手 2-4 心腹武将.
   // 字段: status/fac/city/role/post/title/loyalty/merit/retainer/initialUnit/relations
   // - role: 'ruler' (14) / 'strategist' (谋主, ~8) / 'prefect' (太守, 0 此阶段) / null
@@ -627,8 +627,8 @@ const SCENARIO_190 = {
     
     "马超":   { "status":"pending", "fac":"wild", "pendingFac":"matenghan", "availableYear":195, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"195 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[{"target":"马腾","type":"子嗣","intimacy":92}] }},
     "成宜":   { "status":"active", "fac":"matenghan", "city":"liangzhou", "role":null, "post":{"name":"将","rank":"将"}, "title":null, "loyalty":85,"merit":150,"retainer":{"count":900,"type":"cavalry"},"initialUnit":false, "relations":[] },
-    "马铁":   { "status":"active", "fac":"matenghan", "city":"liangzhou", "role":null, "post":{"name":"校尉","rank":"将"}, "title":null, "loyalty":95, "merit":80, "retainer":{"count":400, "type":"cavalry"},"initialUnit":false, "relations":[{"target":"马腾","type":"父","intimacy":95},{"target":"马超","type":"兄","intimacy":85}] },
-    "马休":   { "status":"active", "fac":"matenghan", "city":"liangzhou", "role":null, "post":{"name":"校尉","rank":"将"}, "title":null, "loyalty":95, "merit":80, "retainer":{"count":400, "type":"cavalry"},"initialUnit":false, "relations":[{"target":"马腾","type":"父","intimacy":95},{"target":"马超","type":"兄","intimacy":85}] },
+    "马铁":   { "status":"pending", "fac":"wild", "pendingFac":"matenghan", "availableYear":200, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"200 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[{"target":"马腾","type":"父","intimacy":95},{"target":"马超","type":"兄","intimacy":85}] }},
+    "马休":   { "status":"pending", "fac":"wild", "pendingFac":"matenghan", "availableYear":200, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"200 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[{"target":"马腾","type":"父","intimacy":95},{"target":"马超","type":"兄","intimacy":85}] }},
 
     // ── kongrong 集团 (3) ──
     "孔融":   { "status":"active", "fac":"kongrong",   "city":"beihai",    "role":"ruler", "post":{"name":"北海相","rank":"文官"},   "title":null, "loyalty":100,"merit":500,"retainer":{"count":500, "type":"light"},  "initialUnit":true , "relations":[] },

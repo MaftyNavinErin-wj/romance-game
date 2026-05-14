@@ -1,6 +1,6 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 W1-W3 + 4-e + codex tier A + GEN_BASE audit v1+v2 (debut/death) + **stats audit (com/war/int/pol/cha/apt + classTag)** + 刘磐 followup + **birthYear 补全 (156 entries, 0 null remain)** 全完成. GEN_BASE 212 entries 字段口径定 (debutYear=首次仕官年, skills=已实装 only). SCENARIO_190 active 104/wild 14/pending 94 = 212/212. **已 push (HEAD `3bba851`)**. 数据层 audit 闭环. **skills 设计定:已实装 83 保留 + 其余 129 留 [], 不补 stub** (general_base.js header 已 lock). 下次: phase 6 wire / 平衡 / 董卓 debutYear schema followup.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 W1-W3 + 4-e + codex tier A + GEN_BASE audit v1+v2 (debut/death) + **stats audit (com/war/int/pol/cha/apt + classTag)** + 刘磐 followup + **birthYear 补全 (156 entries, 0 null)** + **debutYear schema gap fix (董卓/陶谦/马铁/马休)** 全完成. GEN_BASE 212 entries 字段口径定 (debutYear=首次仕官年, skills=已实装 only). SCENARIO_190 active 102/wild 14/pending 96 = 212/212. **已 push (HEAD `dd71206`)**. 数据层 audit 闭环. **skills 设计定:已实装 83 保留 + 其余 129 留 [], 不补 stub** (general_base.js header 已 lock). 下次: phase 6 wire / 平衡.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -26,6 +26,32 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - birthYear 大量 null 补 sprint
 - phase 6 wire — src/data/ 真正接到 runtime (skills 关系: 届时考虑 generals.js skills 字段 vs general_base.js 怎么去重)
 - 平衡 sprint (等 phase 6 后)
+
+---
+
+## 2026-05-14 (debutYear schema gap fix — 董卓/陶谦/马铁/马休)
+
+birthYear sprint 的 CC second-pass sanity 发现的 followup. debutYear 字段口径 = 首次仕官年, 但
+prior extraction 阶段部分老资格军阀抄了"出场年"而非"首次仕官年".
+
+### 4 entries debutYear 修
+- 董卓 189 → **169** (KOEI 标定 任羽林郎 ~37 岁; 189 是入主洛阳年, 非首次仕官)
+- 陶谦 190 → **155** (b132 + 23 岁举茂才; 190 是任徐州牧年)
+- 马铁 190 → **200** (KOEI 经典, 比兄马超 debut 195 略晚)
+- 马休 190 → **200** (同上)
+
+### SCENARIO_190 status 调整 (跟 audit B.2 pattern)
+马铁/马休 active in matenghan liangzhou → **pending** (availableYear 200). active relations
+(父马腾/兄马超) 移到 wildData.relations 保留. foundingCore 不含他俩, 不破坏 founding 语义.
+
+inline count: 104/14/94 → **102 active / 14 wild / 96 pending = 212/212**.
+
+### Codex review LGTM (155K tokens)
+Q1 史实 / Q2 status pattern / Q3 schema (反引检查 0) / Q4 runtime — 全 PASS.
+
+### 残留 (不修)
+- 程昱 debutAge 51: 史载明确"年五十始仕", 不出戏, keep.
+- 其他老资格军阀 (刘焉/刘虞/孔融/袁绍/袁术 等) debutYear 若也有 schema gap — codex audit v2 当时说"≤190 active 合理"已 review 过, 暂不开新 sprint. 若未来 birthYear 补后 CC sanity 再 catch debutAge>50, 再补.
 
 ---
 
