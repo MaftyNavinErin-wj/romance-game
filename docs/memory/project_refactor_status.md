@@ -1,6 +1,6 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 W1-W3 + 4-e + codex tier A + GEN_BASE audit v1+v2 (debut/death) + **stats audit (com/war/int/pol/cha/apt + classTag)** + 刘磐 followup 全完成. GEN_BASE 212 entries 字段口径定 (debutYear=首次仕官年, skills=已实装 only). SCENARIO_190 active 104/wild 14/pending 94 = 212/212. **已 push (HEAD `3bba851`, 含 stats 8 entries fix)**. 数据层 audit 闭环. **skills 设计定:已实装 83 保留 + 其余 129 留 [], 不补 stub** (general_base.js header 已 lock). 下次: birthYear 补全 / phase 6 wire / 平衡.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 W1-W3 + 4-e + codex tier A + GEN_BASE audit v1+v2 (debut/death) + **stats audit (com/war/int/pol/cha/apt + classTag)** + 刘磐 followup + **birthYear 补全 (156 entries, 0 null remain)** 全完成. GEN_BASE 212 entries 字段口径定 (debutYear=首次仕官年, skills=已实装 only). SCENARIO_190 active 104/wild 14/pending 94 = 212/212. **已 push (HEAD `3bba851`)**. 数据层 audit 闭环. **skills 设计定:已实装 83 保留 + 其余 129 留 [], 不补 stub** (general_base.js header 已 lock). 下次: phase 6 wire / 平衡 / 董卓 debutYear schema followup.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
@@ -26,6 +26,46 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - birthYear 大量 null 补 sprint
 - phase 6 wire — src/data/ 真正接到 runtime (skills 关系: 届时考虑 generals.js skills 字段 vs general_base.js 怎么去重)
 - 平衡 sprint (等 phase 6 后)
+
+---
+
+## 2026-05-14 (birthYear 补全 sprint — 156 entries, codex 史实优先 + heuristic 兜底)
+
+User correction: 我第一版直接 156 全 heuristic 错, 应该"先查史实, 找不到的才估". 重做.
+
+### 流程
+1. codex sweep 156 null 武将 (debutYear/deathYear/classTag context) → 给 H/M/L 标定:
+   - H (史载明确) **10**, M (KOEI 标定) **63**, L (史不详) **83**
+2. CC 应用: H+M 共 73 直接用 codex 值; L 83 用 heuristic; 蒋琬 codex H 错 (b168 应 b184 史载"年六十二"), CC override 184
+3. Sanity rule 拦截 6 个 codex M 跟 audit'd debutYear/deathYear 冲突 (debutAge<15 or lifespan>85):
+   - 陈群/曹休/文聘/廖化/刘封/施绩 → heuristic (e.g., 文聘 codex b178 给 10 岁出仕 conflict our audit'd debut 188; 廖化 codex b170 给 寿 94)
+4. **Codex final review** (trial 1) → NEEDS-WORK, catch 8 出戏:
+   - Type 3 family 代差: 夏侯霸/陆抗/马休/马铁/钟会/刘琮
+   - Type 4 KOEI 偏差: 廖化 (codex b170 vs heuristic b191, 折中)
+   - Type 2: 董卓 debutAge 57
+5. CC 6 个 manual override + 2 个 keep:
+   - 夏侯霸 202→195 / 陆抗 226→218 (pre-existing 也 override) / 马休/马铁 170→178 / 刘琮 183→177 / 廖化 191→180
+   - keep: 钟会 b225 (钟繇高龄得子史载) / 董卓 b132 (KOEI 经典, 57岁出仕是 debutYear schema 局限不是 birthYear 错)
+6. **Codex trial 2** verify → LGTM (31K tokens)
+
+### Heuristic 规则
+- `warrior/commander` → `debutYear - 20`
+- `strategist/civilian/other` → `debutYear - 25`
+- sanity: `deathYear - by < 30` → `by = deathYear - 35`
+- 应用 sanity 拒 codex 阈值: `debutAge < 15` or `lifespan > 85` → 回退 heuristic
+
+### Final state
+- 0 null remain (212/212 全 filled)
+- 67 codex + 89 heuristic + 6 manual override (+ 蒋琬 H override inside codex map)
+
+### Followup
+- **董卓 debutYear**: 现 189 (audit "首次仕官年" = 入主洛阳年) 跟 birthYear b132 给 57 岁出仕, 矛盾来自 audit schema 没含"早期凉州羽林郎"(160 年代). 留 debutYear schema sprint 修.
+- **陆抗 pre-existing b226 → 改 218**: 是 56 个 pre-existing filled 之一, 本批次本不该动. 但 codex final review catch 代差 43 出戏, scope 内修 (1 line). 注: 未来若严格 audit pre-existing, 可能还有类似 case.
+
+### tools/
+- `tools/patch_gen_base_birthyear.js` 完整 reproduce 整个流程 (CODEX_VALUES dict + heuristic + sanity + MANUAL_OVERRIDE dict)
+
+smoke + compare PASS (51 snapshots identical, src/data/ 未 wire 到 runtime).
 
 ---
 

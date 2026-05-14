@@ -142,7 +142,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 157,
     "deathYear": 220,
     "debutYear": 190,
     "birthplace": "沛国谯县",
@@ -254,7 +254,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 160,
     "deathYear": 218,
     "debutYear": 190,
     "birthplace": "阳平卫国",
@@ -291,7 +291,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 162,
     "deathYear": 221,
     "debutYear": 184,
     "birthplace": "泰山钜平",
@@ -363,7 +363,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 167,
     "deathYear": 231,
     "debutYear": 184,
     "birthplace": "河间鄚县",
@@ -437,7 +437,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 160,
     "deathYear": 219,
     "debutYear": 190,
     "birthplace": "沛国谯县",
@@ -474,7 +474,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 170,
     "deathYear": null,
     "debutYear": 197,
     "birthplace": "谯国谯县",
@@ -609,7 +609,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 178,
     "deathYear": 242,
     "debutYear": 196,
     "birthplace": "山阳昌邑",
@@ -681,7 +681,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 152,
     "deathYear": 228,
     "debutYear": 188,
     "birthplace": "东海郯县",
@@ -716,7 +716,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 168,
     "deathYear": 232,
     "debutYear": 190,
     "birthplace": "沛国谯县",
@@ -753,7 +753,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 187,
     "deathYear": 255,
     "debutYear": 215,
     "birthplace": "太原阳曲",
@@ -788,7 +788,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 174,
     "deathYear": 209,
     "debutYear": 190,
     "birthplace": "山阳钜野",
@@ -825,7 +825,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 162,
     "deathYear": null,
     "debutYear": 184,
     "birthplace": "泰山华县",
@@ -860,7 +860,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 188,
     "deathYear": 249,
     "debutYear": 208,
     "birthplace": "楚国平阿",
@@ -888,7 +888,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 171,
     "deathYear": 234,
     "debutYear": 198,
     "birthplace": "淮南成德",
@@ -923,7 +923,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 189,
     "deathYear": null,
     "debutYear": 209,
     "birthplace": "未详",
@@ -953,7 +953,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 156,
     "deathYear": null,
     "debutYear": 192,
     "birthplace": "清河鄃县",
@@ -981,7 +981,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 173,
     "deathYear": 237,
     "debutYear": 198,
     "birthplace": "颍川许昌",
@@ -1016,7 +1016,7 @@ const GEN_BASE = {
       "siege": "A",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 185,
     "deathYear": 231,
     "debutYear": 200,
     "birthplace": "沛国谯县",
@@ -1054,7 +1054,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 189,
     "deathYear": 223,
     "debutYear": 218,
     "birthplace": "沛国谯县",
@@ -1124,7 +1124,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 169,
     "deathYear": 207,
     "debutYear": 189,
     "birthplace": "武威祖厉",
@@ -1154,7 +1154,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 180,
     "deathYear": 228,
     "debutYear": 200,
     "birthplace": "沛国谯县",
@@ -1191,7 +1191,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 174,
     "deathYear": null,
     "debutYear": 201,
     "wildMeta": {"title":"单福·颍川名士","post":{"name":"军师","rank":"文官","desc":"早年化名单福投刘备，智谋出众，识人极准。"}},
@@ -1259,7 +1259,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 167,
     "deathYear": 216,
     "debutYear": 192,
     "birthplace": "陈留平丘",
@@ -1403,7 +1403,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "B"
     },
-    "birthYear": null,
+    "birthYear": 168,
     "deathYear": 226,
     "debutYear": 188,
     "wildMeta": {"title":"荆州柱石","post":{"name":"守将","rank":"将","desc":"长于守备，驻守城市防御加成+15%。"}},
@@ -1441,7 +1441,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 199,
     "deathYear": 248,
     "debutYear": 215,
     "birthplace": "巴西宕渠",
@@ -1510,7 +1510,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 200,
     "deathYear": 260,
     "debutYear": 232,
     "wildMeta": {"title":"抗蜀名将","post":{"name":"征西将军","rank":"将","desc":"陈群之子,善于防守反击。"}},
@@ -1609,7 +1609,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "A"
     },
-    "birthYear": null,
+    "birthYear": 160,
     "deathYear": 219,
     "debutYear": 184,
     "birthplace": "河东解县",
@@ -1648,7 +1648,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 167,
     "deathYear": 221,
     "debutYear": 184,
     "birthplace": "涿郡涿县",
@@ -1724,7 +1724,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 168,
     "deathYear": 229,
     "debutYear": 191,
     "birthplace": "常山真定",
@@ -1796,7 +1796,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 148,
     "deathYear": 220,
     "debutYear": 190,
     "birthplace": "南阳宛县",
@@ -1833,7 +1833,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 174,
     "deathYear": 234,
     "debutYear": 211,
     "birthplace": "义阳郡",
@@ -1940,7 +1940,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 180,
     "deathYear": 264,
     "debutYear": 211,
     "birthplace": "襄阳中卢",
@@ -1970,7 +1970,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 185,
     "deathYear": null,
     "debutYear": 211,
     "birthplace": "扶风茂陵",
@@ -2005,7 +2005,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 192,
     "deathYear": 246,
     "debutYear": 221,
     "birthplace": "南郡枝江",
@@ -2042,7 +2042,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 188,
     "deathYear": 264,
     "debutYear": 211,
     "birthplace": "犍为武阳",
@@ -2072,7 +2072,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 166,
     "deathYear": 237,
     "debutYear": 200,
     "birthplace": "陈留",
@@ -2100,7 +2100,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 190,
     "deathYear": 249,
     "debutYear": 222,
     "birthplace": "巴西阆中",
@@ -2167,7 +2167,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 179,
     "deathYear": 240,
     "debutYear": 200,
     "birthplace": "巴西阆中",
@@ -2241,7 +2241,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 191,
     "deathYear": null,
     "debutYear": 211,
     "birthplace": "巴郡临江",
@@ -2271,7 +2271,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "B"
     },
-    "birthYear": null,
+    "birthYear": 178,
     "deathYear": 219,
     "debutYear": 200,
     "birthplace": "河东解良",
@@ -2308,7 +2308,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "B"
     },
-    "birthYear": null,
+    "birthYear": 194,
     "deathYear": 234,
     "debutYear": 215,
     "wildMeta": {"title":"小关张","post":{"name":"侍中","rank":"将","desc":"继承父志的二代骁将。"}},
@@ -2346,7 +2346,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 195,
     "deathYear": null,
     "debutYear": 215,
     "wildMeta": {"title":"猛虎之子","post":{"name":"校尉","rank":"将","desc":"张飞之子,武勇过人。"}},
@@ -2384,7 +2384,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 180,
     "deathYear": 220,
     "debutYear": 200,
     "birthplace": "长沙罗侯",
@@ -2421,7 +2421,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 195,
     "deathYear": null,
     "debutYear": 215,
     "birthplace": "陈留圉县",
@@ -2480,7 +2480,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 201,
     "deathYear": 240,
     "debutYear": 221,
     "wildMeta": {"title":"出师表所荐","post":{"name":"中领军","rank":"将","desc":"公允持平，麾下部队士气稳定，不会因欠饷骤降。"}},
@@ -2511,7 +2511,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 165,
     "deathYear": 221,
     "debutYear": 194,
     "birthplace": "东海朐县",
@@ -2541,7 +2541,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 174,
     "deathYear": null,
     "debutYear": 194,
     "birthplace": "东海朐县",
@@ -2571,7 +2571,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 163,
     "deathYear": 215,
     "debutYear": 194,
     "birthplace": "北海",
@@ -2601,7 +2601,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 161,
     "deathYear": null,
     "debutYear": 184,
     "birthplace": "涿郡涿县",
@@ -2631,7 +2631,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 195,
     "deathYear": null,
     "debutYear": 219,
     "wildMeta": {"title":"降蜀宗亲","post":{"name":"车骑将军","rank":"将","desc":"夏侯渊之子,因司马氏篡权而降蜀。"}},
@@ -2731,7 +2731,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "S"
     },
-    "birthYear": null,
+    "birthYear": 175,
     "deathYear": 219,
     "debutYear": 200,
     "birthplace": "巴郡临江",
@@ -2877,7 +2877,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "A"
     },
-    "birthYear": null,
+    "birthYear": 145,
     "deathYear": 215,
     "debutYear": 184,
     "birthplace": "零陵泉陵",
@@ -2944,7 +2944,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "A"
     },
-    "birthYear": null,
+    "birthYear": 190,
     "deathYear": 271,
     "debutYear": 225,
     "birthplace": "庐江安丰",
@@ -2981,7 +2981,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "A"
     },
-    "birthYear": null,
+    "birthYear": 154,
     "deathYear": 215,
     "debutYear": 184,
     "birthplace": null,
@@ -3116,7 +3116,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "A"
     },
-    "birthYear": null,
+    "birthYear": 156,
     "deathYear": 226,
     "debutYear": 184,
     "birthplace": "辽西令支",
@@ -3153,7 +3153,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "A"
     },
-    "birthYear": null,
+    "birthYear": 177,
     "deathYear": null,
     "debutYear": 200,
     "birthplace": "琅邪莒县",
@@ -3190,7 +3190,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "A"
     },
-    "birthYear": null,
+    "birthYear": 180,
     "deathYear": 234,
     "debutYear": 200,
     "birthplace": "东郡发干",
@@ -3225,7 +3225,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "A"
     },
-    "birthYear": null,
+    "birthYear": 178,
     "deathYear": 227,
     "debutYear": 199,
     "birthplace": "会稽山阴",
@@ -3290,7 +3290,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "B"
     },
-    "birthYear": null,
+    "birthYear": 179,
     "deathYear": 247,
     "debutYear": 200,
     "birthplace": "临淮淮阴",
@@ -3325,7 +3325,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "A"
     },
-    "birthYear": null,
+    "birthYear": 163,
     "deathYear": null,
     "debutYear": 193,
     "birthplace": "九江下蔡",
@@ -3362,7 +3362,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "A"
     },
-    "birthYear": null,
+    "birthYear": 168,
     "deathYear": 219,
     "debutYear": 193,
     "birthplace": "九江寿春",
@@ -3434,7 +3434,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "B"
     },
-    "birthYear": null,
+    "birthYear": 160,
     "deathYear": 228,
     "debutYear": 195,
     "birthplace": "汝南细阳",
@@ -3524,7 +3524,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "B"
     },
-    "birthYear": null,
+    "birthYear": 210,
     "deathYear": 256,
     "debutYear": 232,
     "birthplace": "汝南细阳",
@@ -3552,7 +3552,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "A"
     },
-    "birthYear": null,
+    "birthYear": 183,
     "deathYear": 255,
     "debutYear": 220,
     "birthplace": "会稽长山",
@@ -3582,7 +3582,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "B"
     },
-    "birthYear": null,
+    "birthYear": 189,
     "deathYear": null,
     "debutYear": 209,
     "birthplace": "吴郡富春",
@@ -3641,7 +3641,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "A"
     },
-    "birthYear": null,
+    "birthYear": 220,
     "deathYear": 270,
     "debutYear": 240,
     "wildMeta": {"title":"朱然之嗣","post":{"name":"上大将军","rank":"将","desc":"朱然之子,改姓施,继父业镇守边疆。"}},
@@ -3672,7 +3672,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 205,
     "deathYear": null,
     "debutYear": 225,
     "birthplace": "建宁",
@@ -3702,7 +3702,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 205,
     "deathYear": null,
     "debutYear": 225,
     "birthplace": "建宁",
@@ -3732,7 +3732,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 165,
     "deathYear": 212,
     "debutYear": 190,
     "wildMeta": {"title":"倒持西蜀","post":{"name":"别驾","rank":"文官","desc":"熟知益州山川地理，己方在蜀地行军AP消耗-20%。"}},
@@ -3770,7 +3770,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 170,
     "deathYear": 219,
     "debutYear": 189,
     "wildMeta": {"title":"抬棺决死","post":{"name":"先锋","rank":"将","desc":"万人敌之勇，正面冲阵时部队战力+12%。"}},
@@ -3808,7 +3808,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 175,
     "deathYear": 234,
     "debutYear": 200,
     "wildMeta": {"title":"托孤重臣","post":{"name":"尚书令","rank":"文官","desc":"蜀汉重臣，主持内政可加速建设速度-1旬。"}},
@@ -3921,7 +3921,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 176,
     "deathYear": 234,
     "debutYear": 200,
     "wildMeta": {"title":"反复无常","post":{"name":"守将","rank":"将","desc":"善守关隘，驻守山城防御加成+10%。"}},
@@ -3952,7 +3952,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 180,
     "deathYear": null,
     "debutYear": 200,
     "wildMeta": {"title":"上庸豪族","post":{"name":"郡守","rank":"将","desc":"上庸地方豪族，驻守上庸城城防+8%。"}},
@@ -3981,7 +3981,7 @@ const GEN_BASE = {
       "siege": "A",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 195,
     "deathYear": 229,
     "debutYear": 215,
     "wildMeta": {"title":"陈仓坚守","post":{"name":"守将","rank":"将","desc":"守城专家，攻城方攻城兵器效果对己方城市减半。"}},
@@ -4019,7 +4019,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 180,
     "deathYear": 213,
     "debutYear": 200,
     "wildMeta": {"title":"落凤之弓","post":{"name":"先锋","rank":"将","desc":"蜀道险关守将，山地伏击成功率+20%。"}},
@@ -4057,7 +4057,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 193,
     "deathYear": 228,
     "debutYear": 218,
     "wildMeta": {"title":"蜀中干吏","post":{"name":"郡守","rank":"文官","desc":"精于内政，辖区人口增长+8%，民心稳定。"}},
@@ -4086,7 +4086,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 184,
     "deathYear": 246,
     "debutYear": 211,
     "wildMeta": {"title":"社稷之器","post":{"name":"丞相继任","rank":"文官","desc":"诸葛亮身后蜀汉柱石，内政全面加成+8%。"}},
@@ -4124,7 +4124,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 200,
     "deathYear": 253,
     "debutYear": 221,
     "wildMeta": {"title":"折冲良臣","post":{"name":"大将军","rank":"文官","desc":"调和文武，外交行动成功率+15%。"}},
@@ -4313,7 +4313,7 @@ const GEN_BASE = {
       "siege": "C",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 160,
     "deathYear": 197,
     "debutYear": 190,
     "birthplace": "陈留己吾",
@@ -4350,7 +4350,7 @@ const GEN_BASE = {
       "siege": "A",
       "naval": "A"
     },
-    "birthYear": 226,
+    "birthYear": 218,
     "deathYear": 274,
     "debutYear": 246,
     "birthplace": "吴郡吴县",
@@ -4419,7 +4419,7 @@ const GEN_BASE = {
       "siege": "A",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 154,
     "deathYear": 198,
     "debutYear": 190,
     "wildMeta": {"title":"宁死不屈","post":{"name":"谋主","rank":"文官","desc":"智谋深远，尤擅分析天下大势，主公决策准确率+15%。"}},
@@ -4457,7 +4457,7 @@ const GEN_BASE = {
       "siege": "A",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 164,
     "deathYear": 200,
     "debutYear": 189,
     "wildMeta": {"title":"刚而犯上","post":{"name":"上计","rank":"文官","desc":"内政全才，己方城市粮产+6%，人口增长+5%。"}},
@@ -4494,7 +4494,7 @@ const GEN_BASE = {
       "siege": "A",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 164,
     "deathYear": 200,
     "debutYear": 189,
     "wildMeta": {"title":"河北谋主","post":{"name":"监军","rank":"文官","desc":"军政双修，行军期间部队粮耗-10%，补给线不易被截断。"}},
@@ -4526,7 +4526,7 @@ const GEN_BASE = {
       "siege": "B",
       "naval": "C"
     },
-    "birthYear": null,
+    "birthYear": 163,
     "deathYear": 198,
     "debutYear": 190,
     "wildMeta": {"title":"陷阵营统领","post":{"name":"陷阵将","rank":"将","desc":"统率陷阵营，所部重步兵战力+18%，营寨战强攻成功率+15%。"}},
@@ -4557,109 +4557,109 @@ const GEN_BASE = {
   // ═════════════════════════════════════════════════════════════════
   ,
   // ── dongzhuo 集团 (10) ──
-  "董卓":   { "com":78, "war":88, "int":72, "pol":40, "cha":30, "apt":{"cavalry":"S","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 192, "debutYear": 189, "birthplace":"陇西临洮", "clan":"陇西董氏", "faction_clan":"凉州", "gentry":null, "classTag":"commander", "classTagsAll":["commander","warrior"], "skills":[], "values":["野心","暴主"] },
-  "吕布":   { "com":88, "war":100,"int":30, "pol":25, "cha":60, "apt":{"cavalry":"S","light":"S","heavy":"A","archer":"A","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 198, "debutYear": 190, "birthplace":"五原九原", "clan":"五原吕氏", "faction_clan":"并州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["投机","反复"] },
-  "华雄":   { "com":60, "war":85, "int":30, "pol":20, "cha":35, "apt":{"cavalry":"A","light":"A","heavy":"S","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 191, "debutYear": 189, "birthplace":"凉州", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
-  "李傕":   { "com":70, "war":80, "int":60, "pol":40, "cha":30, "apt":{"cavalry":"S","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 198, "debutYear": 190, "birthplace":"北地泥阳", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["野心","暴主"] },
-  "郭汜":   { "com":68, "war":78, "int":55, "pol":35, "cha":28, "apt":{"cavalry":"S","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 197, "debutYear": 190, "birthplace":"张掖", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["投机"] },
-  "张济":   { "com":65, "war":75, "int":55, "pol":40, "cha":40, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 196, "debutYear": 189, "birthplace":"武威祖厉", "clan":"武威张氏", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
-  "樊稠":   { "com":62, "war":76, "int":50, "pol":35, "cha":35, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 195, "debutYear": 189, "birthplace":"凉州", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
-  "牛辅":   { "com":55, "war":65, "int":40, "pol":30, "cha":30, "apt":{"cavalry":"A","light":"B","heavy":"B","archer":"C","siege":"C","naval":"C"}, "birthYear": null, "deathYear": 192, "debutYear": 190, "birthplace":"凉州", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
-  "胡轸":   { "com":55, "war":60, "int":45, "pol":30, "cha":28, "apt":{"cavalry":"A","light":"B","heavy":"B","archer":"C","siege":"C","naval":"C"}, "birthYear": null, "deathYear": 192, "debutYear": 184, "birthplace":"凉州", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
-  "徐荣":   { "com":75, "war":75, "int":70, "pol":50, "cha":50, "apt":{"cavalry":"A","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 192, "debutYear": 189, "birthplace":"辽东玄菟", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"commander", "classTagsAll":["commander","warrior"], "skills":[], "values":["忠义"] },
+  "董卓":   { "com":78, "war":88, "int":72, "pol":40, "cha":30, "apt":{"cavalry":"S","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": 132, "deathYear": 192, "debutYear": 189, "birthplace":"陇西临洮", "clan":"陇西董氏", "faction_clan":"凉州", "gentry":null, "classTag":"commander", "classTagsAll":["commander","warrior"], "skills":[], "values":["野心","暴主"] },
+  "吕布":   { "com":88, "war":100,"int":30, "pol":25, "cha":60, "apt":{"cavalry":"S","light":"S","heavy":"A","archer":"A","siege":"B","naval":"C"}, "birthYear": 156, "deathYear": 198, "debutYear": 190, "birthplace":"五原九原", "clan":"五原吕氏", "faction_clan":"并州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["投机","反复"] },
+  "华雄":   { "com":60, "war":85, "int":30, "pol":20, "cha":35, "apt":{"cavalry":"A","light":"A","heavy":"S","archer":"B","siege":"B","naval":"C"}, "birthYear": 156, "deathYear": 191, "debutYear": 189, "birthplace":"凉州", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "李傕":   { "com":70, "war":80, "int":60, "pol":40, "cha":30, "apt":{"cavalry":"S","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": 163, "deathYear": 198, "debutYear": 190, "birthplace":"北地泥阳", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["野心","暴主"] },
+  "郭汜":   { "com":68, "war":78, "int":55, "pol":35, "cha":28, "apt":{"cavalry":"S","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 162, "deathYear": 197, "debutYear": 190, "birthplace":"张掖", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["投机"] },
+  "张济":   { "com":65, "war":75, "int":55, "pol":40, "cha":40, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 161, "deathYear": 196, "debutYear": 189, "birthplace":"武威祖厉", "clan":"武威张氏", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "樊稠":   { "com":62, "war":76, "int":50, "pol":35, "cha":35, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 160, "deathYear": 195, "debutYear": 189, "birthplace":"凉州", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "牛辅":   { "com":55, "war":65, "int":40, "pol":30, "cha":30, "apt":{"cavalry":"A","light":"B","heavy":"B","archer":"C","siege":"C","naval":"C"}, "birthYear": 157, "deathYear": 192, "debutYear": 190, "birthplace":"凉州", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "胡轸":   { "com":55, "war":60, "int":45, "pol":30, "cha":28, "apt":{"cavalry":"A","light":"B","heavy":"B","archer":"C","siege":"C","naval":"C"}, "birthYear": 157, "deathYear": 192, "debutYear": 184, "birthplace":"凉州", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "徐荣":   { "com":75, "war":75, "int":70, "pol":50, "cha":50, "apt":{"cavalry":"A","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": 157, "deathYear": 192, "debutYear": 189, "birthplace":"辽东玄菟", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"commander", "classTagsAll":["commander","warrior"], "skills":[], "values":["忠义"] },
 
   // ── yuanshao 集团 (9, 沮授/田丰 已 in) ──
-  "袁绍":   { "com":85, "war":60, "int":75, "pol":70, "cha":88, "apt":{"cavalry":"A","light":"A","heavy":"A","archer":"A","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 202, "debutYear": 189, "birthplace":"汝南汝阳", "clan":"汝南袁氏", "faction_clan":"河北", "gentry":"yu", "classTag":"commander", "classTagsAll":["commander","ruler"], "skills":[], "values":["名门","盟主"] },
-  "颜良":   { "com":70, "war":92, "int":35, "pol":30, "cha":60, "apt":{"cavalry":"S","light":"A","heavy":"S","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 200, "debutYear": 189, "birthplace":"冀州", "clan":"", "faction_clan":"河北", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
-  "文丑":   { "com":68, "war":90, "int":30, "pol":25, "cha":55, "apt":{"cavalry":"S","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 200, "debutYear": 189, "birthplace":"冀州", "clan":"", "faction_clan":"河北", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
-  "审配":   { "com":70, "war":50, "int":85, "pol":80, "cha":60, "apt":{"cavalry":"B","light":"B","heavy":"A","archer":"A","siege":"S","naval":"C"}, "birthYear": null, "deathYear": 204, "debutYear": 189, "birthplace":"魏郡阴安", "clan":"魏郡审氏", "faction_clan":"河北", "gentry":"ji", "classTag":"strategist", "classTagsAll":["strategist","civilian"], "skills":[], "values":["忠义"] },
-  "逢纪":   { "com":50, "war":45, "int":82, "pol":70, "cha":55, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 202, "debutYear": 189, "birthplace":"南阳", "clan":"", "faction_clan":"河北", "gentry":null, "classTag":"strategist", "classTagsAll":["strategist","civilian"], "skills":[], "values":[] },
-  "许攸":   { "com":50, "war":40, "int":88, "pol":60, "cha":45, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"C","siege":"C","naval":"C"}, "birthYear": null, "deathYear": 204, "debutYear": 189, "birthplace":"南阳", "clan":"", "faction_clan":"河北", "gentry":null, "classTag":"strategist", "classTagsAll":["strategist","civilian"], "skills":[], "values":["投机"] },
-  "麴义":   { "com":75, "war":85, "int":60, "pol":40, "cha":50, "apt":{"cavalry":"A","light":"A","heavy":"A","archer":"S","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 192, "debutYear": 190, "birthplace":"凉州西平", "clan":"", "faction_clan":"河北", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior","commander"], "skills":[], "values":[] },
-  "高览":   { "com":70, "war":82, "int":50, "pol":40, "cha":50, "apt":{"cavalry":"A","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 202, "debutYear": 189, "birthplace":"冀州", "clan":"", "faction_clan":"河北", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
-  "淳于琼": { "com":60, "war":70, "int":50, "pol":50, "cha":50, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 200, "debutYear": 188, "birthplace":"颍川", "clan":"", "faction_clan":"河北", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "袁绍":   { "com":85, "war":60, "int":75, "pol":70, "cha":88, "apt":{"cavalry":"A","light":"A","heavy":"A","archer":"A","siege":"B","naval":"C"}, "birthYear": 154, "deathYear": 202, "debutYear": 189, "birthplace":"汝南汝阳", "clan":"汝南袁氏", "faction_clan":"河北", "gentry":"yu", "classTag":"commander", "classTagsAll":["commander","ruler"], "skills":[], "values":["名门","盟主"] },
+  "颜良":   { "com":70, "war":92, "int":35, "pol":30, "cha":60, "apt":{"cavalry":"S","light":"A","heavy":"S","archer":"B","siege":"B","naval":"C"}, "birthYear": 169, "deathYear": 200, "debutYear": 189, "birthplace":"冀州", "clan":"", "faction_clan":"河北", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
+  "文丑":   { "com":68, "war":90, "int":30, "pol":25, "cha":55, "apt":{"cavalry":"S","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": 169, "deathYear": 200, "debutYear": 189, "birthplace":"冀州", "clan":"", "faction_clan":"河北", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
+  "审配":   { "com":70, "war":50, "int":85, "pol":80, "cha":60, "apt":{"cavalry":"B","light":"B","heavy":"A","archer":"A","siege":"S","naval":"C"}, "birthYear": 164, "deathYear": 204, "debutYear": 189, "birthplace":"魏郡阴安", "clan":"魏郡审氏", "faction_clan":"河北", "gentry":"ji", "classTag":"strategist", "classTagsAll":["strategist","civilian"], "skills":[], "values":["忠义"] },
+  "逢纪":   { "com":50, "war":45, "int":82, "pol":70, "cha":55, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 164, "deathYear": 202, "debutYear": 189, "birthplace":"南阳", "clan":"", "faction_clan":"河北", "gentry":null, "classTag":"strategist", "classTagsAll":["strategist","civilian"], "skills":[], "values":[] },
+  "许攸":   { "com":50, "war":40, "int":88, "pol":60, "cha":45, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"C","siege":"C","naval":"C"}, "birthYear": 164, "deathYear": 204, "debutYear": 189, "birthplace":"南阳", "clan":"", "faction_clan":"河北", "gentry":null, "classTag":"strategist", "classTagsAll":["strategist","civilian"], "skills":[], "values":["投机"] },
+  "麴义":   { "com":75, "war":85, "int":60, "pol":40, "cha":50, "apt":{"cavalry":"A","light":"A","heavy":"A","archer":"S","siege":"B","naval":"C"}, "birthYear": 157, "deathYear": 192, "debutYear": 190, "birthplace":"凉州西平", "clan":"", "faction_clan":"河北", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior","commander"], "skills":[], "values":[] },
+  "高览":   { "com":70, "war":82, "int":50, "pol":40, "cha":50, "apt":{"cavalry":"A","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": 169, "deathYear": 202, "debutYear": 189, "birthplace":"冀州", "clan":"", "faction_clan":"河北", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "淳于琼": { "com":60, "war":70, "int":50, "pol":50, "cha":50, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 168, "deathYear": 200, "debutYear": 188, "birthplace":"颍川", "clan":"", "faction_clan":"河北", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
 
   // ── yuanshu 集团 (5) ──
-  "袁术":   { "com":60, "war":55, "int":60, "pol":50, "cha":75, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 199, "debutYear": 190, "birthplace":"汝南汝阳", "clan":"汝南袁氏", "faction_clan":"淮南", "gentry":"yu", "classTag":"civilian", "classTagsAll":["civilian","ruler"], "skills":[], "values":["野心","名门"] },
-  "张勋":   { "com":65, "war":75, "int":55, "pol":40, "cha":50, "apt":{"cavalry":"B","light":"A","heavy":"A","archer":"B","siege":"B","naval":"B"}, "birthYear": null, "deathYear": 199, "debutYear": 190, "birthplace":"扬州", "clan":"", "faction_clan":"淮南", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
-  "纪灵":   { "com":68, "war":82, "int":55, "pol":35, "cha":55, "apt":{"cavalry":"A","light":"A","heavy":"S","archer":"B","siege":"B","naval":"B"}, "birthYear": null, "deathYear": 199, "debutYear": 190, "birthplace":"山东", "clan":"", "faction_clan":"淮南", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
-  "桥蕤":   { "com":60, "war":72, "int":50, "pol":40, "cha":50, "apt":{"cavalry":"B","light":"A","heavy":"A","archer":"B","siege":"B","naval":"B"}, "birthYear": null, "deathYear": 197, "debutYear": 189, "birthplace":"扬州", "clan":"", "faction_clan":"淮南", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
-  "雷薄":   { "com":55, "war":68, "int":45, "pol":35, "cha":45, "apt":{"cavalry":"B","light":"A","heavy":"B","archer":"B","siege":"B","naval":"B"}, "birthYear": null, "deathYear": 200, "debutYear": 189, "birthplace":"扬州", "clan":"", "faction_clan":"淮南", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["投机"] },
+  "袁术":   { "com":60, "war":55, "int":60, "pol":50, "cha":75, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 155, "deathYear": 199, "debutYear": 190, "birthplace":"汝南汝阳", "clan":"汝南袁氏", "faction_clan":"淮南", "gentry":"yu", "classTag":"civilian", "classTagsAll":["civilian","ruler"], "skills":[], "values":["野心","名门"] },
+  "张勋":   { "com":65, "war":75, "int":55, "pol":40, "cha":50, "apt":{"cavalry":"B","light":"A","heavy":"A","archer":"B","siege":"B","naval":"B"}, "birthYear": 164, "deathYear": 199, "debutYear": 190, "birthplace":"扬州", "clan":"", "faction_clan":"淮南", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "纪灵":   { "com":68, "war":82, "int":55, "pol":35, "cha":55, "apt":{"cavalry":"A","light":"A","heavy":"S","archer":"B","siege":"B","naval":"B"}, "birthYear": 164, "deathYear": 199, "debutYear": 190, "birthplace":"山东", "clan":"", "faction_clan":"淮南", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
+  "桥蕤":   { "com":60, "war":72, "int":50, "pol":40, "cha":50, "apt":{"cavalry":"B","light":"A","heavy":"A","archer":"B","siege":"B","naval":"B"}, "birthYear": 162, "deathYear": 197, "debutYear": 189, "birthplace":"扬州", "clan":"", "faction_clan":"淮南", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "雷薄":   { "com":55, "war":68, "int":45, "pol":35, "cha":45, "apt":{"cavalry":"B","light":"A","heavy":"B","archer":"B","siege":"B","naval":"B"}, "birthYear": 169, "deathYear": 200, "debutYear": 189, "birthplace":"扬州", "clan":"", "faction_clan":"淮南", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["投机"] },
 
   // ── caocao 集团补 (3) ──
-  "卫兹":   { "com":60, "war":60, "int":65, "pol":70, "cha":70, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 190, "debutYear": 189, "birthplace":"陈留襄邑", "clan":"陈留卫氏", "faction_clan":"中原", "gentry":"yu", "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":["忠义"] },
+  "卫兹":   { "com":60, "war":60, "int":65, "pol":70, "cha":70, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 155, "deathYear": 190, "debutYear": 189, "birthplace":"陈留襄邑", "clan":"陈留卫氏", "faction_clan":"中原", "gentry":"yu", "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":["忠义"] },
   "鲍信":   { "com":70, "war":70, "int":65, "pol":65, "cha":75, "apt":{"cavalry":"A","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": 152, "deathYear": 192, "debutYear": 190, "birthplace":"泰山平阳", "clan":"泰山鲍氏", "faction_clan":"中原", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior","commander"], "skills":[], "values":["忠义"] },
-  "戏志才": { "com":55, "war":40, "int":90, "pol":75, "cha":65, "apt":{"cavalry":"C","light":"C","heavy":"C","archer":"C","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 196, "debutYear": 188, "birthplace":"颍川", "clan":"", "faction_clan":"颍川", "gentry":"yu", "classTag":"strategist", "classTagsAll":["strategist","civilian"], "skills":[], "values":["忠义"] },
+  "戏志才": { "com":55, "war":40, "int":90, "pol":75, "cha":65, "apt":{"cavalry":"C","light":"C","heavy":"C","archer":"C","siege":"B","naval":"C"}, "birthYear": 163, "deathYear": 196, "debutYear": 188, "birthplace":"颍川", "clan":"", "faction_clan":"颍川", "gentry":"yu", "classTag":"strategist", "classTagsAll":["strategist","civilian"], "skills":[], "values":["忠义"] },
 
   // ── sunjian 集团 (2) ──
   "孙坚":   { "com":88, "war":92, "int":75, "pol":60, "cha":80, "apt":{"cavalry":"A","light":"S","heavy":"A","archer":"A","siege":"B","naval":"A"}, "birthYear": 155, "deathYear": 192, "debutYear": 184, "birthplace":"吴郡富春", "clan":"富春孙氏", "faction_clan":"江东", "gentry":null, "classTag":"commander", "classTagsAll":["commander","warrior","ruler"], "skills":[], "values":["猛虎"] },
-  "祖茂":   { "com":65, "war":80, "int":50, "pol":45, "cha":60, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"B"}, "birthYear": null, "deathYear": 191, "debutYear": 190, "birthplace":"吴郡", "clan":"", "faction_clan":"江东", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
+  "祖茂":   { "com":65, "war":80, "int":50, "pol":45, "cha":60, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"B"}, "birthYear": 156, "deathYear": 191, "debutYear": 190, "birthplace":"吴郡", "clan":"", "faction_clan":"江东", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
 
   // ── liubiao 集团 (9) ──
   "刘表":   { "com":65, "war":50, "int":75, "pol":80, "cha":82, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"B"}, "birthYear": 142, "deathYear": 208, "debutYear": 190, "birthplace":"山阳高平", "clan":"汉室宗亲", "faction_clan":"荆州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian","ruler"], "skills":[], "values":["宗室","文治"] },
-  "蒯越":   { "com":55, "war":40, "int":90, "pol":88, "cha":75, "apt":{"cavalry":"C","light":"C","heavy":"B","archer":"B","siege":"A","naval":"B"}, "birthYear": null, "deathYear": 214, "debutYear": 190, "birthplace":"南郡中卢", "clan":"南郡蒯氏", "faction_clan":"荆州", "gentry":"jing", "classTag":"strategist", "classTagsAll":["strategist","civilian"], "skills":[], "values":["忠义"] },
-  "蒯良":   { "com":50, "war":35, "int":85, "pol":82, "cha":70, "apt":{"cavalry":"C","light":"C","heavy":"B","archer":"B","siege":"A","naval":"B"}, "birthYear": null, "deathYear": 208, "debutYear": 190, "birthplace":"南郡中卢", "clan":"南郡蒯氏", "faction_clan":"荆州", "gentry":"jing", "classTag":"strategist", "classTagsAll":["strategist","civilian"], "skills":[], "values":["忠义"] },
-  "蔡瑁":   { "com":65, "war":60, "int":60, "pol":55, "cha":55, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"A"}, "birthYear": null, "deathYear": 214, "debutYear": 189, "birthplace":"襄阳", "clan":"襄阳蔡氏", "faction_clan":"荆州", "gentry":"jing", "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["投机"] },
-  "张允":   { "com":55, "war":60, "int":50, "pol":45, "cha":45, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"A"}, "birthYear": null, "deathYear": 208, "debutYear": 190, "birthplace":"襄阳", "clan":"", "faction_clan":"荆州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["投机"] },
-  "王威":   { "com":60, "war":70, "int":55, "pol":45, "cha":50, "apt":{"cavalry":"B","light":"A","heavy":"B","archer":"B","siege":"B","naval":"B"}, "birthYear": null, "deathYear": null, "debutYear": 190, "birthplace":"荆州", "clan":"", "faction_clan":"荆州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
-  "刘磐":   { "com":70, "war":80, "int":55, "pol":50, "cha":55, "apt":{"cavalry":"A","light":"A","heavy":"A","archer":"B","siege":"B","naval":"B"}, "birthYear": null, "deathYear": null, "debutYear": 190, "birthplace":"山阳高平", "clan":"汉室宗亲", "faction_clan":"荆州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
-  "刘琦":   { "com":50, "war":40, "int":55, "pol":60, "cha":65, "apt":{"cavalry":"C","light":"C","heavy":"C","archer":"C","siege":"C","naval":"B"}, "birthYear": null, "deathYear": 209, "debutYear": 204, "birthplace":"山阳高平", "clan":"汉室宗亲", "faction_clan":"荆州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":[] },
-  "刘琮":   { "com":45, "war":35, "int":50, "pol":60, "cha":60, "apt":{"cavalry":"C","light":"C","heavy":"C","archer":"C","siege":"C","naval":"B"}, "birthYear": null, "deathYear": null, "debutYear": 208, "birthplace":"山阳高平", "clan":"汉室宗亲", "faction_clan":"荆州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":["投机"] },
+  "蒯越":   { "com":55, "war":40, "int":90, "pol":88, "cha":75, "apt":{"cavalry":"C","light":"C","heavy":"B","archer":"B","siege":"A","naval":"B"}, "birthYear": 165, "deathYear": 214, "debutYear": 190, "birthplace":"南郡中卢", "clan":"南郡蒯氏", "faction_clan":"荆州", "gentry":"jing", "classTag":"strategist", "classTagsAll":["strategist","civilian"], "skills":[], "values":["忠义"] },
+  "蒯良":   { "com":50, "war":35, "int":85, "pol":82, "cha":70, "apt":{"cavalry":"C","light":"C","heavy":"B","archer":"B","siege":"A","naval":"B"}, "birthYear": 165, "deathYear": 208, "debutYear": 190, "birthplace":"南郡中卢", "clan":"南郡蒯氏", "faction_clan":"荆州", "gentry":"jing", "classTag":"strategist", "classTagsAll":["strategist","civilian"], "skills":[], "values":["忠义"] },
+  "蔡瑁":   { "com":65, "war":60, "int":60, "pol":55, "cha":55, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"A"}, "birthYear": 169, "deathYear": 214, "debutYear": 189, "birthplace":"襄阳", "clan":"襄阳蔡氏", "faction_clan":"荆州", "gentry":"jing", "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["投机"] },
+  "张允":   { "com":55, "war":60, "int":50, "pol":45, "cha":45, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"A"}, "birthYear": 170, "deathYear": 208, "debutYear": 190, "birthplace":"襄阳", "clan":"", "faction_clan":"荆州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["投机"] },
+  "王威":   { "com":60, "war":70, "int":55, "pol":45, "cha":50, "apt":{"cavalry":"B","light":"A","heavy":"B","archer":"B","siege":"B","naval":"B"}, "birthYear": 170, "deathYear": null, "debutYear": 190, "birthplace":"荆州", "clan":"", "faction_clan":"荆州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
+  "刘磐":   { "com":70, "war":80, "int":55, "pol":50, "cha":55, "apt":{"cavalry":"A","light":"A","heavy":"A","archer":"B","siege":"B","naval":"B"}, "birthYear": 170, "deathYear": null, "debutYear": 190, "birthplace":"山阳高平", "clan":"汉室宗亲", "faction_clan":"荆州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
+  "刘琦":   { "com":50, "war":40, "int":55, "pol":60, "cha":65, "apt":{"cavalry":"C","light":"C","heavy":"C","archer":"C","siege":"C","naval":"B"}, "birthYear": 179, "deathYear": 209, "debutYear": 204, "birthplace":"山阳高平", "clan":"汉室宗亲", "faction_clan":"荆州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":[] },
+  "刘琮":   { "com":45, "war":35, "int":50, "pol":60, "cha":60, "apt":{"cavalry":"C","light":"C","heavy":"C","archer":"C","siege":"C","naval":"B"}, "birthYear": 177, "deathYear": null, "debutYear": 208, "birthplace":"山阳高平", "clan":"汉室宗亲", "faction_clan":"荆州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":["投机"] },
 
   // ── liuyan 集团 (5) ──
-  "刘焉":   { "com":65, "war":50, "int":78, "pol":80, "cha":80, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 194, "debutYear": 189, "birthplace":"江夏竟陵", "clan":"汉室宗亲", "faction_clan":"益州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian","ruler"], "skills":[], "values":["宗室"] },
-  "刘璋":   { "com":50, "war":40, "int":60, "pol":65, "cha":70, "apt":{"cavalry":"C","light":"C","heavy":"C","archer":"C","siege":"C","naval":"C"}, "birthYear": null, "deathYear": 219, "debutYear": 190, "birthplace":"江夏竟陵", "clan":"汉室宗亲", "faction_clan":"益州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":["仁主"] },
-  "王累":   { "com":45, "war":35, "int":75, "pol":70, "cha":65, "apt":{"cavalry":"C","light":"C","heavy":"C","archer":"C","siege":"C","naval":"C"}, "birthYear": null, "deathYear": 212, "debutYear": 190, "birthplace":"益州", "clan":"", "faction_clan":"益州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":["忠义"] },
-  "吴兰":   { "com":65, "war":75, "int":50, "pol":40, "cha":50, "apt":{"cavalry":"A","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 218, "debutYear": 190, "birthplace":"益州", "clan":"", "faction_clan":"益州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
-  "雷铜":   { "com":60, "war":70, "int":45, "pol":40, "cha":45, "apt":{"cavalry":"A","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 218, "debutYear": 200, "birthplace":"益州", "clan":"", "faction_clan":"益州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "刘焉":   { "com":65, "war":50, "int":78, "pol":80, "cha":80, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 164, "deathYear": 194, "debutYear": 189, "birthplace":"江夏竟陵", "clan":"汉室宗亲", "faction_clan":"益州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian","ruler"], "skills":[], "values":["宗室"] },
+  "刘璋":   { "com":50, "war":40, "int":60, "pol":65, "cha":70, "apt":{"cavalry":"C","light":"C","heavy":"C","archer":"C","siege":"C","naval":"C"}, "birthYear": 165, "deathYear": 219, "debutYear": 190, "birthplace":"江夏竟陵", "clan":"汉室宗亲", "faction_clan":"益州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":["仁主"] },
+  "王累":   { "com":45, "war":35, "int":75, "pol":70, "cha":65, "apt":{"cavalry":"C","light":"C","heavy":"C","archer":"C","siege":"C","naval":"C"}, "birthYear": 165, "deathYear": 212, "debutYear": 190, "birthplace":"益州", "clan":"", "faction_clan":"益州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":["忠义"] },
+  "吴兰":   { "com":65, "war":75, "int":50, "pol":40, "cha":50, "apt":{"cavalry":"A","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": 170, "deathYear": 218, "debutYear": 190, "birthplace":"益州", "clan":"", "faction_clan":"益州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "雷铜":   { "com":60, "war":70, "int":45, "pol":40, "cha":45, "apt":{"cavalry":"A","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": 180, "deathYear": 218, "debutYear": 200, "birthplace":"益州", "clan":"", "faction_clan":"益州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
 
   // ── liuyu 集团 (6) ──
-  "刘虞":   { "com":60, "war":40, "int":75, "pol":88, "cha":90, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 193, "debutYear": 188, "birthplace":"东海郯县", "clan":"汉室宗亲", "faction_clan":"幽州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian","ruler"], "skills":[], "values":["仁主","宗室"] },
-  "鲜于辅": { "com":70, "war":75, "int":65, "pol":60, "cha":65, "apt":{"cavalry":"S","light":"A","heavy":"B","archer":"A","siege":"B","naval":"C"}, "birthYear": null, "deathYear": null, "debutYear": 188, "birthplace":"渔阳", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
-  "鲜于银": { "com":65, "war":72, "int":55, "pol":50, "cha":55, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"A","siege":"B","naval":"C"}, "birthYear": null, "deathYear": null, "debutYear": 188, "birthplace":"渔阳", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
-  "阎柔":   { "com":75, "war":78, "int":70, "pol":60, "cha":70, "apt":{"cavalry":"S","light":"A","heavy":"B","archer":"A","siege":"B","naval":"C"}, "birthYear": null, "deathYear": null, "debutYear": 178, "birthplace":"广阳", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior","commander"], "skills":[], "values":[] },
-  "齐周":   { "com":55, "war":45, "int":75, "pol":70, "cha":60, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": null, "debutYear": 194, "birthplace":"幽州", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":["忠义"] },
+  "刘虞":   { "com":60, "war":40, "int":75, "pol":88, "cha":90, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 163, "deathYear": 193, "debutYear": 188, "birthplace":"东海郯县", "clan":"汉室宗亲", "faction_clan":"幽州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian","ruler"], "skills":[], "values":["仁主","宗室"] },
+  "鲜于辅": { "com":70, "war":75, "int":65, "pol":60, "cha":65, "apt":{"cavalry":"S","light":"A","heavy":"B","archer":"A","siege":"B","naval":"C"}, "birthYear": 168, "deathYear": null, "debutYear": 188, "birthplace":"渔阳", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
+  "鲜于银": { "com":65, "war":72, "int":55, "pol":50, "cha":55, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"A","siege":"B","naval":"C"}, "birthYear": 168, "deathYear": null, "debutYear": 188, "birthplace":"渔阳", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
+  "阎柔":   { "com":75, "war":78, "int":70, "pol":60, "cha":70, "apt":{"cavalry":"S","light":"A","heavy":"B","archer":"A","siege":"B","naval":"C"}, "birthYear": 158, "deathYear": null, "debutYear": 178, "birthplace":"广阳", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior","commander"], "skills":[], "values":[] },
+  "齐周":   { "com":55, "war":45, "int":75, "pol":70, "cha":60, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 169, "deathYear": null, "debutYear": 194, "birthplace":"幽州", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":["忠义"] },
   "田畴":   { "com":70, "war":60, "int":85, "pol":80, "cha":80, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 169, "deathYear": 214, "debutYear": 192, "birthplace":"右北平无终", "clan":"无终田氏", "faction_clan":"幽州", "gentry":null, "classTag":"strategist", "classTagsAll":["strategist","civilian"], "skills":[], "values":["忠义"] },
 
   // ── gongsunzan 集团 (6) ──
-  "公孙瓒": { "com":80, "war":85, "int":60, "pol":50, "cha":70, "apt":{"cavalry":"S","light":"A","heavy":"A","archer":"A","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 199, "debutYear": 184, "birthplace":"辽西令支", "clan":"辽西公孙氏", "faction_clan":"幽州", "gentry":null, "classTag":"commander", "classTagsAll":["commander","warrior","ruler"], "skills":[], "values":["边将"] },
-  "严纲":   { "com":65, "war":75, "int":50, "pol":40, "cha":50, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 192, "debutYear": 190, "birthplace":"幽州", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
-  "田楷":   { "com":70, "war":70, "int":65, "pol":60, "cha":65, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": null, "debutYear": 184, "birthplace":"幽州", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"commander", "classTagsAll":["commander","warrior"], "skills":[], "values":["忠义"] },
-  "关靖":   { "com":55, "war":50, "int":70, "pol":55, "cha":55, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 199, "debutYear": 190, "birthplace":"幽州", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"strategist", "classTagsAll":["strategist","civilian"], "skills":[], "values":["忠义"] },
-  "邹丹":   { "com":60, "war":65, "int":50, "pol":45, "cha":50, "apt":{"cavalry":"A","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 199, "debutYear": 190, "birthplace":"幽州", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
-  "单经":   { "com":55, "war":60, "int":50, "pol":50, "cha":55, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": null, "debutYear": 190, "birthplace":"幽州", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "公孙瓒": { "com":80, "war":85, "int":60, "pol":50, "cha":70, "apt":{"cavalry":"S","light":"A","heavy":"A","archer":"A","siege":"B","naval":"C"}, "birthYear": 154, "deathYear": 199, "debutYear": 184, "birthplace":"辽西令支", "clan":"辽西公孙氏", "faction_clan":"幽州", "gentry":null, "classTag":"commander", "classTagsAll":["commander","warrior","ruler"], "skills":[], "values":["边将"] },
+  "严纲":   { "com":65, "war":75, "int":50, "pol":40, "cha":50, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 157, "deathYear": 192, "debutYear": 190, "birthplace":"幽州", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
+  "田楷":   { "com":70, "war":70, "int":65, "pol":60, "cha":65, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 164, "deathYear": null, "debutYear": 184, "birthplace":"幽州", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"commander", "classTagsAll":["commander","warrior"], "skills":[], "values":["忠义"] },
+  "关靖":   { "com":55, "war":50, "int":70, "pol":55, "cha":55, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 165, "deathYear": 199, "debutYear": 190, "birthplace":"幽州", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"strategist", "classTagsAll":["strategist","civilian"], "skills":[], "values":["忠义"] },
+  "邹丹":   { "com":60, "war":65, "int":50, "pol":45, "cha":50, "apt":{"cavalry":"A","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 164, "deathYear": 199, "debutYear": 190, "birthplace":"幽州", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "单经":   { "com":55, "war":60, "int":50, "pol":50, "cha":55, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 170, "deathYear": null, "debutYear": 190, "birthplace":"幽州", "clan":"", "faction_clan":"幽州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
 
   // ── taoqian 集团 (5, 糜竺/糜芳/孙乾 已 in) ──
   "陶谦":   { "com":68, "war":60, "int":65, "pol":75, "cha":75, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 132, "deathYear": 194, "debutYear": 190, "birthplace":"丹阳", "clan":"", "faction_clan":"徐州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian","ruler"], "skills":[], "values":["老臣"] },
-  "曹豹":   { "com":60, "war":70, "int":50, "pol":50, "cha":50, "apt":{"cavalry":"B","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": null, "debutYear": 190, "birthplace":"徐州", "clan":"", "faction_clan":"徐州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
-  "笮融":   { "com":55, "war":60, "int":60, "pol":55, "cha":65, "apt":{"cavalry":"C","light":"B","heavy":"B","archer":"B","siege":"B","naval":"B"}, "birthYear": null, "deathYear": 195, "debutYear": 180, "birthplace":"丹阳", "clan":"", "faction_clan":"徐州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["投机"] },
-  "张闿":   { "com":50, "war":65, "int":45, "pol":35, "cha":40, "apt":{"cavalry":"B","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": null, "debutYear": 190, "birthplace":"徐州", "clan":"", "faction_clan":"徐州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["投机"] },
-  "陈登":   { "com":75, "war":65, "int":88, "pol":85, "cha":80, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"A","naval":"B"}, "birthYear": null, "deathYear": 206, "debutYear": 190, "birthplace":"下邳淮浦", "clan":"下邳陈氏", "faction_clan":"徐州", "gentry":"xu", "classTag":"strategist", "classTagsAll":["strategist","commander","civilian"], "skills":[], "values":["忠义"] },
+  "曹豹":   { "com":60, "war":70, "int":50, "pol":50, "cha":50, "apt":{"cavalry":"B","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 170, "deathYear": null, "debutYear": 190, "birthplace":"徐州", "clan":"", "faction_clan":"徐州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "笮融":   { "com":55, "war":60, "int":60, "pol":55, "cha":65, "apt":{"cavalry":"C","light":"B","heavy":"B","archer":"B","siege":"B","naval":"B"}, "birthYear": 160, "deathYear": 195, "debutYear": 180, "birthplace":"丹阳", "clan":"", "faction_clan":"徐州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["投机"] },
+  "张闿":   { "com":50, "war":65, "int":45, "pol":35, "cha":40, "apt":{"cavalry":"B","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 170, "deathYear": null, "debutYear": 190, "birthplace":"徐州", "clan":"", "faction_clan":"徐州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["投机"] },
+  "陈登":   { "com":75, "war":65, "int":88, "pol":85, "cha":80, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"A","naval":"B"}, "birthYear": 163, "deathYear": 206, "debutYear": 190, "birthplace":"下邳淮浦", "clan":"下邳陈氏", "faction_clan":"徐州", "gentry":"xu", "classTag":"strategist", "classTagsAll":["strategist","commander","civilian"], "skills":[], "values":["忠义"] },
 
   // ── hanfu 集团 (5) ──
-  "韩馥":   { "com":50, "war":40, "int":60, "pol":65, "cha":60, "apt":{"cavalry":"C","light":"C","heavy":"C","archer":"C","siege":"C","naval":"C"}, "birthYear": null, "deathYear": 191, "debutYear": 190, "birthplace":"颍川", "clan":"", "faction_clan":"冀州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian","ruler"], "skills":[], "values":["弱主"] },
-  "耿武":   { "com":55, "war":60, "int":65, "pol":60, "cha":60, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 191, "debutYear": 190, "birthplace":"冀州", "clan":"", "faction_clan":"冀州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":["忠义"] },
-  "闵纯":   { "com":50, "war":55, "int":65, "pol":60, "cha":55, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 191, "debutYear": 190, "birthplace":"冀州", "clan":"", "faction_clan":"冀州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":["忠义"] },
-  "赵浮":   { "com":65, "war":70, "int":55, "pol":50, "cha":55, "apt":{"cavalry":"B","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": null, "debutYear": 190, "birthplace":"冀州", "clan":"", "faction_clan":"冀州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
-  "程奂":   { "com":60, "war":65, "int":50, "pol":45, "cha":50, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": null, "debutYear": 194, "birthplace":"冀州", "clan":"", "faction_clan":"冀州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "韩馥":   { "com":50, "war":40, "int":60, "pol":65, "cha":60, "apt":{"cavalry":"C","light":"C","heavy":"C","archer":"C","siege":"C","naval":"C"}, "birthYear": 156, "deathYear": 191, "debutYear": 190, "birthplace":"颍川", "clan":"", "faction_clan":"冀州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian","ruler"], "skills":[], "values":["弱主"] },
+  "耿武":   { "com":55, "war":60, "int":65, "pol":60, "cha":60, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 156, "deathYear": 191, "debutYear": 190, "birthplace":"冀州", "clan":"", "faction_clan":"冀州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":["忠义"] },
+  "闵纯":   { "com":50, "war":55, "int":65, "pol":60, "cha":55, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 156, "deathYear": 191, "debutYear": 190, "birthplace":"冀州", "clan":"", "faction_clan":"冀州", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":["忠义"] },
+  "赵浮":   { "com":65, "war":70, "int":55, "pol":50, "cha":55, "apt":{"cavalry":"B","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 170, "deathYear": null, "debutYear": 190, "birthplace":"冀州", "clan":"", "faction_clan":"冀州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "程奂":   { "com":60, "war":65, "int":50, "pol":45, "cha":50, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 174, "deathYear": null, "debutYear": 194, "birthplace":"冀州", "clan":"", "faction_clan":"冀州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
 
   // ── matenghan 集团 (6, 庞德/马超/马岱 已 in) ──
-  "马腾":   { "com":80, "war":88, "int":65, "pol":60, "cha":78, "apt":{"cavalry":"S","light":"A","heavy":"A","archer":"A","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 212, "debutYear": 190, "birthplace":"扶风茂陵", "clan":"扶风马氏", "faction_clan":"凉州", "gentry":null, "classTag":"commander", "classTagsAll":["commander","warrior","ruler"], "skills":[], "values":["忠义"] },
-  "韩遂":   { "com":78, "war":70, "int":80, "pol":70, "cha":75, "apt":{"cavalry":"S","light":"A","heavy":"B","archer":"A","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 215, "debutYear": 184, "birthplace":"金城", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"commander", "classTagsAll":["commander","strategist","ruler"], "skills":[], "values":["野心"] },
-  "阎行":   { "com":70, "war":88, "int":60, "pol":50, "cha":65, "apt":{"cavalry":"S","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": null, "debutYear": 189, "birthplace":"金城", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
-  "成宜":   { "com":60, "war":75, "int":50, "pol":40, "cha":50, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 211, "debutYear": 189, "birthplace":"凉州", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
-  "马铁":   { "com":55, "war":70, "int":45, "pol":40, "cha":60, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 212, "debutYear": 190, "birthplace":"扶风茂陵", "clan":"扶风马氏", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
-  "马休":   { "com":55, "war":65, "int":45, "pol":40, "cha":55, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": null, "deathYear": 212, "debutYear": 190, "birthplace":"扶风茂陵", "clan":"扶风马氏", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
+  "马腾":   { "com":80, "war":88, "int":65, "pol":60, "cha":78, "apt":{"cavalry":"S","light":"A","heavy":"A","archer":"A","siege":"B","naval":"C"}, "birthYear": 156, "deathYear": 212, "debutYear": 190, "birthplace":"扶风茂陵", "clan":"扶风马氏", "faction_clan":"凉州", "gentry":null, "classTag":"commander", "classTagsAll":["commander","warrior","ruler"], "skills":[], "values":["忠义"] },
+  "韩遂":   { "com":78, "war":70, "int":80, "pol":70, "cha":75, "apt":{"cavalry":"S","light":"A","heavy":"B","archer":"A","siege":"B","naval":"C"}, "birthYear": 145, "deathYear": 215, "debutYear": 184, "birthplace":"金城", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"commander", "classTagsAll":["commander","strategist","ruler"], "skills":[], "values":["野心"] },
+  "阎行":   { "com":70, "war":88, "int":60, "pol":50, "cha":65, "apt":{"cavalry":"S","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear": 169, "deathYear": null, "debutYear": 189, "birthplace":"金城", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "成宜":   { "com":60, "war":75, "int":50, "pol":40, "cha":50, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 169, "deathYear": 211, "debutYear": 189, "birthplace":"凉州", "clan":"", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":[] },
+  "马铁":   { "com":55, "war":70, "int":45, "pol":40, "cha":60, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 178, "deathYear": 212, "debutYear": 190, "birthplace":"扶风茂陵", "clan":"扶风马氏", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
+  "马休":   { "com":55, "war":65, "int":45, "pol":40, "cha":55, "apt":{"cavalry":"A","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear": 178, "deathYear": 212, "debutYear": 190, "birthplace":"扶风茂陵", "clan":"扶风马氏", "faction_clan":"凉州", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
 
   // ── kongrong 集团 (3, 太史慈 已 in) ──
   "孔融":   { "com":50, "war":30, "int":78, "pol":75, "cha":88, "apt":{"cavalry":"C","light":"C","heavy":"C","archer":"C","siege":"C","naval":"C"}, "birthYear": 153, "deathYear": 208, "debutYear": 190, "birthplace":"鲁国曲阜", "clan":"鲁国孔氏", "faction_clan":"中原", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian","ruler"], "skills":[], "values":["名士"] },
-  "武安国": { "com":60, "war":80, "int":35, "pol":30, "cha":50, "apt":{"cavalry":"B","light":"A","heavy":"S","archer":"B","siege":"B","naval":"C"}, "birthYear":null, "deathYear":null, "debutYear": 190, "birthplace":"北海", "clan":"", "faction_clan":"中原", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
-  "宗宝":   { "com":55, "war":65, "int":40, "pol":35, "cha":45, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear":null, "deathYear":null, "debutYear": 190, "birthplace":"北海", "clan":"", "faction_clan":"中原", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
+  "武安国": { "com":60, "war":80, "int":35, "pol":30, "cha":50, "apt":{"cavalry":"B","light":"A","heavy":"S","archer":"B","siege":"B","naval":"C"}, "birthYear":170, "deathYear":null, "debutYear": 190, "birthplace":"北海", "clan":"", "faction_clan":"中原", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
+  "宗宝":   { "com":55, "war":65, "int":40, "pol":35, "cha":45, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear":170, "deathYear":null, "debutYear": 190, "birthplace":"北海", "clan":"", "faction_clan":"中原", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] },
 
   // ── 独立诸侯 / 讨董盟军 (6, 陈宫 已 in) ──
-  "张邈":   { "com":65, "war":55, "int":70, "pol":70, "cha":75, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear":null, "deathYear":195, "debutYear": 184, "birthplace":"东平寿张", "clan":"", "faction_clan":"中原", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian","commander"], "skills":[], "values":["投机"] },
-  "张超":   { "com":55, "war":50, "int":60, "pol":60, "cha":60, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear":null, "deathYear":195,  "debutYear": 184, "birthplace":"东平寿张", "clan":"", "faction_clan":"中原", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":[] },
-  "王匡":   { "com":60, "war":65, "int":55, "pol":55, "cha":60, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear":null, "deathYear":null, "debutYear": 189, "birthplace":"泰山", "clan":"", "faction_clan":"中原", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior","commander"], "skills":[], "values":[] },
-  "韩浩":   { "com":70, "war":70, "int":70, "pol":65, "cha":65, "apt":{"cavalry":"B","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear":null, "deathYear":null, "debutYear": 189, "birthplace":"河内", "clan":"", "faction_clan":"中原", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior","commander"], "skills":[], "values":["忠义"] },
-  "史涣":   { "com":65, "war":65, "int":60, "pol":55, "cha":55, "apt":{"cavalry":"B","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear":null, "deathYear":215,  "debutYear": 190, "birthplace":"河内", "clan":"", "faction_clan":"中原", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] }
+  "张邈":   { "com":65, "war":55, "int":70, "pol":70, "cha":75, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear":159, "deathYear":195, "debutYear": 184, "birthplace":"东平寿张", "clan":"", "faction_clan":"中原", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian","commander"], "skills":[], "values":["投机"] },
+  "张超":   { "com":55, "war":50, "int":60, "pol":60, "cha":60, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear":159, "deathYear":195,  "debutYear": 184, "birthplace":"东平寿张", "clan":"", "faction_clan":"中原", "gentry":null, "classTag":"civilian", "classTagsAll":["civilian"], "skills":[], "values":[] },
+  "王匡":   { "com":60, "war":65, "int":55, "pol":55, "cha":60, "apt":{"cavalry":"B","light":"B","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear":169, "deathYear":null, "debutYear": 189, "birthplace":"泰山", "clan":"", "faction_clan":"中原", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior","commander"], "skills":[], "values":[] },
+  "韩浩":   { "com":70, "war":70, "int":70, "pol":65, "cha":65, "apt":{"cavalry":"B","light":"A","heavy":"A","archer":"B","siege":"B","naval":"C"}, "birthYear":169, "deathYear":null, "debutYear": 189, "birthplace":"河内", "clan":"", "faction_clan":"中原", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior","commander"], "skills":[], "values":["忠义"] },
+  "史涣":   { "com":65, "war":65, "int":60, "pol":55, "cha":55, "apt":{"cavalry":"B","light":"A","heavy":"B","archer":"B","siege":"B","naval":"C"}, "birthYear":170, "deathYear":215,  "debutYear": 190, "birthplace":"河内", "clan":"", "faction_clan":"中原", "gentry":null, "classTag":"warrior", "classTagsAll":["warrior"], "skills":[], "values":["忠义"] }
 };
