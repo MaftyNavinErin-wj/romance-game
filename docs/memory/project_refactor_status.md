@@ -1,8 +1,33 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 W1-W3 + 4-e + codex tier A + GEN_BASE audit v1+v2 (debut/death) + **stats audit (com/war/int/pol/cha/apt + classTag)** 全完成. GEN_BASE 212 entries 字段口径定 (debutYear=首次仕官年). SCENARIO_190 active 103/wild 14/pending 95 = 212/212. **已 push (HEAD `?`, 含 stats 8 entries fix: 吕布 com 75→88 + 袁术 classTag→civilian + 张允 war 60 + 刘琮 pol 60 + 蔡瑁/祖茂/陈登 naval 微调 + 袁绍 com 85)**. 数据层 audit 闭环. 下次: skills (80+ stub) / birthYear 补全 / phase 6 wire / 平衡.
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 W1-W3 + 4-e + codex tier A + GEN_BASE audit v1+v2 (debut/death) + **stats audit (com/war/int/pol/cha/apt + classTag)** 全完成. GEN_BASE 212 entries 字段口径定 (debutYear=首次仕官年, skills=已实装 only). SCENARIO_190 active 103/wild 14/pending 95 = 212/212. **已 push (HEAD `3bba851`, 含 stats 8 entries fix)**. 数据层 audit 闭环. **skills 设计定:已实装 83 保留 + 其余 129 留 [], 不补 stub** (general_base.js header 已 lock). 下次: birthYear 补全 / phase 6 wire / 平衡 / 刘磐 active follow-up.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
+---
+
+## 2026-05-14 (skills design lock — by design, no sprint needed)
+
+实测 GEN_BASE 212 entries skills 字段状态:
+- 含「已实装」标记 (runtime 真实装): **83**
+- `skills: []` (空): **129**
+- 含「未实装」placeholder stub: **0**
+
+旧 memory "skills (80+ stub) 待 sprint" 不准 — 实际无 stub, 只有"已实装 vs 空"两态. User 设计意图:**已实装的保留, 剩余/新加的留空, 不补 stub**.
+
+### 决策
+- skills 字段 source of truth 在 `src/data/generals.js` (legacy runtime, 已 wire)
+- `src/data/general_base.js` 不维护未实装 stub — 避免 dual source-of-truth
+- header comment 加 lock note (commit), 防御未来 session 误开 sprint
+
+### 不做
+- 格式归一化 (`"skills":[]` 紧凑 79 + `"skills": [],` 带空格 50 → 都是 empty `[]`, JSON 输出一致, 纯 cosmetic, 不动)
+
+### 下次 next-up (skills 移出列表)
+- birthYear 大量 null 补 sprint
+- phase 6 wire — src/data/ 真正接到 runtime (skills 关系: 届时考虑 generals.js skills 字段 vs general_base.js 怎么去重)
+- 平衡 sprint (等 phase 6 后)
+- 刘磐 SCENARIO_190 pending→active in liubiao xiangyang (audit v2 漏的 follow-up)
+
 ---
 
 ## 2026-05-13 (stats audit — com/war/int/pol/cha/apt + classTag, 8 entries 修)
@@ -32,7 +57,7 @@ originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 - ✅ debutYear / deathYear (v1+v2 audit)
 - ✅ com/war/int/pol/cha/apt (stats audit)
 - ✅ classTag schema 一致性
-- ❌ skills (80+ stub) 待 sprint
+- ✅ skills (by design: 已实装 83 保留 + 其余 129 留 [], 不补 stub — 见 2026-05-14 design note)
 - ❌ birthYear (大量 null) 待 sprint
 - ❌ wildMeta 合理性 (codex 不擅长, user spot-check)
 

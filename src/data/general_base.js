@@ -11,6 +11,9 @@
 //                例: 司马懿 debutYear=208 (曹操辟为文学掾, 首次仕官)
 //   deathYear  = 卒年, 数字; null 表示史载不详 (非"未死亡")
 //   birthYear  = 生年, 大量 null 待补 (后续 sprint)
+//   skills     = 仅含 runtime 已实装的技能 (desc 含「已实装」标记). 其余 entries 一律 [].
+//                设计:src/data/general_base.js 不维护未实装 stub. 技能 source of truth 在
+//                src/data/generals.js (legacy runtime). 不要在这里补未实装的"占位技能".
 //
 // 来源:阶段 1a.1 由 tools/extract_scenario_214.js 自动抽取自 project_romance_v181.html。
 // 1a 阶段不被任何 code 引用,仅为后续阶段 1b 的 materializeScenario() 数据源。
