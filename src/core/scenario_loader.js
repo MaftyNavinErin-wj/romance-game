@@ -40,9 +40,9 @@ let _scenarioMaterialized = null;
 //     CITIES_DEF,                                                         // W2 真值
 //     initialUnits,                                                       // W3 真值
 //     GENS_FULL,                                                          // W4a 真值 (step-2)
-//     genMeta, wildMeta, initialIntimacyPairs,                            // W4c 真值 (step-2)
-//     WILD_GENS, pendingGenPool,                                          // W5 stub
-//     initialPosts, initialMerit, initialRetainers,                        // W4b 真值
+//     genMeta, wildMeta, initialIntimacyPairs,                            // W4c 真值 (step-2 + W5a 扩 wild)
+//     WILD_GENS, pendingGenPool,                                          // W5a 真值
+//     initialPosts, initialMerit, initialRetainers,                        // W4b 真值 (W5a 扩 wild merit/retainer)
 //     aiPersonalities, relationsGraph }                                   // 未切片 / relationsGraph 暂 stub
 //
 // 数据源: 全局 SCENARIOS[scenarioId] + FACTION_BASE + CITY_BASE + GEN_BASE (已 load 至顶层 const)
@@ -71,6 +71,21 @@ let _scenarioMaterialized = null;
 //   sc.generals (title/post/loyalty/relations), gentry 保持 legacy GEN_META 透传 (决定 2A);
 //   initialIntimacyPairs 切 sc.generals[].relations[].intimacy; wildMeta 仍 legacy 透传 (W5 再切)。
 //   byte-identical 故意破 — GEN_BASE audit + 名册改过 (这是目的)。换网: 50 回合 + 全 G dump 审差异。
+// §8.4 W5a: WILD_GENS / pendingGenPool / wildMeta 真值化 + applyScenario backing 切 (G._wildGenDefs
+//   ← m.WILD_GENS 替代 legacy WILD_GENS const)。
+//   - m.WILD_GENS  = sc.generals (status='wild' ∪ status='pending' 无 pendingFac) → 跟 legacy WILD_GENS
+//                    全集对应 (8 wild + 10 pending-no-pendingFac = 18); minTurn: wild→1, pending→
+//                    (availableYear - startYear)*36+1; 五维/apt ← GEN_BASE。
+//   - m.pendingGenPool = sc.generals (status='pending' + pendingFac) → 跟 legacy GENS_FULL minTurn>1
+//                    对应 (8 entries 散布在 wei/shu/wu); minTurn=(availableYear-startYear)*36+1;
+//                    五维/apt ← GEN_BASE; _pendingFac=pendingFac (跟 main.js v143 出场 loop 同 key)。
+//   - m.wildMeta   = composite (title/post/loyalty/relations ← wildData + birthplace/clan/values/skills
+//                    ← GEN_BASE + gentry ← legacy WILD_GEN_META 透传); 同时 cover wild + pending
+//                    (跟 W4c step-2 genMeta 同适配器模式)。
+//   - m.initialMerit / m.initialRetainers 扩 wild+pending 段, 派生自 wildData.merit/retainer。
+//   byte-identical 故意破 (跟 W4a/b/c 同模式) — minTurn 8 旬差 (legacy 手填 vs availableYear formula)
+//   + wild 段 merit/retainer 从 wildData 来 vs legacy MERIT_INIT/RETAINER_PRESET const。换网: 50 回合
+//   不崩 + 全 G dump 审差异。
 function materializeScenario(scenarioId) {
   if (typeof SCENARIOS === 'undefined') throw new Error('materializeScenario: SCENARIOS register not loaded (scenarios/index.js missing)');
   if (typeof FACTION_BASE === 'undefined') throw new Error('materializeScenario: FACTION_BASE not loaded');
@@ -261,22 +276,73 @@ function materializeScenario(scenarioId) {
     genMeta_m[name] = meta;
   }
 
-  // ── W4c step-2: 在野武将 meta + 起手亲密度 ──
-  // 制作人决策 (2026-05-15): meta 接线走「适配器模式」—— consumer 看到的 shape 不变,
-  //   getGenMeta 35 处 / GEN_TAGS 19 文件 consumer 零改动 (跟 W4a「心脏」adapter 同哲学)。
-  // genMeta 已在上方 active loop 派生 (混合 composite)。
-  // wildMeta: 在野武将 meta — 保持 legacy WILD_GEN_META const 透传 (在野/待出场归 W5,
-  //   跟 W4a/W4b 只做 active 一致; getGenMeta 对 wild 名册仍走旧 meta, W5 再切到 sc.generals)。
+  // ── W5a: 在野武将 + 待出场池 真值化 (wild ∪ pending → m.WILD_GENS / m.pendingGenPool / m.wildMeta) ──
+  // 区分两路径 (跟 v143 双池机制对应):
+  //   1. status='wild' 或 status='pending' 无 pendingFac → 走 m.WILD_GENS (legacy WILD_GENS 全集)
+  //      runtime 经 refreshWildPool → G.wildPool → 招募 UI; pending 段 minTurn>G.turn 时不进池
+  //   2. status='pending' + pendingFac → 走 m.pendingGenPool (legacy GENS_FULL minTurn>1 类)
+  //      runtime 经 G.genPendingPool, turn>=minTurn 时直接进 G.generals[pendingFac] active 名册
+  // m.wildMeta 同时 cover 两路径 (getGenMeta 一处入口); merit/retainer 扩 wild+pending 段。
+  const WILD_GENS_m = [];
+  const pendingGenPool_m = [];
+  const wildMeta_m = {};
+  for (const [name, scGen] of Object.entries(sc.generals)) {
+    if (scGen.status !== 'wild' && scGen.status !== 'pending') continue;
+    const gb = GEN_BASE[name];
+    if (!gb) throw new Error(`materializeScenario: GEN_BASE missing wild/pending general '${name}'`);
+    const wd = scGen.wildData || {};
+    // 五维/apt entry (跟 legacy WILD_GENS / GENS_FULL minTurn>1 shape 同)
+    const entry = { name, com: gb.com, war: gb.war, int: gb.int, pol: gb.pol, cha: gb.cha, apt: { ...gb.apt } };
+    if (scGen.status === 'wild') {
+      entry.minTurn = 1;
+      WILD_GENS_m.push(entry);
+    } else if (scGen.pendingFac) {
+      // pending + pendingFac → 出场后直接进 active 名册 (GENS_FULL minTurn>1 类)
+      entry.minTurn = (scGen.availableYear - sc.startYear) * 36 + 1;
+      entry._pendingFac = scGen.pendingFac;
+      pendingGenPool_m.push(entry);
+    } else {
+      // pending 无 pendingFac → 出场后进 wildPool 招募 (legacy WILD_GENS minTurn>1 类)
+      entry.minTurn = (scGen.availableYear - sc.startYear) * 36 + 1;
+      WILD_GENS_m.push(entry);
+    }
+    // wildMeta composite — title/post/loyalty/relations ← wildData (剧本状态);
+    //   birthplace/clan/faction_clan/values/skills ← GEN_BASE (史实); gentry ← legacy WILD_GEN_META 透传
+    //   (跟 W4c step-2 active genMeta 同适配器, 决定 2A: GEN_TAGS 类稀疏 legacy 数据留 const)。
+    const _legWildMeta = (typeof WILD_GEN_META !== 'undefined' && WILD_GEN_META[name]) ? WILD_GEN_META[name] : {};
+    const meta = {
+      title:        wd.title,
+      loyalty:      wd.loyalty,
+      relations:    (wd.relations || []).map(r => ({ name: r.target, type: r.type })),
+      birthplace:   gb.birthplace,
+      clan:         gb.clan,
+      faction_clan: gb.faction_clan,
+      values:       [...(gb.values || [])],
+      skills:       (gb.skills || []).map(s => ({ ...s })),
+      gentry:       _legWildMeta.gentry,
+    };
+    if (wd.post) meta.post = { ...wd.post };
+    wildMeta_m[name] = meta;
+    // merit / retainer 扩 wild+pending 段 (active 已在上方 loop 派生)
+    if (typeof wd.merit === 'number') initialMerit_m[name] = wd.merit;
+    if (wd.retainer) initialRetainers_m[name] = { count: wd.retainer.count, type: wd.retainer.type };
+  }
+
+  // ── W4c step-2: 起手亲密度 (intimacy pairs 全 sc.generals 扫, cover active+wild+pending) ──
   // initialIntimacyPairs: [[a,b,v],...] — 起手亲密度 ← sc.generals[].relations[].intimacy。
   //   relations 经 reverse audit 已对称化 (同 pair 双向都列) → normalized key 去重。
   //   byte-identical 故意破 (vs 旧 INTIMACY_PRESET): 实测 0 值冲突 / −18 orphan (指向 214
   //   已死/非名册武将, 如 典韦|曹操) / +102 richer (audit 关系扩至 130 武将, 77→161 pair)。
-  // 注: 武将关系数据随 genMeta[name].relations 携带 (legacy 形状), relationsGraph stub 暂不单列。
-  const wildMeta_m = (typeof WILD_GEN_META !== 'undefined') ? WILD_GEN_META : {};
+  // 注: 武将关系数据随 genMeta[name].relations / wildMeta[name].relations 携带 (legacy 形状),
+  //   relationsGraph stub 暂不单列。
   const initialIntimacyPairs_m = [];
   const _intimacySeen = new Set();
   for (const [iname, iscGen] of Object.entries(sc.generals)) {
-    for (const r of (iscGen.relations || [])) {
+    // §8.4 W5a: relations source 分支 — active 顶层 .relations, wild/pending 在 .wildData.relations
+    const _rels = iscGen.status === 'active'
+      ? (iscGen.relations || [])
+      : ((iscGen.wildData && iscGen.wildData.relations) || []);
+    for (const r of _rels) {
       if (typeof r.intimacy !== 'number' || !r.target) continue;
       const key = iname < r.target ? `${iname} ${r.target}` : `${r.target} ${iname}`;
       if (_intimacySeen.has(key)) continue;
@@ -309,14 +375,15 @@ function materializeScenario(scenarioId) {
     GENS_FULL:      GENS_FULL_m, // adapter step-1: 旧 GENS_FULL const deep-copy ({fid:[genObj]})
     // ── W4c step-2 真值 (武将 meta + 起手亲密度) ──
     genMeta:              genMeta_m,  // 势力武将 meta 混合 composite (GEN_BASE + sc.generals + gentry 透传)
-    wildMeta:             wildMeta_m, // 在野武将 meta — legacy WILD_GEN_META 透传 (W5 再切 sc.generals)
+    wildMeta:             wildMeta_m, // W5a 真值: composite (wildData + GEN_BASE + gentry 透传), cover wild+pending
     initialIntimacyPairs: initialIntimacyPairs_m, // 起手亲密度 [[a,b,v],...] ← sc.generals[].relations[].intimacy
-    // ── §7.2 contract stub (W5-W6 渐进填充, 暂空集合占形状) ──
-    WILD_GENS:            [],   // W5: 在野武将 def
-    pendingGenPool:       [],   // W5: 待出场池
-    initialPosts:         initialPosts_m,     // W4b: 起手官职 { genName: postName } ← sc.generals active .gamePost
-    initialMerit:         initialMerit_m,     // W4b: 起手功绩 { genName: number } ← sc.generals active .merit
-    initialRetainers:     initialRetainers_m, // W4b: 起手部曲 { genName: {count,type} } ← sc.generals active .retainer
+    // ── W5a 真值 (在野/待出场池) ──
+    WILD_GENS:            WILD_GENS_m,         // sc.generals wild ∪ pending-no-pendingFac (legacy WILD_GENS 全集)
+    pendingGenPool:       pendingGenPool_m,    // sc.generals pending+pendingFac (legacy GENS_FULL minTurn>1 类)
+    // ── W4b 真值 (官职/功绩/部曲, W5a 扩 merit/retainer 含 wild+pending) ──
+    initialPosts:         initialPosts_m,     // 起手官职 { genName: postName } ← sc.generals active .gamePost
+    initialMerit:         initialMerit_m,     // 起手功绩 { genName: number } ← active .merit + wild/pending .wildData.merit
+    initialRetainers:     initialRetainers_m, // 起手部曲 { genName: {count,type} } ← active .retainer + wild/pending .wildData.retainer
     aiPersonalities:      {},   // (未切片) AI 性格 { fid: {...} }, 现仍走顶层 const AI_PERSONALITY
     relationsGraph:       {},   // (W4c subsumed) 关系数据随 genMeta[name].relations 携带, 此 slot 暂保留空
   };
@@ -339,13 +406,14 @@ function applyScenario(scenarioId) {
   // 同 obj). 这是预期 — 外部不应直接读 _scenarioMaterialized.FAC_IDENTITY, 只走 accessor.
   G.facIdentity = m.FAC_IDENTITY;
 
-  // 1d-c: WILD_GENS runtime pool → G._wildGenDefs.
-  // 初始来源是 WILD_GENS const (data 层数据源, 不动). 用 shared ref 保 byte-identical 行为 — 跟 1d-c
-  // 前完全一致 (pre-1d-c WILD_GENS.push 直接 mutate literal, 同 entry shared ref 跨 WILD_GENS / G._wildGenDefs).
+  // §8.4 W5a: WILD_GENS runtime pool → G._wildGenDefs ← m.WILD_GENS (替代 legacy WILD_GENS const)。
+  // m.WILD_GENS 是 materializeScenario 每次 call 新建 (sc.generals wild ∪ pending-no-pendingFac 派生);
+  // 直接 assign 到 G._wildGenDefs[name] 即获得独立副本, 后续 mutate (addWildGenDef 下野武将 push,
+  // refreshWildPool defectedFrom 字段写) 落在 G 上, 不污染 _scenarioMaterialized.WILD_GENS。
+  // legacy WILD_GENS const 在 W6 退役 (删 data/generals.js:42 literal); W5a 阶段它仍存在 (data 层数据源)
+  // 但 runtime backing 已切, 不再被消费 — addWildGenDef 等只走 G._wildGenDefs。
   G._wildGenDefs = {};
-  if (typeof WILD_GENS !== 'undefined') {
-    for (const g of WILD_GENS) G._wildGenDefs[g.name] = g;
-  }
+  for (const g of m.WILD_GENS) G._wildGenDefs[g.name] = g;
 
   return m;
 }
