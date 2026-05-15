@@ -96,7 +96,16 @@ const WILD_GEN_META = {
 // 1d-b: WILD_GEN_META → getWildGenMeta accessor (函数体在 getWildGenMeta hoist 后才被 call,
 // data/generals.js L808 早于 scenario_accessors.js L820 装 — 但 getGenMeta 实际 call 在 initGame 之后,
 // 两文件均已 load, accessor 可见).
-function getGenMeta(genName){ return GEN_META[genName] || getWildGenMeta(genName) || {}; }
+// §8.4 W4c step-1: 改读 materialized genMeta/wildMeta (scenario_loader.js materializeScenario 产出,
+//   adapter 输入 = legacy GEN_META/WILD_GEN_META const → byte-identical 守底)。_scenarioMaterialized
+//   在 applyScenario 时 populated; getGenMeta 实际 call 在 initGame 之后, 此时已 set。
+//   fallback 留 const 路径防 script-load 窗口 (_scenarioMaterialized 尚为 null)。
+function getGenMeta(genName){
+  if(_scenarioMaterialized && _scenarioMaterialized.genMeta){
+    return _scenarioMaterialized.genMeta[genName] || _scenarioMaterialized.wildMeta[genName] || {};
+  }
+  return GEN_META[genName] || getWildGenMeta(genName) || {};
+}
 
 /** 武将五维静态标签
  *  politics:    uniHan(尊汉) | warlord(枭雄) | regional(地域) | pragmatic(实用)

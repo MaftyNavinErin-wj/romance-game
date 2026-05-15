@@ -556,4 +556,54 @@ _drainPendingBattleAnimations().catch(e => console.error('[drainAnim] fatal:', e
 
 ---
 
-(sprint_followup v2.1 — 2026-05-11 战斗机制 sprint 批 2 close: §5.10 user 实测 PASS + §5.3 P3 防御性 fix)
+## phase 6 wire W4c followup (2026-05-15)
+
+### F-W4c-1 — 190-roster GEN_TAGS / GEN_META / GEN_CLASS 大面积缺漏(后续 data sprint)
+
+`src/data/generals.js` 的 `GEN_TAGS`(184 条)/ `GEN_META` 是按旧 214 roster 建的;SCENARIO_190
+名册 213 武将里 ~80 个(华雄/李傕/卫兹/戏志才/李儒…)在这两张表**全缺**。同根的 `GEN_CLASS`(133 条)
+也缺(W4b 遗留 #2)。
+
+- **根因**:phase 4-a 建 190 名册时只扩 `GEN_BASE`,未同步扩 `GEN_TAGS`/`GEN_META`/`GEN_CLASS`。
+- **影响**:190 武将 `getGenMeta()` 的 `gentry` 字段为 undefined(W4c `m.genMeta` 的 gentry 走 legacy
+  `GEN_META` 透传 — 制作人决定 2A);`GEN_TAGS[name]` 为 `{}` → 小传身份标签缺失;`GEN_CLASS`
+  默认 `['warrior']`。**非崩溃 latent**(190 本就未实机,214 不受影响)。
+- **W4c 不修**(制作人决定 2A):W4c 聚焦接线,190 数据缺口归后续 data sprint。
+- **建议 fix**:开 data sprint,GEN_TAGS/GEN_META/GEN_CLASS 的 origin/combat/temperament/gentry/
+  classTag 等字段为 190 roster 扩充(像 deathCause sprint 那样 codex 史实 sweep);或考虑把这些
+  字段并入 `GEN_BASE` 主表(W4c meta 把 class/tags 读法迁到 `GEN_BASE`),一并消除多表维护。
+
+### F-W4c-2 — 小传 facName 硬编码 214 fid map(190-only 显示缺陷)
+
+`src/core/main.js` initGame chronicle loop:`const facName={wei:'魏',shu:'蜀',wu:'吴',nanman:'南蛮'}[fid]||fid;`
+—— 这个 map 只认 214 的 fid。
+
+- **W4c 暴露**:W4c step-2 把 chronicle loop 的 fid lookup 从 legacy `GENS_FULL` 迁到 `m.GENS_FULL`
+  后,190 run 拿到的是 190 真 fid(`caocao`/`dongzhuo`/…)→ map miss → `||fid` → 小传显示
+  "仕于caocao"(原 main 因 loop 读 214 legacy 数据,曹操 fid=wei → "仕于魏",**是错的但中文**)。
+- **非 W4c 回归**:W4c 的 loop 迁移是对的(214 的 9 个新武将必须靠它才拿到正确 fid);facName
+  map 是 pre-existing 214-only 缺陷。214 不受影响(fid 仍是 wei/shu/wu/nanman)。
+- **W4c 不修的原因**:① 190-only 显示缺陷,跟 "190 render bug 留 W6+" 同 bucket;② 正确 fix
+  (`m.FAC[fid].name`)对 214 **不 byte-identical** —— `FACTION_BASE.nanman.name="蛮"` ≠ 硬编码
+  "南蛮",会改 214 nanman 武将小传;③ 190 warlord 势力的小传显示名是设计决策(`.name`="曹"
+  太短 / `.full`="曹操" → "仕于曹操" 语义怪)。
+- **建议 fix**:W6 收尾或专门 session,定 190 势力小传显示口径 + 顺带核 `FACTION_BASE` name/full
+  字段口径(214 "蛮" vs "南蛮" 也值得一并理顺)。
+
+### F-W4c-3 — 在野武将小传 "仕于undefined"(pre-existing,wild = W5)
+
+chronicle loop 对在野武将也跑 `addGenChronicle(name, 仕于${facName}...)`;`facName` 由 `fid`
+派生,而在野武将的 `fid` lookup(对名册)返回 `undefined`(在野不在势力名册)→ 小传 "仕于undefined..."。
+
+- **pre-existing,非 W4c 回归**:legacy 的 loop 用 `GENS_FULL` const 做 fid lookup,W4c 改用
+  `m.GENS_FULL` —— **两者都不含在野武将**,fid 都是 undefined。W4c 全 G dump 实测:在野武将
+  chronicle 文本 main vs W4c **byte-identical**(chronicle valDiff=12 全是 active 武将的 GEN_BASE
+  birthplace 修正,零在野武将变化)。codex review trial 标 P2 "regression" 是误判 —— 实为 pre-existing。
+- **W4c 不修的原因**:W4c 原则是 active 段切新源、**wild 段保持 legacy 行为留 W5**。修在野武将
+  小传 = W4c 改 wild 行为,违反 "wild 段 byte-identical 留 W5" 约束。
+- **建议 fix**:W5(在野/待出场池)做 wild meta 接线时一并解 —— 在野武将 fid===undefined 时
+  跳过 faction-bio 或用 wild-specific 文案。
+
+---
+
+(sprint_followup v2.2 — 2026-05-15 phase 6 wire W4c followup: 190-roster 多表缺口 + 小传 facName 214-only 缺陷 + 在野武将小传 pre-existing)

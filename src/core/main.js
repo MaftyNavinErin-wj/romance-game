@@ -243,15 +243,30 @@ function initGame(scenarioId){
   // ★ codex W4b P2: 剧本可把 legacy-wild 武将提为 active (190: 田丰/张任/文聘…), 跳过已在 active 名册的,
   //   否则 wild loop 会用 legacy MERIT_INIT 覆盖掉剧本真值
   getAllWildGenDefs().forEach(g=>{ if(!_activeMeritGens.has(g.name)) G.genMerit[g.name] = MERIT_INIT[g.name] || 10; });
-  INTIMACY_PRESET.forEach(([a,b,v])=>setIntimacy(a,b,v));
+  // §8.4 W4c step-2: 起手亲密度 ← m.initialIntimacyPairs (派生自 sc.generals[].relations[].intimacy)
+  m.initialIntimacyPairs.forEach(([a,b,v])=>setIntimacy(a,b,v));
   refreshWildPool(); // 游戏开始时生成初始在野武将池
-  ALL_GENS.forEach(g=>{
+  // §8.4 W4c step-2 (W4b 遗留 #1): chronicle/loyalty init loop 从 legacy ALL_GENS 迁到
+  //   materialized 名册 — active ← m.GENS_FULL (W4a 真值), wild ← getAllWildGenDefs()。
+  //   剧本可把 legacy-wild 武将提为 active (190: 田丰/张任…) → Set 去重防 wild 段重复 init
+  //   (跟 W4b merit loop 同模式, codex W4b P2 lesson)。
+  const _initGenSeen = new Set();
+  const _allGensForInit = [];
+  Object.values(m.GENS_FULL).forEach(arr => arr.forEach(g => {
+    if(_initGenSeen.has(g.name)) return;
+    _initGenSeen.add(g.name); _allGensForInit.push(g);
+  }));
+  getAllWildGenDefs().forEach(g => {
+    if(_initGenSeen.has(g.name)) return;
+    _initGenSeen.add(g.name); _allGensForInit.push(g);
+  });
+  _allGensForInit.forEach(g=>{
     G.genChronicle[g.name]=[];
     const meta=getGenMeta(g.name);
     G.genLoyalty[g.name]=meta?.loyalty??80;
     G.loyaltyAccum[g.name]=G.genLoyalty[g.name]; // ★ v119fix: 初始化时同步loyaltyAccum
     // ★ v94: 开局小传——补齐身份标签（创始/宗亲/士族/寒门等）
-    const fid=Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(x=>x.name===g.name));
+    const fid=Object.keys(m.GENS_FULL).find(f=>m.GENS_FULL[f].some(x=>x.name===g.name));
     const facName={wei:'魏',shu:'蜀',wu:'吴',nanman:'南蛮'}[fid]||fid;
     const birthplace=meta?.birthplace||'';
     const values=meta?.values||[];
@@ -261,7 +276,7 @@ function initGame(scenarioId){
     const coreSet=m.foundingCores[fid]||new Set(); // §8.4 W1: ← m.foundingCores
     if(coreSet.has(g.name)) identParts.push('创始元勋');
     if(meta?.clan){
-      const ruler=(GENS_FULL[fid]||[]).find(x=>x.role==='ruler');
+      const ruler=(m.GENS_FULL[fid]||[]).find(x=>x.role==='ruler');
       const rulerMeta=ruler?getGenMeta(ruler.name):{};
       if(rulerMeta?.clan && meta.clan===rulerMeta.clan) identParts.push('宗亲');
     }

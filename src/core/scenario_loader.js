@@ -40,10 +40,10 @@ let _scenarioMaterialized = null;
 //     CITIES_DEF,                                                         // W2 真值
 //     initialUnits,                                                       // W3 真值
 //     GENS_FULL,                                                          // W4a 真值 (step-2)
-//     WILD_GENS, wildMeta, pendingGenPool,                                // W4-W5 stub
+//     genMeta, wildMeta, initialIntimacyPairs,                            // W4c 真值 (step-2)
+//     WILD_GENS, pendingGenPool,                                          // W5 stub
 //     initialPosts, initialMerit, initialRetainers,                        // W4b 真值
-//     initialIntimacyPairs,                                               // W4c stub
-//     aiPersonalities, relationsGraph }                                   // 未切片 / W4c stub
+//     aiPersonalities, relationsGraph }                                   // 未切片 / relationsGraph 暂 stub
 //
 // 数据源: 全局 SCENARIOS[scenarioId] + FACTION_BASE + CITY_BASE + GEN_BASE (已 load 至顶层 const)
 //   W4a step-2: GENS_FULL adapter 输入 = GEN_BASE + sc.generals (step-1 的旧 GENS_FULL const 已弃)
@@ -64,6 +64,13 @@ let _scenarioMaterialized = null;
 // §8.4 W4b: initialPosts/initialMerit/initialRetainers 真值化 — 派生自 sc.generals active 的
 //   .gamePost / .merit / .retainer。gamePost = W4b 新增 SCENARIO schema 字段 (① 游戏官职档位,
 //   区别于 .post = 招牌头衔)。initialRetainers 是 W4b 新增 contract 槽位 (§7.2 原缺)。
+// §8.4 W4c step-1: genMeta/wildMeta/initialIntimacyPairs 真值化 — adapter 输入 = legacy
+//   GEN_META / WILD_GEN_META / INTIMACY_PRESET const (byte-identical 守底)。getGenMeta 改读
+//   _scenarioMaterialized.genMeta。制作人决策: meta 走「适配器模式」consumer shape 不变。
+// §8.4 W4c step-2: genMeta 输入切到 GEN_BASE (birthplace/clan/faction_clan/values/skills) +
+//   sc.generals (title/post/loyalty/relations), gentry 保持 legacy GEN_META 透传 (决定 2A);
+//   initialIntimacyPairs 切 sc.generals[].relations[].intimacy; wildMeta 仍 legacy 透传 (W5 再切)。
+//   byte-identical 故意破 — GEN_BASE audit + 名册改过 (这是目的)。换网: 50 回合 + 全 G dump 审差异。
 function materializeScenario(scenarioId) {
   if (typeof SCENARIOS === 'undefined') throw new Error('materializeScenario: SCENARIOS register not loaded (scenarios/index.js missing)');
   if (typeof FACTION_BASE === 'undefined') throw new Error('materializeScenario: FACTION_BASE not loaded');
@@ -216,9 +223,14 @@ function materializeScenario(scenarioId) {
   const GENS_FULL_m = {};
   for (const fid of ALL_FACS_m) GENS_FULL_m[fid] = [];   // 预 init, key order = {wei,shu,wu,nanman}
   // §8.4 W4b: 起手官职 / 功绩 / 部曲 — 单趟 active loop 派生 (sc.generals .gamePost/.merit/.retainer)
+  // §8.4 W4c step-2: genMeta 混合 composite 同趟派生 — title/post/loyalty/relations ← sc.generals,
+  //   birthplace/clan/faction_clan/values/skills ← GEN_BASE, gentry ← legacy GEN_META 透传
+  //   (GEN_BASE.gentry 是州码, 不符 calcGentryRecruitBonus 的「颍川士族」显示标签口径, 无新家
+  //    — 制作人决定 2A: GEN_TAGS 类稀疏 legacy 数据留 const, 190 缺口记 followup)。
   const initialPosts_m = {};      // { genName: postName }      ← .gamePost (① 游戏官职档位)
   const initialMerit_m = {};      // { genName: number }        ← .merit
   const initialRetainers_m = {};  // { genName: {count,type} }  ← .retainer
+  const genMeta_m = {};           // { genName: metaObj }       W4c step-2 混合 composite (legacy GEN_META 形状)
   for (const [name, scGen] of Object.entries(sc.generals)) {
     if (scGen.status !== 'active') continue;
     const gb = GEN_BASE[name];
@@ -232,6 +244,45 @@ function materializeScenario(scenarioId) {
     if (scGen.gamePost) initialPosts_m[name] = scGen.gamePost;
     if (typeof scGen.merit === 'number') initialMerit_m[name] = scGen.merit;
     if (scGen.retainer) initialRetainers_m[name] = { count: scGen.retainer.count, type: scGen.retainer.type };
+    // W4c step-2: genMeta 混合 composite (getGenMeta 消费; relations 用 target→name, icon 死字段丢弃)
+    const _legMeta = (typeof GEN_META !== 'undefined' && GEN_META[name]) ? GEN_META[name] : {};
+    const meta = {
+      title:        scGen.title,                                            // ← sc.generals
+      loyalty:      scGen.loyalty,                                           // ← sc.generals
+      relations:    (scGen.relations || []).map(r => ({ name: r.target, type: r.type })), // ← sc.generals
+      birthplace:   gb.birthplace,                                           // ← GEN_BASE
+      clan:         gb.clan,                                                 // ← GEN_BASE
+      faction_clan: gb.faction_clan,                                         // ← GEN_BASE
+      values:       [...(gb.values || [])],                                  // ← GEN_BASE
+      skills:       (gb.skills || []).map(s => ({ ...s })),                   // ← GEN_BASE (已实装技能)
+      gentry:       _legMeta.gentry,                                         // ← legacy GEN_META 透传 (决定 2A)
+    };
+    if (scGen.post) meta.post = { ...scGen.post };                           // ← sc.generals 招牌头衔 (②)
+    genMeta_m[name] = meta;
+  }
+
+  // ── W4c step-2: 在野武将 meta + 起手亲密度 ──
+  // 制作人决策 (2026-05-15): meta 接线走「适配器模式」—— consumer 看到的 shape 不变,
+  //   getGenMeta 35 处 / GEN_TAGS 19 文件 consumer 零改动 (跟 W4a「心脏」adapter 同哲学)。
+  // genMeta 已在上方 active loop 派生 (混合 composite)。
+  // wildMeta: 在野武将 meta — 保持 legacy WILD_GEN_META const 透传 (在野/待出场归 W5,
+  //   跟 W4a/W4b 只做 active 一致; getGenMeta 对 wild 名册仍走旧 meta, W5 再切到 sc.generals)。
+  // initialIntimacyPairs: [[a,b,v],...] — 起手亲密度 ← sc.generals[].relations[].intimacy。
+  //   relations 经 reverse audit 已对称化 (同 pair 双向都列) → normalized key 去重。
+  //   byte-identical 故意破 (vs 旧 INTIMACY_PRESET): 实测 0 值冲突 / −18 orphan (指向 214
+  //   已死/非名册武将, 如 典韦|曹操) / +102 richer (audit 关系扩至 130 武将, 77→161 pair)。
+  // 注: 武将关系数据随 genMeta[name].relations 携带 (legacy 形状), relationsGraph stub 暂不单列。
+  const wildMeta_m = (typeof WILD_GEN_META !== 'undefined') ? WILD_GEN_META : {};
+  const initialIntimacyPairs_m = [];
+  const _intimacySeen = new Set();
+  for (const [iname, iscGen] of Object.entries(sc.generals)) {
+    for (const r of (iscGen.relations || [])) {
+      if (typeof r.intimacy !== 'number' || !r.target) continue;
+      const key = iname < r.target ? `${iname} ${r.target}` : `${r.target} ${iname}`;
+      if (_intimacySeen.has(key)) continue;
+      _intimacySeen.add(key);
+      initialIntimacyPairs_m.push([iname, r.target, r.intimacy]);
+    }
   }
 
   return {
@@ -256,16 +307,18 @@ function materializeScenario(scenarioId) {
     initialUnits:   initialUnits_m, // sc.initialUnits deep-copy (byte-identical 原硬编码 initUnits)
     // ── W4a step-1 真值 (武将名册) ──
     GENS_FULL:      GENS_FULL_m, // adapter step-1: 旧 GENS_FULL const deep-copy ({fid:[genObj]})
-    // ── §7.2 contract stub (W4-W6 渐进填充, 暂空集合占形状) ──
-    WILD_GENS:            [],   // W4/W5: 在野武将 def
-    wildMeta:             {},   // W4c: 在野武将 meta
+    // ── W4c step-2 真值 (武将 meta + 起手亲密度) ──
+    genMeta:              genMeta_m,  // 势力武将 meta 混合 composite (GEN_BASE + sc.generals + gentry 透传)
+    wildMeta:             wildMeta_m, // 在野武将 meta — legacy WILD_GEN_META 透传 (W5 再切 sc.generals)
+    initialIntimacyPairs: initialIntimacyPairs_m, // 起手亲密度 [[a,b,v],...] ← sc.generals[].relations[].intimacy
+    // ── §7.2 contract stub (W5-W6 渐进填充, 暂空集合占形状) ──
+    WILD_GENS:            [],   // W5: 在野武将 def
     pendingGenPool:       [],   // W5: 待出场池
     initialPosts:         initialPosts_m,     // W4b: 起手官职 { genName: postName } ← sc.generals active .gamePost
     initialMerit:         initialMerit_m,     // W4b: 起手功绩 { genName: number } ← sc.generals active .merit
     initialRetainers:     initialRetainers_m, // W4b: 起手部曲 { genName: {count,type} } ← sc.generals active .retainer
-    initialIntimacyPairs: [],   // W4c: 起手亲密度 [[a,b,v],...]
     aiPersonalities:      {},   // (未切片) AI 性格 { fid: {...} }, 现仍走顶层 const AI_PERSONALITY
-    relationsGraph:       {},   // W4c: 武将关系图 (shape TBD — 派生 G.intimacy from relations)
+    relationsGraph:       {},   // (W4c subsumed) 关系数据随 genMeta[name].relations 携带, 此 slot 暂保留空
   };
 }
 
