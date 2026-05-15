@@ -97,18 +97,14 @@ function initGame(scenarioId){
   // ★ v144: 建宁(南中)：南蛮据点，低民心+半存粮，体现边陲蛮荒
   if(G.cities.jianning){ G.cities.jianning.morale=25; G.cities.jianning.storage=Math.floor(G.cities.jianning.storage*0.5); }
   // ★ v143: 延迟出场机制 — 有minTurn的武将暂不加入，放入待出场池
-  // §8.4 W4a step-1: 名册 ← m.GENS_FULL (adapter step-1: 旧 GENS_FULL const deep-copy); loop 逻辑 verbatim
-  G.genPendingPool = [];
+  // §8.4 W4a step-1: 名册 ← m.GENS_FULL (adapter: GEN_BASE + SCENARIO.generals active)
+  // §8.4 W5b: 待出场池 ← m.pendingGenPool (W5a 真值化: status='pending'+pendingFac entries)。
+  //   W4a step-2 之后 m.GENS_FULL 只含 active (不带 minTurn), 旧 scan loop for minTurn>1 实际无效;
+  //   切 m.pendingGenPool 后 v143 8 个 SCENARIO pending+pendingFac 武将 (司马昭/陈泰/王基/关兴/张苞/
+  //   夏侯霸/诸葛恪/施绩…) 正确入 G.genPendingPool, 出场链 (tick.js:541) 起作用。
+  G.genPendingPool = m.pendingGenPool.map(g => _deepCloneGen(g));
   Object.keys(m.GENS_FULL).forEach(fid=>{
-    const immediate = [];
-    m.GENS_FULL[fid].forEach(g => {
-      if(g.minTurn && g.minTurn > 1){
-        G.genPendingPool.push({..._deepCloneGen(g), _pendingFac: fid}); // ★ v155fix P0: 深拷贝含apt
-      } else {
-        immediate.push(_deepCloneGen(g)); // ★ v155fix P0: 深拷贝含apt
-      }
-    });
-    G.generals[fid] = immediate;
+    G.generals[fid] = m.GENS_FULL[fid].map(g => _deepCloneGen(g));
   });
   Object.entries(getDiploInit()).forEach(([k,v])=>{
     G.diplo[k]={...v};
@@ -242,7 +238,8 @@ function initGame(scenarioId){
   }));
   // ★ codex W4b P2: 剧本可把 legacy-wild 武将提为 active (190: 田丰/张任/文聘…), 跳过已在 active 名册的,
   //   否则 wild loop 会用 legacy MERIT_INIT 覆盖掉剧本真值
-  getAllWildGenDefs().forEach(g=>{ if(!_activeMeritGens.has(g.name)) G.genMerit[g.name] = MERIT_INIT[g.name] || 10; });
+  // §8.4 W5b: wild merit 切 m.initialMerit (W5a 扩 wild+pending wildData.merit), 替代 legacy MERIT_INIT const
+  getAllWildGenDefs().forEach(g=>{ if(!_activeMeritGens.has(g.name)) G.genMerit[g.name] = (typeof m.initialMerit[g.name]==='number') ? m.initialMerit[g.name] : 10; });
   // §8.4 W4c step-2: 起手亲密度 ← m.initialIntimacyPairs (派生自 sc.generals[].relations[].intimacy)
   m.initialIntimacyPairs.forEach(([a,b,v])=>setIntimacy(a,b,v));
   refreshWildPool(); // 游戏开始时生成初始在野武将池
@@ -266,8 +263,11 @@ function initGame(scenarioId){
     G.genLoyalty[g.name]=meta?.loyalty??80;
     G.loyaltyAccum[g.name]=G.genLoyalty[g.name]; // ★ v119fix: 初始化时同步loyaltyAccum
     // ★ v94: 开局小传——补齐身份标签（创始/宗亲/士族/寒门等）
+    // §8.4 W5b F-W4c-3 fix: wild 武将不在 m.GENS_FULL → fid=undefined → facName 旧实装为 'undefined' 字面
+    //   ("仕于undefined")。wild/pending 出场前归在野; 小传开头改 「在野」, 出场后由 tick.js:572
+    //   addGenChronicle(pg.name, `${facN}迎来新锐——…`) 接续记录入仕势力。
     const fid=Object.keys(m.GENS_FULL).find(f=>m.GENS_FULL[f].some(x=>x.name===g.name));
-    const facName={wei:'魏',shu:'蜀',wu:'吴',nanman:'南蛮'}[fid]||fid;
+    const facName=fid ? ({wei:'魏',shu:'蜀',wu:'吴',nanman:'南蛮'}[fid]||fid) : '在野';
     const birthplace=meta?.birthplace||'';
     const values=meta?.values||[];
     const tags=GEN_TAGS[g.name]||{};
