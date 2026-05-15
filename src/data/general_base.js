@@ -3,14 +3,16 @@
 // 武将主表(cross-scenario fix,immutable 字段)
 // 字段:com/war/int/pol/cha/apt(战力)+ birthplace/clan/gentry/classTag/skills/values/faction_clan(史实不变)
 // 不进 GEN_BASE 的字段(scenario-specific,留 SCENARIO_xxx.generals):title/post/loyalty/relations/role/merit/retainer
-// birthYear/deathYear/debutYear:1a 阶段未填(仅 GEN_POOL_INACTIVE 武将含 era 数据),留阶段 6 年龄 hook 补全
+// birthYear/deathYear/debutYear:phase 6 死亡 sprint 已闭环, 213 entries 全 populate (Group A audit)
 //
 // 字段口径 (2026-05-13 audit sprint 定):
 //   debutYear  = 首次仕官年 (不是"成名年" / 不是"投靠某主年" / 不是"首次见于史载"年)
 //                例: 文聘 debutYear=188 (原刘表大将), 不是 208 (投曹年)
 //                例: 司马懿 debutYear=208 (曹操辟为文学掾, 首次仕官)
-//   deathYear  = 卒年, 数字; null 表示史载不详 (非"未死亡")
-//   birthYear  = 生年, 大量 null 待补 (后续 sprint)
+//   deathYear  = 卒年, 数字 (213 entries 全 populate, 0 null)
+//   birthYear  = 生年, 213 entries 全 populate (phase 6 死亡 sprint Group A 闭环, 0 null)
+//   deathCause = 'natural' | 'violent' | null (§5.6 机制 1/2 用; null 仅当 deathYear=null 时,
+//                现 213 全 populate 死因; natural 125 / violent 88)
 //   skills     = 仅含 runtime 已实装的技能 (desc 含「已实装」标记). 其余 entries 一律 [].
 //                设计:src/data/general_base.js 不维护未实装 stub. 技能 source of truth 在
 //                src/data/generals.js (legacy runtime). 不要在这里补未实装的"占位技能".

@@ -590,7 +590,7 @@ _drainPendingBattleAnimations().catch(e => console.error('[drainAnim] fatal:', e
 - **建议 fix**:W6 收尾或专门 session,定 190 势力小传显示口径 + 顺带核 `FACTION_BASE` name/full
   字段口径(214 "蛮" vs "南蛮" 也值得一并理顺)。
 
-### F-W4c-3 — 在野武将小传 "仕于undefined"(pre-existing,wild = W5)
+### F-W4c-3 ✅ closed (W5b commit `3feb2ba`) — 在野武将小传 "仕于undefined"
 
 chronicle loop 对在野武将也跑 `addGenChronicle(name, 仕于${facName}...)`;`facName` 由 `fid`
 派生,而在野武将的 `fid` lookup(对名册)返回 `undefined`(在野不在势力名册)→ 小传 "仕于undefined..."。
@@ -603,7 +603,9 @@ chronicle loop 对在野武将也跑 `addGenChronicle(name, 仕于${facName}...)
   小传 = W4c 改 wild 行为,违反 "wild 段 byte-identical 留 W5" 约束。
 - **建议 fix**:W5(在野/待出场池)做 wild meta 接线时一并解 —— 在野武将 fid===undefined 时
   跳过 faction-bio 或用 wild-specific 文案。
+- **实际 fix(W5b commit `3feb2ba`)**:`tick.js` debut path + `main.js` chronicle init loop 都加
+  `fid undefined → facName='在野'` fallback,代替 'undefined' 字面。
 
 ---
 
-(sprint_followup v2.2 — 2026-05-15 phase 6 wire W4c followup: 190-roster 多表缺口 + 小传 facName 214-only 缺陷 + 在野武将小传 pre-existing)
+(sprint_followup v2.3 — 2026-05-16: F-W4c-3 closed via W5b; F-W4c-1/-2 仍 open 留 190 data sprint)
