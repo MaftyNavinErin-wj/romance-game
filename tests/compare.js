@@ -3,7 +3,7 @@
 // 用法:
 //   node tests/compare.js [baseline_path] [current_path]
 // 默认:
-//   baseline = tests/baseline/phase1f_p4_p5_complete.json (最新阶段 baseline)
+//   baseline = tests/baseline/phase6_wire_complete.json (最新阶段 baseline)
 //   current  = tests/current.json
 //
 // Baseline 演进顺序(每阶段完成时锁定一份,旧 baseline 保留供回归):
@@ -20,7 +20,12 @@
 //     → phase1f_p4_p2_complete (1f-p4-p2 codex catch: 吴县 type='clan_base' + 娄县 seat, 顾陆朱 clan 真正 trigger, 55 cities)
 //     → phase1f_p4_p3_complete (1f-p4-p3 v181 latent fix: getGenBirthplace 改读 GEN_META — v170 籍贯系统 (getGenHomeCounty/Home City + 县属 loyalty 本族放大 ×2.0) 终于真正 work, 55 cities)
 //     → phase1f_p4_p4_complete (1f-p4-p4 audit-driven: COUNTY_DATA langya 补 莒县 / suzhou 补 钱唐 — 徐盛/全琮 birthplace orphan fix, 55 cities)
-//     → phase1f_p4_p5_complete (1f-p4-p5 audit sweep full: 12 city 补 15 县 + 13 birthplace 字符串改 — 全图 0 should-fix orphan (剩 33 真 OFFMAP 地图未覆盖), 55 cities, **当前默认**)
+//     → phase1f_p4_p5_complete (1f-p4-p5 audit sweep full: 12 city 补 15 县 + 13 birthplace 字符串改 — 全图 0 should-fix orphan (剩 33 真 OFFMAP 地图未覆盖), 55 cities)
+//     → phase6_wire_complete (phase 6 runtime data wire W1-W5 + W6/B 0-consumer const 删除 完结;
+//                             initGame 从 m.* 读势力/城市/部队/武将/官职/功绩/部曲/关系/亲密度/meta/loyalty/wild池;
+//                             SCENARIO_214 130 generals + GEN_BASE 213 + 反向 audit; 190 入口可玩;
+//                             W4a-c 故意破换网 (audit 改 deathYear/roster) → phase1f_p4_p5 baseline byte-identical 失效,
+//                             安全网换 50 回合不崩 + 全 G dump 审差异; **当前默认**)
 //
 // 退出码:
 //   0 = PASS(完全一致)
@@ -32,7 +37,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const BASELINE_DEFAULT = path.resolve(__dirname, 'baseline', 'phase1f_p4_p5_complete.json');
+const BASELINE_DEFAULT = path.resolve(__dirname, 'baseline', 'phase6_wire_complete.json');
 const CURRENT_DEFAULT  = path.resolve(__dirname, 'current.json');
 
 function diff(a, b, p, out, max) {
