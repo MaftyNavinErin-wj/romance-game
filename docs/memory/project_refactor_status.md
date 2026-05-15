@@ -5,6 +5,62 @@ type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
+## 2026-05-15 (phase 6 wire W6/B ✅ — 删 0-consumer legacy const)
+
+W6 切片 = "退役 legacy (删 GENS_FULL/CITIES_DEF/硬编码数组)"。本 sprint 走 B 段 (制作人决:
+W1-W5 wire 完后已 0-consumer 的 legacy const 先删, 留 D 段重拍 baseline)。
+commit `3a89215` (local, 未 push)。
+
+**Scout 结论 (consumer 实测)**:
+| const | live consumer | 处理 |
+|---|---|---|
+| `INTIMACY_PRESET` | 0 (仅 2 处 comment) | **删** — W4c 已迁 `initialIntimacyPairs` |
+| `TECH_PREUNLOCK` | 0 (仅 comment) | **删** — W1 已迁 `m.techPreunlocks` |
+| `GEN_META` / `WILD_GEN_META` | 1 fallback (`m.X \|\| X` script-load race guard) | 留 — W4c 决策 |
+| `GEN_TAGS` | 109 hit (稀疏 legacy data) | 留 — W4c 决策 |
+| `CITIES_DEF` / `GENS_FULL` / `ALL_GENS` | 20+ consumer 未迁 | 留 — 后续 W6 sprint |
+| `FOUNDING_CORE` (2) / `MERIT_INIT` (1, tick pending debut) / `RETAINER_PRESET` (3) | live consumer 存在 | 留 |
+
+**改动 (4 文件, -87/+8 行)**:
+- `src/data/generals.js`: 删 `INTIMACY_PRESET` (37 行 array) + 节标题去字段
+- `src/data/constants.js`: 删 `TECH_PREUNLOCK` (6 行 obj) + 头部 owner 注释
+- `tests/sprint_verify.js`: 删 obsolete `scenario-1a3-intimacy-preset-coverage` check
+  (1a one-time migration verifier, 迁移已完成 + INTIMACY_PRESET 已废, regex parse 不到源 → 永失败)
+- `tools/extract_scenario_214.js`: 加 ⚠️ OBSOLETE / DO NOT RE-RUN 头标记
+  (1a one-time 抽取工具, 产出文件经 Task A/B/C reverse audit + W4b/c/W5a 手工大改, re-run 会
+   clobber; required guard 因 TECH_PREUNLOCK/INTIMACY_PRESET 缺失 throw)
+
+**安全网**:
+- smoke 50 回合 PASS (51 snapshot / 1938.5 KB) ✅
+- **B-tree vs clean main HEAD: byte-identical** (timestamps stripped, 单条 node 脚本验证) ✅ —
+  真·0-consumer 确认, 删除对 runtime 零影响
+- baseline.json diff 不变 (pre-existing W4a-c 故意破换网, 等 D 重拍)
+
+**codex review --uncommitted (2 轮)**:
+- round 1: P2 `scenario-1a3-intimacy-preset-coverage` check 会因 regex 解不到 INTIMACY_PRESET
+  永失败 → **valid, 删 obsolete check**
+- round 1: P2 `tools/extract_scenario_214.js` 会 throw `missing global: INTIMACY_PRESET /
+  TECH_PREUNLOCK` → **valid 但 tool 已 archaeology (再跑会 clobber 手工编辑), 加 OBSOLETE 头标记**
+- round 2: **LGTM** — "did not find a discrete functional regression"
+
+**关键 lesson — 0-consumer 判定**:
+"0-consumer" 不是看 grep 总数, 是看 **live code 真消费**:
+1. 排除 declaration 行
+2. 排除纯 comment 行 (`// ... INTIMACY_PRESET ...`)
+3. 排除 `typeof X !== 'undefined' ? X : null` archaeology guard
+4. 排除 fallback path `m.X || X` (W4c 故意留的 script-load race 防御)
+5. 剩下的才是 live consumer
+**配对验证**: smoke 50 回合 + B-tree vs main-HEAD JSON byte-identical → 强证 "无 runtime 行为变化"。
+
+**lesson — sprint_verify.js 哑场化**:
+sprint_verify.js 是 Layer-3 sprint-batch 模板 (template, 不是 regression gate)。1a/1b/1c-* 等
+sprint 早完, 大量 check 已 stale (本 sprint 跑了一遍 30+ FAIL, 全 pre-existing)。删 obsolete check
+只删 codex 明确 flag 的, 其他 stale check **out of scope** (本 sprint 不顺手清)。
+
+**下次: D (重拍 baseline)** — W4a-c 故意破换网 + W4b/W5 数据扩充 + 190 入口接通后,
+baseline.json (v181-derived) 已大面积 stale, smoke compare 50+ diff 全 pre-existing。
+D 跑 smoke 取 current.json → cp 成新 baseline.json + 留旧 baseline 作 v181 历史归档。
+
 ## 2026-05-15 (phase 6 wire W4c ✅ — 关系/亲密度/meta/小传/忠诚 wire)
 
 W4c done, commit `ceb5ff7` (local, 未 push). adapter 两步走: step-1 byte-identical 守底 +
