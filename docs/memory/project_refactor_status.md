@@ -5,6 +5,60 @@ type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
+## 2026-05-16 (阶段 6 真·年龄 hook ✅ — §5.6 机制 2 自然死亡 runtime 实装)
+
+phase 6 wire 一段落后的真·阶段 6 任务 (§5.6 机制 2 死亡)。commits:
+- `281a3b0` feat(age-hook): 5 文件 mechanism 2 实装 + tests/death_hook.js 回归测试
+- `b7c71a2` chore(baseline): 重拍 phase6_age_hook_complete.json (50 旬 7 自然死后行为)
+
+**设计** (锁 v3.4 §5.6, 无新 design 决策):
+- natural + deathYear → 用 deathYear ± 2 年 (organic 微随机)
+- violent / null → birthYear + 60 + roll(0..20) (寿 60~80)
+- runtime 值 `G.genNaturalDeathTurn[name]` per-playthrough, 不进 GEN_BASE
+
+**实装边界** (CC 自决, 微调常量级):
+- ±2 年 natural shift / 寿命按年级 roll / 每旬扫 active 名册 / 第一版 active only (wild/pending followup) /
+  killGen 加 opts.trigger 分支 / 自然死 chronicle = 「享年X寿终正寝」
+
+**实装** (5 文件 +285/-17 行):
+- `scenario_loader.js` materializeScenario active entry 加 birthYear/deathYear/deathCause (GEN_BASE 派生)
+- `main.js` initGame 加 active loop 算起手 deathTurn → G.genNaturalDeathTurn
+- `tick.js` 每旬 hook 3 步: (a) orphan sweep — 武将不在 active 清 entry / (b) newcomer sweep —
+  active 新增无 entry 派生 deathTurn / (c) trigger — G.turn >= deathTurn 触发 killGen natural_age
+- `general.js` killGen(name, killer, opts) 加 trigger 分支 ('battle' byte-identical / 'natural_age' 寿终)
+- `persist.js` _deserializeG 加旧存档迁移 (raw deathTurn <= G.turn 时 reschedule, 不 skip)
+- `tests/death_hook.js` 新增 200 旬回归测试 (17/18 expected 触发 + 0 NaN)
+
+**安全网换网** (W4a-c 后第三次故意破换网):
+- 旧 phase6_wire baseline byte-identical 必破 (214 active 50 旬内 7 自然死: 荀攸/蒯越/蔡瑁
+  dy=214 + 孙乾/黄盖/程普/史涣 dy=215)
+- 新网: smoke 50 不崩 + tests/death_hook.js 200 旬触发率 ≥50% + 0 NaN
+- 新 baseline phase6_age_hook_complete.json (4.3 MB / 51 snapshot)
+
+**codex review (5 轮兜底)**:
+- round 1 P2: 旧存档无 G.genNaturalDeathTurn → 加 _deserializeG 迁移补回
+- round 2 P2: 迁移用 skip 让武将永生 → 改 reschedule G.turn + 1-36 旬
+- round 3 P2: pending debut / wild recruit / surrender 新增 active 不在 map → 加 newcomer sweep
+- round 4 P1: hook 位置在 battle queue 后会腐败 _pendingBattleConfirms → 移到 G.turn++ 后 + battle 前
+- round 5: **LGTM** — "No discrete correctness issues identified"
+
+**关键 lesson**:
+- **codex 5 轮必要** — 死亡机制是高 cross-cutting hook (queue / persist / dynamic membership / 凶手扩散),
+  CC 第一版只覆盖 happy path, codex 4 个 P2/P1 全是 robustness 边界。
+- **orphan sweep + newcomer sweep 配套必备** — pre-existing v181 有 .filter 删 active 不走
+  killGen 的 path (反间计 fled L921, 等), 单 trigger-only 实装会 forever stale。每旬扫 active 名册
+  + map keys 双向 reconcile 是 robust 模式。
+- **hook 时机决定数据完整性** — G.turn++ 后 + battle queue 前 是 sweet spot, 既包到本旬死亡,
+  又不腐败 queued battle state。
+- **G.logs 8-entry ring 不能 long-sim 验** — 用 G.genChronicle (per-gen persistent) 才是正确信号。
+- **fled-then-recover case 接受 reschedule** — 武将 短暂出 active 又回 → orphan→newcomer 重排,
+  原 deathTurn 失效, 新 deathTurn 可能 > sim 长度, 不是 bug。
+
+**followup / 后续**:
+- wild / pending 武将自然死亡 (本版 active only)
+- 玩家 ruler 死游戏 over 设计 (现行: succeedRuler 自动继任, 玩家继续控势力)
+- 高 cha + age >=70 + ruler 用「薨」chronicle (本版统一「寿终正寝」)
+
 ## 2026-05-15 (phase 6 wire D ✅ — 重拍 baseline phase6_wire_complete.json)
 
 W6 安全网表 "W6 后 重拍 baseline" 落地, commit `efae161` (pushed)。
