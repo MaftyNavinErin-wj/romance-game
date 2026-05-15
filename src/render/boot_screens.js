@@ -924,7 +924,7 @@ function showFactionSelect(scenarioId){
   overlay.innerHTML = `
     <div style="color:var(--ink);font-size:24px;letter-spacing:8px;margin-bottom:6px;font-family:'ZCOOL XiaoWei','Noto Serif SC',serif">苍生问策</div>
     <div style="color:var(--ink-ll);font-size:11px;letter-spacing:3px;margin-bottom:36px">选择你的势力</div>
-    <div style="display:flex;gap:20px;margin-bottom:36px">
+    <div style="display:flex;gap:20px;margin-bottom:36px;flex-wrap:wrap;justify-content:center;max-width:90vw;max-height:75vh;overflow-y:auto;padding:0 20px">
       ${facData.map(f=>`
         <div onclick="startAs('${f.id}','${scenarioId}')" style="cursor:pointer;border:1px solid ${f.color}40;
           background:rgba(255,252,245,.6);padding:22px 20px;width:190px;transition:all .25s;border-radius:3px;
