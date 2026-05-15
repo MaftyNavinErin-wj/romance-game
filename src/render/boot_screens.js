@@ -167,9 +167,18 @@ function showScenarioSelect(){
           <span>三大势力</span><span>45城</span><span>109位武将</span>
         </div>
       </div>
-      <div style="width:320px;border:1px dashed rgba(80,65,40,.15);padding:28px 26px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px">
-        <div style="font-size:28px;color:rgba(80,65,40,.15)">＋</div>
-        <div style="font-size:10px;color:rgba(92,74,50,.25);letter-spacing:1px">更多剧本 · 敬请期待</div>
+      <div class="scenario-card" onclick="onScenarioSelect('190')">
+        <div class="sc-badge">群雄并起</div>
+        <div style="font-family:'ZCOOL XiaoWei','Noto Serif SC',serif;font-size:22px;color:var(--ink);letter-spacing:4px;margin-bottom:8px">諸侯討董</div>
+        <div style="font-size:11px;color:var(--gold);letter-spacing:1px;margin-bottom:12px">初平元年 · 公元190年</div>
+        <div style="font-size:9px;color:rgba(44,36,22,.55);line-height:1.9;margin-bottom:14px">
+          董卓废少帝立献帝，焚洛阳迁长安，关东诸侯起兵讨董。<br>
+          十四路诸侯各怀异心，曹操初起兖州，孙坚势盛江东；<br>
+          刘备草根未显，袁绍霸河北。乱世群雄，谁能定鼎？
+        </div>
+        <div style="border-top:1px solid rgba(80,65,40,.12);padding-top:10px;display:flex;gap:16px;font-size:9px;color:var(--ink-ll)">
+          <span>十四势力</span><span>55城</span><span>213位武将</span>
+        </div>
       </div>
     </div>
     <button class="ts-btn" onclick="showTitleScreen()" style="font-size:11px;width:140px;padding:9px 0">◂ 返回主菜单</button>

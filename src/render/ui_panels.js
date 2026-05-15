@@ -182,10 +182,14 @@ function renderCityTab(c){
 function _renderCityList(c) {
   const listHtml = Object.entries(JUNS).map(([jid,jun])=>{
     const cities=CITIES_DEF.filter(cd=>cd.jun===jid);
+    // §8.4 phase 5: JUNS.fac 硬编码 214 时代势力归属 (constants.js:354), 190 等剧本对应 fac 不存在
+    //   → getFactionDef 返回 null → null.color 崩。fallback 灰色 '#888' (UI 标题色, 不影响功能)。
+    //   彻底修需 jun.fac 改 G.cities derived (留 phase 7 scenario-aware UI sprint)。
     const fc=getFactionDef(jun.fac);
+    const _junCol = fc?.color || '#888';
     return`<div class="jun-item">
-      <div class="jun-hd" style="border-left-color:${fc.color}60">
-        <span style="color:${fc.color}aa">${jun.name}</span>
+      <div class="jun-hd" style="border-left-color:${_junCol}60">
+        <span style="color:${_junCol}aa">${jun.name}</span>
         <span style="font-size:9px;color:rgba(92,74,50,.35)">${cities.length}城</span>
       </div>
       ${cities.map(cd=>{
