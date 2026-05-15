@@ -328,15 +328,6 @@ const TECH_TREE = {
            effect:{migrateLossReduce:0.10, migrateDstPenReduce:0.30}, desc:'迁民损耗-10%，目的城惩罚-30%'},
 };
 
-// 开局预解锁
-// ── owner: politics chain ──
-const TECH_PREUNLOCK = {
-  wei: ['mil1','econ4','pol1'],
-  shu: ['train1','civ1','pol1'],
-  wu:  ['econ1','civ1','mil4'],
-  nanman: [], // ★ v144: 南蛮无预解锁科技
-};
-
 // 政治链 P1.a (科技 cache lets + helpers,L1380-L1409) 已抽离到 src/chains/politics.js (Session 3.7)
 
 /** 获取势力的squad编制上限（基础7000+科技加成） */

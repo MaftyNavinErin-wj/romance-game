@@ -1412,45 +1412,6 @@ const VERIFIES = [
     },
   },
   {
-    // codex trial 1 P1.1 fix: relations 全收编 INTIMACY_PRESET (orphan pair 不丢)
-    // 每个 INTIMACY_PRESET 双方都在 scenario.generals 的 pair → 两侧都该有对方 relation entry
-    id: 'scenario-1a3-intimacy-preset-coverage',
-    name: 'INTIMACY_PRESET 全 pair (双方 ∈ scenario.generals) → 双向 relations 全收编 (codex P1.1 fix)',
-    fn(G, win){
-      const fsM = require('fs'), pathM = require('path');
-      const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
-      const S = (new Function(src + '\n; return SCENARIO_214;'))();
-      // win.INTIMACY_PRESET via inline script: 1a.3 extract tool 已 expose, 但 sprint_verify 还没 expose 直接 — 改读 src
-      const gsrc = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'generals.js'), 'utf8');
-      // 不要 eval 全 generals.js (大), 仅 grep INTIMACY_PRESET 块
-      const m = gsrc.match(/const INTIMACY_PRESET\s*=\s*(\[[\s\S]*?\]);/);
-      if(!m) return { passed: false, detail: 'INTIMACY_PRESET not parsed from generals.js' };
-      const INTIMACY_PRESET = (new Function('return ' + m[1] + ';'))();
-
-      function getRels(name){
-        const g = S.generals[name];
-        if(!g) return null;
-        return (g.status === 'active') ? (g.relations || []) : ((g.wildData && g.wildData.relations) || []);
-      }
-
-      const errs = [];
-      let okPairs = 0;
-      for(const [a, b, v] of INTIMACY_PRESET){
-        if(!S.generals[a] || !S.generals[b]) continue;  // skip if not both in scenario
-        const ra = getRels(a) || [];
-        const rb = getRels(b) || [];
-        const ab = ra.find(r => r.target === b);
-        const ba = rb.find(r => r.target === a);
-        if(!ab) errs.push(`${a} → ${b} relation missing (preset intimacy=${v})`);
-        else if(ab.intimacy !== v) errs.push(`${a} → ${b} intimacy=${ab.intimacy} != preset ${v}`);
-        if(!ba) errs.push(`${b} → ${a} relation missing (preset intimacy=${v})`);
-        else if(ba.intimacy !== v) errs.push(`${b} → ${a} intimacy=${ba.intimacy} != preset ${v}`);
-        okPairs++;
-      }
-      return errs.length ? { passed: false, detail: `${okPairs} pairs covered, ${errs.length} 漏: ` + errs.slice(0,6).join(' / ') } : { passed: true };
-    },
-  },
-  {
     // codex trial 1 P1.2 fix: scenario.initialUnits 字段 (1b byte-identical 必需)
     id: 'scenario-1a3-initial-units',
     name: 'SCENARIO_214.initialUnits 7 units / 14 squads 完整 spec + cross-ref generals/cities',

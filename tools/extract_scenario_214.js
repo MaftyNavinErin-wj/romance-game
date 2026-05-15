@@ -1,5 +1,12 @@
 // tools/extract_scenario_214.js
 //
+// ⚠️ OBSOLETE — DO NOT RE-RUN
+//   阶段 1a.1/1a.2/1a.3 one-time 抽取工具, 已 archaeology 化:
+//     - 产出文件 (general_base.js / city_base.js / faction_base.js / scenarios/214.js)
+//       经 Task A/B/C reverse audit + W4b 派官 + W4c relations + W5a wildData 等手工大改, re-run 会 clobber 所有手工 edit.
+//     - 输入 const TECH_PREUNLOCK / INTIMACY_PRESET 已 W6/B 删 (0-consumer); 当前 required guard 会 throw 'missing global'.
+//   保留作历史参考 + 复用 jsdom expose pattern, 不应再 reproduce 产出。
+//
 // 阶段 1a.1 + 1a.2 数据抽取工具
 //
 // 流程:
