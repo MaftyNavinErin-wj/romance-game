@@ -1,9 +1,74 @@
 ---
 name: Refactor phase status — 跨剧本梳理 sprint + 4-e audit 闭环 ✅
-description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit (debut/death/stats/birthYear/debutYear gap/deathCause) + 死亡机制设计 v3.4 + SCENARIO_214 membership cleanup + roster completeness 反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 213 entries (W4b +李儒). SCENARIO_190 104/13/96=213; SCENARIO_214 130 (104/8/18). **phase 6 wire W1+W2+W3 ✅ push'd (`63b5490`/`ad94d21`/`21514db`) + W4a step-1+2 + W4b ✅ local (`86843a3`/`49671ad`/`af83fe8`)**. W4b = 官职/功绩/部曲 wire + 190 stage 修正 (6 家 regional→warlord, 只刘焉真站稳) + 李儒/贾诩 roster 扩充 (董卓文官 court). **下次: W4c (关系+亲密度+meta+小传+忠诚)** — 顺带解 W4b 遗留 (loyalty/chronicle loop 迁名册 + GEN_CLASS 190-roster gap, 见 §8.4 W4b 遗留 followup). ⚠️ W4a-c 整组完成前**不实机测**;但 **push 到 main 已放宽** (2026-05-15 制作人决: 单人项目, 半残态进 origin/main 问题不大, 且要换机做 — W4a/W4b 已 push `da30719`). 仍需明确授权才 push (feedback_push_authorization 不变).
+description: 阶段 1 scenario 1a-1f + 阶段 2-4 SCENARIO_190 + 跨剧本梳理 + GEN_BASE audit + 死亡机制设计 v3.4 + SCENARIO_214 membership/反向 audit + **phase 6 wire 计划 v3.5 (W1-W6, codex review 通过)** 全完成. GEN_BASE 213 entries. SCENARIO_190 213; SCENARIO_214 130 (104/8/18). **phase 6 wire W1+W2+W3 ✅ push'd (`63b5490`/`ad94d21`/`21514db`) + W4a+W4b+W4c ✅ local (`86843a3`/`49671ad`/`af83fe8`/`ceb5ff7`)**. W4c = 关系/亲密度/meta/小传/忠诚 wire (制作人 decision 1A 适配器模式 — getGenMeta 改读 m.genMeta 混合 composite, 35 处 consumer 零改动 + 2A GEN_TAGS 类稀疏 legacy 数据留 const, 190 缺口记 followup); chronicle/loyalty loop 迁 m.GENS_FULL (= W4b 遗留 #1, 修复 W4a step-2 的 9 武将 loyalty=null 半初始化). **W4a-c 整组已完成 → 现在可以实机测** (原"整组完成前不实机测"约束解除). **下次: W5 (在野/待出场池, pending/wild 从 SCENARIO.generals status 来, 必带回归测试)**. push 到 main 已放宽但仍需明确授权 (feedback_push_authorization 不变); W4c followup F-W4c-1/2/3 见 sprint_followup.md.
 type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
+
+## 2026-05-15 (phase 6 wire W4c ✅ — 关系/亲密度/meta/小传/忠诚 wire)
+
+W4c done, commit `ceb5ff7` (local, 未 push). adapter 两步走: step-1 byte-identical 守底 +
+step-2 换网 (50 回合不崩 + 0 NaN + 全 G dump 审差异)。
+
+**制作人决策 (本 session)**:
+- **decision 1A — meta 走「适配器模式」**: materializeScenario 产 `m.genMeta`/`m.wildMeta`
+  复刻 legacy GEN_META/WILD_GEN_META 形状, `getGenMeta` 改读 materialized → 35 处 getGenMeta
+  + 19 文件 GEN_TAGS consumer **零改动** (跟 W4a「心脏」adapter 同哲学)。consumer 迁移爆炸
+  半径超 W4c, 留 W6/后续。
+- **decision 2A — GEN_TAGS 类稀疏 legacy 数据留 const**: `gentry` / `GEN_TAGS` 字段 GEN_BASE
+  无对应家 (GEN_BASE.gentry 是州码 `'yu'`, 但 consumer calcGentryRecruitBonus 要 `'颍川士族'`
+  显示标签取前 2 字)。W4c 不做数据迁移, 190 缺口记 followup (F-W4c-1)。
+
+**实装**:
+- materializeScenario 加 `genMeta`/`wildMeta`/`initialIntimacyPairs` 三槽位。
+- `genMeta` = **混合 composite** (active loop 单趟派生): title/post/loyalty/relations ←
+  sc.generals (relations 用 `target→name` 映射, `.icon` 死字段丢弃); birthplace/clan/
+  faction_clan/values/skills ← GEN_BASE; **gentry ← legacy GEN_META 透传** (decision 2A)。
+- `wildMeta` = legacy WILD_GEN_META const 透传 (在野/待出场归 W5, 跟 W4a/W4b 只做 active 一致)。
+- `initialIntimacyPairs` ← sc.generals[].relations[].intimacy (normalized key 去重对称 pair)。
+- `getGenMeta` 改读 `_scenarioMaterialized.genMeta||wildMeta` (fallback 留 const 防 script-load 窗口)。
+- chronicle/loyalty init loop 从 legacy `ALL_GENS` 迁到 `m.GENS_FULL` active + `getAllWildGenDefs()`
+  wild + Set 去重 (= **W4b 遗留 #1**, 跟 W4b merit loop 同模式)。loop 内 fid lookup `GENS_FULL`
+  → `m.GENS_FULL` (否则 W4a 9 个新武将 fid=undefined)。
+
+**安全网**:
+- step-1 (getGenMeta + INTIMACY rewire, adapter 输入仍 legacy const): **byte-identical 守底** —
+  W4c step-1 vs main 全 smoke 逐字段 diff=0 (仅时间戳)。
+- step-2 (切 GEN_BASE+SCENARIO): byte-identical 故意破, 换网全过 —
+  - smoke 50 回合不崩 (51/51 snapshot) + 0 NaN
+  - 214 全 G dump 审差异: **intimacy −18 orphan / +102 richer / 值变 0** (完全符合 scout, 没踩
+    W1 周瑜坑); genLoyalty −14 (6 真移除 + 8 minTurn pending 走 genPendingPool, debut 时 tick.js
+    重新 init) / +9 (W4a step-2 新增武将 — main 里 loyalty=null **半初始化, W4c 修好**); chronicle
+    12 文本变 = GEN_BASE birthplace audit 修正 (颍川长社→颍川 等)。
+  - 190 全 G dump: 全变 = **W4b 遗留 #1 修复** (190 原 chronicle/loyalty loop 读 legacy ALL_GENS
+    = 214 数据, 现读 190 自己的 m.GENS_FULL)。
+
+**lesson — W4c scout**:
+- intimacy: SCENARIO_214.generals[].relations[].intimacy vs 旧 INTIMACY_PRESET 实测 **0 值冲突**
+  (77→161 pair, +102 全是 reverse audit 扩充); relations 真实 consumer 只 2 个 (general.js 宗亲
+  判定 + events.js 故人来投), 只读 name+type, `.icon` 是死字段 (0 读者)。
+- meta 9 字段消费: `gentry` 是唯一格式不符的 (留 legacy 透传); 其余 birthplace/clan/values/
+  skills/faction_clan 从 GEN_BASE 干净映射。
+
+**followup (sprint_followup.md F-W4c-1/2/3)**:
+- F-W4c-1: 190-roster GEN_TAGS/GEN_META/GEN_CLASS 大面积缺漏 (~80 武将) — 后续 data sprint。
+- F-W4c-2: 小传 `facName` 硬编码 214 fid map → 190 显示 "仕于caocao" — 190-only 缺陷, 正确 fix
+  对 214 不 byte-identical (FACTION_BASE.nanman.name="蛮"≠硬编码"南蛮") + 190 warlord 势力小传
+  名是设计决策, 留 W6。
+- F-W4c-3: 在野武将小传 "仕于undefined" — **pre-existing** (legacy GENS_FULL const 也不含在野
+  武将, fid 同样 undefined; 全 G dump 实测在野 chronicle byte-identical)。codex review trial 标
+  P2 "regression" 是误判。W4c 不修 (wild 段保持 legacy 行为留 W5)。
+
+**codex review --uncommitted**: 1 P2 (在野武将 仕于undefined) — 经核 pre-existing 非回归, 记
+F-W4c-3 留 W5, W4c 不顺手修 (符合 "wild 段 byte-identical 留 W5" 约束 + 不顺手修 反模式)。codex
+沙箱 `node --check` 被 policy block, CC 自己 node --check 全 PASS。
+
+**tools/dump_w4c.js 新增**: W4c 审差异 harness (dump genLoyalty/loyaltyAccum/intimacy/
+chronicleText, 配 git stash 做 W4c-tree vs main 对比), 沿用 dump_w4b.js 结构。
+
+**下次: W5** (在野/待出场池 — pending/wild 从 SCENARIO.generals status 来)。W5 必带回归测试
+(§8.4)。W5 顺带可解: F-W4c-3 (在野武将小传) + wildMeta 切 sc.generals。
+**⚠️ W4a-c 整组已完成 → 现在可以实机测** (原约束解除)。
 
 ## 2026-05-15 (phase 6 wire W4b ✅ — 官职/功绩/部曲 wire + 190 stage 修正 + 李儒/贾诩 roster)
 
