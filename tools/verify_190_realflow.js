@@ -41,6 +41,21 @@ async function tryRoute(label, body) {
   await tryRoute('190 直 initGame (旧 harness 路径)', w => {
     w.initGame('190');
   });
+  await tryRoute('214 showFactionSelect (验 dynamic facData)', w => {
+    w.showFactionSelect('214');
+    const ov = w.document.getElementById('factionSelectOverlay');
+    if (!ov) throw new Error('overlay not created');
+    const cards = ov.querySelectorAll('div[onclick^="startAs"]');
+    console.log(`   214 facData cards: ${cards.length} (expect 4: wei/shu/wu/nanman)`);
+  });
+  await tryRoute('190 showFactionSelect (验 14 势力卡)', w => {
+    w.showFactionSelect('190');
+    const ov = w.document.getElementById('factionSelectOverlay');
+    if (!ov) throw new Error('overlay not created');
+    const cards = ov.querySelectorAll('div[onclick^="startAs"]');
+    console.log(`   190 facData cards: ${cards.length} (expect 14)`);
+    if (cards.length !== 14) throw new Error(`expected 14 cards, got ${cards.length}`);
+  });
   await tryRoute('190 startAs caocao (真 UI 路径)', w => {
     w.startAs('caocao', '190');
   });

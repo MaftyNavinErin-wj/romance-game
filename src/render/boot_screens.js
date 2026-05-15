@@ -875,7 +875,22 @@ function _positionTutCard(page){
   }
 }
 
-// ── 开局势力选择（改造：加返回按钮）──────────────────
+// ── 开局势力选择（改造：加返回按钮 + scenario-aware 动态派生 facData）──────────────────
+// §8.4 phase 5 (C codex P1): facData 旧硬编码 4 个 214 势力, 190 14 势力无法显示
+//   → 改 dynamic 派生: SCENARIOS[scenarioId].factions 取 playable → FACTION_BASE / sc.cities 派生
+//   首都; 214 desc 保留 4 段 hardcoded 文案 (制作人手写); 190 用 fallback placeholder。
+const SCENARIO_FAC_DESCS = {
+  '214': {
+    wei:    '中原大国，兵多粮足，人口最盛。国力雄厚，适合稳扎稳打，最终统一之路最为宽广。',
+    shu:    '汉室正统，以义立国。益州险固，粮道艰难。需以奇谋弥补国力之差，北伐是唯一出路。',
+    wu:     '坐拥江东，港口通商，金钱充裕。水师天下无双，长江天险为屏障，富庶之国徐图天下。',
+    nanman: '南中蛮族，僻处建宁一隅。兵少将寡，初为蜀之附庸。需在三国夹缝中求存，地狱难度。',
+  },
+  '190': {
+    // 14 势力 desc 留 phase 7 / scenario 数据 sprint 补; 现 fallback 「XX统领的XX，待天下风云。」
+  },
+};
+
 function showFactionSelect(scenarioId){
   scenarioId = scenarioId || '214'; // §8.4 W1: 入口 scenarioId 透传, 缺省回退 214
   document.getElementById('factionSelectOverlay')?.remove();
@@ -884,20 +899,28 @@ function showFactionSelect(scenarioId){
   overlay.style.cssText = `position:fixed;inset:0;background:#ede4d0;z-index:500;
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     font-family:'Noto Serif SC',serif;`;
-  const facData = [
-    {id:'wei', name:'魏', fullName:'曹魏', color:'#1a5f8a',
-     desc:'中原大国，兵多粮足，人口最盛。国力雄厚，适合稳扎稳打，最终统一之路最为宽广。',
-     leader:'曹操', capital:'许昌'},
-    {id:'shu', name:'蜀', fullName:'蜀汉', color:'#1a7a3a',
-     desc:'汉室正统，以义立国。益州险固，粮道艰难。需以奇谋弥补国力之差，北伐是唯一出路。',
-     leader:'刘备', capital:'成都'},
-    {id:'wu', name:'吴', fullName:'东吴', color:'#a82a1a',
-     desc:'坐拥江东，港口通商，金钱充裕。水师天下无双，长江天险为屏障，富庶之国徐图天下。',
-     leader:'孙权', capital:'建业'},
-    {id:'nanman', name:'蛮', fullName:'南蛮', color:'#8b6914',
-     desc:'南中蛮族，僻处建宁一隅。兵少将寡，初为蜀之附庸。需在三国夹缝中求存，地狱难度。',
-     leader:'孟获', capital:'建宁'},
-  ];
+  const sc = (typeof SCENARIOS !== 'undefined') ? SCENARIOS[scenarioId] : null;
+  if (!sc) { console.error('[showFactionSelect] unknown scenarioId:', scenarioId); return; }
+  const facData = [];
+  for (const [fid, sf] of Object.entries(sc.factions)) {
+    if (!sf.playable) continue;
+    const base = (typeof FACTION_BASE !== 'undefined') ? FACTION_BASE[fid] : null;
+    if (!base) { console.warn('[showFactionSelect] FACTION_BASE missing', fid); continue; }
+    // capital: scan sc.cities for {fac:fid, isCapital:true}, name from CITY_BASE
+    let capName = '?';
+    for (const [cid, cc] of Object.entries(sc.cities || {})) {
+      if (cc.fac === fid && cc.isCapital) {
+        capName = (typeof CITY_BASE !== 'undefined' && CITY_BASE[cid]) ? CITY_BASE[cid].name : cid;
+        break;
+      }
+    }
+    const desc = (SCENARIO_FAC_DESCS[scenarioId] && SCENARIO_FAC_DESCS[scenarioId][fid])
+      || `${sf.ruler}统领的${base.full}，待天下风云。`;
+    facData.push({
+      id: fid, name: base.name, fullName: base.full, color: base.color,
+      desc, leader: sf.ruler, capital: capName,
+    });
+  }
   overlay.innerHTML = `
     <div style="color:var(--ink);font-size:24px;letter-spacing:8px;margin-bottom:6px;font-family:'ZCOOL XiaoWei','Noto Serif SC',serif">苍生问策</div>
     <div style="color:var(--ink-ll);font-size:11px;letter-spacing:3px;margin-bottom:36px">选择你的势力</div>
