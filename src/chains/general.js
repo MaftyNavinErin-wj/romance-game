@@ -2015,19 +2015,33 @@ function calcSurrenderRate(winnerFid, prisonerName){
   ));
 }
 
-/** 永久移除武将（击杀/处决） */
-function killGen(genName, killerName){
+/** 永久移除武将（击杀/处决/自然死亡）
+ *  @param {string} genName
+ *  @param {string|null} killerName  战死/单挑/处决时凶手名; 自然死/无主战死 null
+ *  @param {object} opts
+ *  @param {'battle'|'natural_age'} [opts.trigger='battle']
+ *    'battle'      = 现有 v181 行为 (战死沙场 chronicle + 仇恨扩散 + execute event + 血仇 + log 💀)
+ *    'natural_age' = §5.6 机制 2 自然死亡 (寿终 chronicle + 中性 log, 无 reaction; killerName 应为 null)
+ */
+function killGen(genName, killerName, opts){
+  const trigger = (opts && opts.trigger) || 'battle';
   // ★ B1 处决事件钩子：移除前记录派系信息，再触发事件
   let killedMainFac = null;
   let killedFid = null;
   let wasRuler = false;
+  let _ageYears = null;  // 自然死: 用 entry.birthYear 算享年
   getScenarioFactions().forEach(fid => {
     if((G.generals[fid]||[]).some(g => g.name === genName)){
       killedFid = fid;
       killedMainFac = getGenFaction(genName, fid);
-      // ★ v78 继任：记录是否为君主
       const gen = (G.generals[fid]||[]).find(g => g.name === genName);
-      if(gen && gen.role === 'ruler') wasRuler = true;
+      if(gen){
+        if(gen.role === 'ruler') wasRuler = true;  // ★ v78 继任
+        if(trigger === 'natural_age' && gen.birthYear != null){
+          const curYear = (G.startYear ?? 0) + Math.floor((G.turn-1)/36);
+          _ageYears = Math.max(0, curYear - gen.birthYear);
+        }
+      }
     }
   });
 
@@ -2046,11 +2060,16 @@ function killGen(genName, killerName){
   if(G.selUnitId && !G.units.find(u=>u.id===G.selUnitId)) G.selUnitId=null; // ★ v179 fix #58: 防空指针
   clearAllPostsByGen(genName); // ★ D1: 清除官职
   if(G.genChronicle && G.genChronicle[genName]){
-    const killerStr = killerName ? `，殒命于${killerName}之手` : '';
-    addGenChronicle(genName, `力竭战败${killerStr}，壮烈捐躯，史册留名。`);
+    if(trigger === 'natural_age'){
+      const ageStr = _ageYears != null ? `，享年${_ageYears}岁` : '';
+      addGenChronicle(genName, `寿终正寝${ageStr}，史册铭功。`);
+    } else {
+      const killerStr = killerName ? `，殒命于${killerName}之手` : '';
+      addGenChronicle(genName, `力竭战败${killerStr}，壮烈捐躯，史册留名。`);
+    }
   }
-  // 亲密度仇恨扩散
-  if(killerName){
+  // 亲密度仇恨扩散 (仅 battle trigger + 有 killer)
+  if(trigger === 'battle' && killerName){
     Object.values(GEN_MAP).forEach(g=>{ // ★ v167fix #33: 避免flat()重建数组
       if(g.name === killerName) return;
       const intimacy = getIntimacy(g.name, genName);
@@ -2058,24 +2077,30 @@ function killGen(genName, killerName){
       else if(intimacy >= 50) addIntimacy(g.name, killerName, -30);
     });
   }
-  // ★ B1 处决事件：被杀武将所在派系全体忠诚-5
-  if(killedFid && killedMainFac){
+  // ★ B1 处决事件：被杀武将所在派系全体忠诚-5 (仅 battle trigger)
+  if(trigger === 'battle' && killedFid && killedMainFac){
     triggerFactionEvent('execute', killedFid, {killedFaction: killedMainFac});
   }
-  // ★ v161: 处决→属县家族忠诚冲击-30
-  if(killedFid) applyFamilyLoyaltyShock(killedFid, (GEN_TAGS[genName]||{}).clan, -30);
-  // ★ C3 血仇检测：创始/宗亲被处决 → 对凶手势力产生血仇
-  if(killedFid && killerName){
-    // 找凶手势力
+  // ★ v161: 处决→属县家族忠诚冲击-30 (仅 battle trigger; 自然死无 shock)
+  if(trigger === 'battle' && killedFid) applyFamilyLoyaltyShock(killedFid, (GEN_TAGS[genName]||{}).clan, -30);
+  // ★ C3 血仇检测：创始/宗亲被处决 → 对凶手势力产生血仇 (battle + killer)
+  if(trigger === 'battle' && killedFid && killerName){
     let killerFid = null;
     getScenarioFactions().forEach(f => {
       if((G.generals[f]||[]).some(g=>g.name===killerName)) killerFid = f;
     });
     if(killerFid) checkBloodFeud(genName, killedFid, killerFid);
   }
-  log('💀 ' + genName + '战死沙场', 'battle');
-  // ★ v78 君主继任
+  if(trigger === 'natural_age'){
+    const ageStr = _ageYears != null ? `，享年${_ageYears}` : '';
+    log(`📜 ${genName}寿终正寝${ageStr}`, 'diplomacy');
+  } else {
+    log('💀 ' + genName + '战死沙场', 'battle');
+  }
+  // ★ v78 君主继任 (自然死 + 战死同样需要继任 — succeedRuler chronicle 已含 "薨逝" 表述)
   if(wasRuler && killedFid) succeedRuler(killedFid, genName);
+  // §5.6: 自然死后, 该武将的 deathTurn 不再需要 (entry 已从 G.generals 删除)
+  if(G.genNaturalDeathTurn) delete G.genNaturalDeathTurn[genName];
   // D-058 fix: 部分清(势力相关临时缓存); 战绩/经验/小传等保留作人物档案 (无复活机制)
   if(G.genFactionMod) delete G.genFactionMod[genName];
   if(G.genFactionModLog) delete G.genFactionModLog[genName];

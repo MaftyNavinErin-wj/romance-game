@@ -226,4 +226,28 @@ function _deserializeG(jsonStr){
       G.strategyCD[fid].envoy = 0;
     }
   });
+  // §5.6 机制 2 迁移: 旧存档无 G.genNaturalDeathTurn 时按现 active 武将重算 (读 GEN_BASE 直接派生)
+  //   entry.birthYear 不一定带 (pre-W4 存档), GEN_BASE 是 always-present global const
+  //   deathTurn <= G.turn (death window 已过, e.g. 老存档跑很久) → reschedule 到未来 (G.turn + 1-36 旬)
+  //   而不是 skip — codex round 2 P2: skip 会让武将 forever 免疫机制 2, 应该重排到 future
+  if(!G.genNaturalDeathTurn){
+    G.genNaturalDeathTurn = {};
+    const _stY = G.startYear ?? 214;
+    const _curT = G.turn || 1;
+    Object.values(G.generals || {}).forEach(arr => (arr || []).forEach(g => {
+      const gb = (typeof GEN_BASE !== 'undefined' && GEN_BASE) ? GEN_BASE[g.name] : null;
+      if(!gb || gb.birthYear == null) return;
+      let deathYearRoll;
+      if(gb.deathCause === 'natural' && gb.deathYear != null){
+        deathYearRoll = gb.deathYear + Math.floor(Math.random()*5) - 2;
+      } else {
+        deathYearRoll = gb.birthYear + 60 + Math.floor(Math.random()*21);
+      }
+      const yearOff = deathYearRoll - _stY;
+      const turnInYear = 1 + Math.floor(Math.random()*36);
+      const rawDeathTurn = yearOff*36 + turnInYear;
+      // 已过死亡窗口 → 重排到 G.turn + 1~36 旬 (3 年内必死, 不让武将无限苟活); 否则用 raw
+      G.genNaturalDeathTurn[g.name] = rawDeathTurn > _curT ? rawDeathTurn : (_curT + 1 + Math.floor(Math.random()*36));
+    }));
+  }
 }

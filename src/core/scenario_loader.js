@@ -255,6 +255,10 @@ function materializeScenario(scenarioId) {
     const entry = { name, com: gb.com, war: gb.war, int: gb.int, pol: gb.pol, cha: gb.cha };
     if (scGen.role === 'ruler') entry.role = 'ruler';
     entry.apt = { ...gb.apt };
+    // §5.6 机制 2 (阶段 6 年龄 hook) 前置: GEN_BASE 史实生卒/死因带入 active entry, initGame 算自然 deathTurn
+    entry.birthYear  = gb.birthYear;
+    entry.deathYear  = gb.deathYear;
+    entry.deathCause = gb.deathCause;
     GENS_FULL_m[fid].push(entry);
     if (scGen.gamePost) initialPosts_m[name] = scGen.gamePost;
     if (typeof scGen.merit === 'number') initialMerit_m[name] = scGen.merit;

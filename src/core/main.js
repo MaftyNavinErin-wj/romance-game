@@ -314,6 +314,25 @@ function initGame(scenarioId){
     addGenChronicle(g.name,`仕于${facName}${identStr}${birthStr}${valStr}。`);
   });
 
+  // §5.6 机制 2: 自然死亡 — 给每个 active 武将算 G.genNaturalDeathTurn (per-playthrough runtime 值)
+  //   natural + deathYear → 用 deathYear ± 2 年; 否则 (violent/null) → birthYear + 60 + roll(0..20)
+  //   死亡时 turn = (year - startYear) * 36 + roll(1..36); clamp >= 2 防 startYear 同年死立刻触发
+  //   第一版仅 active; wild/pending 留 followup (wild 无 G.gen* state, 出场前死处理待定)
+  G.genNaturalDeathTurn = {};
+  Object.values(G.generals).forEach(arr => arr.forEach(g => {
+    if(g.birthYear == null) return;  // 防御 (GEN_BASE 应已无 null, 但保 guard)
+    let deathYearRoll;
+    if(g.deathCause === 'natural' && g.deathYear != null){
+      deathYearRoll = g.deathYear + Math.floor(Math.random()*5) - 2;  // ±2 年 (uniform 整数, -2..2)
+    } else {
+      deathYearRoll = g.birthYear + 60 + Math.floor(Math.random()*21);  // 寿 60~80
+    }
+    const yearOff = deathYearRoll - G.startYear;
+    const turnInYear = 1 + Math.floor(Math.random()*36);
+    const deathTurn = Math.max(yearOff*36 + turnInYear, 2);
+    G.genNaturalDeathTurn[g.name] = deathTurn;
+  }));
+
   updateFacStats();
   initCityGentry(); // ★ I2 豪族支持系统初始化
   initFog(); // ★ C4 迷雾系统初始化

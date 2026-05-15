@@ -330,6 +330,50 @@ async function nextTurn(){
   G.seasonIdx = Math.floor(((G.turn - 1) % 36) / 9); // 0春1夏2秋3冬
   if(G.turn > 1 && (G.turn - 1) % 36 === 0) G.year = Math.min(G.year + 1, YEARS.length - 1);
   document.getElementById('ovMsg').textContent=`${YEARS[G.year]} · ${SEASONS[G.seasonIdx]}`;
+
+  // §5.6 机制 2: 自然死亡 hook — 每旬维护 G.genNaturalDeathTurn + 触发死亡
+  //   3 步: (a) orphan sweep — 武将已不在 active (反间计 fled / 其他 .filter 删) → 清 entry
+  //         (b) newcomer sweep — 后来加入 active (上旬 pending debut / wild 招募 / surrender) 无 entry → 派生 deathTurn
+  //         (c) trigger — G.turn >= deathTurn → killGen natural_age 分支
+  //   位置: G.turn++ 后 + 任何战斗/事件队列前 (codex P1: 防 killGen 删 _pendingBattleConfirms 引用的武将)
+  //   newcomer 派生: entry.birthYear/deathYear/deathCause (W4a 后已带) 优先, fallback GEN_BASE
+  //   rawDeathTurn <= G.turn (e.g. 出场已过寿命窗口) → reschedule G.turn + 1-36 旬
+  //   ruler 自然死走 succeedRuler (killGen 内部已 cover)
+  if(G.genNaturalDeathTurn){
+    const _activeNames = new Set();
+    Object.values(G.generals).forEach(arr => arr.forEach(g => _activeNames.add(g.name)));
+    // (a) orphan sweep
+    Object.keys(G.genNaturalDeathTurn).forEach(name => {
+      if(!_activeNames.has(name)) delete G.genNaturalDeathTurn[name];
+    });
+    // (b) newcomer sweep
+    const _stY = G.startYear ?? 214;
+    Object.values(G.generals).forEach(arr => arr.forEach(g => {
+      if(G.genNaturalDeathTurn[g.name] != null) return;
+      const gb = (typeof GEN_BASE !== 'undefined' && GEN_BASE) ? GEN_BASE[g.name] : null;
+      const birth = (g.birthYear != null) ? g.birthYear : (gb && gb.birthYear);
+      if(birth == null) return;
+      const dy = (g.deathYear != null) ? g.deathYear : (gb && gb.deathYear);
+      const dc = g.deathCause || (gb && gb.deathCause);
+      let deathYearRoll;
+      if(dc === 'natural' && dy != null){
+        deathYearRoll = dy + Math.floor(Math.random()*5) - 2;
+      } else {
+        deathYearRoll = birth + 60 + Math.floor(Math.random()*21);
+      }
+      const yearOff = deathYearRoll - _stY;
+      const turnInYear = 1 + Math.floor(Math.random()*36);
+      const raw = yearOff*36 + turnInYear;
+      G.genNaturalDeathTurn[g.name] = raw > G.turn ? raw : (G.turn + 1 + Math.floor(Math.random()*36));
+    }));
+    // (c) trigger
+    const _toAge = [];
+    Object.keys(G.genNaturalDeathTurn).forEach(name => {
+      if(G.turn >= G.genNaturalDeathTurn[name]) _toAge.push(name);
+    });
+    _toAge.forEach(name => killGen(name, null, {trigger: 'natural_age'}));
+  }
+
   if(!_fastForward) await sleep(350);
 
   // 清除本旬已弹城市记录，重新检测
@@ -577,6 +621,7 @@ async function nextTurn(){
       }
     });
   }
+
 
   // 快进模式：静默消化所有待确认战斗，清空战报
   if(_fastForward){
