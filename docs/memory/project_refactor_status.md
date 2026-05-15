@@ -5,6 +5,50 @@ type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
+## 2026-05-15 (phase 6 wire D ✅ — 重拍 baseline phase6_wire_complete.json)
+
+W6 安全网表 "W6 后 重拍 baseline" 落地, commit `efae161` (pushed)。
+
+**做了**:
+- `tests/baseline/phase6_wire_complete.json` 新文件 (4.4 MB / 51 snapshot,
+  smoke seed `project_romance_test_seed_001` 跑 50 旬)
+- `tests/compare.js` BASELINE_DEFAULT 切 phase6_wire_complete + 头部演进表 + 当前默认 mark
+- 旧 `phase1f_p4_p5_complete.json` 保留 (v181→phase1f→phase6 历史链条不破)
+
+**why D 必做**:
+- W4a-c 故意破换网 (GEN_BASE/SCENARIO_214 audit 改 deathYear/roster) → 旧 baseline byte-identical
+  自 W4 起失效, smoke compare 50+ pre-existing diff
+- W4b 派官 + W4c 关系 + W5 wild/pending 池 + W6/B 删 const → runtime 状态完全切 m.* 派生
+- 旧 baseline 作 "v181 行为基准" 已无意义, **新 baseline 才是 phase 6 wire 后的真值起点**
+- 后续改动跟 phase6_wire_complete 比, 旧 phase1f_p4_p5 只作历史回归参考
+
+**验证**:
+- `node tests/compare.js` (新默认) → PASS 51 snapshots identical ✅
+- `node tests/compare.js tests/baseline/phase1f_p4_p5_complete.json` → FAIL 50+
+  (pre-existing W4-W6 累积故意破, 确认旧 baseline 自 W4 起 stale)
+
+**lesson — baseline 重拍判定**:
+重拍触发条件 = "byte-identical 安全网换 50 回合不崩+审差异" 的 sprint 群完结时。
+phase 6 wire W1-W3 byte-identical 保持, W4a-c 起故意破换网, W5/W6/B 又跟 W4 累积。
+"换网期" sprint 群结束 → 必重拍 (否则后续 sprint smoke 总跟 stale baseline 比, 信号失效)。
+
+**phase 6 wire 一段落** (W1-W5 + W6/B + D):
+- materializeScenario §7.2 contract 实装完整 (17 项); initGame 从 m.* 读势力/城市/部队/武将/
+  官职/功绩/部曲/关系/亲密度/meta/loyalty/wild池
+- SCENARIO_214 130 generals (104 active / 8 wild / 18 pending) + GEN_BASE 213 + 反向 audit 闭环
+- SCENARIO_190 入口可玩 (14 势力卡 wrap + 真 UI flow 不崩)
+- legacy const 部分退役 (INTIMACY_PRESET/TECH_PREUNLOCK), 剩 CITIES_DEF/GENS_FULL 等
+  20+ consumer 未迁 (留后续 W6 sprint)
+- baseline 重拍, smoke compare 安全网恢复 ✅
+
+**下次候选** (制作人决):
+- 阶段 6 真·年龄 hook (§5.6 死亡机制 runtime 实装, 机制 1/2) — phase 6 wire 前置已完成
+- 继续 W6 剩余 (CITIES_DEF/GENS_FULL/ALL_GENS/FOUNDING_CORE/MERIT_INIT/RETAINER_PRESET
+  consumer 迁移 + 删 const)
+- scenario 新剧本 (200/220/...)
+- 平衡 sprint
+- 阶段 7+ 收尾
+
 ## 2026-05-15 (phase 6 wire W6/B ✅ — 删 0-consumer legacy const)
 
 W6 切片 = "退役 legacy (删 GENS_FULL/CITIES_DEF/硬编码数组)"。本 sprint 走 B 段 (制作人决:
