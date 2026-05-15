@@ -39,8 +39,14 @@ const SCENARIO_214 = {
     "holder": "wei"
   },
   "initLog": [
-    ["⚔ 建安十九年，刘备入蜀，三分天下之势渐成", "event"],
-    ["📜 关羽镇守荆州，北伐之志蓄势待发", "event"]
+    [
+      "⚔ 建安十九年，刘备入蜀，三分天下之势渐成",
+      "event"
+    ],
+    [
+      "📜 关羽镇守荆州，北伐之志蓄势待发",
+      "event"
+    ]
   ],
   "factions": {
     "wei": {
@@ -1802,7 +1808,13 @@ const SCENARIO_214 = {
             "intimacy": 50
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "路人皆知",
+        "post": {
+          "name": "大将军",
+          "rank": "文官",
+          "desc": "司马懿之子，权倾朝野。"
+        }
       }
     },
     "陈泰": {
@@ -1824,7 +1836,13 @@ const SCENARIO_214 = {
             "intimacy": 50
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "抗蜀名将",
+        "post": {
+          "name": "征西将军",
+          "rank": "将",
+          "desc": "陈群之子，善于防守反击。"
+        }
       }
     },
     "王基": {
@@ -1840,7 +1858,13 @@ const SCENARIO_214 = {
           "type": null
         },
         "relations": [],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "笃行之士",
+        "post": {
+          "name": "征南将军",
+          "rank": "将",
+          "desc": "文武兼备，治军严明。"
+        }
       }
     },
     "刘备": {
@@ -2667,7 +2691,13 @@ const SCENARIO_214 = {
             "intimacy": 50
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "小关张",
+        "post": {
+          "name": "侍中",
+          "rank": "将",
+          "desc": "继承父志的二代骁将。"
+        }
       }
     },
     "张苞": {
@@ -2694,7 +2724,13 @@ const SCENARIO_214 = {
             "intimacy": 50
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "猛虎之子",
+        "post": {
+          "name": "校尉",
+          "rank": "将",
+          "desc": "张飞之子，武勇过人。"
+        }
       }
     },
     "刘封": {
@@ -2951,7 +2987,13 @@ const SCENARIO_214 = {
             "intimacy": 50
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "降蜀宗亲",
+        "post": {
+          "name": "车骑将军",
+          "rank": "将",
+          "desc": "夏侯渊之子，因司马氏篡权而降蜀。"
+        }
       }
     },
     "孙权": {
@@ -3865,7 +3907,13 @@ const SCENARIO_214 = {
             "intimacy": 50
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "东兴大捷",
+        "post": {
+          "name": "大将军",
+          "rank": "将",
+          "desc": "诸葛瑾之子，少年成名，东兴之战大破魏军。"
+        }
       }
     },
     "施绩": {
@@ -3887,7 +3935,13 @@ const SCENARIO_214 = {
             "intimacy": 50
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "朱然之嗣",
+        "post": {
+          "name": "上大将军",
+          "rank": "将",
+          "desc": "朱然之子，改姓施，继父业镇守边疆。"
+        }
       }
     },
     "孟获": {
@@ -3966,7 +4020,13 @@ const SCENARIO_214 = {
             "intimacy": -55
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "抬棺决死",
+        "post": {
+          "name": "先锋",
+          "rank": "将",
+          "desc": "万人敌之勇，正面冲阵时部队战力+12%。"
+        }
       }
     },
     "李严": {
@@ -3987,7 +4047,13 @@ const SCENARIO_214 = {
             "intimacy": 50
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "托孤重臣",
+        "post": {
+          "name": "尚书令",
+          "rank": "文官",
+          "desc": "蜀汉重臣，主持内政可加速建设速度-1旬。"
+        }
       }
     },
     "邓艾": {
@@ -4008,7 +4074,13 @@ const SCENARIO_214 = {
             "intimacy": -30
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "偷渡阴平",
+        "post": {
+          "name": "合围",
+          "rank": "将",
+          "desc": "善用险道奇兵，山地行军AP消耗减半，奇袭成功率+20%。"
+        }
       }
     },
     "钟会": {
@@ -4034,7 +4106,13 @@ const SCENARIO_214 = {
             "intimacy": 50
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "志大才疏",
+        "post": {
+          "name": "谋帅",
+          "rank": "文官",
+          "desc": "文武兼备，统率与智谋均衡，伏击识破率+25%。"
+        }
       }
     },
     "孟达": {
@@ -4059,7 +4137,13 @@ const SCENARIO_214 = {
             "intimacy": 50
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "反复无常",
+        "post": {
+          "name": "守将",
+          "rank": "将",
+          "desc": "善守关隘，驻守山城防御加成+10%。"
+        }
       }
     },
     "申耽": {
@@ -4073,7 +4157,13 @@ const SCENARIO_214 = {
           "type": null
         },
         "relations": [],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "上庸豪族",
+        "post": {
+          "name": "郡守",
+          "rank": "将",
+          "desc": "上庸地方豪族，驻守上庸城城防+8%。"
+        }
       }
     },
     "郝昭": {
@@ -4088,7 +4178,13 @@ const SCENARIO_214 = {
           "type": null
         },
         "relations": [],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "陈仓坚守",
+        "post": {
+          "name": "守将",
+          "rank": "将",
+          "desc": "守城专家，攻城方攻城兵器效果对己方城市减半。"
+        }
       }
     },
     "杨洪": {
@@ -4102,7 +4198,13 @@ const SCENARIO_214 = {
           "type": null
         },
         "relations": [],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "蜀中干吏",
+        "post": {
+          "name": "郡守",
+          "rank": "文官",
+          "desc": "精于内政，辖区人口增长+8%，民心稳定。"
+        }
       }
     },
     "蒋琬": {
@@ -4133,7 +4235,13 @@ const SCENARIO_214 = {
             "intimacy": 60
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "社稷之器",
+        "post": {
+          "name": "丞相继任",
+          "rank": "文官",
+          "desc": "诸葛亮身后蜀汉柱石，内政全面加成+8%。"
+        }
       }
     },
     "费祎": {
@@ -4164,7 +4272,13 @@ const SCENARIO_214 = {
             "intimacy": 65
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "折冲良臣",
+        "post": {
+          "name": "大将军",
+          "rank": "文官",
+          "desc": "调和文武，外交行动成功率+15%。"
+        }
       }
     },
     "姜维": {
@@ -4190,7 +4304,13 @@ const SCENARIO_214 = {
             "intimacy": 50
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "天水麒麟儿",
+        "post": {
+          "name": "镇军将军",
+          "rank": "将",
+          "desc": "文武双全，诸葛亮衣钵传人，蜀汉后期柱石。"
+        }
       }
     },
     "文鸯": {
@@ -4205,7 +4325,13 @@ const SCENARIO_214 = {
           "type": null
         },
         "relations": [],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "单骑退雄兵",
+        "post": {
+          "name": "前将军",
+          "rank": "将",
+          "desc": "勇冠三军，单骑冲阵退敌。"
+        }
       }
     },
     "羊祜": {
@@ -4220,7 +4346,13 @@ const SCENARIO_214 = {
           "type": null
         },
         "relations": [],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "襄阳儒帅",
+        "post": {
+          "name": "征南大将军",
+          "rank": "文官",
+          "desc": "以德服人，镇守襄阳，为灭吴奠基。"
+        }
       }
     },
     "王濬": {
@@ -4235,7 +4367,13 @@ const SCENARIO_214 = {
           "type": null
         },
         "relations": [],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "楼船灭吴",
+        "post": {
+          "name": "龙骧将军",
+          "rank": "将",
+          "desc": "建造楼船，顺江而下灭吴，水军统帅。"
+        }
       }
     },
     "史涣": {
@@ -4528,7 +4666,13 @@ const SCENARIO_214 = {
             "intimacy": 45
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "凉州群雄",
+        "post": {
+          "name": "西凉太守",
+          "rank": "将",
+          "desc": "凉州军阀,反董盟主之一,后与马腾交恶。"
+        }
       }
     },
     "阎行": {
@@ -4548,7 +4692,13 @@ const SCENARIO_214 = {
             "intimacy": 45
           }
         ],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "金城猛将",
+        "post": {
+          "name": "中坚将军",
+          "rank": "将",
+          "desc": "韩遂部将,武勇过人,后归曹操。"
+        }
       }
     },
     "刘璋": {
@@ -4562,7 +4712,13 @@ const SCENARIO_214 = {
           "type": null
         },
         "relations": [],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "暗弱益州",
+        "post": {
+          "name": "振威将军",
+          "rank": "文官",
+          "desc": "汉室宗亲,益州牧,失益州后徙公安。"
+        }
       }
     },
     "田畴": {
@@ -4576,7 +4732,13 @@ const SCENARIO_214 = {
           "type": null
         },
         "relations": [],
-        "skillsOverride": null
+        "skillsOverride": null,
+        "title": "徐无隐士",
+        "post": {
+          "name": "议郎",
+          "rank": "文官",
+          "desc": "右北平名士,徐无山隐居,曹操辟为茂才。"
+        }
       }
     }
   },
