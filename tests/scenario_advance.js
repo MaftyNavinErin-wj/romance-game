@@ -45,7 +45,15 @@ async function loadWindow() {
     },
   });
   const window = dom.window;
-  await waitFor(() => typeof window.initGame === 'function', 10000);
+  // codex W5b P3 fix: 等所有 external script load 完 + initGame + 关键 helper 已 hoist
+  //   (jsdom resources:'usable' 异步 load, initGame 可能在 chains/general.js 之前 defined →
+  //    _deepCloneGen 等可能未就绪)。同时等 load event + helper sentinel 防 race。
+  await new Promise((res, rej) => {
+    if (window.document.readyState === 'complete') return res();
+    window.addEventListener('load', () => res());
+    setTimeout(() => rej(new Error('load event timeout')), 15000);
+  });
+  await waitFor(() => typeof window.initGame === 'function' && typeof window._deepCloneGen === 'function', 5000);
   const expose = window.document.createElement('script');
   expose.textContent = 'window.__getG=()=>G; window.__setFF__=v=>{ _fastForward=!!v; };';
   window.document.head.appendChild(expose);
