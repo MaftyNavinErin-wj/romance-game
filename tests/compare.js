@@ -3,7 +3,7 @@
 // 用法:
 //   node tests/compare.js [baseline_path] [current_path]
 // 默认:
-//   baseline = tests/baseline/phase6_wire_complete.json (最新阶段 baseline)
+//   baseline = tests/baseline/phase6_age_hook_complete.json (最新阶段 baseline)
 //   current  = tests/current.json
 //
 // Baseline 演进顺序(每阶段完成时锁定一份,旧 baseline 保留供回归):
@@ -25,7 +25,14 @@
 //                             initGame 从 m.* 读势力/城市/部队/武将/官职/功绩/部曲/关系/亲密度/meta/loyalty/wild池;
 //                             SCENARIO_214 130 generals + GEN_BASE 213 + 反向 audit; 190 入口可玩;
 //                             W4a-c 故意破换网 (audit 改 deathYear/roster) → phase1f_p4_p5 baseline byte-identical 失效,
-//                             安全网换 50 回合不崩 + 全 G dump 审差异; **当前默认**)
+//                             安全网换 50 回合不崩 + 全 G dump 审差异)
+//     → phase6_age_hook_complete (§5.6 机制 2 自然死亡 hook 实装 — G.genNaturalDeathTurn per-active 派生
+//                                 (natural+deathYear=用 deathYear ±2 / else=birthYear+60+roll(0..20));
+//                                 tick 每旬 orphan sweep + newcomer sweep + trigger 三步;
+//                                 killGen 加 opts.trigger ('battle'|'natural_age') 分支 (寿终 chronicle/log, 无 reaction);
+//                                 _deserializeG 加旧存档迁移; smoke 50 旬 7 个 active 自然死 → 旧 phase6_wire baseline 必破,
+//                                 重拍; tests/death_hook.js 200 旬回归测试 (17/18 触发, 1 fled-reschedule);
+//                                 codex 5 轮 review LGTM; **当前默认**)
 //
 // 退出码:
 //   0 = PASS(完全一致)
@@ -37,7 +44,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const BASELINE_DEFAULT = path.resolve(__dirname, 'baseline', 'phase6_wire_complete.json');
+const BASELINE_DEFAULT = path.resolve(__dirname, 'baseline', 'phase6_age_hook_complete.json');
 const CURRENT_DEFAULT  = path.resolve(__dirname, 'current.json');
 
 function diff(a, b, p, out, max) {
