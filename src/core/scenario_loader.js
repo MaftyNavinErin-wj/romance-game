@@ -428,6 +428,17 @@ function applyScenario(scenarioId) {
   for (const k of Object.keys(CITY_MAP)) delete CITY_MAP[k];
   for (const c of m.CITIES_DEF) CITY_MAP[c.id] = c;
 
+  // codex W6-pending-4 P1 fix: mid-game applyScenario (startAs 切剧本) 后 CITIES_DEF entries 是新 obj,
+  // map.js:599 top-level x/y augment 只在 boot 跑一次, 不会 re-stamp. 加 hexToPixel guard 重 augment.
+  // 首次 boot 时 hexToPixel 未定义 (scenario_loader L820 < map.js L828), skip; map.js:599 boot 末尾兜底 stamp.
+  // 之后所有 applyScenario call 时 hexToPixel 已定义, 此处 augment 接管。
+  if (typeof hexToPixel === 'function') {
+    for (const c of m.CITIES_DEF) {
+      const p = hexToPixel(c.q, c.r);
+      c.x = p.x; c.y = p.y;
+    }
+  }
+
   return m;
 }
 
