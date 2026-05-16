@@ -5,6 +5,38 @@ type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
+## 2026-05-16 (phase 6 wire W6-pending-2 ✅ — 删 ALL_GENS const + 撞 GENS_FULL 设计墙)
+
+W6-pending 同 session 接续 streamline. 2 commits local (`d1016e1` + `0fe26ce` P2 cleanup), 未 push。
+
+**做了 W6-pending-2 (ALL_GENS, 1 live consumer)**:
+- chains/general.js:2412 唯一 live consumer = `let GEN_MAP = Object.fromEntries([...ALL_GENS, ...GEN_POOL_INACTIVE].map(...))`
+- 切 `_scenarioMaterialized.GENS_FULL+WILD_GENS+GEN_POOL_INACTIVE` (W4a+W5a 真值, scenario-aware)
+- _rebuildGEN_MAP (main.js:342) initGame 末尾立即覆盖, init-time placeholder 仅 inflight 兜底
+- 加载顺序确认: scenario_loader.js (L820) → chains/general.js (L836), `_scenarioMaterialized` 已 populated
+- byte-identical: smoke 51 snapshots identical ✅ — codex LGTM (auditied: 无 GEN_MAP[name] inflight 读 between L2412 init 与 _rebuildGEN_MAP)
+- 顺手清 P2: scenario_accessors.js:21 stale "ALL_GENS spread" comment 标 W6-pending-2 退役
+
+**撞设计墙 — GENS_FULL 不能 byte-identical 迁移 (待决)**:
+GENS_FULL 18+ live consumer, 集中在 `Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(g=>g.name===X))`
+模式 (chains/general 6 处 + render/battle_modals 6 处 + render/gen_profile 2 处), 做 **origFac lookup**。
+- legacy GENS_FULL const = 109+ entries (含 8 个 pendingFac gens: 司马昭/陈泰/王基/关兴/张苞/夏侯霸/诸葛恪/施绩)
+- m.GENS_FULL (W4a step-2) = 104 active only, **不含 pendingFac gens**
+- legacy 对 司马昭 lookup → 'wei' (设计意图: orig faction); m.* lookup → undefined → '' / 'wild' fallback
+- **50 旬 baseline 内不触发** (pendingFac minTurn=109+, 105-217 旬才 debut), smoke byte-identical 守底但长 run 行为破
+
+**设计选项 (待制作人决)**:
+- A: 迁 m.GENS_FULL only — origFac for pendingFac gens 变 'wild'/'' (行为退化, 但 m.* 反映「当下」active 真实)
+- B: 抽 helper `getGenOrigFac(name)` 跨 m.GENS_FULL ∪ m.pendingGenPool ∪ m.WILD_GENS scan, 复刻 legacy「全 roster」语义 (保 byte-identical, 加 1 个 accessor 抽象层)
+- C: 部分迁 — battle_modals `allGens = [...Object.values(GENS_FULL).flat()]` 走 m.GENS_FULL (是「在场武将」UI 列表,active-only 是对的); origFac lookup 走 helper getGenOrigFac (B)
+
+记 sprint_followup.md F-W6-GENSFULL 设计待决, 不当场 fix。
+
+**下次候选 (制作人决)**:
+- 决 GENS_FULL 设计 A/B/C → 启动 W6-pending-3 sprint
+- W6 CITIES_DEF — 20+ consumer 但纯迭代 (无 origFac lookup 类设计墙), 中型 sprint, byte-identical 可守
+- scenario 新剧本 / 平衡 / age-hook followup / ruler 死 game-over 等
+
 ## 2026-05-16 (phase 6 wire W6-pending ✅ — 删 MERIT_INIT / FOUNDING_CORE / RETAINER_PRESET legacy const)
 
 age-hook 实装后, 继续 W6 剩余 const 退役。streamline 模式 + codex 定技术决策,

@@ -608,4 +608,36 @@ chronicle loop 对在野武将也跑 `addGenChronicle(name, 仕于${facName}...)
 
 ---
 
-(sprint_followup v2.3 — 2026-05-16: F-W4c-3 closed via W5b; F-W4c-1/-2 仍 open 留 190 data sprint)
+## phase 6 wire W6-pending-2 followup (2026-05-16)
+
+### F-W6-GENSFULL — GENS_FULL legacy const 迁 m.* 撞设计墙(origFac lookup 语义)
+
+W6-pending-2 (ALL_GENS) 完成后 scout GENS_FULL 发现:legacy GENS_FULL (109+ entries, 含
+8 个 pendingFac gens: 司马昭/陈泰/王基/关兴/张苞/夏侯霸/诸葛恪/施绩) ≠ m.GENS_FULL (104
+active only, W4a step-2)。
+
+**18+ live consumer 集中在两个模式**:
+- **origFac lookup** (10+ 处): `Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(g=>g.name===X))`
+  - chains/general.js:427-428/495-496/1208-1209/1217-1218/2002/2217 (orig 势力查询: surrender/
+    relationships/prisoner/return)
+  - render/battle_modals.js:1471-1472/1878/1963 (duel 双方 fac / origFid)
+  - render/gen_profile.js:85/268 (profile 显示 fac)
+- **all-gen enumeration** (3 处): `[...Object.values(GENS_FULL).flat()]`
+  - chains/general.js:427/495 origRuler 查询 (全 scenario 名册 scan)
+  - render/battle_modals.js:1891/1950 allGens 列表
+
+**byte-identical 风险面**:
+- 50 旬 baseline 内 pendingFac gens 不 debut (minTurn=109+), 不触发 → smoke PASS 也无信号
+- 长 run / 重玩 / 100+ 旬 实机测会暴露: 司马昭 lookup origFac 从 'wei' 变 undefined→fallback
+
+**待决设计选项 (制作人)**:
+- A: 全 m.GENS_FULL only — pendingFac gens orig 信息丢失 (退化但 active-真实)
+- B: 抽 helper `getGenOrigFac(name)` 跨 m.GENS_FULL ∪ m.pendingGenPool ∪ m.WILD_GENS, 复刻 legacy
+  「全 roster」语义 (byte-identical, 加 1 抽象层); 类似 ALL_GENS-like flat scan 抽 `getScenarioAllGens()`
+- C: 混合 — UI/battle 「在场」语义走 m.GENS_FULL (active-only 是对的); orig faction 类查询走 helper B
+
+**优先级**:P2 (50 旬 baseline 不破, 长 run 行为破); 撞设计墙不 fix, 等制作人决定 A/B/C。
+
+---
+
+(sprint_followup v2.4 — 2026-05-16: F-W4c-3 closed via W5b; F-W4c-1/-2 + F-W6-GENSFULL 仍 open)
