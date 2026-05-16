@@ -271,12 +271,13 @@ function initGame(scenarioId){
     //   ("仕于undefined")。wild/pending 出场前归在野; 小传开头改 「在野」, 出场后由 tick.js:572
     //   addGenChronicle(pg.name, `${facN}迎来新锐——…`) 接续记录入仕势力。
     const fid=Object.keys(m.GENS_FULL).find(f=>m.GENS_FULL[f].some(x=>x.name===g.name));
-    // F-W4c-2 v2 (制作人 decision「称王是分水岭」): 已称王 (sf.declared) → .name 国号; 未称王 → .ruler 军阀名
-    //   214 wei/shu/wu/nanman declared → "仕于魏/蜀/吴/蛮"; 190 14 势力 → "仕于曹操/董卓/袁绍/..."
+    // F-W4c-2 v2 (制作人 decision「称王是分水岭」): 已称王 → chronicleName||name 国号; 未称王 → .ruler 军阀名
+    //   214 wei/shu/wu → "仕于魏/蜀/吴" (.name); 214 nanman → "仕于南蛮" (chronicleName 二字 override);
+    //   190 14 势力 → "仕于曹操/董卓/袁绍/..." (ruler)
     const facName=fid ? (() => {
       const _fd = getFactionDef(fid);
       if (!_fd) return fid;
-      return _fd.declared ? (_fd.name || fid) : (_fd.ruler || fid);
+      return _fd.declared ? (_fd.chronicleName || _fd.name || fid) : (_fd.ruler || fid);
     })() : '在野';
     const birthplace=meta?.birthplace||'';
     const values=meta?.values||[];

@@ -35,6 +35,7 @@ const FACTION_BASE = {
   "nanman": {
     "name": "蛮",
     "full": "南蛮",
+    "chronicleName": "南蛮",
     "color": "#8b6914",
     "cls": "nanman"
   },

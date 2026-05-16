@@ -614,9 +614,9 @@ async function nextTurn(){
       if(!G.genStatBase[pg.name]) G.genStatBase[pg.name] = {com:pg.com,war:pg.war,int:pg.int,pol:pg.pol};
       if(!G.genAptExp[pg.name]) G.genAptExp[pg.name] = {};
       if(!G.genFactionMod[pg.name]) G.genFactionMod[pg.name] = 0;
-      // 小传 — F-W4c-2 v2 (制作人 decision「称王是分水岭」): 已称王 → .name 国号 / 未称王 → .ruler
+      // 小传 — F-W4c-2 v2: 已称王 → chronicleName||name / 未称王 → .ruler
       const _fdT = getFactionDef(fid);
-      const facN = _fdT ? (_fdT.declared ? (_fdT.name || fid) : (_fdT.ruler || fid)) : fid;
+      const facN = _fdT ? (_fdT.declared ? (_fdT.chronicleName || _fdT.name || fid) : (_fdT.ruler || fid)) : fid;
       addGenChronicle(pg.name, `${facN}迎来新锐——${pg.name}前来效力。`);
       // 通知
       if(fid === G.playerFac){
