@@ -573,7 +573,7 @@ _drainPendingBattleAnimations().catch(e => console.error('[drainAnim] fatal:', e
   classTag 等字段为 190 roster 扩充(像 deathCause sprint 那样 codex 史实 sweep);或考虑把这些
   字段并入 `GEN_BASE` 主表(W4c meta 把 class/tags 读法迁到 `GEN_BASE`),一并消除多表维护。
 
-### F-W4c-2 — 小传 facName 硬编码 214 fid map(190-only 显示缺陷)
+### F-W4c-2 ✅ closed (2026-05-16, commits `c5b3128` + `1b64592`) — 小传 facName 硬编码 214 fid map(190-only 显示缺陷)
 
 `src/core/main.js` initGame chronicle loop:`const facName={wei:'魏',shu:'蜀',wu:'吴',nanman:'南蛮'}[fid]||fid;`
 —— 这个 map 只认 214 的 fid。
@@ -589,6 +589,17 @@ _drainPendingBattleAnimations().catch(e => console.error('[drainAnim] fatal:', e
   太短 / `.full`="曹操" → "仕于曹操" 语义怪)。
 - **建议 fix**:W6 收尾或专门 session,定 190 势力小传显示口径 + 顺带核 `FACTION_BASE` name/full
   字段口径(214 "蛮" vs "南蛮" 也值得一并理顺)。
+
+**实际 fix(2026-05-16,F-W4c-2 part 1 commit `c5b3128` + part 2 commit `1b64592`)**:
+制作人决策「势力名应该都是君主」(语义: 「仕于X」X 是君主名, 不是地域/族号也不是 fid 字面):
+- **part 1 (byte-identical 守底)**:battle UI 2 处 facName 函数 (`battle_modals.js:390/1441`) 从
+  hardcoded `{wei:'魏',shu:'蜀',wu:'吴',nanman:'蛮'}[f]||f` 改 `getFactionDef(f)?.name || f`。
+  214 nanman accessor 返 "蛮" 跟硬编码一致 → smoke 51 snapshots identical。190 fid 由 "caocao"
+  字面变 "曹" 等一字短称。
+- **part 2 (chronicle ruler 全名, byte-identical 守底但 chronicle 内容变化)**:3 处 chronicle 写入
+  (main.js:274 init loop + tick.js:618 debut + general.js:1015 recruit) facName 改
+  `getFactionDef(fid)?.ruler || fid`。214: "仕于魏" → "仕于曹操"; 190: "仕于caocao" → "仕于曹操"。
+  smoke captureState 不抓 G.genChronicle (chronicle 是叙事非机制状态), baseline 不需重拍。
 
 ### F-W4c-3 ✅ closed (W5b commit `3feb2ba`) — 在野武将小传 "仕于undefined"
 
@@ -668,5 +679,7 @@ active only, W4a step-2)。
 
 ---
 
-(sprint_followup v2.6 — 2026-05-16: F-W4c-3 closed via W5b + F-W6-GENSFULL closed via W6-pending-3 +
-F-W6-pending-3-1 closed via runtime fix; F-W4c-1/-2 (190 data sprint) 仍 open)
+(sprint_followup v2.7 — 2026-05-16: F-W4c-2 closed via ruler 全名 fix (`c5b3128`+`1b64592`);
+F-W4c-3/F-W6-GENSFULL/F-W6-pending-3-1 已 closed;
+F-W4c-1 (190 武将 GEN_TAGS/GEN_META/GEN_CLASS 80/99/166 缺漏) 仍 open — 实测大 data sprint,
+待制作人定 scope (全量 / 关键 actor / 仅 GEN_CLASS))

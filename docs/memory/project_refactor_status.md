@@ -5,6 +5,32 @@ type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
+## 2026-05-16 (F-W4c-2 ✅ closed — 190 chronicle facName 中文化 + ruler 全名)
+
+2 commits local (`c5b3128` part 1 + `1b64592` part 2), 制作人 decision「势力名应该都是君主」(语义 "仕于X" X 是君主名)。
+
+**part 1 byte-identical 守底 (battle UI)**:
+- battle_modals.js:390/1441 facName 函数旧 hardcoded `{wei:'魏',shu:'蜀',wu:'吴',nanman:'蛮'}[f]||f` → `getFactionDef(f)?.name || f`
+- 214 nanman accessor 返 "蛮" 跟硬编码一致 → smoke 51 snapshots identical ✅
+- 190: caocao/dongzhuo/yuanshao... 一字短称 ("曹/董/袁") 修原 fid 字面缺陷
+
+**part 2 chronicle ruler (smoke captureState 不抓 chronicle, baseline 不破)**:
+- main.js:274 chronicle init "仕于X" facName 改 `getFactionDef(fid)?.ruler`
+- tick.js:618 debut "X迎来新锐" facN 改 ruler
+- general.js:1015 recruit "应X之邀" _facName 改 ruler
+- 214 变化: "仕于魏" → "仕于曹操"; 190 修: "仕于caocao" → "仕于曹操"
+- smoke 51 snapshots identical (G.genChronicle 非 captureState 字段, 叙事文本守底自然)
+
+**关键 lesson — smoke captureState 边界**:
+- smoke 抓 G.gen{Post/Loyalty/FactionMod/Wounded/JoinTurn/JoinSource/Merit/WinCount/FactionModLog}
+- **不抓 G.genChronicle** (叙事文本 ≠ 机制状态)
+- chronicle 类改动是"低风险副 effect", smoke baseline 守不到, code review + 实机测覆盖
+
+**F-W4c-1 scout 结论 (仍 open, 待 scope 决策)**:
+- 190 缺漏精确实测: **GEN_TAGS 80 武将 / GEN_META 99 武将 / GEN_CLASS 166 武将** (共 ~345 data points)
+- GEN_BASE 213 完整覆盖 190 名册, 但 GEN_BASE 自身 skills 仅 83/213 + values 仅 86/213 (40%)
+- 主要缺漏 = 190 起手 14 势力 ruler+老臣+二线 (214 名册没有的人, 历史 meta 从未建)
+
 ## 2026-05-16 (F-W6-pending-3-1 ✅ closed — battle_modals isRuler 改 runtime, 修 latent bug)
 
 W6-pending-5 完结后接续, 1 commit `138c383` local, codex LGTM, 未 push。
