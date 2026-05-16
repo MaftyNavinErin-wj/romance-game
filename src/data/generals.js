@@ -5,7 +5,8 @@
 // 来源(2 阶段抽离):
 //
 //   Phase 1.2 (Session 1.2 / 阶段 1):
-//     - WILD_GENS / WILD_GEN_META(原 L3674-L3731):在野武将池 + 元数据
+//     - WILD_GENS(原 L3674-L3704):§8.4 W6-pending-5 已退役 → m.WILD_GENS (W5a 派生 sc.generals wild/pending) + G._wildGenDefs runtime
+//     - WILD_GEN_META(原 L3705-L3731):在野武将元数据 (W4c decision 2A: gentry 类稀疏数据 const 保留, 不能删)
 //     - getGenMeta(原 L3736-L3737):统一武将元数据查找,fallback WILD_GEN_META
 //     - GEN_TAGS(原 L3839-L4000):武将五维静态标签(politics/combat/origin/state/temperament/clique)
 //
@@ -36,32 +37,12 @@
 // ═══════════════════════════════════════════════════════
 // 在野武将池（中立人才，不属于任何势力）
 // ═══════════════════════════════════════════════════════
-// minTurn: 最早可进入野池的旬数（1旬=10天，1年=36旬）
-// T1 = 建安十九年（214年开局），T45 = 215年，T117 = 217年，T189 = 219年
-
-const WILD_GENS = [
-  // ── 名将级（高价值，稀有）──
-  {name:'张松',  com:65,war:38,int:90,pol:82,cha:55, apt:{cavalry:'C',light:'C',heavy:'C',archer:'B',siege:'B',naval:'C'}, minTurn:1},
-  {name:'庞德',  com:84,war:94,int:60,pol:48,cha:65, apt:{cavalry:'A',light:'S',heavy:'B',archer:'B',siege:'C',naval:'C'}, minTurn:1},
-  // ── 中坚级──
-  {name:'李严',  com:76,war:78,int:72,pol:70,cha:65, apt:{cavalry:'B',light:'A',heavy:'B',archer:'B',siege:'B',naval:'C'}, minTurn:45},
-  {name:'邓艾',  com:88,war:82,int:90,pol:72,cha:70, apt:{cavalry:'A',light:'A',heavy:'B',archer:'B',siege:'S',naval:'C'}, minTurn:189},
-  {name:'钟会',  com:85,war:60,int:92,pol:78,cha:75, apt:{cavalry:'B',light:'B',heavy:'B',archer:'A',siege:'A',naval:'C'}, minTurn:261},
-  {name:'孟达',  com:72,war:75,int:70,pol:65,cha:60, apt:{cavalry:'B',light:'A',heavy:'B',archer:'B',siege:'B',naval:'C'}, minTurn:1},
-  {name:'申耽',  com:65,war:72,int:58,pol:55,cha:52, apt:{cavalry:'B',light:'A',heavy:'B',archer:'B',siege:'C',naval:'C'}, minTurn:1},
-  {name:'郝昭',  com:78,war:82,int:72,pol:60,cha:62, apt:{cavalry:'B',light:'B',heavy:'S',archer:'B',siege:'A',naval:'C'}, minTurn:45},
-  {name:'张任',  com:80,war:85,int:68,pol:60,cha:65, apt:{cavalry:'B',light:'S',heavy:'B',archer:'A',siege:'B',naval:'C'}, minTurn:1},
-  // ── 普通级 ──
-  {name:'杨洪',  com:68,war:45,int:78,pol:82,cha:65,apt:{cavalry:'C',light:'C',heavy:'B',archer:'B',siege:'B',naval:'C'}, minTurn:1},
-  {name:'蒋琬',  com:72,war:48,int:80,pol:85,cha:72,apt:{cavalry:'C',light:'B',heavy:'B',archer:'B',siege:'B',naval:'C'}, minTurn:117},
-  {name:'费祎',  com:70,war:50,int:82,pol:86,cha:76,apt:{cavalry:'C',light:'B',heavy:'B',archer:'B',siege:'B',naval:'C'}, minTurn:117},
-  // ── v143: 归属修正 ──
-  {name:'姜维',  com:92,war:88,int:86,pol:72,cha:78, apt:{cavalry:'A',light:'S',heavy:'B',archer:'A',siege:'B',naval:'C'}, minTurn:80},
-  // ── v143 B类在野延迟 ──
-  {name:'文鸯',  com:75,war:95,int:55,pol:42,cha:60, apt:{cavalry:'S',light:'A',heavy:'B',archer:'C',siege:'C',naval:'C'}, minTurn:261},
-  {name:'羊祜',  com:82,war:55,int:88,pol:90,cha:85, apt:{cavalry:'B',light:'B',heavy:'B',archer:'B',siege:'B',naval:'C'}, minTurn:261},
-  {name:'王濬',  com:80,war:70,int:78,pol:72,cha:68, apt:{cavalry:'B',light:'B',heavy:'B',archer:'B',siege:'B',naval:'S'}, minTurn:189},
-];
+// §8.4 W6-pending-5 (2026-05-16): WILD_GENS legacy const 已退役 (16 entries 数据已删)。
+//   - 真值源: m.WILD_GENS (scenario_loader.js W5a, 派生自 sc.generals status='wild' ∪ 'pending'-no-pendingFac)
+//   - runtime backing: G._wildGenDefs (applyScenario 时 ← m.WILD_GENS, addWildGenDef 写入)
+//   - persist 1d-a 已 7 site migrate 集合操作到 getAllWildGenDefs() accessor
+//   - 实测 0 live consumer (grep 全 hit 是 comment 或 _scenarioMaterialized.WILD_GENS)
+// ═══════════════════════════════════════════════════════
 // 在野武将元数据
 const WILD_GEN_META = {
   '徐庶' :{title:'单福·颍川名士',  post:{name:'军师',rank:'文官',desc:'早年化名单福投刘备，智谋出众，识人极准。'},skills:[],loyalty:70,values:['忠义'],birthplace:'颍川长社',clan:'颍川徐氏',gentry:'颍川士族',relations:[{name:'诸葛亮',type:'挚友',icon:'🤝'},{name:'庞统',type:'同窗',icon:'📚'}]},

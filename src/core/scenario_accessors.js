@@ -18,8 +18,7 @@
 //
 // 数据源 (top-level const 保留, 不 mutate):
 //   - WILD_GEN_META (in src/data/generals.js, 武将元数据, immutable)
-//   - WILD_GENS (in src/data/generals.js, 用于 materialize 初始 G._wildGenDefs;
-//                §8.4 W6-pending-2: ALL_GENS spread 已退役 → _scenarioMaterialized.GENS_FULL+WILD_GENS)
+//   - WILD_GENS §8.4 W6-pending-5 已退役 → m.WILD_GENS (W5a 真值) + G._wildGenDefs runtime
 //
 // ── accessor 列表 ──
 //   getFactionDef(fid)              → _scenarioMaterialized.FAC[fid] 或 null

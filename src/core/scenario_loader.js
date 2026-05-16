@@ -12,8 +12,9 @@
 //   - 运行时 mutable (FAC_IDENTITY): G.facIdentity (随 G save/load)
 //   - 运行时 mutable wild gen 池 (WILD_GENS push): G._wildGenDefs (随 G save/load)
 //
-// WILD_GENS / WILD_GEN_META top-level const **保留** — 它们是数据源 (materialize 输入 +
-// data/generals.js:1030 ALL_GENS spread 用), 不是 mutable container.
+// §8.4 W6-pending-5: WILD_GENS const 已退役 (0-consumer, m.WILD_GENS W5a 真值, G._wildGenDefs runtime)。
+// WILD_GEN_META top-level const **保留** — W4c decision 2A: gentry 类稀疏 legacy 数据留 const, materialize
+// 输入 + getWildGenMeta accessor 用 (m.wildMeta 由 GEN_BASE + sc.generals + WILD_GEN_META 透传 composite)。
 //
 // ── 加载顺序 ──
 // v181.html 内 在 src/data/factions.js / general_base.js / city_base.js / faction_base.js /
