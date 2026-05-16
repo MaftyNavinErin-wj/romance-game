@@ -15,7 +15,7 @@
 //     - GEN_META(原 L1324-L1944):势力武将元数据(技能 / 官职 / 关系 / 士族)
 //     - ALL_GENS(原 L1949,IIFE 派生):全将领扁平列表 = GENS_FULL.flat() + WILD_GENS
 //     - GEN_POOL_INACTIVE(原 L1953-L1963):非活跃武将库(剧本不参战,留数据)
-//     - FOUNDING_CORE(原 L1981-L1986):核心创始成员白名单(每势力 5-8 人)
+//     - FOUNDING_CORE(原 L1981-L1986):§8.4 W6-pending 已退役 → m.foundingCores (sc.factions[].foundingCore 派生)
 //     - GEN_CLASS(原 L1990-L2044):武将四类(warrior/commander/strategist/minister)
 //     - CLASS_META(原 L2045-L2050):四类元数据(icon / label / color)
 //
@@ -1055,20 +1055,13 @@ const GEN_POOL_INACTIVE = [
   {name:'高顺',  com:82,war:88,int:68,pol:55,cha:62, apt:{cavalry:'B',light:'S',heavy:'A',archer:'C',siege:'B',naval:'C'}, era:{birth:0,death:198}, note:'陷阵营统领，198年吕布败亡时被杀'},
 ];
 
-// ── range B: section header + FOUNDING_CORE + GEN_CLASS + CLASS_META (原 L1974-L2050, 77 行) ──
+// ── range B: section header + GEN_CLASS + CLASS_META (原 L1974-L2050, 77 行;
+//   FOUNDING_CORE §8.4 W6-pending 已退役 → m.foundingCores W1 实装 + sf.foundingCore SCENARIO 派生) ──
 // ═══════════════════════════════════════════════════════
 // B1 武将标签 & 派系政治系统
 // ═══════════════════════════════════════════════════════
-
-/** 核心创始成员白名单（每势力5-8人，开局即显示为"创始团队"）
- *  其余开局武将为 'member'（老臣/同僚），按origin/home正常分派系
- */
-const FOUNDING_CORE = {
-  wei: new Set(['曹操','夏侯惇','夏侯渊','曹仁','曹洪','许褚']),
-  shu: new Set(['刘备','关羽','张飞','赵云']),
-  wu:  new Set(['孙权','周瑜','程普','黄盖']),
-  nanman: new Set(['孟获','祝融']),
-};
+// §8.4 W6-pending: FOUNDING_CORE 已退役 → m.foundingCores ({fid: Set<name>}, 派生自 sc.factions[].foundingCore)。
+// 2 个 live consumer (economy/general) 已切 _scenarioMaterialized.foundingCores, byte-identical Set 形状。
 
 
 // ★ v167: 武将四类系统 — warrior(武将)/commander(统帅)/strategist(谋士)/minister(能臣)

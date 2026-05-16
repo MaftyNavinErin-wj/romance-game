@@ -89,20 +89,8 @@ const MIGRATE_ENEMY_CHECK_RANGE = 2; // 安全检查：双城Nhex内不可有敌
 const RETAINER_LEVEL = 10;        // 部曲按Lv10计算
 const RETAINER_PROTECT = 0.35;    // 战损保护系数：部曲承担同比例损失×0.35
 const RETAINER_INFLUENCE_DIV = 500; // 每500部曲=+1派系影响力
-// 开局部曲preset（{count, type}绑兵种，史实依据见handover）
-const RETAINER_PRESET = {
-  // 魏
-  '曹操':{count:2500,type:'cavalry'},'曹仁':{count:2000,type:'heavy'},'夏侯惇':{count:1800,type:'cavalry'},
-  '夏侯渊':{count:1500,type:'cavalry'},'张辽':{count:1200,type:'cavalry'},
-  '徐晃':{count:800,type:'heavy'},'许褚':{count:1000,type:'heavy'},'于禁':{count:600,type:'heavy'},'曹洪':{count:1000,type:'cavalry'},
-  // 蜀
-  '刘备':{count:1500,type:'cavalry'},'关羽':{count:1500,type:'heavy'},'张飞':{count:1200,type:'cavalry'},
-  '赵云':{count:800,type:'cavalry'},'魏延':{count:600,type:'heavy'},
-  '黄忠':{count:500,type:'archer'},'马超':{count:1000,type:'cavalry'},
-  // 吴
-  '孙权':{count:2000,type:'heavy'},'周瑜':{count:1500,type:'cavalry'},'甘宁':{count:800,type:'light'},'凌统':{count:600,type:'heavy'},
-  '程普':{count:700,type:'cavalry'},'黄盖':{count:700,type:'heavy'},'吕蒙':{count:500,type:'light'},'陆逊':{count:400,type:'light'},
-};
+// §8.4 W6-pending: RETAINER_PRESET 已退役 → m.initialRetainers (W4b 实装, 派生自 sc.generals .retainer + .wildData.retainer)
+// 6 个 live consumer (main/persist/general/tick/economy 等) 已切 _scenarioMaterialized.initialRetainers, 0 残留。
 
 /** v164: 获取武将部曲数（精确值，用于计算） */
 // 武将链 GEN1 (部曲 getRetainers/getRetainerType/setRetainers/getRetainersDisplay,L887-L912) 已抽离到 src/chains/general.js (Session 3.12)
@@ -484,26 +472,9 @@ const ALL_POSTS = [
   ...CIV_POSTS.tier1, ...CIV_POSTS.tier2, ...CIV_POSTS.tier3,
 ];
 
-/** 初始功绩值（开局势力武将） */
-// ── owner: politics chain ── (功绩属官职任命系统)
-const MERIT_INIT = {
-  // 魏
-  曹操:150, 张辽:95, 郭嘉:85, 夏侯惇:90, 荀彧:100, 曹仁:85, 乐进:65,
-  于禁:70, 徐晃:80, 张郃:75, 司马懿:120, 夏侯渊:80, 许褚:70, 典韦:75,
-  荀攸:80, 程昱:70, 贾诩:85, 满宠:55, 钟繇:65, 王朗:45, 曹洪:60, 郭淮:50,
-  // 蜀
-  刘备:150, 关羽:100, 张飞:95, 诸葛亮:140, 赵云:90, 马超:70, 黄忠:75,
-  魏延:60, 庞统:75, 法正:70, 姜维:40, 王平:45, 廖化:35, 马岱:45,
-  董允:35, 张翼:30, 吴懿:40, 马忠:35, 霍峻:40,
-  // 吴
-  孙权:140, 周瑜:130, 甘宁:70, 鲁肃:85, 太史慈:70, 吕蒙:80, 陆逊:80,
-  黄盖:60, 凌统:55, 丁奉:50, 程普:65, 孙策:90, 朱然:55,
-  张昭:75, 诸葛瑾:60, 韩当:55, 徐盛:50, 潘璋:40,
-  // 在野
-  徐庶:30, 陈宫:35, 田丰:40, 沮授:40, 张松:20, 庞德:50, 文聘:40,
-  高顺:45, 李严:30, 邓艾:15, 钟会:10, 孟达:20, 申耽:15, 马谡:10,
-  郝昭:30, 张任:35, 杨洪:15, 蒋琬:15, 费祎:15, 向宠:15,
-};
+// §8.4 W6-pending: MERIT_INIT 已退役 → m.initialMerit (W4b active + W5a wild/pending 实装,
+// 派生自 sc.generals .merit + .wildData.merit)。tick.js pending debut path 已切 _scenarioMaterialized.initialMerit。
+// 214 pendingFac 8 gens wildData.merit=10 跟旧 const fallback 等价, byte-identical 守底无破。
 
 // ═══════════════════════════════════════════════════════
 // D1 官职系统 — 辅助函数

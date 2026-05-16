@@ -879,7 +879,8 @@ function getPrefectBuildBuff(cityId, bldId){
     && tags.state && STATE_TO_GENTRY_FAC[tags.state] === STATE_TO_GENTRY_FAC[cityState];
   const isGentry = tags.origin === 'gentry';
   const isHumble = tags.origin === 'humble';
-  const isFounding = FOUNDING_CORE[city.fac]?.has(pref);
+  // §8.4 W6-pending: FOUNDING_CORE const 收口 → _scenarioMaterialized.foundingCores (W1 已实装, byte-identical Set 形状)
+  const isFounding = _scenarioMaterialized.foundingCores[city.fac]?.has(pref);
   const tenure = G.turn - (G.genJoinTurn[pref] || 0);
   const isNewDefector = G.genJoinSource[pref] === 'capture' && tenure < 180;
 

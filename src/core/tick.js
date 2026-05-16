@@ -73,7 +73,8 @@
 //           / getUnitTroops / getUnitNodeId / calcUnitAP / unitsContact
 //           / sleep / hkey / _shownCities / HEX_CITY / CITY_MAP / GEN_MAP
 //           / FAC / getScenarioFactions() / YEARS / SEASONS / WILD_POOL_INTERVAL
-//           / EVENT_CAT_COOLDOWN / AI_RECRUIT_INTERVAL / MERIT_INIT
+//           / EVENT_CAT_COOLDOWN / AI_RECRUIT_INTERVAL
+//           §8.4 W6-pending: MERIT_INIT 已退役 → _scenarioMaterialized.initialMerit (W4b/W5a 实装)
 //           / CITIES_DEF
 //   - 顶层 lets(留 v181): _marchAnimating / _fastForward / _deployedGensMoraleCache
 //           / _pendingSiegeArrival / _aiBattleProcessedThisTurn / _battleReports
@@ -605,7 +606,9 @@ async function nextTurn(){
       G.genJoinSource[pg.name] = 'member';
       G.genOrigRole[pg.name] = pg.role || 'general';
       G.genOrigFac[pg.name] = fid;
-      G.genMerit[pg.name] = MERIT_INIT[pg.name] || 10;
+      // §8.4 W6-pending: MERIT_INIT const 收口 → _scenarioMaterialized.initialMerit
+      //   (W5a 扩 wild+pending wildData.merit, 214 pendingFac gens wildData.merit=10 跟旧 fallback 等价)
+      G.genMerit[pg.name] = _scenarioMaterialized.initialMerit[pg.name] || 10;
       if(!G.genChronicle[pg.name]) G.genChronicle[pg.name] = [];
       if(!G.genStatExp[pg.name]) G.genStatExp[pg.name] = {com:0,war:0,int:0,pol:0};
       if(!G.genStatBase[pg.name]) G.genStatBase[pg.name] = {com:pg.com,war:pg.war,int:pg.int,pol:pg.pol};

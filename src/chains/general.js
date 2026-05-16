@@ -35,8 +35,9 @@
 //
 // ── 留 v181 / 数据 sprint ──
 //   武将数据 const (留 v181 等 src/data/generals.js sprint):
-//     GENS_FULL / GEN_META / ALL_GENS / GEN_POOL_INACTIVE / FOUNDING_CORE /
+//     GENS_FULL / GEN_META / ALL_GENS / GEN_POOL_INACTIVE /
 //     GEN_CLASS / CLASS_META
+//     §8.4 W6-pending: FOUNDING_CORE 已退役 → _scenarioMaterialized.foundingCores
 //   squad class helpers (L2175-L2240, 与 GEN_CLASS 数据捆绑等 sprint):
 //     getSquadClass / getUnitClassBuffs / getClassDuelWeight /
 //     genClassTagsHtml / genClassSelectorHtml / genClassBuffsHtml
@@ -136,9 +137,10 @@
 //   - log / showNotif (已抽 src/render/notifications.js)
 //   - confirm (浏览器 API) — succeedRuler (玩家继任确认)
 //   - 数据 / 常量: GEN_TAGS / GEN_MAP / FAC / getScenarioFactions() / FAC_IDENTITY /
-//     GENS_FULL / GEN_META / WILD_GENS / GEN_POOL_INACTIVE / FOUNDING_CORE /
+//     GENS_FULL / GEN_META / WILD_GENS / GEN_POOL_INACTIVE /
 //     COUNTY_NAME_TO_CITY / GENTRY_FAC_TO_STATES / STATE_TO_GENTRY_FAC /
 //     STATE_CITIES / TROOP_TYPES / 等 (留 v181 / 已抽 src/data/)
+//   §8.4 W6-pending: FOUNDING_CORE 已退役 → _scenarioMaterialized.foundingCores
 //   - G (状态根) (已抽 src/core/state.js)
 //
 // ── plan §二偏离记录 ──
@@ -179,8 +181,9 @@ function getRetainerType(genName){
   const r = G.genRetainers && G.genRetainers[genName];
   if(!r) return null;
   if(typeof r === 'object') return r.type || null;
-  // 旧存档纯数字：查PRESET补type
-  return RETAINER_PRESET[genName]?.type || null;
+  // 旧存档纯数字：查 m.initialRetainers 补 type
+  // §8.4 W6-pending: RETAINER_PRESET const 收口 → _scenarioMaterialized.initialRetainers (W4b 已实装, byte-identical {count,type} 形状)
+  return _scenarioMaterialized.initialRetainers[genName]?.type || null;
 }
 
 /** v164: 设置武将部曲（count+type） */
@@ -2181,7 +2184,8 @@ function surrenderGen(genName, targetFid){
     G.genJoinTurn[genName] = G.turn;
     // ★ v92: 回归原势力时恢复原始身份（不标记为降将）
     if(G.genOrigFac[genName] === targetFid){
-      const origSrc = FOUNDING_CORE[targetFid]?.has(genName) ? 'founding' : 'member';
+      // §8.4 W6-pending: FOUNDING_CORE const 收口 → _scenarioMaterialized.foundingCores (W1 已实装, byte-identical Set 形状)
+      const origSrc = _scenarioMaterialized.foundingCores[targetFid]?.has(genName) ? 'founding' : 'member';
       G.genJoinSource[genName] = origSrc;
     } else {
       G.genJoinSource[genName] = 'capture';

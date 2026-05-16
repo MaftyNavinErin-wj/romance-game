@@ -28,13 +28,15 @@
 // ── 反向调用(已 approve 设计原则 (c) 副作用通道)──
 // initGame 调用大量 v181 留下的 chain 初始化:
 //   - 数据 / 常量(部分已抽 src/data/):FAC / GENS_FULL / CITIES_DEF / DIPLO_INIT
-//     / FAC_IDENTITY / RETAINER_PRESET
-//     / RETAINER_LEVEL / INTIMACY_PRESET / ETHOS_INIT / MERIT_INIT / GEN_TAGS
+//     / FAC_IDENTITY
+//     / RETAINER_LEVEL / INTIMACY_PRESET / ETHOS_INIT / GEN_TAGS
 //     / GENS_FULL / ALL_GENS / getScenarioFactions() / ALL_POSTS / WILD_GENS / CITY_MAP
 //     / STATE_TO_GENTRY_FAC
+//     §8.4 W6-pending: RETAINER_PRESET / MERIT_INIT 已退役 → _scenarioMaterialized.initialRetainers / initialMerit
 //   - §8.4 W1: 势力杂项 + 入口/叙事改读 materialized contract m.* —
 //     m.{startYear,initialRes,reputations,emperorHolder,techPreunlocks,foundingCores,initLog}
-//     (原 TECH_PREUNLOCK / FOUNDING_CORE const 直读 + res/reputation/emperor 硬编码字面 已收口)
+//     (原 TECH_PREUNLOCK / FOUNDING_CORE const 直读 + res/reputation/emperor 硬编码字面 已收口;
+//      §8.4 W6-pending: FOUNDING_CORE / MERIT_INIT / RETAINER_PRESET 0-residue 删除)
 //   - chain primitive: garrisonCap / _deepCloneGen / createUnit / getInitLevel
 //     / getGenMeta / addGenChronicle / setIntimacy / refreshWildPool
 //     / initCityGentry / initFog / _rebuildGEN_MAP / calcUnitAP / setRetainers
@@ -349,7 +351,8 @@ function initGame(scenarioId){
     Object.entries(G.genRetainers).forEach(([genName, retData]) => {
       if(deployedGens.has(genName)) return; // 已出战，不处理
       const count = typeof retData === 'object' ? retData.count : retData;
-      const type = typeof retData === 'object' ? retData.type : (RETAINER_PRESET[genName]?.type || null);
+      // §8.4 W6-pending: RETAINER_PRESET const 收口 → _scenarioMaterialized.initialRetainers (W4b 已实装)
+      const type = typeof retData === 'object' ? retData.type : (_scenarioMaterialized.initialRetainers[genName]?.type || null);
       if(!count || count <= 0 || !type) return;
       // 找该武将所属势力的国都
       let ownerFac = null;

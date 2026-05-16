@@ -33,7 +33,8 @@
 //   - window._pendingCourtCouncil
 //
 // **跨链读取/调用**:
-//   - 数据: FAC_IDENTITY / ALL_FACS / ETHOS_INIT / COUNTY_DATA / RETAINER_PRESET
+//   - 数据: FAC_IDENTITY / ALL_FACS / ETHOS_INIT / COUNTY_DATA
+//     §8.4 W6-pending: RETAINER_PRESET 已退役 → _scenarioMaterialized.initialRetainers (W4b 实装)
 //   - helper: _rebuildGEN_MAP (chains/general) / initCityGentry / _aggregateGentry (chains/gentry)
 //
 // ── 加载顺序 ──
@@ -210,7 +211,8 @@ function _deserializeG(jsonStr){
     Object.keys(G.genRetainers).forEach(name => {
       const v = G.genRetainers[name];
       if(typeof v === 'number'){
-        G.genRetainers[name] = { count: v, type: RETAINER_PRESET[name]?.type || null };
+        // §8.4 W6-pending: RETAINER_PRESET const 收口 → _scenarioMaterialized.initialRetainers (W4b 已实装)
+        G.genRetainers[name] = { count: v, type: _scenarioMaterialized.initialRetainers[name]?.type || null };
       }
     });
   }
