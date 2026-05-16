@@ -5,6 +5,68 @@ type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
+## 2026-05-16 (phase 6 wire W6-pending-3 ✅ — 删 GENS_FULL legacy const + 抽 getGenOrigFac helper, decision C)
+
+W6-pending-3 同 session 接续 W6-pending-2 (制作人 decision C 拍板)。1 commit local `e80d5bb`, 未 push。
+
+**制作人 decision C (混合方案)**:
+- UI 「在场列表」语义 (4 处 .flat()) → m.GENS_FULL (active-only 是对的)
+- origFac lookup 语义 (12 处 Object.keys().find()) → 新 helper getGenOrigFac (跨 m.GENS_FULL ∪ m.pendingGenPool scan)
+- 「origFac→find ruler」混合模式 (2 处) → 简化 m.GENS_FULL[origFac]?.find(g=>g.role==='ruler')
+
+**实装 (7 文件, +71/-164 = 净 −93 行)**:
+- `src/data/generals.js` — 新 getGenOrigFac(name) helper (跟 getGenMeta 同位置, scenario-aware accessor):
+  ```js
+  function getGenOrigFac(name){
+    if(!_scenarioMaterialized) return undefined;
+    const activeMap = _scenarioMaterialized.GENS_FULL || {};
+    for(const fid of Object.keys(activeMap)){
+      if(activeMap[fid].some(g => g.name === name)) return fid;
+    }
+    const pending = _scenarioMaterialized.pendingGenPool || [];
+    const pe = pending.find(g => g.name === name);
+    if(pe && pe._pendingFac) return pe._pendingFac;
+    return undefined;
+  }
+  ```
+- `src/chains/general.js` — 6 sites (4 facA/facB intimacy + 2 origFid surrender/release + 2 origRuler 简化)
+- `src/render/battle_modals.js` — 5 sites (atkFac/defFac duel + 2 origFid prisoner + 2 allGens role)
+- `src/render/gen_profile.js` — 2 sites (fid lookup + otherFid)
+- 删 GENS_FULL const 133 行 (data/generals.js:300-433)
+- main.js + battle_anim.js + constants.js — header 引用清理
+
+**byte-identical 验证**:
+- 50 旬 baseline 内 pendingFac gens (司马昭/陈泰/王基/关兴/张苞/夏侯霸/诸葛恪/施绩) minTurn=109+ 不触发
+- active gens 在 legacy 和 m.GENS_FULL 一致 (m.GENS_FULL ≡ legacy active subset)
+- pendingFac 长 run: legacy 返 'wei', helper 也返 'wei' (从 m.pendingGenPool._pendingFac 取), byte-identical
+- smoke 50 旬 vs phase6_age_hook_complete baseline: 51 snapshots identical ✅
+- node --check 7 files PASS
+
+**codex review --uncommitted (1 round)**:
+- LGTM: helper correctness (pendingFac 8 gens 正确返 _pendingFac), origFac→find ruler 简化 (origFac 来自 G.genOrigFac runtime, m.GENS_FULL[origFac] valid), 无 leftover bare GENS_FULL refs, script-load safety
+- **P1 (codex flag)**: battle_modals.js:1897/1957 isRuler 用 static m.GENS_FULL → 继位后 ruler 漏判。**审定 pre-existing latent bug** (legacy GENS_FULL.flat 同 static, W6-pending-3 byte-identical 保留行为)。**记 sprint_followup F-W6-pending-3-1, 不当场修** (CLAUDE.md 不顺手修原则)。
+
+**关键 lesson — helper 抽象层模式 (decision C)**:
+- W4a 后 m.* 是 scenario static snapshot, 跟 legacy const 有 active/pending 集合差异
+- 单一替换 (A) 行为退化, 全 helper 抽象 (B) 过度通用, **混合 (C) 按语义分**才是 sweet spot:
+  - 「runtime active」语义 → 直读 m.GENS_FULL (省 helper)
+  - 「scenario origin」语义 → helper (跨 active+pending scan)
+- 抽 helper 当作 scenario-aware accessor 跟 getGenMeta 同位置 (data/generals.js), 模式一致
+- pre-existing latent 不修 (战斗机制 bug 那 sprint 才动)
+
+**W6-pending sprint 三连完结 (W6-pending / W6-pending-2 / W6-pending-3)**:
+- 6 个 legacy const 退役 (MERIT_INIT/FOUNDING_CORE/RETAINER_PRESET/ALL_GENS/GENS_FULL)
+- 21+ live consumer site migrate
+- 1 个新 helper 抽象层 (getGenOrigFac)
+- 净 −280 行 (3 sprint commit 合计 + memory)
+- byte-identical 50 旬 baseline 三次连续 PASS
+- codex 3 次 review: 2 LGTM + 1 P1 (pre-existing latent, 不修)
+
+**下次候选 (制作人决)**:
+- CITIES_DEF 退役 sprint (20+ consumer 纯迭代无设计墙, byte-identical 可守, 中型 sprint)
+- F-W6-pending-3-1 修 (battle_modals isRuler 改 runtime, 战斗机制 bug 系列)
+- scenario 新剧本 / 平衡 / age-hook followup / ruler 死 game-over (设计决策)
+
 ## 2026-05-16 (phase 6 wire W6-pending-2 ✅ — 删 ALL_GENS const + 撞 GENS_FULL 设计墙)
 
 W6-pending 同 session 接续 streamline. 2 commits local (`d1016e1` + `0fe26ce` P2 cleanup), 未 push。
