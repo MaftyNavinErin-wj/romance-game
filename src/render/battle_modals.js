@@ -387,7 +387,8 @@ function _showCampBattleConfirm(attackers, defenders, nodeLabel){
   const assaultRatio = atkATK_camp / (defDEF_camp * 1.10 || 1); // 强攻：守方DEF×1.10
   const assaultWinPct = Math.round(Math.min(95, Math.max(5, 50 + (assaultRatio-1)*28)));
 
-  const facName = f => ({wei:'魏',shu:'蜀',wu:'吴',nanman:'蛮'}[f]||f);
+  // F-W4c-2 fix: 旧 hardcoded 214 fid map → getFactionDef.name accessor (190 fid 修, 214 byte-identical)
+  const facName = f => getFactionDef(f)?.name || f;
 
   // 复用 battleConfirmModal 结构，先清空再注入营寨战专属内容
   document.getElementById('bcLocation').textContent = '【' + nodeLabel + '】营寨战';
@@ -1438,7 +1439,8 @@ function showNextBattleReport(){
   const r = _battleReports.shift();
   _currentBattleReport = r;  // D2：供closeBattleModal发放经验
   const modal = document.getElementById('battleModal');
-  const facName = f=>({wei:'魏',shu:'蜀',wu:'吴',nanman:'蛮'}[f]||f);
+  // F-W4c-2 fix: 旧 hardcoded 214 fid map → getFactionDef.name accessor (190 fid 修, 214 byte-identical)
+  const facName = f=>getFactionDef(f)?.name || f;
   const facCol  = f=>({wei:'var(--wei)',shu:'var(--shu)',wu:'var(--wu)',nanman:'var(--nanman)'}[f]||'var(--ink-l)');
 
   document.getElementById('brTitle').textContent = r.ambushAbortDetected
