@@ -5,6 +5,60 @@ type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
+## 2026-05-16 (phase 6 wire W6-pending-4 ✅ — CITIES_DEF + CITY_MAP 改 1b-1 mutable container)
+
+W6-pending-4 同 session 接续 W6-pending-3。2 commits local: `7e6cca5` (核心) + `62b0ba8` (codex P1 fix), 未 push。
+
+**为什么选 mutable container 而非 accessor 迁移**:
+- CITIES_DEF live consumer ~20 + CITY_MAP ~87 grep hit = **~110 site**, 纯 accessor 迁移规模过大
+- byte-identical 风险高: m.CITIES_DEF entries 跟 legacy 不同 obj identity, .x/.y stamping 需重新设计
+- 1b-1 mutable container 是已验证模式 (phase 1b FAC/ALL_FACS), m.* 真值 W2 已 ready, **零 consumer 改动**
+
+**实装 (2 文件, 净 −68 行)**:
+- `src/data/cities.js`: 删 76 行 CITIES_DEF literal data + 改 `let CITIES_DEF = []` / `let CITY_MAP = {}` 容器
+- `src/core/scenario_loader.js` applyScenario 末尾加 sync block:
+  ```js
+  CITIES_DEF.length = 0;
+  for (const c of m.CITIES_DEF) CITIES_DEF.push(c);
+  for (const k of Object.keys(CITY_MAP)) delete CITY_MAP[k];
+  for (const c of m.CITIES_DEF) CITY_MAP[c.id] = c;
+  // codex P1 fix: 再加 hexToPixel guard 的 x/y augment (覆盖 startAs 切剧本 case)
+  if (typeof hexToPixel === 'function') {
+    for (const c of m.CITIES_DEF) {
+      const p = hexToPixel(c.q, c.r);
+      c.x = p.x; c.y = p.y;
+    }
+  }
+  ```
+
+**codex review --uncommitted (2 round)**:
+- round 1 (commit 7e6cca5): **P1** — startAs 切剧本时 applyScenario 重 sync CITIES_DEF, 但 map.js:599 只 boot 跑一次, 新 entries 缺 x/y → render_map.js def.x 破。**有效 catch**, 立即修。
+- round 1 P2: 容器 entry obj 每次 applyScenario 替换, 若 consumer 缓存 city-def obj 会 stale — 未发现明显 cache, 接受。
+- round 1 P2: 加载顺序 ok (scenario_loader 自动 applyScenario('214') 在 cities.js/scenarios/* 之后, main.js/map.js/render 之前)。
+- round 1 P3: data/events.js CITY_MAP 引用都在 callback body, 非 top-level pre-apply。
+- round 2 (commit 62b0ba8): pending — 后台跑
+
+**关键 lesson — codex 关键 catch 模式**:
+- W6-pending-4 P1 是 codex 比 CC scout 更细 — CC 只测了 smoke 50 旬 (单 init), codex 实测 startAs 多剧本切换路径 (m.CITIES_DEF 重建无 x/y)。
+- "byte-identical 50 旬 PASS" 不等于 "scenario switch 也安全" — 任何 m.* 容器 sync 都要考虑 startAs 多次 applyScenario 的 idempotency。
+- mutable container 模式必须 includes 「所有 side-effect 都在 applyScenario 内完成」, top-level boot 一次性 augment 在 scenario switch 时会失效。
+
+**W6 总结 (整段 phase 6 wire W6)**:
+| Sprint | const 退役 | site migrate | 净行数 | codex |
+|---|---|---|---|---|
+| W6/B (2026-05-15) | INTIMACY_PRESET, TECH_PREUNLOCK | 0 (W4c 已迁) | −80 | LGTM |
+| W6-pending (2026-05-16) | MERIT_INIT, FOUNDING_CORE, RETAINER_PRESET | 6 | −23 | LGTM |
+| W6-pending-2 | ALL_GENS | 1 | −12 | LGTM + 1 P2 fixed |
+| W6-pending-3 | GENS_FULL + 抽 getGenOrigFac helper | 14 | −93 | LGTM + 1 P1 pre-existing |
+| W6-pending-4 | CITIES_DEF + CITY_MAP (mutable container) | 0 | −68 (W6-p4 ×2 commits) | P1 codex catch + fix |
+| **合计** | **8 个 const + 1 helper** | **21 site + ~110 容器零改** | **−276** | **3 LGTM + 2 active fix** |
+
+**下次候选 (制作人决)**:
+- F-W6-pending-3-1 fix (battle_modals isRuler 改 runtime, 战斗机制 bug 系列)
+- WILD_GENS const 退役 (data layer cleanup, 跟 GENS_FULL 同模式)
+- WILD_GEN_META / GEN_META const 退役 (W4c 决定 2A gentry 透传, 不能删)
+- scenario 新剧本 (200 / 220 等) / 平衡 sprint / age-hook followup / ruler 死 game-over
+
 ## 2026-05-16 (phase 6 wire W6-pending-3 ✅ — 删 GENS_FULL legacy const + 抽 getGenOrigFac helper, decision C)
 
 W6-pending-3 同 session 接续 W6-pending-2 (制作人 decision C 拍板)。1 commit local `e80d5bb`, 未 push。
