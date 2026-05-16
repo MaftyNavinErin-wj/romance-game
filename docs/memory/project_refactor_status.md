@@ -5,6 +5,59 @@ type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
+## 2026-05-16 (phase 6 wire W6-pending ✅ — 删 MERIT_INIT / FOUNDING_CORE / RETAINER_PRESET legacy const)
+
+age-hook 实装后, 继续 W6 剩余 const 退役。streamline 模式 + codex 定技术决策,
+本批 1 commit `4c4b148` (local, 未 push)。
+
+**Scout (mini)**:
+- MERIT_INIT live consumer: 1 (tick.js:608 pending debut path)
+- FOUNDING_CORE live consumer: 2 (economy.js:882 isFounding 太守 buff / general.js:2184 回归原势力 founding|member)
+- RETAINER_PRESET live consumer: 3 (main.js:352 闲置武将国都 billet / general.js:183 getRetainerType 旧存档纯数字补 type / persist.js:213 _deserializeG 旧存档兼容)
+- 3 const 对应 m.* contract 已实装 (W1 foundingCores / W4b initialMerit+initialRetainers /
+  W5a 扩 wild+pending merit/retainer), 6 site 直接镜像换源即可。
+
+**byte-identical 验证**:
+- 214 pendingFac 8 gens (司马昭/陈泰/王基/关兴/张苞/夏侯霸/诸葛恪/施绩) wildData.merit=10
+  跟 legacy MERIT_INIT 缺失→`||10` fallback 等价 → tick.js debut 切换零变化
+- 50 旬 baseline 范围内 (debut minTurn=109+) pendingFac 不触发, baseline 双重保险
+- foundingCores Set 形状 byte-identical (W1 时已 mirror)
+- initialRetainers {count,type} 形状 byte-identical (W4b 时已 mirror)
+
+**实装 (7 文件, +37/-60 = 净 −23 行)**:
+- `src/core/tick.js:608` — MERIT_INIT[pg.name] → _scenarioMaterialized.initialMerit[pg.name]
+- `src/chains/economy.js:882` — FOUNDING_CORE[city.fac] → _scenarioMaterialized.foundingCores[city.fac]
+- `src/chains/general.js:2184` — FOUNDING_CORE[targetFid] → _scenarioMaterialized.foundingCores[targetFid]
+- `src/chains/general.js:183` — RETAINER_PRESET[genName] → _scenarioMaterialized.initialRetainers[genName]
+- `src/core/main.js:352` — RETAINER_PRESET[genName] → _scenarioMaterialized.initialRetainers[genName]
+- `src/core/persist.js:213` — RETAINER_PRESET[name] → _scenarioMaterialized.initialRetainers[name]
+- 删 RETAINER_PRESET (constants.js:93) + MERIT_INIT (constants.js:489) + FOUNDING_CORE (generals.js:1066)
+- 6 文件 header 引用清理 (退役标注 + W6-pending 注脚)
+
+**安全网**:
+- smoke 50 旬 vs phase6_age_hook_complete baseline: **51 snapshots identical** ✅
+- node --check 7 files PASS
+- v181.html: 仅 1 行 abstraction-trace comment (dead reference), 无 live consumer
+
+**codex review --uncommitted (1 round)**: **LGTM** — "No P0/P1/P2 findings"
+- byte-identical: 三段映射严格保 fallback 语义
+- script-load race: scenario_loader 自动 applyScenario('214'), runtime 调用前已 populated
+- miss-grep: live source 无 executable 残留, 余 hit 均 comment/doc/tool
+
+**关键 lesson — 0-consumer 删除 + adapter 切换的 W6 模式**:
+W6 不是「重构创新」, 是「W1-W5 sprint 已建 m.* contract → 趁机清 const」尾收口。
+判定 = ① live consumer ≤ 几个 (好审) ② m.* 对应字段已实装 (W1-W5 时建) ③ byte-identical
+fallback 等价 (旧 const undefined→fallback vs m.* undefined→fallback 同结果)。本批 6 site
+全满足, 单 commit byte-identical 守底完成。
+
+**下次候选** (制作人决):
+- 继续 W6 剩余更大 const (CITIES_DEF / GENS_FULL / ALL_GENS — 20+ consumer 未迁, 大 sprint)
+- scenario 新剧本 (200/220/...)
+- 平衡 sprint
+- wild / pending 武将自然死亡 (本版 active only, age-hook followup)
+- 玩家 ruler 死游戏 over 设计 (succeedRuler 继任 vs 真 game over)
+- 高 cha + age >=70 + ruler 用「薨」chronicle (age-hook followup)
+
 ## 2026-05-16 (阶段 6 真·年龄 hook ✅ — §5.6 机制 2 自然死亡 runtime 实装)
 
 phase 6 wire 一段落后的真·阶段 6 任务 (§5.6 机制 2 死亡)。commits:
