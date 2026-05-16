@@ -35,9 +35,10 @@
 //
 // ── 留 v181 / 数据 sprint ──
 //   武将数据 const (留 v181 等 src/data/generals.js sprint):
-//     GENS_FULL / GEN_META / ALL_GENS / GEN_POOL_INACTIVE /
+//     GENS_FULL / GEN_META / GEN_POOL_INACTIVE /
 //     GEN_CLASS / CLASS_META
 //     §8.4 W6-pending: FOUNDING_CORE 已退役 → _scenarioMaterialized.foundingCores
+//     §8.4 W6-pending-2: ALL_GENS 已退役 → _scenarioMaterialized.GENS_FULL+WILD_GENS
 //   squad class helpers (L2175-L2240, 与 GEN_CLASS 数据捆绑等 sprint):
 //     getSquadClass / getUnitClassBuffs / getClassDuelWeight /
 //     genClassTagsHtml / genClassSelectorHtml / genClassBuffsHtml
@@ -2398,9 +2399,10 @@ function _execPoach(fid, act) {
 //   - genClassSelectorHtml  (多标签选择器 HTML, 编组弹窗用)
 //   - genClassBuffsHtml     (编组 buff 预览 HTML)
 //
-// 加载顺序: 必须在 src/data/generals.js 之后 (依赖 ALL_GENS / GEN_POOL_INACTIVE /
-//           GEN_CLASS / CLASS_META) — 已通过 v181 script tag 顺序保证 (data/generals.js L808
-//           在 chains/general.js L825 之前)。
+// 加载顺序: 必须在 src/data/generals.js + src/core/scenario_loader.js 之后 (依赖
+//           GEN_POOL_INACTIVE / GEN_CLASS / CLASS_META + _scenarioMaterialized §8.4 W6-pending-2)
+//           — 已通过 v181 script tag 顺序保证 (data/generals.js L808 + scenario_loader.js L820
+//           在 chains/general.js L836 之前)。
 //
 // 决策(2026-05-09 制作人 approve):全 7 symbol → general.js 单 destination
 //   - GEN_MAP 是 let (initGame 重建), 不适合 data 层 "纯 const" 约定
@@ -2409,7 +2411,14 @@ function _execPoach(fid, act) {
 
 /** 按 name 快速查将领数据（O(1) map）— 含非活跃武将，供关系/profile查询 */
 /** ★ v155fix P0: 改为let，initGame中重建指向G.generals活跃对象，避免污染静态定义 */
-let GEN_MAP = Object.fromEntries([...ALL_GENS, ...GEN_POOL_INACTIVE].map(g=>[g.name, g]));
+// §8.4 W6-pending-2: ALL_GENS const 退役 → _scenarioMaterialized.GENS_FULL+WILD_GENS (W4a+W5a 真值,
+//   scenario-aware active+wild+pending-no-pendingFac); init-time placeholder, initGame 末尾 _rebuildGEN_MAP
+//   立即覆盖 (main.js:342), 故 placeholder 内容仅 inflight 兜底 — m.* 源跟 _rebuildGEN_MAP 同 source 一致。
+let GEN_MAP = Object.fromEntries([
+  ...Object.values(_scenarioMaterialized.GENS_FULL).flat(),
+  ..._scenarioMaterialized.WILD_GENS,
+  ...GEN_POOL_INACTIVE
+].map(g=>[g.name, g]));
 
 /** 获取squad当前生效标签（多标签读_classChoice，单标签读[0]） */
 function getSquadClass(sq) {

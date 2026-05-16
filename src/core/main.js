@@ -30,7 +30,8 @@
 //   - 数据 / 常量(部分已抽 src/data/):FAC / GENS_FULL / CITIES_DEF / DIPLO_INIT
 //     / FAC_IDENTITY
 //     / RETAINER_LEVEL / INTIMACY_PRESET / ETHOS_INIT / GEN_TAGS
-//     / GENS_FULL / ALL_GENS / getScenarioFactions() / ALL_POSTS / WILD_GENS / CITY_MAP
+//     / GENS_FULL / getScenarioFactions() / ALL_POSTS / WILD_GENS / CITY_MAP
+//     §8.4 W6-pending-2: ALL_GENS 已退役 → _scenarioMaterialized.GENS_FULL+WILD_GENS
 //     / STATE_TO_GENTRY_FAC
 //     §8.4 W6-pending: RETAINER_PRESET / MERIT_INIT 已退役 → _scenarioMaterialized.initialRetainers / initialMerit
 //   - §8.4 W1: 势力杂项 + 入口/叙事改读 materialized contract m.* —

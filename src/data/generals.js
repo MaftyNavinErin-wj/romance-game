@@ -13,7 +13,7 @@
 //     §D 武将主表 + 元数据 + 派生 + 池 + 派系核心 + 类型
 //     - GENS_FULL(原 L1186-L1319):势力武将基础属性(攻防智政魅 + apt)
 //     - GEN_META(原 L1324-L1944):势力武将元数据(技能 / 官职 / 关系 / 士族)
-//     - ALL_GENS(原 L1949,IIFE 派生):全将领扁平列表 = GENS_FULL.flat() + WILD_GENS
+//     - ALL_GENS(原 L1949,IIFE 派生):§8.4 W6-pending-2 已退役 → _scenarioMaterialized.GENS_FULL+WILD_GENS
 //     - GEN_POOL_INACTIVE(原 L1953-L1963):非活跃武将库(剧本不参战,留数据)
 //     - FOUNDING_CORE(原 L1981-L1986):§8.4 W6-pending 已退役 → m.foundingCores (sc.factions[].foundingCore 派生)
 //     - GEN_CLASS(原 L1990-L2044):武将四类(warrior/commander/strategist/minister)
@@ -275,7 +275,8 @@ const GEN_TAGS = {
 // (原 project_romance_v181.html 见 RANGES 注释,共 855 行 verbatim)
 // ════════════════════════════════════════════════════════════
 
-// ── range A: GENS_FULL + GEN_META + ALL_GENS + GEN_POOL_INACTIVE (原 L1186-L1963, 778 行) ──
+// ── range A: GENS_FULL + GEN_META + GEN_POOL_INACTIVE (原 L1186-L1963, 778 行;
+//   ALL_GENS §8.4 W6-pending-2 已退役 → _scenarioMaterialized.GENS_FULL+WILD_GENS) ──
 const GENS_FULL={
   wei:[
     {name:'曹操', com:97,war:80,int:91,pol:96,cha:87,role:'ruler',   apt:{cavalry:'A',light:'S',heavy:'B',archer:'B',siege:'B',naval:'C'}},
@@ -1038,8 +1039,8 @@ const GEN_META = {
 
 
 
-// ─── 全将领扁平列表（预计算，替代28处 Object.values(GENS_FULL).flat()）───
-const ALL_GENS = [...Object.values(GENS_FULL).flat(), ...WILD_GENS];
+// §8.4 W6-pending-2: ALL_GENS 已退役 → _scenarioMaterialized.GENS_FULL+WILD_GENS (scenario-aware)。
+// 唯一 live consumer chains/general.js:2412 GEN_MAP init-time placeholder 已切; _rebuildGEN_MAP 主源同模式。
 
 
 // ★ v126: 非活跃武将库（当前剧本不参战，保留数据供未来剧本/关系查询）
