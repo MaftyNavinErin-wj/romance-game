@@ -419,6 +419,15 @@ function applyScenario(scenarioId) {
   G._wildGenDefs = {};
   for (const g of m.WILD_GENS) G._wildGenDefs[g.name] = g;
 
+  // §8.4 W6-pending-4: CITIES_DEF + CITY_MAP mutable container sync (1b-1 模式跟 FAC/ALL_FACS 同)。
+  // m.CITIES_DEF entries 直接 push 到 legacy CITIES_DEF 容器, 共享对象引用 — map.js:599 x/y augment
+  // 同时作用 m.CITIES_DEF entries 和 CITIES_DEF entries (同 obj), CITY_MAP[id] 也是同 entry。
+  // 切 scenario (190 / future) 时 applyScenario re-sync, 容器自动 refresh。
+  CITIES_DEF.length = 0;
+  for (const c of m.CITIES_DEF) CITIES_DEF.push(c);
+  for (const k of Object.keys(CITY_MAP)) delete CITY_MAP[k];
+  for (const c of m.CITIES_DEF) CITY_MAP[c.id] = c;
+
   return m;
 }
 
