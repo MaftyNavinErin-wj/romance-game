@@ -5,6 +5,38 @@ type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
+## 2026-05-16 (F-W4c-2 v2 ✅ — 称王分水岭 declared 字段, 替代一刀切 ruler)
+
+F-W4c-2 part 2 (commit 1b64592) 一刀切全用 ruler 全名, 制作人 catch 后修正:
+**"214 三国都称王/建国了 → 国号; 190 都是军阀 (哪怕董卓 挟天子) → ruler 名"**。
+
+**实装 (5 文件, 2 commits)**:
+- `a4c6f2f`: 加 SCENARIO.factions[fid].declared boolean (214 wei/shu/wu/nanman declared:true; 190 14 default false)。
+  scenario_loader.js FAC_m 透传 sf.declared===true (strict equality, undefined/缺漏默认 false)。
+  3 处 chronicle 逻辑改 `_fd.declared ? (_fd.name || fid) : (_fd.ruler || fid)`。
+- `2d8efc3`: nanman.name="蛮" 一字太短 (原 hardcoded "南蛮" 二字), 加 FACTION_BASE.<fid>.chronicleName
+  optional override; nanman.chronicleName="南蛮"。3 处 chronicle 逻辑链改 `chronicleName||name||fid`。
+
+**预期 chronicle**:
+| 剧本/势力 | declared | chronicle 文本 |
+|---|---|---|
+| 214 wei | true | "仕于魏" (.name) |
+| 214 shu | true | "仕于蜀" (.name) |
+| 214 wu | true | "仕于吴" (.name) |
+| 214 nanman | true | "仕于南蛮" (chronicleName override) |
+| 190 dongzhuo | false | "仕于董卓" (.ruler) |
+| 190 yuanshao | false | "仕于袁绍" (.ruler) |
+| 190 caocao | false | "仕于曹操" (.ruler) |
+| 190 其他 14 | false | ruler 名 |
+
+**byte-identical**: smoke 51 snapshots PASS (G.genChronicle 非 captureState 字段)。
+**codex review LGTM** — "strict declared===true semantic, chronicleName||name fallback chain, 其他 FACTION_BASE 读处不需 declared/chronicleName awareness"。
+
+**关键 lesson — 「分水岭」型设计字段**:
+单一 derive rule (stage/type/.name vs .full) 都不 robust — 214 wei 和 190 dongzhuo 都 stage=regime
+但语义不同 (称王 vs 挟天子)。**explicit declared 字段是最干净的「分水岭」**, 数据自描述 + 默认安全。
+chronicleName 显式覆盖也是同模式 (.name 一字默认 / nanman 特例二字 override), 比 derive rule 更可控。
+
 ## 2026-05-16 (F-W4c-2 ✅ closed — 190 chronicle facName 中文化 + ruler 全名)
 
 2 commits local (`c5b3128` part 1 + `1b64592` part 2), 制作人 decision「势力名应该都是君主」(语义 "仕于X" X 是君主名)。
