@@ -614,8 +614,8 @@ async function nextTurn(){
       if(!G.genStatBase[pg.name]) G.genStatBase[pg.name] = {com:pg.com,war:pg.war,int:pg.int,pol:pg.pol};
       if(!G.genAptExp[pg.name]) G.genAptExp[pg.name] = {};
       if(!G.genFactionMod[pg.name]) G.genFactionMod[pg.name] = 0;
-      // 小传
-      const facN = getFactionDef(fid)?.name || fid;
+      // 小传 — F-W4c-2 part 2: facN 用 ruler 全名 (设计意图: 「曹操迎来新锐」语义比 「曹迎来新锐」清晰)
+      const facN = getFactionDef(fid)?.ruler || fid;
       addGenChronicle(pg.name, `${facN}迎来新锐——${pg.name}前来效力。`);
       // 通知
       if(fid === G.playerFac){
