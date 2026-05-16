@@ -5,6 +5,46 @@ type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
+## 2026-05-16 (phase 6 wire W6-pending-5 ✅ — WILD_GENS legacy const 0-consumer 退役)
+
+W6-pending-5 同 session 接续 W6-pending-4。1 commit `cf507e7` local, codex LGTM, 未 push。
+
+**Scout 结论 (0 live consumer)**:
+- WILD_GENS 16 entries 数据已死 — m.WILD_GENS W5a 真值 + applyScenario sync 到 G._wildGenDefs + persist 1d-a 7 site migrate 集合操作到 getAllWildGenDefs() accessor
+- grep 全 hit 检查: 都是 comment / docstring / 错误消息字符串 / _scenarioMaterialized.WILD_GENS reference
+- v181.html 0 hit
+
+**实装 (3 文件, 净 −19 行)**:
+- src/data/generals.js: 删 const WILD_GENS (16 entries, ~23 行) + 加 §8.4 W6-pending-5 退役注脚
+- src/core/scenario_loader.js: header 「WILD_GENS / WILD_GEN_META 保留」改为「WILD_GENS 退役, WILD_GEN_META 保留 W4c decision 2A」
+- src/core/scenario_accessors.js: 删 stale "WILD_GENS spread" comment
+
+**codex review**: **LGTM** — "0 live direct runtime reads of legacy WILD_GENS, no module-load path dependency"
+
+**W6 const 退役 自然完结** — 剩余候选都不适合纯 refactor:
+- GEN_POOL_INACTIVE: 设计上 scenario-agnostic (剧本不参战的武将), 不该 retire
+- WILD_GEN_META / GEN_META: W4c decision 2A — gentry 类稀疏 legacy 数据 const 保留, m.* composite 透传, 不能删
+- getGenMeta fallback (data/generals.js:88): script-load race 防御 dead code, cleanup 价值低
+- F-W6-pending-3-1 battle_modals isRuler: 战斗机制 bug 系列 sprint, 非 W6 纯 refactor
+
+**W6 完整汇总 (W6/B + W6-pending 五连)**:
+| Sprint | const 退役 | site migrate | 净行数 | codex |
+|---|---|---|---|---|
+| W6/B (2026-05-15) | INTIMACY_PRESET, TECH_PREUNLOCK | 0 (W4c 已迁) | −80 | LGTM |
+| W6-pending (2026-05-16) | MERIT_INIT, FOUNDING_CORE, RETAINER_PRESET | 6 | −23 | LGTM |
+| W6-pending-2 | ALL_GENS | 1 | −12 | LGTM + 1 P2 fixed |
+| W6-pending-3 | GENS_FULL + 抽 getGenOrigFac helper | 14 | −93 | LGTM + 1 P1 pre-existing 不修 |
+| W6-pending-4 | CITIES_DEF + CITY_MAP (mutable container) | 0 | −68 | P1 catch + fix LGTM |
+| W6-pending-5 | WILD_GENS | 0 | −19 | LGTM |
+| **合计** | **9 个 const + 1 helper** | **21 site + ~110 容器零改** | **−295** | **5 LGTM + 2 active fix** |
+
+**下次候选 (制作人决)**:
+- F-W6-pending-3-1 fix (battle_modals isRuler 改 runtime, 战斗机制 bug 系列, 行为变化非纯 refactor)
+- scenario 新剧本 (200 / 220 等) — 设计
+- 平衡 sprint — 设计
+- age-hook followup (wild/pending 自然死 + ruler 死 game-over) — 设计
+- W6 阶段总结 / 重拍 baseline (累积 6 sprints byte-identical 守底, 可选)
+
 ## 2026-05-16 (phase 6 wire W6-pending-4 ✅ — CITIES_DEF + CITY_MAP 改 1b-1 mutable container)
 
 W6-pending-4 同 session 接续 W6-pending-3。2 commits local: `7e6cca5` (核心) + `62b0ba8` (codex P1 fix), 未 push。
