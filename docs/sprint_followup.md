@@ -610,7 +610,7 @@ chronicle loop 对在野武将也跑 `addGenChronicle(name, 仕于${facName}...)
 
 ## phase 6 wire W6-pending-3 followup (2026-05-16)
 
-### F-W6-pending-3-1 — battle_modals.js isRuler 用 static lookup (pre-existing latent bug)
+### F-W6-pending-3-1 ✅ closed (2026-05-16) — battle_modals.js isRuler 改 runtime G.generals scan
 
 **位置**:`src/render/battle_modals.js:1897` (showNextPrisonerModal) + `:1957` (playerDisposePrisoner)
 
@@ -630,6 +630,11 @@ chronicle loop 对在野武将也跑 `addGenChronicle(name, 仕于${facName}...)
 - 推荐 sprint: 战斗机制 bug fix 或 后续游戏体验 sprint, 不进 W6 纯 refactor
 
 **优先级**:P2 (低概率触发, 长 run + 君主战死继位 + 继位者被俘三连)
+
+**实际 fix (2026-05-16, commit 待 sed)**:battle_modals.js L1897 + L1957 两处 isRuler 改
+`Object.values(G.generals||{}).flat().find(x=>x.name===name)?.role === 'ruler'`。50 旬 baseline
+无 ruler 死, byte-identical 守底成立 (51 snapshots identical)。长 run 行为变化: 继位 ruler
+被俘正确阻劝降, 修 latent bug。
 
 ## phase 6 wire W6-pending-2 followup (2026-05-16)
 
@@ -663,5 +668,5 @@ active only, W4a step-2)。
 
 ---
 
-(sprint_followup v2.5 — 2026-05-16: F-W4c-3 closed via W5b + F-W6-GENSFULL closed via W6-pending-3 decision C;
-F-W4c-1/-2 + F-W6-pending-3-1 (battle_modals isRuler pre-existing latent) 仍 open)
+(sprint_followup v2.6 — 2026-05-16: F-W4c-3 closed via W5b + F-W6-GENSFULL closed via W6-pending-3 +
+F-W6-pending-3-1 closed via runtime fix; F-W4c-1/-2 (190 data sprint) 仍 open)

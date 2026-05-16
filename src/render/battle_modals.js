@@ -1891,12 +1891,12 @@ function showNextPrisonerModal(){
       ? '#c03030' : (val>=90?'#8a7040':val>=75?'#1a7a3a':val>=60?'#1a5f8a':'#888');
 
   // Bug修复：君主不可劝降
-  // §8.4 W6-pending-3 (制作人 decision C): 在场列表语义 → m.GENS_FULL (active-only 是对的);
-  // 君主必在 active, role 查 m.GENS_FULL 即可 byte-identical (legacy GENS_FULL 含 pendingFac 但
-  // pendingFac entries 无 .role='ruler', 同结果 undefined)
-  const allGens = [...Object.values(_scenarioMaterialized.GENS_FULL).flat()];
-  const genData = allGens.find(x=>x.name===name);
-  const isRuler = genData?.role === 'ruler';
+  // F-W6-pending-3-1 fix (codex W6-p3 P1 flag): isRuler 改 G.generals runtime scan,
+  // 修 pre-existing latent bug — 起手 ruler 战死 → succeedRuler 让 曹丕 继位, 曹丕 被俘时
+  // scenario static (m.GENS_FULL) 仍标 曹操.role='ruler', 漏判为 false → 允许劝降 (错)。
+  // 改 runtime 后 曹丕.role 在 G.generals[wei] 已 'ruler' (succeedRuler 改写), 正确阻劝降。
+  const _runtimeGen = Object.values(G.generals||{}).flat().find(x=>x.name===name);
+  const isRuler = _runtimeGen?.role === 'ruler';
 
   let pm = document.getElementById('prisonerModal');
   if(!pm){
@@ -1953,9 +1953,9 @@ function playerDisposePrisoner(action){
   if(!G._pendingPrisoners || !G._pendingPrisoners.length) return;
   const {name, capturerFid} = G._pendingPrisoners.shift();
   // 君主守卫：不可劝降
-  // §8.4 W6-pending-3: 同上, 在场列表语义 → m.GENS_FULL
-  const allGens = [...Object.values(_scenarioMaterialized.GENS_FULL).flat()];
-  const isRuler = allGens.find(x=>x.name===name)?.role === 'ruler';
+  // F-W6-pending-3-1 fix: 同上 isRuler 改 G.generals runtime (修继位 ruler 漏判)
+  const _runtimeGen = Object.values(G.generals||{}).flat().find(x=>x.name===name);
+  const isRuler = _runtimeGen?.role === 'ruler';
   if(action === 'surrender' && isRuler){
     log(`⚠ ${name}乃一国之君，不可劝降`, 'battle');
     // 视作释放处理
