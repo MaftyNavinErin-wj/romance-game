@@ -5,6 +5,30 @@ type: project
 originSessionId: 512dcd0b-fb4e-439d-a8fe-64996a4fc5c8
 ---
 
+## 2026-05-16 (F-W6-pending-3-1 ✅ closed — battle_modals isRuler 改 runtime, 修 latent bug)
+
+W6-pending-5 完结后接续, 1 commit `138c383` local, codex LGTM, 未 push。
+非 W6 纯 refactor (战斗机制 bug 系列), 但 codex 已建议 + 2 行 fix + clearly bounded。
+
+**修了什么**:
+- battle_modals.js:1897 (showNextPrisonerModal) + L1957 (playerDisposePrisoner) 两处 isRuler 检查
+- 旧: `[...Object.values(_scenarioMaterialized.GENS_FULL).flat()].find(x=>x.name===name)?.role === 'ruler'`
+  → scenario static (起手 role) → 继位 ruler 漏判 → 曹丕 succeed 曹操 后被俘可被劝降 (错)
+- 新: `Object.values(G.generals||{}).flat().find(x=>x.name===name)?.role === 'ruler'`
+  → runtime (succeedRuler 改写后即正确) → 曹丕 继位后被俘正确阻劝降
+
+**byte-identical**:
+- 50 旬 phase6_age_hook_complete baseline 7 自然死全非 ruler (荀攸/蒯越/蔡瑁/孙乾/黄盖/程普/史涣),
+  无继位发生, isRuler 行为零变化 → 51 snapshots identical ✅
+- 长 run (>50 旬) + 君主战死继位 + 继位者被俘 三连场景: 行为变化, 修 latent bug
+
+**codex review (1 round)**: **LGTM** — "covers runtime active gens, succeedRuler mutates successor in G.generals, initGame populates G.generals before prisoner UI fires"
+
+**关键 lesson**:
+codex 是更细的 reviewer (W6-p3 trial 已 flag), 即便审定 pre-existing 不修, 留 followup 后单独 fix 是合理路径 — 不破 W6 byte-identical 守底 invariant + 战斗机制 bug 单独 sprint 边界清晰 + codex 已建议改法的小 fix 适合 streamline 接续。
+
+sprint_followup.md F-W6-pending-3-1 closed。
+
 ## 2026-05-16 (phase 6 wire W6-pending-5 ✅ — WILD_GENS legacy const 0-consumer 退役)
 
 W6-pending-5 同 session 接续 W6-pending-4。1 commit `cf507e7` local, codex LGTM, 未 push。
