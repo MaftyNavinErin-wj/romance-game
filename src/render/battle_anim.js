@@ -45,7 +45,7 @@
 // ── 加载顺序约束 ──
 // 必须在以下文件之后加载(直读 G + 调用其中函数 / let):
 //   src/core/state.js        (G state)
-//   src/data/*               (FAC / GENS_FULL / HEX_TERRAIN 等)
+//   src/data/*               (FAC / HEX_TERRAIN 等; §8.4 W6-pending-3 GENS_FULL 已退役 → m.GENS_FULL)
 //   src/core/helpers.js      (hexToPixel / hkey / fmt 等)
 //   src/core/map.js          (_mapScale 等)
 //   src/chains/military.js   (_pendingBattleAnimations / _pendingBattleConfirms /

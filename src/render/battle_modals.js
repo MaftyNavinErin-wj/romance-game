@@ -35,7 +35,8 @@
 // ── 加载顺序约束 ──
 // 必须在以下文件之后加载(直读 G + 调用其中函数):
 //   src/core/state.js        (G state)
-//   src/data/*               (constants / generals / cities / factions / GENS_FULL)
+//   src/data/*               (constants / generals / cities / factions)
+//   §8.4 W6-pending-3: GENS_FULL 已退役, origFac lookup → getGenOrigFac, 在场列表 → m.GENS_FULL
 //   src/core/helpers.js      (fmt / 各类 calc helper)
 //   src/chains/military.js   (_pendingBattleConfirms / _currentBattleConfirm / _duelChallenger lets,
 //                             getUnitTroops / calcSurrenderRate / surrenderGen / releaseGen / killGen 等)
@@ -1468,8 +1469,9 @@ function showNextBattleReport(){
 
     const atkG = GEN_MAP[duel.atkName]||{war:60};
     const defG = GEN_MAP[duel.defName]||{war:60};
-    const atkFac = Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(g=>g.name===duel.atkName));
-    const defFac = Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(g=>g.name===duel.defName));
+    // §8.4 W6-pending-3: origFac lookup → getGenOrigFac (helper 跨 m.GENS_FULL ∪ m.pendingGenPool)
+    const atkFac = getGenOrigFac(duel.atkName);
+    const defFac = getGenOrigFac(duel.defName);
 
     const outcomeLabel = {atkWin:'胜',defWin:'负',draw:'平'}[duel.outcome]||'平';
     const atkOutcome   = duel.outcome==='atkWin'?'win':duel.outcome==='defWin'?'lose':'draw';
@@ -1875,7 +1877,8 @@ function showNextPrisonerModal(){
   const g = GEN_MAP[name];
   if(!g){ G._pendingPrisoners.shift(); showNextPrisonerModal(); return; }
   const facCol = f=>({wei:'var(--wei)',shu:'var(--shu)',wu:'var(--wu)',nanman:'var(--nanman)'}[f]||'var(--ink-l)');
-  const origFid = Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(x=>x.name===name));
+  // §8.4 W6-pending-3: origFac lookup → getGenOrigFac
+  const origFid = getGenOrigFac(name);
   const origFacAlive = origFid && (G.generals[origFid]||[]).length > 0;
   const surrenderRate = Math.round(calcSurrenderRate(capturerFid, name)*100);
   const origFacStr = origFid ? (getFactionDef(origFid)?.full||origFid) : '无主';
@@ -1888,7 +1891,10 @@ function showNextPrisonerModal(){
       ? '#c03030' : (val>=90?'#8a7040':val>=75?'#1a7a3a':val>=60?'#1a5f8a':'#888');
 
   // Bug修复：君主不可劝降
-  const allGens = [...Object.values(GENS_FULL).flat()];
+  // §8.4 W6-pending-3 (制作人 decision C): 在场列表语义 → m.GENS_FULL (active-only 是对的);
+  // 君主必在 active, role 查 m.GENS_FULL 即可 byte-identical (legacy GENS_FULL 含 pendingFac 但
+  // pendingFac entries 无 .role='ruler', 同结果 undefined)
+  const allGens = [...Object.values(_scenarioMaterialized.GENS_FULL).flat()];
   const genData = allGens.find(x=>x.name===name);
   const isRuler = genData?.role === 'ruler';
 
@@ -1947,7 +1953,8 @@ function playerDisposePrisoner(action){
   if(!G._pendingPrisoners || !G._pendingPrisoners.length) return;
   const {name, capturerFid} = G._pendingPrisoners.shift();
   // 君主守卫：不可劝降
-  const allGens = [...Object.values(GENS_FULL).flat()];
+  // §8.4 W6-pending-3: 同上, 在场列表语义 → m.GENS_FULL
+  const allGens = [...Object.values(_scenarioMaterialized.GENS_FULL).flat()];
   const isRuler = allGens.find(x=>x.name===name)?.role === 'ruler';
   if(action === 'surrender' && isRuler){
     log(`⚠ ${name}乃一国之君，不可劝降`, 'battle');
@@ -1960,7 +1967,8 @@ function playerDisposePrisoner(action){
       surrenderGen(name, capturerFid);
     } else {
       // 劝降失败：武将自行离去（进在野池或保留原势力）
-      const origFid = Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(g=>g.name===name));
+      // §8.4 W6-pending-3: origFac lookup → getGenOrigFac
+      const origFid = getGenOrigFac(name);
       const origFacAlive = origFid && (G.generals[origFid]||[]).length>0;
       if(!origFacAlive){
         if(!G.wildPool.includes(name)) G.wildPool.push(name);

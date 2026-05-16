@@ -25,7 +25,7 @@
 // 接口风格:全局 const(同 phase 1 决定),所有调用点不需改。
 //
 // 留 v181 的(scout 实测决策):
-//   - §D 武将主表(GENS_FULL/GEN_META/...)已抽到 src/data/generals.js (S1 完成)
+//   - §D 武将主表(GEN_META/...) 抽到 src/data/generals.js (S1); GENS_FULL §8.4 W6-pending-3 已退役 → m.GENS_FULL
 //   - §E+§F 州县(STATE_*/COUNTY_*/_CLAN_MAP)将抽到 src/data/state_county.js (S2 待做)
 //   - 跨段 phase 3 markers + section headers(原 L985-L994 / L1144-L1699 / L1872+)留 v181
 //

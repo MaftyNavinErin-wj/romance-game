@@ -82,7 +82,8 @@ function openPostAction(genName, fid){
 // 武将详情弹窗
 // ═══════════════════════════════════════
 function openGenProfile(genName, fid){
-  const fid2=fid||Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(g=>g.name===genName))
+  // §8.4 W6-pending-3: origFac lookup → getGenOrigFac (helper 跨 m.GENS_FULL ∪ m.pendingGenPool)
+  const fid2=fid||getGenOrigFac(genName)
     || getScenarioFactions().find(f=>(G.generals[f]||[]).some(g=>g.name===genName));
   const g=GEN_MAP[genName] || (G.generals[fid2||'wei']||[]).find(x=>x.name===genName);
   if(!g) return;
@@ -265,7 +266,8 @@ function openGenProfile(genName, fid){
       ? (val>=50?'#1a7a3a':val>=20?'rgba(92,74,50,.65)':'rgba(92,74,50,.35)')
       : (val<=-50?'#c03030':val<=-20?'#e07040':'rgba(200,80,40,.4)');
     const sign = val>0?'+':'';
-    const otherFid = Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(x=>x.name===name)) || 'wild';
+    // §8.4 W6-pending-3: origFac lookup → getGenOrigFac
+    const otherFid = getGenOrigFac(name) || 'wild';
     const otherCol = getFactionDef(otherFid)?.color || '#6b5530';
     return `<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px">
       <div style="width:26px;height:26px;border-radius:50%;background:${otherCol}18;border:1px solid ${otherCol}44;

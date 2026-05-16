@@ -11,7 +11,7 @@
 //
 //   refactor/data-completion S1 (本次,2026-05-05):
 //     §D 武将主表 + 元数据 + 派生 + 池 + 派系核心 + 类型
-//     - GENS_FULL(原 L1186-L1319):势力武将基础属性(攻防智政魅 + apt)
+//     - GENS_FULL(原 L1186-L1319):§8.4 W6-pending-3 已退役 → m.GENS_FULL (W4a 真值 active-only) + getGenOrigFac helper
 //     - GEN_META(原 L1324-L1944):势力武将元数据(技能 / 官职 / 关系 / 士族)
 //     - ALL_GENS(原 L1949,IIFE 派生):§8.4 W6-pending-2 已退役 → _scenarioMaterialized.GENS_FULL+WILD_GENS
 //     - GEN_POOL_INACTIVE(原 L1953-L1963):非活跃武将库(剧本不参战,留数据)
@@ -105,6 +105,26 @@ function getGenMeta(genName){
     return _scenarioMaterialized.genMeta[genName] || _scenarioMaterialized.wildMeta[genName] || {};
   }
   return GEN_META[genName] || getWildGenMeta(genName) || {};
+}
+
+/** §8.4 W6-pending-3 (制作人 decision C, 2026-05-16): 武将 scenario 原势力查询 helper.
+ *  跨 m.GENS_FULL (active, W4a 真值) ∪ m.pendingGenPool (pending+pendingFac, W5a 真值, 携 _pendingFac) scan,
+ *  替代 legacy `Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(g=>g.name===X))` 模式 (12 处)。
+ *  byte-identical: 对 active gens 跟 legacy 同结果 (m.GENS_FULL ≡ legacy GENS_FULL active subset);
+ *  对 pendingFac gens (司马昭/陈泰/王基/关兴/张苞/夏侯霸/诸葛恪/施绩 8 个 minTurn>1) 返 pendingFac
+ *  (legacy GENS_FULL 因含 minTurn>1 entries 也返同 fid)。
+ *  wild + pending-no-pendingFac (蒋琬/费祎等, legacy 在 WILD_GENS 不在 GENS_FULL) 返 undefined,
+ *  consumer 端保留 ||'' / ||'wild' fallback。 */
+function getGenOrigFac(name){
+  if(!_scenarioMaterialized) return undefined;
+  const activeMap = _scenarioMaterialized.GENS_FULL || {};
+  for(const fid of Object.keys(activeMap)){
+    if(activeMap[fid].some(g => g.name === name)) return fid;
+  }
+  const pending = _scenarioMaterialized.pendingGenPool || [];
+  const pe = pending.find(g => g.name === name);
+  if(pe && pe._pendingFac) return pe._pendingFac;
+  return undefined;
 }
 
 /** 武将五维静态标签
@@ -275,142 +295,13 @@ const GEN_TAGS = {
 // (原 project_romance_v181.html 见 RANGES 注释,共 855 行 verbatim)
 // ════════════════════════════════════════════════════════════
 
-// ── range A: GENS_FULL + GEN_META + GEN_POOL_INACTIVE (原 L1186-L1963, 778 行;
+// ── range A: GEN_META + GEN_POOL_INACTIVE (原 L1186-L1963, 778 行;
+//   GENS_FULL §8.4 W6-pending-3 已退役 (制作人 decision C, 2026-05-16):
+//     - 12 处 origFac lookup → getGenOrigFac helper (跨 m.GENS_FULL ∪ m.pendingGenPool scan)
+//     - 4 处 .flat() 在场列表 → _scenarioMaterialized.GENS_FULL (active-only 是对的)
+//     - 2 处「origFac→find ruler」简化 → m.GENS_FULL[origFac]?.find(g=>g.role==='ruler')
 //   ALL_GENS §8.4 W6-pending-2 已退役 → _scenarioMaterialized.GENS_FULL+WILD_GENS) ──
-const GENS_FULL={
-  wei:[
-    {name:'曹操', com:97,war:80,int:91,pol:96,cha:87,role:'ruler',   apt:{cavalry:'A',light:'S',heavy:'B',archer:'B',siege:'B',naval:'C'}},
-    {name:'张辽', com:92,war:95,int:72,pol:60,cha:78, apt:{cavalry:'S',light:'A',heavy:'B',archer:'C',siege:'C',naval:'C'}},
-    {name:'郭嘉', com:85,war:48,int:99,pol:78,cha:72, apt:{cavalry:'B',light:'B',heavy:'C',archer:'A',siege:'C',naval:'C'}},
-    {name:'夏侯惇',com:88,war:91,int:62,pol:55,cha:70,apt:{cavalry:'A',light:'S',heavy:'A',archer:'C',siege:'C',naval:'C'}},
-    {name:'荀彧', com:80,war:42,int:96,pol:94,cha:80,apt:{cavalry:'C',light:'B',heavy:'B',archer:'B',siege:'B',naval:'C'}},
-    {name:'曹仁', com:90,war:88,int:76,pol:65,cha:72, apt:{cavalry:'B',light:'A',heavy:'S',archer:'C',siege:'B',naval:'C'}},
-    {name:'乐进', com:80,war:88,int:65,pol:52,cha:60, apt:{cavalry:'B',light:'S',heavy:'B',archer:'A',siege:'C',naval:'C'}},
-    {name:'于禁', com:84,war:82,int:70,pol:68,cha:65, apt:{cavalry:'B',light:'A',heavy:'A',archer:'B',siege:'B',naval:'C'}},
-    {name:'徐晃', com:88,war:89,int:74,pol:62,cha:70, apt:{cavalry:'B',light:'A',heavy:'A',archer:'B',siege:'A',naval:'C'}},
-    {name:'张郃', com:86,war:90,int:80,pol:65,cha:72, apt:{cavalry:'S',light:'A',heavy:'B',archer:'B',siege:'B',naval:'C'}},
-    {name:'司马懿',com:94,war:55,int:98,pol:92,cha:82,apt:{cavalry:'A',light:'S',heavy:'B',archer:'A',siege:'A',naval:'C'}},
-    {name:'夏侯渊',com:84,war:90,int:62,pol:55,cha:65,apt:{cavalry:'S',light:'B',heavy:'B',archer:'B',siege:'C',naval:'C'}},
-    {name:'许褚', com:72,war:99,int:42,pol:38,cha:55, apt:{cavalry:'B',light:'S',heavy:'A',archer:'C',siege:'C',naval:'C'}},
-    {name:'荀攸', com:78,war:45,int:95,pol:88,cha:75, apt:{cavalry:'B',light:'B',heavy:'B',archer:'A',siege:'B',naval:'C'}},
-    {name:'程昱', com:76,war:50,int:90,pol:82,cha:68, apt:{cavalry:'C',light:'B',heavy:'B',archer:'B',siege:'A',naval:'C'}},
-    {name:'贾诩', com:80,war:45,int:100,pol:85,cha:74,apt:{cavalry:'B',light:'A',heavy:'B',archer:'A',siege:'B',naval:'C'}},
-    // ── 魏二线武将 ──
-    {name:'满宠', com:65,war:62,int:72,pol:78,cha:65, apt:{cavalry:'B',light:'A',heavy:'A',archer:'B',siege:'B',naval:'C'}},
-    {name:'钟繇', com:42,war:38,int:80,pol:88,cha:75,apt:{cavalry:'C',light:'C',heavy:'C',archer:'B',siege:'C',naval:'C'}},
-    {name:'王朗', com:38,war:30,int:75,pol:82,cha:70,apt:{cavalry:'C',light:'C',heavy:'C',archer:'B',siege:'C',naval:'C'}},
-    {name:'曹洪', com:65,war:70,int:52,pol:58,cha:55, apt:{cavalry:'A',light:'A',heavy:'B',archer:'C',siege:'C',naval:'C'}},
-    {name:'郭淮', com:72,war:68,int:75,pol:70,cha:62, apt:{cavalry:'B',light:'A',heavy:'B',archer:'A',siege:'B',naval:'C'}},
-    {name:'李典', com:74,war:78,int:72,pol:68,cha:65, apt:{cavalry:'B',light:'A',heavy:'A',archer:'B',siege:'C',naval:'C'}},
-    {name:'臧霸', com:70,war:75,int:55,pol:62,cha:60, apt:{cavalry:'B',light:'A',heavy:'B',archer:'B',siege:'C',naval:'C'}},
-    {name:'蒋济', com:62,war:45,int:82,pol:80,cha:70, apt:{cavalry:'C',light:'B',heavy:'B',archer:'B',siege:'B',naval:'C'}},
-    {name:'刘晔', com:65,war:50,int:85,pol:78,cha:68, apt:{cavalry:'C',light:'B',heavy:'B',archer:'A',siege:'B',naval:'C'}},
-    {name:'牛金', com:58,war:72,int:45,pol:40,cha:48, apt:{cavalry:'B',light:'A',heavy:'B',archer:'C',siege:'C',naval:'C'}},
-    {name:'朱灵', com:65,war:70,int:55,pol:52,cha:55, apt:{cavalry:'B',light:'B',heavy:'A',archer:'B',siege:'B',naval:'C'}},
-    {name:'陈群', com:55,war:35,int:80,pol:92,cha:78,apt:{cavalry:'C',light:'C',heavy:'C',archer:'B',siege:'C',naval:'C'}},
-    // ── 魏v124新增 ──
-    {name:'曹真', com:85,war:80,int:75,pol:68,cha:72, apt:{cavalry:'A',light:'A',heavy:'B',archer:'B',siege:'A',naval:'C'}},
-    {name:'曹彰', com:72,war:92,int:48,pol:35,cha:65, apt:{cavalry:'S',light:'A',heavy:'B',archer:'C',siege:'C',naval:'C'}},
-    {name:'华歆', com:45,war:30,int:72,pol:88,cha:70, apt:{cavalry:'C',light:'C',heavy:'C',archer:'B',siege:'C',naval:'C'}},
-    {name:'张绣', com:78,war:85,int:62,pol:48,cha:55, apt:{cavalry:'A',light:'A',heavy:'B',archer:'B',siege:'C',naval:'C'}},
-    {name:'曹休', com:80,war:78,int:70,pol:62,cha:68, apt:{cavalry:'A',light:'B',heavy:'A',archer:'B',siege:'B',naval:'C'}},
-    // ── 魏v128新增 ──
-    {name:'徐庶', com:85,war:62,int:95,pol:80,cha:82, apt:{cavalry:'B',light:'A',heavy:'B',archer:'A',siege:'B',naval:'C'}},
-    // ── 魏v143新增 ──
-    {name:'曹纯', com:72,war:85,int:55,pol:48,cha:62, apt:{cavalry:'S',light:'B',heavy:'B',archer:'C',siege:'C',naval:'C'}},
-    {name:'毛玠', com:58,war:35,int:75,pol:85,cha:72, apt:{cavalry:'C',light:'C',heavy:'C',archer:'B',siege:'B',naval:'C'}},
-    {name:'董昭', com:60,war:38,int:82,pol:80,cha:65, apt:{cavalry:'C',light:'C',heavy:'C',archer:'B',siege:'B',naval:'C'}},
-    {name:'曹丕', com:82,war:68,int:85,pol:88,cha:72, apt:{cavalry:'B',light:'A',heavy:'B',archer:'A',siege:'B',naval:'C'}},
-    {name:'曹植', com:55,war:35,int:88,pol:72,cha:85, apt:{cavalry:'C',light:'C',heavy:'C',archer:'B',siege:'B',naval:'C'}},
-    {name:'郭女王',com:55,war:25,int:80,pol:85,cha:78, apt:{cavalry:'C',light:'C',heavy:'C',archer:'C',siege:'C',naval:'C'}},
-    {name:'文聘', com:80,war:85,int:65,pol:60,cha:65, apt:{cavalry:'B',light:'A',heavy:'A',archer:'B',siege:'B',naval:'B'}},
-    {name:'王平', com:80,war:82,int:70,pol:62,cha:65, apt:{cavalry:'B',light:'A',heavy:'S',archer:'B',siege:'B',naval:'C'}},
-    // ── 魏v143 B类延迟出场 ──
-    {name:'司马昭',com:85,war:58,int:90,pol:88,cha:75, apt:{cavalry:'B',light:'A',heavy:'B',archer:'A',siege:'B',naval:'C'}, minTurn:153},
-    {name:'陈泰', com:78,war:72,int:80,pol:75,cha:70, apt:{cavalry:'B',light:'A',heavy:'B',archer:'B',siege:'B',naval:'C'}, minTurn:153},
-    {name:'王基', com:75,war:65,int:82,pol:78,cha:68, apt:{cavalry:'B',light:'B',heavy:'B',archer:'A',siege:'B',naval:'C'}, minTurn:117},
-  ],
-  shu:[
-    {name:'刘备', com:82,war:72,int:78,pol:92,cha:96,role:'ruler',   apt:{cavalry:'B',light:'A',heavy:'B',archer:'B',siege:'B',naval:'C'}},
-    {name:'关羽', com:96,war:98,int:74,pol:62,cha:88, apt:{cavalry:'A',light:'S',heavy:'A',archer:'B',siege:'B',naval:'A'}},
-    {name:'张飞', com:85,war:97,int:52,pol:48,cha:68, apt:{cavalry:'B',light:'S',heavy:'A',archer:'C',siege:'C',naval:'C'}},
-    {name:'诸葛亮',com:97,war:58,int:100,pol:96,cha:94,apt:{cavalry:'B',light:'A',heavy:'B',archer:'S',siege:'S',naval:'B'}},
-    {name:'赵云', com:90,war:96,int:76,pol:68,cha:82, apt:{cavalry:'S',light:'A',heavy:'B',archer:'B',siege:'B',naval:'C'}},
-    {name:'马超', com:88,war:95,int:65,pol:52,cha:78, apt:{cavalry:'S',light:'B',heavy:'B',archer:'C',siege:'C',naval:'C'}},
-    {name:'黄忠', com:82,war:94,int:62,pol:55,cha:68, apt:{cavalry:'C',light:'A',heavy:'B',archer:'S',siege:'B',naval:'C'}},
-    {name:'魏延', com:86,war:92,int:70,pol:58,cha:60, apt:{cavalry:'A',light:'S',heavy:'B',archer:'B',siege:'B',naval:'C'}},
-    {name:'庞统', com:82,war:52,int:96,pol:88,cha:80, apt:{cavalry:'B',light:'B',heavy:'B',archer:'A',siege:'A',naval:'B'}},
-    {name:'法正', com:80,war:55,int:95,pol:86,cha:76, apt:{cavalry:'B',light:'B',heavy:'B',archer:'A',siege:'B',naval:'C'}},
-    {name:'廖化', com:72,war:78,int:60,pol:55,cha:58, apt:{cavalry:'B',light:'A',heavy:'B',archer:'B',siege:'C',naval:'C'}},
-    {name:'马岱', com:75,war:82,int:65,pol:55,cha:62, apt:{cavalry:'S',light:'B',heavy:'C',archer:'B',siege:'C',naval:'C'}},
-    // ── 蜀二线武将 ──
-    {name:'董允', com:42,war:38,int:78,pol:85,cha:75,apt:{cavalry:'C',light:'C',heavy:'C',archer:'B',siege:'C',naval:'C'}},
-    {name:'张翼', com:62,war:65,int:68,pol:70,cha:58, apt:{cavalry:'B',light:'A',heavy:'A',archer:'B',siege:'B',naval:'C'}},
-    {name:'吴懿', com:68,war:72,int:60,pol:65,cha:62, apt:{cavalry:'A',light:'A',heavy:'B',archer:'B',siege:'B',naval:'C'}},
-    {name:'马忠', com:65,war:68,int:72,pol:68,cha:65, apt:{cavalry:'B',light:'A',heavy:'B',archer:'B',siege:'B',naval:'C'}},
-    {name:'霍峻', com:60,war:65,int:65,pol:68,cha:60, apt:{cavalry:'C',light:'B',heavy:'A',archer:'B',siege:'A',naval:'C'}},
-    {name:'黄权', com:70,war:60,int:80,pol:75,cha:68, apt:{cavalry:'B',light:'B',heavy:'B',archer:'A',siege:'B',naval:'C'}},
-    {name:'邓芝', com:62,war:58,int:72,pol:76,cha:72,apt:{cavalry:'C',light:'B',heavy:'B',archer:'B',siege:'B',naval:'C'}},
-    {name:'严颜', com:68,war:82,int:58,pol:55,cha:65, apt:{cavalry:'C',light:'A',heavy:'A',archer:'B',siege:'B',naval:'C'}},
-    // ── 蜀v124新增 ──
-    {name:'关平', com:72,war:82,int:60,pol:50,cha:65, apt:{cavalry:'B',light:'A',heavy:'A',archer:'B',siege:'B',naval:'B'}},
-    {name:'关兴', com:75,war:85,int:58,pol:48,cha:68, apt:{cavalry:'A',light:'A',heavy:'B',archer:'B',siege:'C',naval:'B'}, minTurn:45},
-    {name:'张苞', com:70,war:88,int:45,pol:38,cha:60, apt:{cavalry:'A',light:'S',heavy:'B',archer:'C',siege:'C',naval:'C'}, minTurn:45},
-    {name:'刘封', com:72,war:80,int:55,pol:42,cha:52, apt:{cavalry:'B',light:'A',heavy:'A',archer:'C',siege:'B',naval:'C'}},
-    {name:'吴班', com:65,war:72,int:58,pol:55,cha:58, apt:{cavalry:'A',light:'A',heavy:'B',archer:'B',siege:'C',naval:'C'}},
-    // ── 蜀v128新增 ──
-    {name:'马谡', com:75,war:55,int:86,pol:68,cha:70, apt:{cavalry:'C',light:'B',heavy:'B',archer:'A',siege:'B',naval:'C'}},
-    {name:'向宠', com:75,war:78,int:68,pol:62,cha:65, apt:{cavalry:'B',light:'A',heavy:'B',archer:'B',siege:'B',naval:'C'}},
-    // ── 蜀v143新增 ──
-    {name:'糜竺', com:45,war:30,int:62,pol:78,cha:82, apt:{cavalry:'C',light:'C',heavy:'C',archer:'C',siege:'C',naval:'C'}},
-    {name:'糜芳', com:55,war:60,int:50,pol:55,cha:45, apt:{cavalry:'C',light:'B',heavy:'B',archer:'C',siege:'C',naval:'C'}},
-    {name:'孙乾', com:50,war:32,int:68,pol:75,cha:78, apt:{cavalry:'C',light:'C',heavy:'C',archer:'B',siege:'C',naval:'C'}},
-    {name:'简雍', com:48,war:28,int:65,pol:70,cha:80, apt:{cavalry:'C',light:'C',heavy:'C',archer:'C',siege:'C',naval:'C'}},
-    // ── 蜀v143 B类延迟出场 ──
-    {name:'夏侯霸',com:75,war:80,int:62,pol:55,cha:60, apt:{cavalry:'A',light:'A',heavy:'B',archer:'B',siege:'C',naval:'C'}, minTurn:153},
-  ],
-  wu:[
-    {name:'孙权', com:88,war:70,int:84,pol:90,cha:88,role:'ruler',   apt:{cavalry:'C',light:'A',heavy:'B',archer:'B',siege:'B',naval:'B'}},
-    {name:'周瑜', com:95,war:82,int:96,pol:78,cha:86, apt:{cavalry:'B',light:'S',heavy:'B',archer:'A',siege:'A',naval:'S'}},
-    {name:'甘宁', com:82,war:93,int:64,pol:52,cha:72, apt:{cavalry:'A',light:'S',heavy:'B',archer:'B',siege:'C',naval:'S'}},
-    {name:'鲁肃', com:78,war:56,int:90,pol:88,cha:82,apt:{cavalry:'B',light:'B',heavy:'B',archer:'B',siege:'B',naval:'B'}},
-    {name:'吕蒙', com:90,war:88,int:88,pol:75,cha:78, apt:{cavalry:'B',light:'S',heavy:'A',archer:'B',siege:'A',naval:'S'}},
-    {name:'陆逊', com:94,war:60,int:97,pol:88,cha:85, apt:{cavalry:'B',light:'S',heavy:'B',archer:'A',siege:'A',naval:'S'}},
-    {name:'黄盖', com:78,war:88,int:72,pol:65,cha:70, apt:{cavalry:'C',light:'A',heavy:'B',archer:'B',siege:'B',naval:'A'}},
-    {name:'凌统', com:80,war:90,int:65,pol:58,cha:72, apt:{cavalry:'B',light:'S',heavy:'B',archer:'B',siege:'C',naval:'A'}},
-    {name:'丁奉', com:82,war:88,int:72,pol:60,cha:68, apt:{cavalry:'A',light:'A',heavy:'B',archer:'B',siege:'B',naval:'A'}},
-    {name:'程普', com:78,war:85,int:68,pol:62,cha:65, apt:{cavalry:'B',light:'A',heavy:'A',archer:'B',siege:'B',naval:'A'}},
-    {name:'朱然', com:80,war:78,int:75,pol:68,cha:68, apt:{cavalry:'B',light:'A',heavy:'B',archer:'B',siege:'A',naval:'A'}},
-    // ── 吴二线武将 ──
-    {name:'张昭', com:40,war:32,int:82,pol:90,cha:80,apt:{cavalry:'C',light:'C',heavy:'C',archer:'B',siege:'C',naval:'C'}},
-    {name:'诸葛瑾',com:55,war:48,int:75,pol:82,cha:78, apt:{cavalry:'C',light:'B',heavy:'B',archer:'B',siege:'B',naval:'C'}},
-    {name:'韩当', com:62,war:68,int:55,pol:58,cha:55, apt:{cavalry:'B',light:'A',heavy:'B',archer:'B',siege:'C',naval:'A'}},
-    {name:'徐盛', com:68,war:70,int:65,pol:62,cha:60, apt:{cavalry:'B',light:'A',heavy:'A',archer:'B',siege:'B',naval:'A'}},
-    {name:'潘璋', com:65,war:72,int:55,pol:52,cha:50, apt:{cavalry:'A',light:'S',heavy:'B',archer:'C',siege:'C',naval:'A'}},
-    {name:'贺齐', com:72,war:75,int:65,pol:62,cha:60, apt:{cavalry:'B',light:'S',heavy:'B',archer:'B',siege:'C',naval:'A'}},
-    {name:'顾雍', com:40,war:30,int:78,pol:88,cha:82,apt:{cavalry:'C',light:'C',heavy:'C',archer:'B',siege:'C',naval:'C'}},
-    {name:'步骘', com:55,war:48,int:72,pol:80,cha:70,apt:{cavalry:'C',light:'B',heavy:'B',archer:'B',siege:'B',naval:'B'}},
-    // ── 吴v124新增 ──
-    {name:'周泰', com:75,war:90,int:52,pol:42,cha:68, apt:{cavalry:'B',light:'S',heavy:'A',archer:'C',siege:'C',naval:'A'}},
-    {name:'蒋钦', com:72,war:78,int:62,pol:60,cha:68, apt:{cavalry:'B',light:'A',heavy:'B',archer:'A',siege:'C',naval:'A'}},
-    {name:'全琮', com:78,war:75,int:72,pol:70,cha:65, apt:{cavalry:'B',light:'A',heavy:'A',archer:'B',siege:'B',naval:'B'}},
-    {name:'吕范', com:70,war:68,int:72,pol:78,cha:68, apt:{cavalry:'B',light:'A',heavy:'B',archer:'B',siege:'B',naval:'B'}},
-    // ── 吴v143新增 ──
-    {name:'朱桓', com:78,war:82,int:68,pol:55,cha:62, apt:{cavalry:'B',light:'A',heavy:'A',archer:'B',siege:'B',naval:'A'}},
-    {name:'骆统', com:62,war:55,int:72,pol:78,cha:70, apt:{cavalry:'C',light:'B',heavy:'B',archer:'B',siege:'C',naval:'B'}},
-    {name:'吕据', com:70,war:72,int:62,pol:58,cha:60, apt:{cavalry:'B',light:'A',heavy:'B',archer:'B',siege:'C',naval:'B'}},
-    {name:'留赞', com:65,war:78,int:52,pol:48,cha:55, apt:{cavalry:'B',light:'A',heavy:'B',archer:'C',siege:'C',naval:'A'}},
-    {name:'孙尚香',com:62,war:72,int:58,pol:55,cha:75, apt:{cavalry:'B',light:'A',heavy:'C',archer:'B',siege:'C',naval:'B'}},
-    // ── 吴v143 B类延迟出场 ──
-    {name:'诸葛恪',com:78,war:62,int:88,pol:72,cha:68, apt:{cavalry:'B',light:'B',heavy:'B',archer:'A',siege:'B',naval:'B'}, minTurn:117},
-    {name:'施绩', com:72,war:68,int:65,pol:60,cha:58, apt:{cavalry:'B',light:'A',heavy:'B',archer:'B',siege:'C',naval:'A'}, minTurn:153},
-  ],
-  // ★ v144: 南蛮势力
-  nanman:[
-    {name:'孟获', com:78,war:88,int:45,pol:42,cha:72,role:'ruler', apt:{cavalry:'B',light:'S',heavy:'A',archer:'C',siege:'C',naval:'C'}},
-    {name:'祝融', com:65,war:82,int:58,pol:38,cha:70,              apt:{cavalry:'B',light:'A',heavy:'B',archer:'A',siege:'C',naval:'C'}},
-  ],
-};
+// (133 行 legacy GENS_FULL 数据已退役删除 — m.GENS_FULL W4a 真值是 source of truth)
 
 // ═══════════════════════════════════════════════════════
 // 武将元数据：技能 · 官职 · 关系 · 士族/乡党 · 初始忠诚

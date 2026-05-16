@@ -35,10 +35,11 @@
 //
 // ── 留 v181 / 数据 sprint ──
 //   武将数据 const (留 v181 等 src/data/generals.js sprint):
-//     GENS_FULL / GEN_META / GEN_POOL_INACTIVE /
+//     GEN_META / GEN_POOL_INACTIVE /
 //     GEN_CLASS / CLASS_META
 //     §8.4 W6-pending: FOUNDING_CORE 已退役 → _scenarioMaterialized.foundingCores
 //     §8.4 W6-pending-2: ALL_GENS 已退役 → _scenarioMaterialized.GENS_FULL+WILD_GENS
+//     §8.4 W6-pending-3: GENS_FULL 已退役 → m.GENS_FULL (active) + getGenOrigFac helper (orig lookup)
 //   squad class helpers (L2175-L2240, 与 GEN_CLASS 数据捆绑等 sprint):
 //     getSquadClass / getUnitClassBuffs / getClassDuelWeight /
 //     genClassTagsHtml / genClassSelectorHtml / genClassBuffsHtml
@@ -138,10 +139,11 @@
 //   - log / showNotif (已抽 src/render/notifications.js)
 //   - confirm (浏览器 API) — succeedRuler (玩家继任确认)
 //   - 数据 / 常量: GEN_TAGS / GEN_MAP / FAC / getScenarioFactions() / FAC_IDENTITY /
-//     GENS_FULL / GEN_META / WILD_GENS / GEN_POOL_INACTIVE /
+//     GEN_META / WILD_GENS / GEN_POOL_INACTIVE /
 //     COUNTY_NAME_TO_CITY / GENTRY_FAC_TO_STATES / STATE_TO_GENTRY_FAC /
 //     STATE_CITIES / TROOP_TYPES / 等 (留 v181 / 已抽 src/data/)
 //   §8.4 W6-pending: FOUNDING_CORE 已退役 → _scenarioMaterialized.foundingCores
+//   §8.4 W6-pending-3: GENS_FULL 已退役 → m.GENS_FULL + getGenOrigFac helper
 //   - G (状态根) (已抽 src/core/state.js)
 //
 // ── plan §二偏离记录 ──
@@ -425,9 +427,9 @@ function getGenFactions(name, fid){
     const origFac  = G.genOrigFac  && G.genOrigFac[name];
     if(origRole === 'ruler') return ['warlord_remnant']; // 旧主无副标签
     if(origFac){
-      const origRuler = Object.values(GENS_FULL).flat().find(g =>
-        GENS_FULL[origFac]?.some(og => og.name === g.name) && g.role === 'ruler'
-      );
+      // §8.4 W6-pending-3 (制作人 decision C): origFac 已知 → 直接 m.GENS_FULL[origFac] find ruler;
+      // 原 Object.values(GENS_FULL).flat() 全 scan + filter 等价于 m.GENS_FULL[origFac]?.find(role==='ruler')
+      const origRuler = _scenarioMaterialized?.GENS_FULL?.[origFac]?.find(g => g.role === 'ruler');
       if(origRuler){
         const rm = getGenMeta(origRuler.name);
         const gm = getGenMeta(name);
@@ -493,9 +495,8 @@ function getGenFaction(name, fid){
     }
     if(origFac){
       // 与原势力君主同clan（如马超/马岱与马腾）
-      const origRuler = Object.values(GENS_FULL).flat().find(g =>
-        GENS_FULL[origFac]?.some(og => og.name === g.name) && g.role === 'ruler'
-      );
+      // §8.4 W6-pending-3 (制作人 decision C): origFac 已知 → 直接 m.GENS_FULL[origFac] find ruler
+      const origRuler = _scenarioMaterialized?.GENS_FULL?.[origFac]?.find(g => g.role === 'ruler');
       if(origRuler){
         const rulerMeta = getGenMeta(origRuler.name);
         const genMeta   = getGenMeta(name);
@@ -1206,8 +1207,9 @@ function checkIntimacyThresholds(){
 
     if(val >= 75 && !G.intimacyNotified[key+'_pos']){
       G.intimacyNotified[key+'_pos'] = true;
-      const facA = Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(g=>g.name===nameA))||'';
-      const facB = Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(g=>g.name===nameB))||'';
+      // §8.4 W6-pending-3: origFac lookup → getGenOrigFac (helper 跨 m.GENS_FULL ∪ m.pendingGenPool)
+      const facA = getGenOrigFac(nameA)||'';
+      const facB = getGenOrigFac(nameB)||'';
       const colA = getFactionDef(facA)?.color||'#6b5530';
       const colB = getFactionDef(facB)?.color||'#6b5530';
       _showIntimacyAlert(nameA, nameB, val, 'bond', colA, colB);
@@ -1215,8 +1217,9 @@ function checkIntimacyThresholds(){
     }
     if(val <= -75 && !G.intimacyNotified[key+'_neg']){
       G.intimacyNotified[key+'_neg'] = true;
-      const facA = Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(g=>g.name===nameA))||'';
-      const facB = Object.keys(GENS_FULL).find(f=>GENS_FULL[f].some(g=>g.name===nameB))||'';
+      // §8.4 W6-pending-3: origFac lookup → getGenOrigFac
+      const facA = getGenOrigFac(nameA)||'';
+      const facB = getGenOrigFac(nameB)||'';
       const colA = getFactionDef(facA)?.color||'#6b5530';
       const colB = getFactionDef(facB)?.color||'#6b5530';
       _showIntimacyAlert(nameA, nameB, val, 'rival', colA, colB);
@@ -2000,7 +2003,8 @@ function calcSurrenderRate(winnerFid, prisonerName){
     : 0;
   const chaBonus = (winnerCha - 60) / 100 * 0.15;
   const loyaltyPenalty = (prisonerLoyalty - 50) / 100 * 0.20;
-  const origFid = Object.keys(GENS_FULL).find(f => GENS_FULL[f].some(g=>g.name===prisonerName));
+  // §8.4 W6-pending-3: origFac lookup → getGenOrigFac
+  const origFid = getGenOrigFac(prisonerName);
   const origFacAlive = origFid && (G.generals[origFid]||[]).length > 0;
   const noFactionBonus = !origFacAlive ? 0.20 : 0;
   // ★ B5: 同乡/同族/同士族加成（劝降场景×0.5）
@@ -2215,7 +2219,8 @@ function surrenderGen(genName, targetFid){
 
 /** 武将释放 */
 function releaseGen(genName, releaserFid){
-  const origFid = Object.keys(GENS_FULL).find(f => GENS_FULL[f].some(g=>g.name===genName));
+  // §8.4 W6-pending-3: origFac lookup → getGenOrigFac
+  const origFid = getGenOrigFac(genName);
   const origFacAlive = origFid && (G.generals[origFid]||[]).length > 0;
   if(origFacAlive){
     const genData = GEN_MAP[genName];
