@@ -1012,8 +1012,9 @@ function _doRecruitWild(genName, fid, silent){
     G.genChronicle[genName] = [];
     // ★ v125: 在野武将招募后生成小传（与开局小传同一套身份标签逻辑）
     {
-      // F-W4c-2 part 2: _facName 用 ruler 全名 (设计意图: 「应曹操之邀」比 「应曹之邀」清晰)
-      const _facName = getFactionDef(fid)?.ruler || fid;
+      // F-W4c-2 v2 (制作人 decision「称王是分水岭」): 已称王 → .name 国号 / 未称王 → .ruler
+      const _fdR = getFactionDef(fid);
+      const _facName = _fdR ? (_fdR.declared ? (_fdR.name || fid) : (_fdR.ruler || fid)) : fid;
       const _meta = getGenMeta(genName) || {};
       const _tags = GEN_TAGS[genName] || {};
       const _identParts = [];

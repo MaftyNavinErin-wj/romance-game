@@ -107,6 +107,9 @@ function materializeScenario(scenarioId) {
       ruler: sf.ruler,
       color: base.color,
       cls:   base.cls,
+      // F-W4c-2 v2 (制作人 decision「称王是分水岭」): 起手已称王/建国 → chronicle 用 .name (国号);
+      //   未称王 → 用 .ruler (军阀名)。214 wei/shu/wu/nanman declared:true, 190 14 势力 default false。
+      declared: sf.declared === true,
     };
   }
 

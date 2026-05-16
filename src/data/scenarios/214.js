@@ -58,6 +58,7 @@ const SCENARIO_214 = {
         "枭雄"
       ],
       "stage": "regime",
+      "declared": true,
       "anchorState": null,
       "ethos": {
         "mandate": 15,
@@ -105,6 +106,7 @@ const SCENARIO_214 = {
         "汉室"
       ],
       "stage": "regime",
+      "declared": true,
       "anchorState": null,
       "ethos": {
         "mandate": -30,
@@ -147,6 +149,7 @@ const SCENARIO_214 = {
       "_baseType": "warlord",
       "traits": [],
       "stage": "regime",
+      "declared": true,
       "anchorState": null,
       "ethos": {
         "mandate": 0,
@@ -191,6 +194,7 @@ const SCENARIO_214 = {
         "蛮族"
       ],
       "stage": "warlord",
+      "declared": true,
       "anchorState": null,
       "ethos": {
         "mandate": 0,
