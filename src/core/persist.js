@@ -84,6 +84,15 @@ function _deserializeG(jsonStr){
   // 恢复G的所有字段
   Object.keys(G).forEach(k => delete G[k]);
   Object.assign(G, snap);
+  // Multi-scenario saves must restore the static scenario backing too. G carries
+  // runtime state, while accessors such as getFactionDef() read _scenarioMaterialized.
+  const _savedFacIdentity = G.facIdentity;
+  const _savedWildGenDefs = G._wildGenDefs;
+  const _scenarioId = G.scenarioId || (G.startYear === 190 ? '190' : '214');
+  applyScenario(_scenarioId);
+  G.scenarioId = _scenarioId;
+  if(_savedFacIdentity) G.facIdentity = _savedFacIdentity;
+  if(_savedWildGenDefs) G._wildGenDefs = _savedWildGenDefs;
   // 恢复全局变量
   if(meta._unitIdCounter) _unitIdCounter = meta._unitIdCounter;
   _pendingPeaceOffer = meta._pendingPeaceOffer || null;
@@ -94,6 +103,7 @@ function _deserializeG(jsonStr){
   //   - 旧存档 (v172-v181): snap 顶层无这两字段, 调 applyScenario 重新 init backing (含 _scenarioMaterialized).
   if(!G.facIdentity || !G._wildGenDefs){
     applyScenario('214');
+    G.scenarioId = '214';
   }
   // v172 旧存档兼容: meta.facIdentity overlay (runtime type/stage/anchorState 字段)
   // 新存档无 meta.facIdentity 字段, if check false, 不动 G.facIdentity (snap 已含完整状态).

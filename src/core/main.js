@@ -54,6 +54,7 @@ function initGame(scenarioId){
   // (src/core/scenario_loader.js); 守底 invariant: sync 后值 ≡ 原 src/data/factions.js literal
   // §8.4 W1: applyScenario 返回 §7.2 materialized contract, initGame 改读 m.* (势力杂项 + 入口/叙事)
   const m = applyScenario(scenarioId || '214');
+  G.scenarioId = m.scenarioId;
   G.turn=1; G.year=0; G.seasonIdx=0; // 重置回合计数 (G.year 是 YEARS[] 索引, 每 36 旬 +1)
   G.startYear = m.startYear;         // §8.4 W1: 消费 scenario startYear (绝对年, 阶段 6 年龄 hook 用)
   getScenarioFactions().forEach(fid=>{

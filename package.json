@@ -6,6 +6,7 @@
   "scripts": {
     "smoke": "node tests/smoke.js",
     "compare": "node tests/compare.js",
+    "scenario:flow": "node tests/scenario_flow.js",
     "test": "npm run smoke && npm run compare"
   },
   "devDependencies": {

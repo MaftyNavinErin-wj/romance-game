@@ -1533,7 +1533,10 @@ async function _getSaveSlots(){
       if(result && result.value){
         const data = JSON.parse(result.value);
         const meta = data.__meta || {};
-        const facNames = {wei:'曹魏',shu:'蜀汉',wu:'东吴',nanman:'南蛮'};
+        const scenarioId = data.scenarioId || (data.startYear === 190 ? '190' : '214');
+        const facDef = (typeof SCENARIOS !== 'undefined' && SCENARIOS[scenarioId] && SCENARIOS[scenarioId].factions?.[data.playerFac])
+          ? FACTION_BASE[data.playerFac] : null;
+        const legacyFacNames = {wei:'曹魏',shu:'蜀汉',wu:'东吴',nanman:'南蛮'};
         const yearStr = YEARS[data.year] || `第${(data.year||0)+1}年`;
         const seasonNames = ['春','夏','秋','冬'];
         const seasonStr = seasonNames[data.seasonIdx || 0] || '春';
@@ -1542,7 +1545,8 @@ async function _getSaveSlots(){
           idx: i,
           exists: true,
           fac: data.playerFac,
-          facName: facNames[data.playerFac] || data.playerFac,
+          scenarioId,
+          facName: legacyFacNames[data.playerFac] || (facDef && (facDef.full || facDef.name)) || data.playerFac,
           turn: data.turn || 1,
           yearStr, seasonStr, cityCount,
           savedAt: meta.savedAt ? new Date(meta.savedAt).toLocaleString('zh-CN') : '未知时间',
