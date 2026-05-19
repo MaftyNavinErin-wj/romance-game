@@ -628,7 +628,7 @@ const GEN_META = {
     relations:[{name:'刘备',type:'主公',icon:'👑'},{name:'诸葛亮',type:'同僚',icon:'🤝'}],
   },
   '姜维':{
-    title:'幼麟',
+    title:'天水麒麟儿',
     post:{name:'蜀汉大将军',rank:'将',desc:'后期军事核心，所有野战部队补员速度+5%。'},
     skills:[],
     loyalty:92,
@@ -1037,4 +1037,3 @@ const COMPAT_GROWTH_MULT = [
   [60,  0.5],
   [100, 0.2],
 ];
-

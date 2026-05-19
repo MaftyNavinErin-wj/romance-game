@@ -270,8 +270,10 @@ function materializeScenario(scenarioId) {
     if (scGen.retainer) initialRetainers_m[name] = { count: scGen.retainer.count, type: scGen.retainer.type };
     // W4c step-2: genMeta 混合 composite (getGenMeta 消费; relations 用 target→name, icon 死字段丢弃)
     const _legMeta = (typeof GEN_META !== 'undefined' && GEN_META[name]) ? GEN_META[name] : {};
+    const _tags = (typeof GEN_TAGS !== 'undefined' && GEN_TAGS[name]) ? GEN_TAGS[name] : _scenarioTagsFromGenBase(gb);
+    const _classes = (typeof GEN_CLASS !== 'undefined' && GEN_CLASS[name]) ? GEN_CLASS[name] : _scenarioClassesFromGenBase(gb);
     const meta = {
-      title:        scGen.title,                                            // ← sc.generals
+      title:        _sharedGeneralTitle(name) || scGen.title || _scenarioTitleFallback(name, gb, sc, scGen, _tags, _classes), // ← shared canonical / sc.generals / fallback
       loyalty:      scGen.loyalty,                                           // ← sc.generals
       relations:    (scGen.relations || []).map(r => ({ name: r.target, type: r.type })), // ← sc.generals
       birthplace:   gb.birthplace,                                           // ← GEN_BASE
@@ -319,8 +321,10 @@ function materializeScenario(scenarioId) {
     //   birthplace/clan/faction_clan/values/skills ← GEN_BASE (史实); gentry ← legacy WILD_GEN_META 透传
     //   (跟 W4c step-2 active genMeta 同适配器, 决定 2A: GEN_TAGS 类稀疏 legacy 数据留 const)。
     const _legWildMeta = (typeof WILD_GEN_META !== 'undefined' && WILD_GEN_META[name]) ? WILD_GEN_META[name] : {};
+    const _tags = (typeof GEN_TAGS !== 'undefined' && GEN_TAGS[name]) ? GEN_TAGS[name] : _scenarioTagsFromGenBase(gb);
+    const _classes = (typeof GEN_CLASS !== 'undefined' && GEN_CLASS[name]) ? GEN_CLASS[name] : _scenarioClassesFromGenBase(gb);
     const meta = {
-      title:        wd.title,
+      title:        _sharedGeneralTitle(name) || wd.title || _scenarioTitleFallback(name, gb, sc, scGen, _tags, _classes),
       loyalty:      wd.loyalty,
       relations:    (wd.relations || []).map(r => ({ name: r.target, type: r.type })),
       birthplace:   gb.birthplace,
@@ -398,6 +402,232 @@ function materializeScenario(scenarioId) {
   };
 }
 
+function _scenarioStateFromGenBase(gb) {
+  const src = `${gb.birthplace || ''} ${gb.faction_clan || ''}`;
+  if (src.includes('凉州') || src.includes('武威') || src.includes('陇西') || src.includes('金城') || src.includes('扶风')) return 'liang';
+  if (src.includes('并州') || src.includes('五原') || src.includes('太原') || src.includes('雁门')) return 'bing';
+  if (src.includes('幽州') || src.includes('辽西') || src.includes('北平') || src.includes('渔阳')) return 'you';
+  if (src.includes('冀州') || src.includes('河北') || src.includes('渤海')) return 'ji';
+  if (src.includes('青州') || src.includes('北海')) return 'qing';
+  if (src.includes('徐州') || src.includes('东海') || src.includes('下邳') || src.includes('琅琊')) return 'xu';
+  if (src.includes('兖州') || src.includes('东郡') || src.includes('河内') || src.includes('泰山') || src.includes('鲁国')) return 'yan';
+  if (src.includes('豫州') || src.includes('汝南') || src.includes('颍川') || src.includes('谯') || src.includes('淮南') || src.includes('山东')) return 'yu';
+  if (src.includes('司隶') || src.includes('河东') || src.includes('洛阳')) return 'si';
+  if (src.includes('荆州') || src.includes('襄阳') || src.includes('南阳')) return 'jing';
+  if (src.includes('益州') || src.includes('蜀') || src.includes('成都') || src.includes('汉中')) return 'yi';
+  if (src.includes('扬州') || src.includes('江东') || src.includes('吴郡') || src.includes('会稽')) return 'yang';
+  if (src.includes('交州')) return 'jiao';
+  return gb.gentry || null;
+}
+
+function _scenarioTagsFromGenBase(gb) {
+  const values = gb.values || [];
+  const classTags = gb.classTagsAll || [gb.classTag].filter(Boolean);
+  let politics = 'pragmatic';
+  if (values.includes('野心') || values.includes('暴主') || values.includes('名门') || classTags.includes('ruler')) politics = 'warlord';
+  if (values.includes('汉室死忠') || values.includes('宗室') || values.includes('仁主')) politics = 'uniHan';
+
+  let combat = 'neutral';
+  if ((gb.war || 0) >= 75 || (gb.com || 0) >= 75 || classTags.includes('warrior')) combat = 'hawk';
+  if ((gb.pol || 0) >= 75 && (gb.war || 0) < 60) combat = 'dove';
+
+  let origin = 'humble';
+  if (gb.gentry) origin = 'gentry';
+  else if ((gb.clan || '').includes('汉室宗亲')) origin = 'clan';
+  else if ((gb.clan || '').includes('孔氏')) origin = 'noble';
+  else if (values.includes('名门')) origin = 'noble';
+
+  let temperament = 'steady';
+  if (values.includes('野心') || values.includes('投机')) temperament = 'cunning';
+  if (values.includes('暴主')) temperament = 'reckless';
+  if (values.includes('忠义') || values.includes('汉室死忠')) temperament = 'steadfast';
+  if (values.includes('仁主')) temperament = 'generous';
+
+  const tags = { politics, combat, origin, temperament };
+  const state = _scenarioStateFromGenBase(gb);
+  if (state) tags.state = state;
+  if (gb.clan) tags.clan = gb.clan;
+  return tags;
+}
+
+function _scenarioClassesFromGenBase(gb) {
+  const raw = gb.classTagsAll || [gb.classTag].filter(Boolean);
+  const mapped = raw.map(c => {
+    if (c === 'civilian') return 'minister';
+    if (c === 'ruler') return 'commander';
+    return c;
+  }).filter(c => ['warrior', 'commander', 'strategist', 'minister'].includes(c));
+  return Array.from(new Set(mapped.length ? mapped : ['warrior']));
+}
+
+const SCENARIO_190_TITLE_OVERRIDES = {
+  '董卓': '乱世暴相',
+  '吕布': '飞将无双',
+  '李傕': '凉州悍将',
+  '郭汜': '西凉骁骑',
+  '华雄': '汜水猛将',
+  '胡轸': '凉州宿将',
+  '樊稠': '西凉劲旅',
+  '张济': '武威旧将',
+  '高顺': '陷阵营主',
+  '牛辅': '董氏亲将',
+  '徐荣': '破曹名帅',
+  '李儒': '毒谋深臣',
+  '袁绍': '四世盟主',
+  '颜良': '河北骁将',
+  '文丑': '河北猛锋',
+  '审配': '刚直幕臣',
+  '麴义': '先登名将',
+  '田丰': '河北直谏',
+  '沮授': '监军谋主',
+  '逢纪': '袁门谋臣',
+  '许攸': '旧交奇谋',
+  '高览': '河北勇将',
+  '淳于琼': '乌巢宿将',
+  '袁术': '淮南野心',
+  '纪灵': '淮南上将',
+  '张勋': '袁术宿将',
+  '桥蕤': '淮南偏师',
+  '雷薄': '淮南悍将',
+  '卫兹': '陈留义士',
+  '史涣': '河内忠骑',
+  '戏志才': '早逝奇佐',
+  '鲍信': '济北义烈',
+  '孙坚': '江东猛虎',
+  '祖茂': '赤帻护主',
+  '刘表': '荆州名牧',
+  '蒯越': '荆襄谋主',
+  '蒯良': '荆州良佐',
+  '蔡瑁': '襄阳水军',
+  '张允': '荆州水将',
+  '王威': '荆州忠将',
+  '刘焉': '益州牧守',
+  '刘璋': '益州少主',
+  '王累': '益州忠臣',
+  '吴兰': '益州牙将',
+  '张任': '落凤之弩',
+  '张松': '倒持西蜀',
+  '刘虞': '幽州仁牧',
+  '鲜于辅': '幽州义从',
+  '阎柔': '乌桓抚将',
+  '田畴': '无终高士',
+  '公孙瓒': '白马将军',
+  '严纲': '白马先锋',
+  '田楷': '青州都督',
+  '关靖': '幽州谋佐',
+  '邹丹': '北地偏将',
+  '单经': '白马旧将',
+  '陶谦': '徐州老臣',
+  '陈登': '广陵奇士',
+  '曹豹': '徐州兵权',
+  '张闿': '徐州乱刃',
+  '韩馥': '冀州弱牧',
+  '耿武': '冀州忠臣',
+  '赵浮': '冀州勇将',
+  '闵纯': '韩门直臣',
+  '马腾': '扶风边帅',
+  '韩遂': '金城枭雄',
+  '庞德': '抬榇决死',
+  '阎行': '西凉锐枪',
+  '成宜': '关中部帅',
+  '马铁': '扶风少将',
+  '马休': '扶风少将',
+  '孔融': '北海名士',
+  '武安国': '北海猛士',
+  '宗宝': '北海牙将',
+  '齐周': '幽州书佐',
+  '程奂': '冀州偏将',
+  '刘磐': '荆南猛将',
+  '李严': '蜀中重臣',
+  '孟达': '反复无常',
+  '申耽': '上庸豪族',
+  '雷铜': '蜀中牙将',
+  '鲜于银': '幽州旧部',
+  '蒋琬': '社稷之器',
+  '郝昭': '陈仓坚壁',
+  '杨洪': '蜀中干吏',
+  '费祎': '折冲良臣',
+  '王濬': '楼船灭吴',
+  '邓艾': '偷渡阴平',
+  '羊祜': '襄阳儒帅',
+  '钟会': '志大才疏',
+  '文鸯': '单骑退兵',
+  '刘琦': '荆州长公子',
+  '刘琮': '荆州降嗣',
+  '曹丕': '魏文嗣君',
+  '孙权': '碧眼紫髯',
+  '吕蒙': '白衣渡江',
+  '陆逊': '火烧连营',
+  '诸葛亮': '卧龙先生',
+  '庞统': '凤雏先生',
+  '司马懿': '冢虎伏谋',
+  '姜维': '天水麒麟儿',
+  '陈泰': '抗蜀名将',
+};
+
+function _sharedGeneralTitle(name) {
+  const sc214Gen = (typeof SCENARIOS !== 'undefined' && SCENARIOS['214'] && SCENARIOS['214'].generals)
+    ? SCENARIOS['214'].generals[name]
+    : null;
+  if (sc214Gen) {
+    if (sc214Gen.title) return sc214Gen.title;
+    if (sc214Gen.wildData && sc214Gen.wildData.title) return sc214Gen.wildData.title;
+  }
+  if (typeof WILD_GEN_META !== 'undefined' && WILD_GEN_META[name] && WILD_GEN_META[name].title) {
+    return WILD_GEN_META[name].title;
+  }
+  if (typeof GEN_BASE !== 'undefined' && GEN_BASE[name] && GEN_BASE[name].wildMeta && GEN_BASE[name].wildMeta.title) {
+    return GEN_BASE[name].wildMeta.title;
+  }
+  return null;
+}
+
+function _scenarioTitleFallback(name, gb, sc, scGen, tags, classes) {
+  const sharedTitle = _sharedGeneralTitle(name);
+  if (sharedTitle) return sharedTitle;
+  if (sc && sc.id === '190' && SCENARIO_190_TITLE_OVERRIDES[name]) return SCENARIO_190_TITLE_OVERRIDES[name];
+  if (scGen.role === 'ruler') return tags.politics === 'uniHan' ? '汉室州牧' : '乱世诸侯';
+  if (classes.includes('strategist')) return '帷幄谋臣';
+  if (classes.includes('minister')) return '治政能臣';
+  if (classes.includes('commander')) return '统兵宿将';
+  if ((gb.war || 0) >= 85) return '阵前猛将';
+  return '乱世英才';
+}
+
+function _backfillScenarioGeneralLegacyTables(sc, m) {
+  if (!sc) return;
+  if (typeof GEN_BASE === 'undefined') return;
+  for (const [name, scGen] of Object.entries(sc.generals || {})) {
+    const gb = GEN_BASE[name];
+    if (!gb) continue;
+    if (typeof GEN_TAGS !== 'undefined' && !GEN_TAGS[name]) {
+      GEN_TAGS[name] = _scenarioTagsFromGenBase(gb);
+    }
+    if (typeof GEN_CLASS !== 'undefined' && !GEN_CLASS[name]) {
+      GEN_CLASS[name] = _scenarioClassesFromGenBase(gb);
+    }
+    if (typeof GEN_META !== 'undefined' && !GEN_META[name]) {
+      const src = scGen.status === 'active' ? m.genMeta[name] : m.wildMeta[name];
+      if (src) {
+        const tags = (typeof GEN_TAGS !== 'undefined' && GEN_TAGS[name]) ? GEN_TAGS[name] : _scenarioTagsFromGenBase(gb);
+        const classes = (typeof GEN_CLASS !== 'undefined' && GEN_CLASS[name]) ? GEN_CLASS[name] : _scenarioClassesFromGenBase(gb);
+        GEN_META[name] = {
+          title: src.title || _scenarioTitleFallback(name, gb, sc, scGen, tags, classes),
+          post: src.post ? { ...src.post } : undefined,
+          skills: (src.skills || []).map(s => ({ ...s })),
+          loyalty: src.loyalty,
+          values: [...(src.values || [])],
+          birthplace: src.birthplace,
+          clan: src.clan,
+          gentry: src.gentry,
+          faction_clan: src.faction_clan,
+          relations: (src.relations || []).map(r => ({ ...r })),
+        };
+      }
+    }
+  }
+}
+
 // ── 主入口: 给 initGame 调 ──
 // 输入: scenarioId (string)
 // Side effect:
@@ -408,6 +638,9 @@ function materializeScenario(scenarioId) {
 function applyScenario(scenarioId) {
   const m = materializeScenario(scenarioId);
   _scenarioMaterialized = m;
+  const sc = SCENARIOS[scenarioId];
+
+  _backfillScenarioGeneralLegacyTables(sc, m);
 
   // 1d-c: FAC_IDENTITY → G.facIdentity (runtime mutable).
   // m.FAC_IDENTITY 是 materializeScenario 每次 call 新建的 obj, 直接 assign 到 G.facIdentity

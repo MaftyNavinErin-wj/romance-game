@@ -520,7 +520,7 @@ function getGenFaction(name, fid){
     if(tags.clique === 'huaisi')   return 'gentry_huaisi';
     return STATE_TO_GENTRY_FAC[tags.state] || 'gentry_zhongyuan';
   }
-  // v172: magnate（地方豪族/商贾/豪帅）始终归 humble 派系（寒门豪族），不参与士族话语权
+  // v172: magnate（地方豪族/商贾/豪帅）始终归 humble 派系桶（显示为军功武人），不参与士族话语权
   if(tags.origin === 'magnate') return 'humble';
   // humble / 非士族-非宗族 → 按政治值判断
   // pol >= 70 → 可能是士族出身（文官型）；否则寒门武将

@@ -3,7 +3,7 @@
 // 用法:
 //   node tests/compare.js [baseline_path] [current_path]
 // 默认:
-//   baseline = tests/baseline/phase6_age_hook_complete.json (最新阶段 baseline)
+//   baseline = tests/baseline/scenario_meta_complete.json (最新阶段 baseline)
 //   current  = tests/current.json
 //
 // Baseline 演进顺序(每阶段完成时锁定一份,旧 baseline 保留供回归):
@@ -32,7 +32,10 @@
 //                                 killGen 加 opts.trigger ('battle'|'natural_age') 分支 (寿终 chronicle/log, 无 reaction);
 //                                 _deserializeG 加旧存档迁移; smoke 50 旬 7 个 active 自然死 → 旧 phase6_wire baseline 必破,
 //                                 重拍; tests/death_hook.js 200 旬回归测试 (17/18 触发, 1 fled-reschedule);
-//                                 codex 5 轮 review LGTM; **当前默认**)
+//                                 codex 5 轮 review LGTM)
+//     → scenario_meta_complete (190/214 武将身份、派系基础标签、职业分类、称号从 GEN_BASE/剧本物化补齐;
+//                               214 旧缺口开始参与太守/出身/事件等机制, 50 旬 smoke 结果重拍;
+//                               tests/check_190_meta.js 扩为 190+214 metadata gate; **当前默认**)
 //
 // 退出码:
 //   0 = PASS(完全一致)
@@ -44,7 +47,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const BASELINE_DEFAULT = path.resolve(__dirname, 'baseline', 'phase6_age_hook_complete.json');
+const BASELINE_DEFAULT = path.resolve(__dirname, 'baseline', 'scenario_meta_complete.json');
 const CURRENT_DEFAULT  = path.resolve(__dirname, 'current.json');
 
 function diff(a, b, p, out, max) {

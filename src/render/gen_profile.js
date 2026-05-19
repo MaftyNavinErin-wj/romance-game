@@ -227,11 +227,34 @@ function openGenProfile(genName, fid){
     </div>
   </div>`;
 
-  // 士族/乡党
+  const _tags = GEN_TAGS[genName] || {};
+  const _originLabel = {
+    gentry: '士族',
+    humble: '寒门',
+    clan: '宗亲',
+    noble: '旧阀贵族',
+    magnate: '地方豪族',
+    foreign: '外族',
+  }[_tags.origin] || '未定';
+  const _factionId = g.role === 'ruler' ? null : getGenFaction(genName, _fid2);
+  const _factionLabel = g.role === 'ruler'
+    ? '君主'
+    : (FACTION_DEFS.find(f => f.id === _factionId)?.label || {
+        founding: '创始元勋',
+        royalty: '宗亲',
+        noble: '旧阀贵族',
+        humble: '寒门',
+        defector: '降将',
+        newcomer: '新附',
+        warlord_remnant: '旧主遗族',
+      }[_factionId] || '未定');
+  const _birthplaceLabel = meta.birthplace || '籍贯未详';
+  const _clanLabel = meta.clan || _tags.clan || '';
   const badgesHtml=[
-    meta.gentry?`<div class="gpm-badge" style="color:#6b5530;border-color:rgba(92,74,50,.35)">🏛 ${meta.gentry}</div>`:'',
-    meta.clan?`<div class="gpm-badge" style="color:rgba(44,36,22,.55);border-color:rgba(80,65,40,.15)">🏠 ${meta.clan}</div>`:'',
-    meta.faction_clan?`<div class="gpm-badge" style="color:#2a7a9a;border-color:rgba(96,176,224,.3)">🗺 ${meta.faction_clan}派</div>`:'',
+    `<div class="gpm-badge" style="color:#6b5530;border-color:rgba(92,74,50,.35)">身份：${_originLabel}</div>`,
+    `<div class="gpm-badge" style="color:#2a7a9a;border-color:rgba(96,176,224,.3)">派系：${_factionLabel}</div>`,
+    `<div class="gpm-badge" style="color:#1a5f8a;border-color:rgba(42,122,154,.25)">本籍：${_birthplaceLabel}</div>`,
+    _clanLabel ? `<div class="gpm-badge" style="color:rgba(44,36,22,.55);border-color:rgba(80,65,40,.15)">家族：${_clanLabel}</div>` : '',
   ].filter(Boolean).join('');
 
   // 小传
@@ -316,10 +339,8 @@ function openGenProfile(genName, fid){
     ${postHtml}
     ${g.role === 'ruler' ? '' : `<div class="gpm-sec">忠诚</div>
     ${loyaltyHtml}`}
-    ${meta.gentry||meta.clan||meta.faction_clan?`
     <div class="gpm-sec">出身</div>
-    <div class="gpm-badge-row">${badgesHtml||'<span style="font-size:10px;color:rgba(92,74,50,.35)">寒门出身，无士族记录</span>'}</div>
-    `:''}
+    <div class="gpm-badge-row">${badgesHtml}</div>
     <div class="gpm-sec">亲密度</div>
     <div style="padding:2px 0">${intimacyHtml}</div>
     <div class="gpm-sec">武将小传</div>

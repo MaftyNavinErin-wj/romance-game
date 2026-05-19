@@ -383,7 +383,7 @@ const FACTION_DEFS = [
   {id:'gentry_huaisi',     label:'淮泗派',   baseMult:0.8, gentryStates:[]}, // ★ v161: 永远的客居者
   {id:'defector',          label:'降将',     baseMult:0.4},
   {id:'newcomer',          label:'新附',     baseMult:0.6},
-  {id:'humble',            label:'寒门豪族', baseMult:1.0}, // v172: 含寒门武将+地方豪族(magnate)
+  {id:'humble',            label:'军功武人', baseMult:1.0}, // v172: 机制桶仍收纳寒门武将 + 不进士族派系的地方豪族(magnate)
 ];
 
 // ═══════════════════════════════════════════════════════

@@ -7,6 +7,7 @@
     "smoke": "node tests/smoke.js",
     "compare": "node tests/compare.js",
     "scenario:flow": "node tests/scenario_flow.js",
+    "scenario:meta": "node tests/check_190_meta.js",
     "test": "npm run smoke && npm run compare"
   },
   "devDependencies": {
