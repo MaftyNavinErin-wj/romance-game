@@ -24,6 +24,7 @@ function renderAllLight(){
 // ★ v122: 水墨风地图 + hex网格叠加开关
 let _staticMapCache = '';
 let _mapShowGrid = false;
+const MAP_INK_BASE_ASSET = 'assets/maps/china-ink-base-v1.png';
 function toggleMapStyle() {
   _mapShowGrid = !_mapShowGrid;
   const btn = document.getElementById('ov-btn-mapstyle');
@@ -33,6 +34,7 @@ function toggleMapStyle() {
     btn.style.color = _mapShowGrid ? 'rgba(92,74,50,.65)' : 'rgba(230,220,195,.9)';
   }
   _staticMapCache = '';
+  invalidateFogCache();
   const existingRoot = document.getElementById('mapRoot');
   if(existingRoot) existingRoot.remove();
   renderMap();
@@ -42,6 +44,9 @@ function _buildStaticMapCache() {
   const S = HEX_SIZE;
   let h = '';
   const _sr = (col,row,i) => ((col*137+row*281+i*73)%997)/997;
+  h += `<image href="${MAP_INK_BASE_ASSET}" x="-90" y="0" width="1316" height="740"
+    preserveAspectRatio="xMidYMid slice" opacity="0.88" pointer-events="none"/>`;
+  h += `<rect x="0" y="0" width="960" height="740" fill="rgba(245,238,225,.24)" pointer-events="none"/>`;
 
   // 底色：plain透明，其他极淡
   const INK_FILL = {
@@ -162,6 +167,7 @@ function _getFogSvgCache() {
   const pFog = G.fog?.[G.playerFac];
   if (!pFog) { _fogSvgCache = ''; _fogCacheTurn = _fogCacheVersion; return ''; }
   let fogExplored = '', fogUnexplored = '';
+  const inkFog = !_mapShowGrid;
   for (let col = 0; col < HEX_COLS; col++) {
     for (let row = 0; row < HEX_ROWS; row++) {
       const k = hkey(col, row);
@@ -172,16 +178,24 @@ function _getFogSvgCache() {
       if ((HEX_TERRAIN[k] || 'plain') === 'coastal_water') continue; // 近海始终可见
       const p = hexToPixel(col, row);
       const tx = p.x.toFixed(1), ty = p.y.toFixed(1);
+      const shape = inkFog
+        ? `<path d="${HEX_PATH}" transform="translate(${tx},${ty}) scale(1.05)"/>`
+        : `<path d="${HEX_PATH}" transform="translate(${tx},${ty})"/>`;
       if (level === FOG_UNEXPLORED) {
-        fogUnexplored += `<path d="${HEX_PATH}" transform="translate(${tx},${ty})"/>`;
+        fogUnexplored += shape;
       } else {
-        fogExplored += `<path d="${HEX_PATH}" transform="translate(${tx},${ty})"/>`;
+        fogExplored += shape;
       }
     }
   }
   let result = '';
-  if (fogUnexplored) result += `<g fill="rgba(110,100,80,.93)" stroke="rgba(95,85,68,.95)" stroke-width="0.5" pointer-events="none">${fogUnexplored}</g>`;
-  if (fogExplored) result += `<g fill="rgba(170,160,138,.48)" stroke="rgba(155,145,125,.50)" stroke-width="0.5" pointer-events="none">${fogExplored}</g>`;
+  if (inkFog) {
+    if (fogUnexplored) result += `<g fill="rgba(78,70,58,.58)" stroke="none" pointer-events="none">${fogUnexplored}</g>`;
+    if (fogExplored) result += `<g fill="rgba(226,216,196,.34)" stroke="none" pointer-events="none">${fogExplored}</g>`;
+  } else {
+    if (fogUnexplored) result += `<g fill="rgba(110,100,80,.93)" stroke="rgba(95,85,68,.95)" stroke-width="0.5" pointer-events="none">${fogUnexplored}</g>`;
+    if (fogExplored) result += `<g fill="rgba(170,160,138,.48)" stroke="rgba(155,145,125,.50)" stroke-width="0.5" pointer-events="none">${fogExplored}</g>`;
+  }
   _fogSvgCache = result;
   _fogCacheTurn = _fogCacheVersion;
   return result;
