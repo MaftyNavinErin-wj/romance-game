@@ -35,6 +35,43 @@
 // ── hideTip:隐藏 #_tip ──
 function hideTip(){const t=document.getElementById('_tip');if(t)t.style.display='none';}
 
+const TERRAIN_TIP_LABELS = {
+  plain:'平原',
+  hill:'丘陵',
+  forest:'林地',
+  mountain:'山地',
+  water:'水域',
+  river:'河道',
+  swamp:'沼泽',
+  impassable:'绝壁',
+  coastal_water:'近海',
+  deep_water:'深海'
+};
+
+function showHexTerrainTip(e, col, row){
+  const k = hkey(col, row);
+  const terrain = HEX_TERRAIN[k] || 'plain';
+  const label = TERRAIN_TIP_LABELS[terrain] || terrain;
+  const isBlocked = terrain === 'impassable' || terrain === 'coastal_water' || terrain === 'deep_water';
+  const hasRoad = !!HEX_ROAD[k];
+  const landCost = getHexMoveCost(col, row, 'light', false);
+  const waterCost = WATER_TERRAINS.has(terrain) ? getHexMoveCost(col, row, 'light', true) : null;
+  const apText = isBlocked ? '不可通行'
+    : WATER_TERRAINS.has(terrain) ? `陆入水 ${landCost} / 水路 ${waterCost}`
+    : `${landCost}`;
+  let tip = document.getElementById('_tip');
+  if(!tip){
+    tip = document.createElement('div');
+    tip.id = '_tip';
+    tip.style.cssText = 'position:fixed;background:rgba(246,240,226,.96);border:1px solid rgba(92,74,50,.22);padding:5px 8px;font-size:10px;z-index:600;pointer-events:none;max-width:170px;display:none;line-height:1.45;font-family:Noto Serif SC,serif;box-shadow:0 2px 8px rgba(42,32,20,.10);border-radius:3px';
+    document.body.appendChild(tip);
+  }
+  tip.innerHTML = `<div style="font-family:'Noto Serif SC',serif;color:#5f4b2a;font-size:10.5px;font-weight:700">${label}</div>
+    <div style="font-size:8.5px;color:rgba(44,36,22,.58)">(${col},${row}) · AP ${apText}</div>
+    ${hasRoad?'<div style="font-size:8.5px;color:#8a6a10">官道减半</div>':''}`;
+  _positionTip(tip, e);
+}
+
 // ── 数值 Breakdown 浮窗系统 ──
 // ═══════════════════════════════════════
 // ★ 数值Breakdown浮窗（P0新增）

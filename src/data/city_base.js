@@ -390,7 +390,7 @@ const CITY_BASE = {
   },
   "jianye": {
     "name": "建业",
-    "q": 71,
+    "q": 72,
     "r": 37,
     "tags": [
       "都市",
@@ -409,8 +409,8 @@ const CITY_BASE = {
   },
   "jingkou": {
     "name": "京口",
-    "q": 77,
-    "r": 33,
+    "q": 84,
+    "r": 34,
     "tags": [
       "港口",
       "水乡"
@@ -427,8 +427,8 @@ const CITY_BASE = {
   },
   "huiji": {
     "name": "会稽",
-    "q": 82,
-    "r": 42,
+    "q": 92,
+    "r": 43,
     "tags": [
       "港口",
       "水乡"
@@ -625,8 +625,8 @@ const CITY_BASE = {
   },
   "guangling": {
     "name": "广陵",
-    "q": 80,
-    "r": 28,
+    "q": 82,
+    "r": 30,
     "tags": [
       "港口",
       "平原"
@@ -888,8 +888,8 @@ const CITY_BASE = {
   },
   "donghai": {
     "name": "东海",
-    "q": 74,
-    "r": 28,
+    "q": 83,
+    "r": 27,
     "tags": [
       "平原"
     ],
@@ -959,7 +959,7 @@ const CITY_BASE = {
   },
   "suzhou": {
     "name": "吴郡",
-    "q": 78,
+    "q": 90,
     "r": 39,
     "tags": [
       "都市",

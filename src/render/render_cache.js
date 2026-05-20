@@ -24,7 +24,8 @@ function renderAllLight(){
 // ★ v122: 水墨风地图 + hex网格叠加开关
 let _staticMapCache = '';
 let _mapShowGrid = false;
-const MAP_INK_BASE_ASSET = 'assets/maps/china-ink-base-v1.png';
+const MAP_INK_BASE_ASSET = 'assets/maps/china-ink-base-v1-hd.png';
+const MAP_INK_BASE_VIEW = { x: 0, y: -12, w: 1360, h: 765 };
 function toggleMapStyle() {
   _mapShowGrid = !_mapShowGrid;
   const btn = document.getElementById('ov-btn-mapstyle');
@@ -44,12 +45,19 @@ function _buildStaticMapCache() {
   const S = HEX_SIZE;
   let h = '';
   const _sr = (col,row,i) => ((col*137+row*281+i*73)%997)/997;
-  h += `<image href="${MAP_INK_BASE_ASSET}" x="-90" y="0" width="1316" height="740"
-    preserveAspectRatio="xMidYMid slice" opacity="0.88" pointer-events="none"/>`;
-  h += `<rect x="0" y="0" width="960" height="740" fill="rgba(245,238,225,.24)" pointer-events="none"/>`;
+  const inkMode = !_mapShowGrid;
+  h += `<image href="${MAP_INK_BASE_ASSET}" x="${MAP_INK_BASE_VIEW.x}" y="${MAP_INK_BASE_VIEW.y}" width="${MAP_INK_BASE_VIEW.w}" height="${MAP_INK_BASE_VIEW.h}"
+    preserveAspectRatio="xMidYMid slice" opacity="${inkMode ? '0.96' : '0.78'}" pointer-events="none"/>`;
+  h += `<rect x="0" y="0" width="960" height="740" fill="${inkMode ? 'rgba(250,247,238,.06)' : 'rgba(245,238,225,.26)'}" pointer-events="none"/>`;
 
   // 底色：plain透明，其他极淡
-  const INK_FILL = {
+  const INK_FILL = inkMode ? {
+    plain:'rgba(0,0,0,0)', hill:'rgba(0,0,0,0)',
+    mountain:'rgba(0,0,0,0)', forest:'rgba(0,0,0,0)',
+    water:'rgba(0,0,0,0)', river:'rgba(0,0,0,0)',
+    swamp:'rgba(0,0,0,0)', impassable:'rgba(0,0,0,0)',
+    coastal_water:'rgba(0,0,0,0)', deep_water:'rgba(0,0,0,0)',
+  } : {
     plain:'rgba(0,0,0,0)', hill:'rgba(0,0,0,0)',
     mountain:'rgba(55,40,25,.04)', forest:'rgba(30,55,25,.03)',
     water:'rgba(40,80,130,.10)', river:'rgba(40,80,130,.06)',
@@ -71,6 +79,29 @@ function _buildStaticMapCache() {
 
       const r0 = _sr(col,row,0), r1 = _sr(col,row,1), r2 = _sr(col,row,2);
       const r3 = _sr(col,row,3), r4 = _sr(col,row,4);
+
+      if(inkMode){
+        if(terrain === 'mountain'){
+          const x0 = -S*(.34+r0*.06), x1 = -S*(.08-r1*.04), x2 = S*(.18+r2*.09), y0 = S*(.16+r3*.06);
+          h += `<path d="M${x0.toFixed(1)},${y0.toFixed(1)} Q${(-S*.16).toFixed(1)},${(-S*.08-r0*S*.08).toFixed(1)} ${x1.toFixed(1)},${(S*.04).toFixed(1)} Q${(S*.04).toFixed(1)},${(-S*.15-r2*S*.08).toFixed(1)} ${x2.toFixed(1)},${(S*.10+r4*S*.04).toFixed(1)}" transform="translate(${px},${py})" fill="none" stroke="rgba(35,32,28,.36)" stroke-width="${(.70+r1*.30).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`;
+          if(r3>.38) h += `<path d="M${(-S*.18).toFixed(1)},${(S*.18).toFixed(1)} Q0,${(-S*.02-r4*S*.06).toFixed(1)} ${(S*.30).toFixed(1)},${(S*.15).toFixed(1)}" transform="translate(${px},${py})" fill="none" stroke="rgba(35,32,28,.18)" stroke-width=".50" stroke-linecap="round" pointer-events="none"/>`;
+        } else if(terrain === 'impassable'){
+          h += `<path d="M${(-S*.42).toFixed(1)},${(S*.19).toFixed(1)} L${(-S*.20+r1*S*.05).toFixed(1)},${(-S*.20-r0*S*.10).toFixed(1)} L${(S*.02+r2*S*.06).toFixed(1)},${(S*.10).toFixed(1)} L${(S*.22).toFixed(1)},${(-S*.25-r3*S*.08).toFixed(1)} L${(S*.45).toFixed(1)},${(S*.16).toFixed(1)}" transform="translate(${px},${py})" fill="none" stroke="rgba(18,17,15,.48)" stroke-width="${(.95+r4*.38).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`;
+        } else if(terrain === 'forest'){
+          h += `<circle cx="${(p.x-S*.12+r0*S*.05).toFixed(1)}" cy="${(p.y-S*.05-r1*S*.04).toFixed(1)}" r="${(S*(.10+r2*.025)).toFixed(1)}" fill="none" stroke="rgba(35,42,32,.25)" stroke-width=".55" pointer-events="none"/>`;
+          h += `<circle cx="${(p.x+S*.06+r3*S*.05).toFixed(1)}" cy="${(p.y-S*.08+r4*S*.04).toFixed(1)}" r="${(S*(.12+r1*.025)).toFixed(1)}" fill="none" stroke="rgba(35,42,32,.28)" stroke-width=".55" pointer-events="none"/>`;
+          if(r2>.28) h += `<circle cx="${(p.x+S*.18-r4*S*.05).toFixed(1)}" cy="${(p.y+S*.05).toFixed(1)}" r="${(S*.085).toFixed(1)}" fill="none" stroke="rgba(35,42,32,.18)" stroke-width=".45" pointer-events="none"/>`;
+        } else if(terrain === 'hill'){
+          h += `<path d="M${(-S*.30).toFixed(1)},${(S*.11).toFixed(1)} Q${(-S*.08+r0*S*.05).toFixed(1)},${(-S*.12-r1*S*.04).toFixed(1)} ${(S*.18+r2*S*.04).toFixed(1)},${(S*.08).toFixed(1)}" transform="translate(${px},${py})" fill="none" stroke="rgba(48,42,34,.28)" stroke-width="${(.60+r3*.22).toFixed(2)}" stroke-linecap="round" pointer-events="none"/>`;
+          if(r4>.35) h += `<path d="M${(-S*.18).toFixed(1)},${(S*.20).toFixed(1)} Q${(S*.02).toFixed(1)},${(S*.03-r2*S*.04).toFixed(1)} ${(S*.28).toFixed(1)},${(S*.18).toFixed(1)}" transform="translate(${px},${py})" fill="none" stroke="rgba(48,42,34,.16)" stroke-width=".42" stroke-linecap="round" pointer-events="none"/>`;
+        } else if(terrain === 'swamp'){
+          h += `<path d="M${(-S*.23).toFixed(1)},${(S*.10).toFixed(1)} Q${(-S*.06).toFixed(1)},${(S*.03-r0*S*.04).toFixed(1)} ${(S*.16).toFixed(1)},${(S*.10).toFixed(1)} M${(-S*.15).toFixed(1)},${(S*.20).toFixed(1)} Q${(S*.02).toFixed(1)},${(S*.13-r2*S*.04).toFixed(1)} ${(S*.28).toFixed(1)},${(S*.18).toFixed(1)}" transform="translate(${px},${py})" fill="none" stroke="rgba(38,48,42,.25)" stroke-width=".50" stroke-linecap="round" pointer-events="none"/>`;
+        } else if(terrain === 'water' || terrain === 'river' || terrain === 'coastal_water' || terrain === 'deep_water'){
+          const colr = terrain === 'deep_water' ? 'rgba(38,58,78,.24)' : 'rgba(42,70,88,.22)';
+          h += `<path d="M${(-S*.28).toFixed(1)},${((r0-.5)*S*.06).toFixed(1)} Q${(-S*.08).toFixed(1)},${(-S*.08-r1*S*.03).toFixed(1)} ${(S*.12).toFixed(1)},${((r2-.5)*S*.05).toFixed(1)} Q${(S*.30).toFixed(1)},${(S*.09+r3*S*.03).toFixed(1)} ${(S*.44).toFixed(1)},${((r4-.5)*S*.06).toFixed(1)}" transform="translate(${px},${py})" fill="none" stroke="${colr}" stroke-width=".55" stroke-linecap="round" pointer-events="none"/>`;
+        }
+        continue;
+      }
 
       if(terrain === 'mountain'){
         const mh = S*(.28+r0*.14), mw = S*(.32+r1*.12), ox = (r2-.5)*S*.12;
@@ -123,10 +154,21 @@ function _buildStaticMapCache() {
   }
 
   // 道路
+  if(Array.isArray(RIVERS)){
+    RIVERS.forEach(pathStr => {
+      if(inkMode){
+        h += `<path d="${pathStr}" fill="none" stroke="rgba(244,246,238,.24)" stroke-width="6.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="12,8" pointer-events="none"/>`;
+        h += `<path d="${pathStr}" fill="none" stroke="rgba(38,68,88,.34)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7,5" pointer-events="none"/>`;
+      } else {
+        h += `<path d="${pathStr}" fill="none" stroke="rgba(30,78,130,.28)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`;
+      }
+    });
+  }
+
   for (const k of Object.keys(HEX_ROAD)) {
     const {col, row} = hparse(k);
     const p = hexToPixel(col, row);
-    h += `<path d="${HEX_PATH_INNER}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})" fill="rgba(140,120,80,.10)" stroke="none" pointer-events="none"/>`;
+    h += `<path d="${HEX_PATH_INNER}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})" fill="${inkMode ? 'rgba(180,154,92,.07)' : 'rgba(140,120,80,.10)'}" stroke="none" pointer-events="none"/>`;
   }
   const roadLineDrawn = new Set();
   ROADS.forEach(([aid, bid]) => {
@@ -138,15 +180,20 @@ function _buildStaticMapCache() {
     if(roadHexes.length < 2) return;
     let pts = '';
     roadHexes.forEach(rh => { const pp = hexToPixel(rh.col, rh.row); pts += `${pp.x.toFixed(1)},${pp.y.toFixed(1)} `; });
-    h += `<polyline points="${pts}" fill="none" stroke="rgba(100,82,50,.18)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`;
-    h += `<polyline points="${pts}" fill="none" stroke="rgba(80,65,38,.35)" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3,2.5" pointer-events="none"/>`;
+    if(inkMode){
+      h += `<polyline points="${pts}" fill="none" stroke="rgba(250,242,210,.34)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`;
+      h += `<polyline points="${pts}" fill="none" stroke="rgba(70,52,28,.40)" stroke-width=".8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2.4,2.4" pointer-events="none"/>`;
+    } else {
+      h += `<polyline points="${pts}" fill="none" stroke="rgba(100,82,50,.18)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`;
+      h += `<polyline points="${pts}" fill="none" stroke="rgba(80,65,38,.35)" stroke-width="1.0" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3,2.5" pointer-events="none"/>`;
+    }
   });
   // 州名水印
   [['冀州',455,110],['司州',300,196],['兖州',526,196],['益州',127,370],
    ['荆州',335,350],['扬州',634,360],['凉州',85,210],['并州',300,130],['徐州',622,214],
    ['南中',162,520],['交州',431,590],['豫州',452,260]
   ].forEach(([n,x,y]) => {
-    h += `<text x="${x}" y="${y}" text-anchor="middle" font-family="Noto Serif SC,serif" font-size="16" font-weight="700" fill="rgba(45,32,15,.16)" letter-spacing="6px" font-style="italic" pointer-events="none">${n}</text>`;
+    h += `<text x="${x}" y="${y}" text-anchor="middle" font-family="Noto Serif SC,serif" font-size="${inkMode ? 18 : 16}" font-weight="700" fill="${inkMode ? 'rgba(42,31,18,.20)' : 'rgba(45,32,15,.16)'}" stroke="rgba(246,238,220,.28)" stroke-width="${inkMode ? 2 : 0}" paint-order="stroke" letter-spacing="6px" font-style="italic" pointer-events="none">${n}</text>`;
   });
   _staticMapCache = h;
 }
@@ -173,13 +220,15 @@ function _getFogSvgCache() {
       const k = hkey(col, row);
       const level = pFog[k] ?? FOG_UNEXPLORED;
       if (level === FOG_VISIBLE) continue;
-      if ((HEX_TERRAIN[k] || 'plain') === 'impassable') continue; // impassable始终可见
-      if ((HEX_TERRAIN[k] || 'plain') === 'deep_water') continue; // 深海始终可见
-      if ((HEX_TERRAIN[k] || 'plain') === 'coastal_water') continue; // 近海始终可见
+      const terrain = HEX_TERRAIN[k] || 'plain';
+      if (terrain === 'impassable') continue; // impassable始终可见
+      if (terrain === 'deep_water') continue; // 深海始终可见
+      if (terrain === 'coastal_water') continue; // 近海始终可见
+      if (inkFog && terrain === 'water') continue; // 水墨底图上海域/湖泊不叠战争迷雾，避免边界阴影外溢
       const p = hexToPixel(col, row);
       const tx = p.x.toFixed(1), ty = p.y.toFixed(1);
       const shape = inkFog
-        ? `<path d="${HEX_PATH}" transform="translate(${tx},${ty}) scale(1.05)"/>`
+        ? `<path d="${HEX_PATH}" transform="translate(${tx},${ty})"/>`
         : `<path d="${HEX_PATH}" transform="translate(${tx},${ty})"/>`;
       if (level === FOG_UNEXPLORED) {
         fogUnexplored += shape;
@@ -190,8 +239,8 @@ function _getFogSvgCache() {
   }
   let result = '';
   if (inkFog) {
-    if (fogUnexplored) result += `<g fill="rgba(78,70,58,.58)" stroke="none" pointer-events="none">${fogUnexplored}</g>`;
-    if (fogExplored) result += `<g fill="rgba(226,216,196,.34)" stroke="none" pointer-events="none">${fogExplored}</g>`;
+    if (fogUnexplored) result += `<g fill="rgba(35,39,42,.70)" stroke="none" pointer-events="none">${fogUnexplored}</g>`;
+    if (fogExplored) result += `<g fill="rgba(112,116,112,.50)" stroke="none" pointer-events="none">${fogExplored}</g>`;
   } else {
     if (fogUnexplored) result += `<g fill="rgba(110,100,80,.93)" stroke="rgba(95,85,68,.95)" stroke-width="0.5" pointer-events="none">${fogUnexplored}</g>`;
     if (fogExplored) result += `<g fill="rgba(170,160,138,.48)" stroke="rgba(155,145,125,.50)" stroke-width="0.5" pointer-events="none">${fogExplored}</g>`;

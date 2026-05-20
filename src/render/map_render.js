@@ -346,7 +346,7 @@ function renderUnitsOnMap(){
     const baseOpacity = (stackCount>1&&!isSel)?'0.82':'1';
     const bw = flagW, bh = flagH;
 
-    h += `<g transform="translate(${px.toFixed(2)},${py.toFixed(1)})" opacity="${baseOpacity}"
+    h += `<g class="unit-g" transform="translate(${px.toFixed(2)},${py.toFixed(1)})" opacity="${baseOpacity}"
       onclick="onUnitLeftClick('${unit.id}',event)"
       oncontextmenu="onUnitRightClick('${unit.id}',event)"
       onmouseenter="showUnitTip(event,'${unit.id}')" onmouseleave="hideTip()">

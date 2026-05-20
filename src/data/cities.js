@@ -55,7 +55,7 @@ const ROADS = [
   ['xuchang','guandu'],['xuchang','xuzhou'],['xuchang','nanyang'],
   ['ye','qingzhou'],['ye','bingzhou'],['ye','guandu'],
   ['qingzhou','xuzhou'],['qingzhou','youzhou'],
-  ['bingzhou','youzhou'],['bingzhou','hedong'],['bingzhou','wuwei'],
+  ['bingzhou','youzhou'],['bingzhou','hedong'],
   ['hedong','liangzhou'],['hedong','tianshui'],
   ['wuwei','liangzhou'],['wuwei','tianshui'],
   ['tianshui','hanzhong'],['tianshui','changan'],
@@ -67,19 +67,18 @@ const ROADS = [
   ['xiangyang','jingzhou'],['xiangyang','hefei'],
   ['jingzhou','yiling'],['jingzhou','wuchang'],
   ['wuchang','chaigang'],['wuchang','jianye'],
-  ['chaigang','jianye'],['chaigang','hefei'],
-  ['jianye','jingkou'],['jianye','shouchun'],['jianye','huiji'],
-  ['jingkou','huiji'],['jingkou','shouchun'],
+  ['chaigang','hefei'],
+  ['jianye','jingkou'],['jianye','shouchun'],
+  ['jingkou','shouchun'],
   ['shouchun','hefei'],['shouchun','xuzhou'],
   ['hefei','xuzhou'],
-  ['jingzhou','jiaozhou'],['jiaozhou','panyu'],['wuchang','panyu'],
+  ['jiaozhou','panyu'],
   // ── 新增城市路网 ──
   ['chengdu','jianning'],['jianning','jiaozhou'],            // 建宁连成都+交州
   ['yiling','yongan'],['yongan','jianning'],                // 永安连夷陵+建宁
   ['wuchang','changsha'],['chaigang','changsha'],            // 长沙连武昌+柴桑
-  ['changsha','jiaozhou'],['changsha','panyu'],              // 长沙连交州+番禺
+  ['changsha','jiaozhou'],                                  // 长沙连交州
   ['chaigang','yuzhang'],['yuzhang','changsha'],            // 豫章连柴桑+长沙
-  ['yuzhang','panyu'],                                      // 豫章连番禺
   ['qingzhou','beihai'],['beihai','guangling'],              // 北海连青州+广陵
   ['xuzhou','guangling'],['jingkou','guangling'],            // 广陵连徐州+京口
   ['youzhou','beiping'],['beiping','beihai'],                // 北平连蓟城+北海
@@ -103,7 +102,7 @@ const ROADS = [
   ['shangdang','bingzhou'],['shangdang','hedong'],['shangdang','ye'], // 上党连晋阳+河东+邺城 (山西-河北枢纽)
   ['anding','changan'],['anding','tianshui'],['anding','hedong'],  // 安定连长安+天水+河东 (关中-凉州枢纽)
   // ── 1f-p3 扩 — 江东 + 徐州东北 路网 ──
-  ['suzhou','jianye'],['suzhou','huiji'],['suzhou','jingkou'],     // 吴郡连建业+会稽+京口 (江东东部)
+  ['suzhou','huiji'],['suzhou','jingkou'],                         // 吴郡连会稽+京口 (江东东部；去掉直穿太湖的建业直连)
   ['langya','beihai'],['langya','donghai'],['langya','qingzhou'],  // 琅琊连北海+东海+青州 (徐州东北)
 ];
 
@@ -128,10 +127,10 @@ const RIVERS = [
   'M228,340 Q276,338 324,342 Q371,348 413,358 Q443,375 467,400 Q479,418 493,432',
   // 长江（夷陵→洞庭湖→武昌→鄱阳湖→建业→京口→入东海）
   // 夷陵(356,404) → 洞庭湖(458,425) → 武昌(473,430) → 柴桑(527,451)/鄱阳湖(575,440) → 建业(608,394) → 京口(644,352) → 入海(720,330)
-  'M312,410 Q335,408 357,405 Q395,415 443,422 Q476,428 497,432 Q532,442 562,448 Q598,445 622,435 Q646,418 660,400 Q679,378 703,355 Q729,340 765,330 Q801,320 825,315',
+  'M312,410 Q335,408 357,405 Q395,415 443,422 Q476,428 497,432 Q532,442 562,448 Q598,445 626,432 Q652,410 670,392 Q693,370 720,350 Q748,336 782,326 Q810,318 835,312',
   // 淮河（寿春一带向东入海）
   // 寿春(545,305)附近 → 向东入东海(~700,290)
-  'M514,298 Q550,302 584,305 Q622,300 670,292 Q717,285 765,280 Q801,275 825,272',
+  'M514,298 Q550,302 584,305 Q622,300 670,292 Q718,286 762,292 Q802,286 835,278',
   // 岷江/嘉陵江（成都→巴中方向→汇入长江）
   // 成都(212,425) → 巴中(275,399) → 夷陵(356,404)方向
   'M186,418 Q216,410 250,405 Q282,402 312,408',

@@ -25,6 +25,8 @@ function _animateFogReveal(revealedKeys, oldFogLevels){
     const {col, row} = hparse(k);
     const ter = HEX_TERRAIN[k] || 'plain';
     if(ter === 'impassable' || ter === 'deep_water' || ter === 'coastal_water') return;
+    const inkFog = !_mapShowGrid;
+    if(inkFog && ter === 'water') return;
     const p = hexToPixel(col, row);
     const path = document.createElementNS(ns, 'path');
     path.setAttribute('d', HEX_PATH);
@@ -32,9 +34,9 @@ function _animateFogReveal(revealedKeys, oldFogLevels){
     // ★ v118fix: 遮罩颜色匹配宣纸风迷雾色（浅底深遮挡→浅底浅遮挡渐隐）
     const oldLv = oldFogLevels?.[k] ?? FOG_UNEXPLORED;
     const wasExplored = oldLv >= FOG_EXPLORED;
-    path.setAttribute('fill', wasExplored ? 'rgba(170,160,138,.48)' : 'rgba(110,100,80,.93)');
-    path.setAttribute('stroke', wasExplored ? 'rgba(155,145,125,.50)' : 'rgba(95,85,68,.95)');
-    path.setAttribute('stroke-width', wasExplored ? '0.5' : '0.5');
+    path.setAttribute('fill', inkFog ? (wasExplored ? 'rgba(112,116,112,.50)' : 'rgba(35,39,42,.70)') : (wasExplored ? 'rgba(170,160,138,.48)' : 'rgba(110,100,80,.93)'));
+    path.setAttribute('stroke', inkFog ? 'none' : (wasExplored ? 'rgba(155,145,125,.50)' : 'rgba(95,85,68,.95)'));
+    path.setAttribute('stroke-width', inkFog ? '0' : '0.5');
     g.appendChild(path);
   });
 
@@ -174,6 +176,24 @@ function svgEventCoords(e){
   const mx=(svgPt.x-_mapTx)/_mapScale;
   const my=(svgPt.y-_mapTy)/_mapScale;
   return {mx, my};
+}
+
+let _terrainTipLastKey = '';
+function _handleMapTerrainHover(e){
+  if(_mapDrag) return;
+  const target = e.target;
+  if(target?.closest?.('.unit-g,.city-g')){ _terrainTipLastKey=''; return; }
+  const {mx,my} = svgEventCoords(e);
+  const hex = pixelToHex(mx, my);
+  if(hex.col < 0 || hex.row < 0 || hex.col >= HEX_COLS || hex.row >= HEX_ROWS){ hideTip(); _terrainTipLastKey=''; return; }
+  const k = hkey(hex.col, hex.row);
+  if(_terrainTipLastKey === k){
+    const tip = document.getElementById('_tip');
+    if(tip && tip.style.display !== 'none') _positionTip(tip, e);
+    return;
+  }
+  _terrainTipLastKey = k;
+  showHexTerrainTip(e, hex.col, hex.row);
 }
 
 function handleMapClick(e){
@@ -383,6 +403,9 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   // 左键拖拽地图（mousedown后记录起始，mousemove判断是否触发拖拽）
   let _dragStarted=false, _dragMoved=false;
+  mapWrap.addEventListener('mousemove', _handleMapTerrainHover);
+  mapWrap.addEventListener('mouseleave', () => { _terrainTipLastKey=''; hideTip(); });
+
   mapWrap.addEventListener('mousedown',e=>{
     if(e.button!==0&&e.button!==1) return;
     const svg=document.getElementById('mapSvg');
