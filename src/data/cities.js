@@ -88,7 +88,7 @@ const ROADS = [
   ['puyang','ye'],['puyang','qingzhou'],['puyang','chenliu'],        // 濮阳连邺城+青州+陈留
   ['xiapi','xuzhou'],['xiapi','guangling'],['xiapi','shouchun'],     // 下邳连徐州+广陵+寿春
   ['shangyong','hanzhong'],['shangyong','xiangyang'],['shangyong','nanyang'], // 上庸连汉中+襄阳+南阳
-  ['luocheng','yizhou_n'],['luocheng','chengdu'],                    // 雒城连梓潼+成都
+  ['luocheng','yizhou_n'],['luocheng','chengdu'],['luocheng','yongan'], // 雒城连梓潼+成都+永安（益州内部山道）
   ['lujiang','hefei'],['lujiang','jianye'],['lujiang','chaigang'],   // 庐江连合肥+建业+柴桑
   ['lingling','changsha'],['lingling','jiaozhou'],['lingling','panyu'], // 零陵连长沙+交州+番禺
   // ── 1f 扩 — 河北 3 新城路网 ──
@@ -128,6 +128,8 @@ const RIVERS = [
   // 长江（夷陵→洞庭湖→武昌→鄱阳湖→建业→京口→入东海）
   // 夷陵(356,404) → 洞庭湖(458,425) → 武昌(473,430) → 柴桑(527,451)/鄱阳湖(575,440) → 建业(608,394) → 京口(644,352) → 入海(720,330)
   'M312,410 Q335,408 357,405 Q395,415 443,422 Q476,428 497,432 Q532,442 562,448 Q598,445 626,432 Q652,410 670,392 Q693,370 720,350 Q748,336 782,326 Q810,318 835,312',
+  // 湘水（零陵→长沙→洞庭/长江水系）
+  'M464,581 Q488,558 518,513 Q512,500 493,432',
   // 淮河（寿春一带向东入海）
   // 寿春(545,305)附近 → 向东入东海(~700,290)
   'M514,298 Q550,302 584,305 Q622,300 670,292 Q718,286 762,292 Q802,286 835,278',

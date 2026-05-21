@@ -12,8 +12,8 @@
 const CITY_BASE = {
   "xuchang": {
     "name": "许昌",
-    "q": 52,
-    "r": 26,
+    "q": 54,
+    "r": 24,
     "tags": [
       "都市",
       "平原",
@@ -31,7 +31,7 @@ const CITY_BASE = {
   },
   "nanyang": {
     "name": "南阳",
-    "q": 43,
+    "q": 44,
     "r": 31,
     "tags": [
       "平原"
@@ -465,8 +465,8 @@ const CITY_BASE = {
   },
   "chaigang": {
     "name": "柴桑",
-    "q": 61,
-    "r": 42,
+    "q": 59,
+    "r": 37,
     "tags": [
       "港口",
       "水乡"
@@ -643,8 +643,8 @@ const CITY_BASE = {
   },
   "changsha": {
     "name": "长沙",
-    "q": 55,
-    "r": 50,
+    "q": 56,
+    "r": 49,
     "tags": [
       "平原",
       "水乡"
@@ -748,8 +748,8 @@ const CITY_BASE = {
   },
   "xiapi": {
     "name": "下邳",
-    "q": 70,
-    "r": 30,
+    "q": 73,
+    "r": 28,
     "tags": [
       "平原"
     ],
