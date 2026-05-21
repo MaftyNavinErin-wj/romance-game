@@ -39,15 +39,15 @@ Very long roads: 2
 - qingzhou 青州: nonPlain=0/49, terrain={"plain":49}
 - xiapi 下邳: nonPlain=0/49, terrain={"plain":49}
 - lujiang 庐江: nonPlain=2/49, terrain={"mountain":2,"plain":47}
-- yuzhang 豫章: nonPlain=3/49, terrain={"plain":46,"impassable":2,"hill":1}
+- yuzhang 豫章: nonPlain=3/49, terrain={"plain":46,"impassable":1,"hill":2}
+- chenliu 陈留: nonPlain=5/49, terrain={"plain":44,"hill":5}
 - luoyang 洛阳: nonPlain=6/49, terrain={"plain":43,"hill":5,"mountain":1}
 - pingyuan 平原: nonPlain=6/49, terrain={"plain":43,"forest":6}
 - wuchang 武昌: nonPlain=6/49, terrain={"plain":43,"water":6}
-- chengdu 成都: nonPlain=7/49, terrain={"impassable":2,"plain":42,"mountain":5}
 - luocheng 雒城: nonPlain=7/49, terrain={"plain":42,"mountain":7}
+- chengdu 成都: nonPlain=8/49, terrain={"plain":41,"mountain":8}
 - shangdang 上党: nonPlain=8/49, terrain={"plain":41,"mountain":8}
 - xuchang 许昌: nonPlain=8/49, terrain={"hill":8,"plain":41}
-- anding 安定: nonPlain=10/49, terrain={"plain":39,"hill":5,"mountain":5}
 
 ## Cities
 - youzhou 蓟城: q56,r6, px=518,72, terrain=mountain
@@ -65,7 +65,7 @@ Very long roads: 2
 - hedong 河东: q34,r18, px=320,196, terrain=plain
 - puyang 濮阳: q58,r18, px=536,196, terrain=plain
 - luoyang 洛阳: q40,r20, px=374,217, terrain=plain
-- chenliu 陈留: q50,r20, px=464,217, terrain=hill
+- chenliu 陈留: q54,r20, px=500,217, terrain=plain
 - anding 安定: q23,r20, px=221,222, terrain=plain
 - langya 琅琊: q75,r20, px=689,222, terrain=plain
 - guandu 官渡: q52,r22, px=482,238, terrain=plain
@@ -93,14 +93,14 @@ Very long roads: 2
 - yiling 夷陵: q38,r38, px=356,404, terrain=mountain
 - luocheng 雒城: q21,r38, px=203,409, terrain=plain
 - suzhou 吴郡: q90,r39, px=824,414, terrain=plain
-- chengdu 成都: q19,r40, px=185,430, terrain=plain
+- chengdu 成都: q20,r40, px=194,425, terrain=plain
 - jingzhou 江陵: q47,r40, px=437,430, terrain=plain
 - wuchang 武昌: q53,r40, px=491,430, terrain=plain
 - huiji 会稽: q92,r43, px=842,456, terrain=forest
 - yongan 永安: q29,r46, px=275,492, terrain=plain
 - wuling 武陵: q44,r47, px=410,498, terrain=hill
 - changsha 长沙: q56,r49, px=518,518, terrain=hill
-- yuzhang 豫章: q64,r50, px=590,529, terrain=plain
+- yuzhang 豫章: q66,r50, px=608,529, terrain=plain
 - jianning 建宁: q16,r52, px=158,550, terrain=mountain
 - lingling 零陵: q50,r55, px=464,581, terrain=plain
 - jiaozhou 交州: q43,r59, px=401,628, terrain=forest

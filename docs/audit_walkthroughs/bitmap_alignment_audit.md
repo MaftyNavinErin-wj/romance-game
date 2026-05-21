@@ -1,0 +1,185 @@
+# Bitmap Alignment Audit
+
+Bitmap: assets/maps/china-ink-base-v1-hd.png (3344x1882)
+SVG image transform: rendered=1360.0x765.4, offset=0.0,-12.2, scale=0.40670
+
+Color classifier is heuristic. Use this as a visual-alignment prompt, not a hard correctness test.
+
+## City Bitmap Prompts
+- nanyang: q44,r31, data=plain, bitmap=hill, rgb=189.1,175.7,153.7
+- xuzhou: q66,r26, data=hill, bitmap=hill, rgb=188.3,177.3,155.1
+- luoyang: q40,r20, data=plain, bitmap=hill, rgb=207.9,193.2,168.6
+- tianshui: q19,r24, data=mountain, bitmap=plain, rgb=218.1,205.2,180.1
+- changan: q31,r22, data=plain, bitmap=hill, rgb=202.9,192.8,172.9
+- chengdu: q20,r40, data=plain, bitmap=hill, rgb=167.1,153.8,128.7
+- jingzhou: q47,r40, data=plain, bitmap=hill, rgb=176.8,164.3,142.8
+- yiling: q38,r38, data=mountain, bitmap=plain, rgb=210.2,197.1,171.7
+- shouchun: q63,r28, data=hill, bitmap=hill, rgb=193.5,180.4,152.4
+- jianning: q16,r52, data=mountain, bitmap=plain, rgb=210.6,195.6,171.4
+- yongan: q29,r46, data=plain, bitmap=plain, rgb=218.9,203.2,178.4
+- changsha: q56,r49, data=hill, bitmap=hill, rgb=197.8,183.9,161.7
+- yuzhang: q66,r50, data=plain, bitmap=hill, rgb=177.9,170.6,139.4
+- xiapi: q73,r28, data=plain, bitmap=mountain, rgb=147.1,143.2,123.1
+- shangyong: q35,r34, data=plain, bitmap=plain, rgb=216.9,202.5,174.8
+- luocheng: q21,r38, data=plain, bitmap=hill, rgb=208.7,194.6,164.7
+- lujiang: q66,r35, data=plain, bitmap=hill, rgb=177.4,165.1,138.1
+- donghai: q83,r27, data=plain, bitmap=mountain, rgb=161.1,153.8,118.9
+- langya: q75,r20, data=plain, bitmap=hill, rgb=199.6,185.6,157.2
+
+## City Candidate Suggestions
+- nanyang: current=q44,r31; q44,r31:hill,move=0; q43,r30:hill,move=10; q43,r31:hill,move=10; q44,r30:hill,move=10
+- xuzhou: current=q66,r26; q66,r26:hill,move=0; q65,r25:hill,move=10; q65,r26:hill,move=10; q66,r25:plain,move=10
+- luoyang: current=q40,r20; q40,r20:hill,move=0; q39,r19:hill,move=10; q39,r20:plain,move=10; q40,r19:hill,move=10
+- tianshui: current=q19,r24; q19,r24:plain,move=0; q18,r24:plain,move=10; q18,r25:plain,move=10; q19,r23:plain,move=10
+- changan: current=q31,r22; q31,r22:hill,move=0; q30,r22:plain,move=10; q30,r23:plain,move=10; q31,r21:plain,move=10
+- chengdu: current=q20,r40; q20,r40:hill,move=0; q19,r39:hill,move=10; q19,r40:mountain,move=10; q20,r39:hill,move=10
+- jingzhou: current=q47,r40; q47,r40:hill,move=0; q46,r40:hill,move=10; q46,r41:hill,move=10; q47,r39:mountain,move=10
+- yiling: current=q38,r38; q38,r38:plain,move=0; q37,r37:hill,move=10; q37,r38:plain,move=10; q38,r37:hill,move=10
+- shouchun: current=q63,r28; q63,r28:hill,move=0; q62,r28:hill,move=10; q62,r29:hill,move=10; q63,r27:hill,move=10
+- jianning: current=q16,r52; q16,r52:plain,move=0; q15,r51:hill,move=10; q15,r52:plain,move=10; q16,r51:plain,move=10
+- yongan: current=q29,r46; q29,r46:plain,move=0; q28,r46:hill,move=10; q28,r47:mountain,move=10; q29,r45:mountain,move=10
+- changsha: current=q56,r49; q56,r49:hill,move=0; q55,r48:mountain,move=10; q55,r49:hill,move=10; q56,r48:hill,move=10
+- yuzhang: current=q66,r50; q66,r50:hill,move=0; q65,r49:hill,move=10; q65,r50:hill,move=10; q66,r49:mountain,move=10
+- xiapi: current=q73,r28; q73,r28:mountain,move=0; q72,r28:hill,move=10; q72,r29:mountain,move=10; q73,r27:hill,move=10
+- shangyong: current=q35,r34; q35,r34:plain,move=0; q34,r34:hill,move=10; q34,r35:plain,move=10; q35,r33:plain,move=10
+- luocheng: current=q21,r38; q21,r38:hill,move=0; q20,r38:plain,move=10; q20,r39:hill,move=10; q21,r37:plain,move=10
+- lujiang: current=q66,r35; q66,r35:hill,move=0; q65,r34:hill,move=10; q65,r35:hill,move=10; q66,r34:hill,move=10
+- donghai: current=q83,r27; q83,r27:mountain,move=0; q82,r27:hill,move=10; q82,r28:hill,move=10; q83,r26:hill,move=10
+- langya: current=q75,r20; q75,r20:hill,move=0; q74,r20:hill,move=10; q74,r21:hill,move=10; q75,r19:hill,move=10
+
+## Non-Plain Terrain Mismatch Prompts
+
+Impassable masks are excluded here because border/gameplay blocking is audited separately by the hard checks.
+- q34,42: data=forest, bitmap=mountain, rgb=132.7,124.2,105.4
+- q36,42: data=forest, bitmap=mountain, rgb=152.8,144,125.1
+- q36,44: data=forest, bitmap=mountain, rgb=117.1,110.5,94.4
+- q38,40: data=forest, bitmap=hill, rgb=188.2,175.8,152.1
+- q38,42: data=forest, bitmap=mountain, rgb=125.5,117.2,99.8
+- q38,44: data=forest, bitmap=mountain, rgb=143,132.6,113.2
+- q40,42: data=forest, bitmap=mountain, rgb=131.3,120,101.4
+- q40,44: data=forest, bitmap=mountain, rgb=121.4,112.6,93.9
+- q40,56: data=forest, bitmap=hill, rgb=186.4,171.1,148.8
+- q42,14: data=forest, bitmap=hill, rgb=206.6,193.7,169.4
+- q42,42: data=forest, bitmap=hill, rgb=159.7,151.3,131.7
+- q42,56: data=forest, bitmap=hill, rgb=184.6,172,150.9
+- q42,58: data=forest, bitmap=hill, rgb=206.7,192.4,169.5
+- q42,60: data=forest, bitmap=hill, rgb=184.4,168.6,142.7
+- q44,56: data=forest, bitmap=mountain, rgb=126.6,117.3,99.2
+- q44,58: data=forest, bitmap=mountain, rgb=118.5,109,94.4
+- q44,60: data=forest, bitmap=mountain, rgb=159.5,145.5,122.8
+- q46,56: data=forest, bitmap=mountain, rgb=92,86.6,72.9
+- q46,58: data=forest, bitmap=mountain, rgb=128.5,118.7,100.3
+- q46,60: data=forest, bitmap=hill, rgb=172.2,159.9,137.9
+- q48,58: data=forest, bitmap=mountain, rgb=152.2,140.8,119.5
+- q50,60: data=forest, bitmap=hill, rgb=186.9,174.4,152.9
+- q50,62: data=forest, bitmap=hill, rgb=185.7,178.4,159.7
+- q52,60: data=forest, bitmap=mountain, rgb=134.4,123.3,103.7
+- q52,62: data=forest, bitmap=mountain, rgb=152.1,140.4,119.1
+- q54,60: data=forest, bitmap=mountain, rgb=150.2,136.7,115.3
+- q54,62: data=forest, bitmap=mountain, rgb=143.9,132.4,112.6
+- q56,60: data=forest, bitmap=hill, rgb=178.3,162.1,138.6
+- q56,62: data=forest, bitmap=mountain, rgb=147.1,136.3,116.3
+- q66,58: data=forest, bitmap=mountain, rgb=141.8,134.1,106.4
+- q68,58: data=forest, bitmap=hill, rgb=171.8,162.4,137.1
+- q70,58: data=forest, bitmap=hill, rgb=190.8,188,171.1
+- q88,44: data=forest, bitmap=hill, rgb=168,160.5,138.6
+- q90,42: data=forest, bitmap=hill, rgb=158.7,154,132.1
+- q90,44: data=forest, bitmap=hill, rgb=205.9,191.8,157.6
+- q92,42: data=forest, bitmap=hill, rgb=185.7,175.5,142.9
+- q92,44: data=forest, bitmap=mountain, rgb=155.2,148.9,117.5
+- q12,16: data=mountain, bitmap=plain, rgb=217.8,203.2,179.3
+- q12,22: data=mountain, bitmap=plain, rgb=223.3,210.6,186.8
+- q14,18: data=mountain, bitmap=plain, rgb=217.6,201.9,175.7
+- q14,22: data=mountain, bitmap=plain, rgb=219.7,206.5,180.5
+- q14,24: data=mountain, bitmap=plain, rgb=222.5,208.4,183.2
+- q14,52: data=mountain, bitmap=plain, rgb=220.7,207.1,183.4
+- q16,22: data=mountain, bitmap=plain, rgb=221.4,208.5,182.7
+- q16,24: data=mountain, bitmap=plain, rgb=221.4,208.4,182.1
+- q16,48: data=mountain, bitmap=plain, rgb=220.7,206.6,182.7
+- q16,50: data=mountain, bitmap=plain, rgb=215.5,198.7,174
+- q16,52: data=mountain, bitmap=plain, rgb=210.6,195.6,171.4
+- q18,26: data=mountain, bitmap=plain, rgb=221,205.7,179
+- q18,52: data=mountain, bitmap=plain, rgb=214.9,200.7,174.7
+- q20,26: data=mountain, bitmap=plain, rgb=213.3,198.7,172
+- q20,32: data=mountain, bitmap=plain, rgb=213.3,196.6,170.6
+- q22,24: data=mountain, bitmap=plain, rgb=217.3,203.3,176.6
+- q24,24: data=mountain, bitmap=plain, rgb=223.2,210.3,184.3
+- q24,42: data=mountain, bitmap=plain, rgb=219.1,206,179.3
+- q26,24: data=mountain, bitmap=plain, rgb=220,207.1,181.5
+- q26,52: data=mountain, bitmap=plain, rgb=217.9,205.1,178.9
+- q26,54: data=mountain, bitmap=plain, rgb=230.2,217.9,196.4
+- q28,24: data=mountain, bitmap=plain, rgb=221.5,207.3,182.2
+- q28,52: data=mountain, bitmap=plain, rgb=209.1,194.1,169
+- q28,54: data=mountain, bitmap=plain, rgb=228,215.6,194.1
+- q30,24: data=mountain, bitmap=plain, rgb=222.5,209.3,184.4
+- q30,28: data=mountain, bitmap=plain, rgb=211.7,196.3,168.3
+- q30,52: data=mountain, bitmap=plain, rgb=210.3,194.5,168.6
+- q30,54: data=mountain, bitmap=plain, rgb=224.6,210.7,184.9
+- q32,52: data=mountain, bitmap=plain, rgb=211,195.1,169.1
+- q32,54: data=mountain, bitmap=plain, rgb=221.3,208.7,184.1
+- q34,54: data=mountain, bitmap=plain, rgb=221.4,207.5,181.5
+- q36,36: data=mountain, bitmap=plain, rgb=215.9,201.3,173.8
+- q36,38: data=mountain, bitmap=plain, rgb=222.4,209.7,182.8
+- q36,8: data=mountain, bitmap=plain, rgb=211.4,196.5,173.3
+- q38,10: data=mountain, bitmap=plain, rgb=220.2,206.6,182.2
+- q38,12: data=mountain, bitmap=plain, rgb=222.6,208.4,182.8
+- q38,38: data=mountain, bitmap=plain, rgb=210.2,197.1,171.7
+- q38,8: data=mountain, bitmap=plain, rgb=223.4,210.6,187.1
+- q40,10: data=mountain, bitmap=plain, rgb=215.3,203,179
+- q40,12: data=mountain, bitmap=plain, rgb=216,202.8,178.6
+- q42,6: data=mountain, bitmap=plain, rgb=222,208.6,183.2
+- q44,6: data=mountain, bitmap=plain, rgb=224.2,211.7,188.3
+- q46,10: data=mountain, bitmap=plain, rgb=226.3,214.6,192.1
+- q46,12: data=mountain, bitmap=plain, rgb=226.1,213.3,190.2
+- q46,14: data=mountain, bitmap=plain, rgb=204.6,193.6,172
+- q46,6: data=mountain, bitmap=plain, rgb=232.9,221.8,202.6
+- q48,10: data=mountain, bitmap=plain, rgb=225.9,213.6,190.5
+- q48,12: data=mountain, bitmap=plain, rgb=223.9,211.4,187.2
+- q48,14: data=mountain, bitmap=plain, rgb=226,212.4,187.6
+- q48,6: data=mountain, bitmap=plain, rgb=222.9,209.4,185.4
+- q50,6: data=mountain, bitmap=plain, rgb=231,218.8,196.1
+- q52,54: data=mountain, bitmap=plain, rgb=210.4,199.9,173.6
+- q52,6: data=mountain, bitmap=plain, rgb=230,219.5,198.3
+- q54,6: data=mountain, bitmap=plain, rgb=219,206.1,181.7
+- q54,8: data=mountain, bitmap=plain, rgb=228.1,215.8,192
+- q56,6: data=mountain, bitmap=plain, rgb=216.1,200.9,175.1
+- q56,8: data=mountain, bitmap=plain, rgb=229.8,219.2,197
+- q58,6: data=mountain, bitmap=plain, rgb=216.1,201.1,176.2
+- q58,8: data=mountain, bitmap=plain, rgb=227.6,216.7,193.6
+- q6,18: data=mountain, bitmap=plain, rgb=213.4,196.7,171.8
+- q60,30: data=mountain, bitmap=plain, rgb=209.6,196.7,171.7
+- q60,8: data=mountain, bitmap=plain, rgb=221.4,208.8,184.3
+- q62,8: data=mountain, bitmap=plain, rgb=221.8,207.8,180.9
+- q64,8: data=mountain, bitmap=plain, rgb=224.1,211.7,187.3
+- q66,6: data=mountain, bitmap=plain, rgb=230.4,218.2,195.7
+- q66,8: data=mountain, bitmap=plain, rgb=226.5,213.4,190.3
+- q68,6: data=mountain, bitmap=plain, rgb=222.3,209.9,185.5
+- q68,8: data=mountain, bitmap=plain, rgb=225.5,213.5,188.8
+- q70,8: data=mountain, bitmap=plain, rgb=224.5,212.2,189.5
+- q72,8: data=mountain, bitmap=plain, rgb=231.2,219.8,198.8
+- q32,66: data=water, bitmap=plain, rgb=225.1,212.3,189
+- q34,66: data=water, bitmap=plain, rgb=214.3,201.6,178.3
+- q36,66: data=water, bitmap=plain, rgb=218.4,203.7,178.4
+- q38,66: data=water, bitmap=plain, rgb=215,201,177.4
+- q40,66: data=water, bitmap=plain, rgb=207.4,193.5,170.5
+- q42,66: data=water, bitmap=hill, rgb=170.6,156.3,134.7
+- q44,66: data=water, bitmap=mountain, rgb=145,134.1,115.6
+- q46,66: data=water, bitmap=mountain, rgb=129.8,119.5,101.5
+- q48,42: data=water, bitmap=hill, rgb=184.5,168.9,143.6
+- q48,66: data=water, bitmap=mountain, rgb=121.5,112,94.1
+- q50,42: data=water, bitmap=mountain, rgb=132.7,124,103.6
+- q50,44: data=water, bitmap=mountain, rgb=139.1,130.3,111.1
+- q50,66: data=water, bitmap=hill, rgb=173.2,160.3,137.9
+
+## Road Bitmap Prompts
+- changsha-jiaozhou: samples=21, water=0, mountain=13, hill=8, forest=0, plain=0, waterRatio=0.00, roughRatio=1.00
+- wuling-lingling: samples=14, water=0, mountain=10, hill=4, forest=0, plain=0, waterRatio=0.00, roughRatio=1.00
+- yuzhang-changsha: samples=13, water=0, mountain=9, hill=4, forest=0, plain=0, waterRatio=0.00, roughRatio=1.00
+- lingling-changsha: samples=12, water=0, mountain=6, hill=6, forest=0, plain=0, waterRatio=0.00, roughRatio=1.00
+- lingling-jiaozhou: samples=11, water=0, mountain=7, hill=4, forest=0, plain=0, waterRatio=0.00, roughRatio=1.00
+- lingling-panyu: samples=11, water=0, mountain=7, hill=4, forest=0, plain=0, waterRatio=0.00, roughRatio=1.00
+- wuling-jingzhou: samples=11, water=0, mountain=5, hill=6, forest=0, plain=0, waterRatio=0.00, roughRatio=1.00
+- chaigang-yuzhang: samples=20, water=0, mountain=11, hill=8, forest=0, plain=1, waterRatio=0.00, roughRatio=0.95
+- xiapi-xuzhou: samples=10, water=0, mountain=6, hill=3, forest=0, plain=1, waterRatio=0.00, roughRatio=0.90
+- wuling-yiling: samples=15, water=0, mountain=10, hill=3, forest=0, plain=2, waterRatio=0.00, roughRatio=0.87
+- suzhou-huiji: samples=7, water=0, mountain=4, hill=2, forest=0, plain=1, waterRatio=0.00, roughRatio=0.86

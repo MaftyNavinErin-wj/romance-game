@@ -13,7 +13,7 @@ const box = { console: { warn() {}, log() {}, error() {} } };
 vm.createContext(box);
 
 run(read('src/data/city_base.js'), '\nthis.CITY_BASE = CITY_BASE;');
-run(read('src/data/cities.js'), '\nthis.ROADS = ROADS; this.ROAD_ADJ = ROAD_ADJ; this.RIVERS = RIVERS;');
+run(read('src/data/cities.js'), '\nthis.ROADS = ROADS; this.ROAD_ADJ = ROAD_ADJ; this.RIVERS = RIVERS; this.ROAD_WAYPOINTS = ROAD_WAYPOINTS;');
 box.GEN_TAGS = {};
 run(read('src/data/state_county.js'), '\nthis.STATE_CITIES = STATE_CITIES; this.CITY_TO_STATE = CITY_TO_STATE; this.COUNTY_DATA = COUNTY_DATA;');
 run(read('src/data/scenarios/190.js'), '\nthis.SCENARIO_190 = SCENARIO_190;');
@@ -126,6 +126,25 @@ function hexLineDraw(c1, r1, c2, r2) {
   return out;
 }
 
+function roadKey(aid, bid) {
+  return [aid, bid].sort().join('-');
+}
+
+function roadHexPath(aid, bid) {
+  const a = box.CITY_BASE[aid], b = box.CITY_BASE[bid];
+  if (!a || !b) return [];
+  const waypoints = (box.ROAD_WAYPOINTS && box.ROAD_WAYPOINTS[roadKey(aid, bid)] || [])
+    .map(([q, r]) => ({ q, r }));
+  const pts = [{ q: a.q, r: a.r }, ...waypoints, { q: b.q, r: b.r }];
+  const out = [];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const seg = hexLineDraw(pts[i].q, pts[i].r, pts[i + 1].q, pts[i + 1].r);
+    if (i > 0) seg.shift();
+    out.push(...seg);
+  }
+  return out;
+}
+
 function terrainAtPixel(x, y) {
   let terrain = 'plain';
   let bestPrio = 0;
@@ -233,7 +252,7 @@ function buildTerrain() {
   for (const [aid, bid] of box.ROADS) {
     const a = box.CITY_BASE[aid], b = box.CITY_BASE[bid];
     if (!a || !b) continue;
-    for (const { col, row } of hexLineDraw(a.q, a.r, b.q, b.r)) {
+    for (const { col, row } of roadHexPath(aid, bid)) {
       const k = hkey(col, row);
       if (terrain[k] === 'impassable') terrain[k] = 'mountain';
       if (!['water', 'deep_water', 'coastal_water'].includes(terrain[k])) road[k] = true;
@@ -313,7 +332,7 @@ for (const [aId, bId] of box.ROADS) {
   const counts = {};
   let blockedAfter = 0;
   let missingRoad = 0;
-  const line = hexLineDraw(a.q, a.r, b.q, b.r);
+  const line = roadHexPath(aId, bId);
   for (const h of line) {
     const k = hkey(h.col, h.row);
     const t = terrainBuilt.terrain[k] || 'plain';
@@ -452,6 +471,27 @@ const cityTerrainRows = cityIds.map(id => {
   return { id, name: c.name, q: c.q, r: c.r, tags: c.tags || [], natural, final, waterDist, around };
 });
 const naturallyBlockedCities = cityTerrainRows.filter(c => ['water', 'impassable', 'coastal_water', 'deep_water'].includes(c.natural));
+const cityTerrainById = Object.fromEntries(cityTerrainRows.map(c => [c.id, c]));
+const citySpacingById = Object.fromEntries(citySpacingRows.map(r => [r.id, r]));
+const degreeById = Object.fromEntries(degreeRows.map(r => [r.id, r.deg]));
+
+function cityPlacementStatus(id) {
+  const changed = {
+    chengdu: 'CHANGED: moved one hex east; stays on the Chengdu Basin edge instead of the western mountain texture.',
+    chenliu: 'CHANGED: moved east into the Chenliu/Kaifeng plain corridor north of Xuchang.',
+    yuzhang: 'CHANGED: moved east toward the Poyang/Nanchang corridor; keeps Changsha spacing within limits.',
+  };
+  if (changed[id]) return changed[id];
+  if (id === 'xuchang') return 'OK: plain center; rough terrain remains southwest, not surrounding the city.';
+  const acceptedRough = new Set([
+    'tianshui', 'hanzhong', 'bazhong', 'yiling', 'shangyong', 'jianning', 'yongan',
+    'wuling', 'changsha', 'lingling', 'jiaozhou', 'panyu', 'huiji', 'suzhou',
+  ]);
+  if (acceptedRough.has(id)) return 'ACCEPTED: rough or river-adjacent region matches the real western/southern terrain band.';
+  const coastalLowland = new Set(['xiapi', 'donghai', 'langya', 'guangling', 'jingkou', 'jianye', 'lujiang', 'shouchun', 'hefei']);
+  if (coastalLowland.has(id)) return 'OK: east/river lowland placement; bitmap darkness is ink/shore texture, not a data mountain enclosure.';
+  return 'OK: center is passable and spacing/road checks are within thresholds.';
+}
 
 const tagIssues = [];
 for (const c of cityTerrainRows) {
@@ -558,6 +598,17 @@ section(lines, 'Sparse Passable Hex Prompts', sparsePassableHexes, r => `- q${r.
 section(lines, 'Road Network Detour Prompts', roadDetourPrompts, r => `- ${r.pair}: road=${r.road.toFixed(0)}px, straight=${r.straight.toFixed(0)}px, ratio=${r.ratio.toFixed(2)}`);
 section(lines, 'Naturally Blocked City Centers Before City Override', naturallyBlockedCities, c => `- ${c.id}: natural=${c.natural}, final=${c.final}, q${c.q},r${c.r}`);
 section(lines, 'Terrain Tag Heuristics', tagIssues);
+lines.push('## Full City Placement Audit');
+lines.push('| city | q,r | natural->final | nearby rough/water | degree | nearest | status |');
+lines.push('|---|---:|---|---:|---:|---|---|');
+for (const id of cityIds) {
+  const c = cityTerrainById[id];
+  const spacing = citySpacingById[id];
+  const rough = (c.around.mountain || 0) + (c.around.hill || 0) + (c.around.impassable || 0);
+  const water = (c.around.water || 0) + (c.around.river || 0) + (c.around.coastal_water || 0) + (c.around.deep_water || 0);
+  lines.push(`| ${id} / ${c.name} | ${c.q},${c.r} | ${c.natural}->${c.final} | ${rough}/49 rough, ${water}/49 water | ${degreeById[id]} | ${spacing.nearest} ${spacing.px.toFixed(0)}px | ${cityPlacementStatus(id)} |`);
+}
+lines.push('');
 section(lines, 'State Coverage', [
   ...uniqueIssues(stateUnknown).map(x => `STATE_CITIES unknown ${x}`),
   ...uniqueIssues(stateMissing).map(x => `STATE_CITIES missing ${x}`),

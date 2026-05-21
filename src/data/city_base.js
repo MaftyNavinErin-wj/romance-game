@@ -281,7 +281,7 @@ const CITY_BASE = {
   },
   "chengdu": {
     "name": "成都",
-    "q": 19,
+    "q": 20,
     "r": 40,
     "tags": [
       "都市",
@@ -661,7 +661,7 @@ const CITY_BASE = {
   },
   "yuzhang": {
     "name": "豫章",
-    "q": 64,
+    "q": 66,
     "r": 50,
     "tags": [
       "平原",
@@ -697,7 +697,7 @@ const CITY_BASE = {
   },
   "chenliu": {
     "name": "陈留",
-    "q": 50,
+    "q": 54,
     "r": 20,
     "tags": [
       "平原"

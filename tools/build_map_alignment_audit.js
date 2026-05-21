@@ -8,7 +8,7 @@ const mapSrc = fs.readFileSync('src/core/map.js', 'utf8');
 const box = {};
 vm.createContext(box);
 vm.runInContext(citySrc + '\nthis.CITY_BASE = CITY_BASE;', box);
-vm.runInContext(citiesSrc + '\nthis.ROADS = ROADS; this.RIVERS = RIVERS;', box);
+vm.runInContext(citiesSrc + '\nthis.ROADS = ROADS; this.RIVERS = RIVERS; this.ROAD_WAYPOINTS = ROAD_WAYPOINTS;', box);
 
 const terrainMatch = mapSrc.match(/const TERRAIN_POLYS = \[([\s\S]*?)\];/);
 if (!terrainMatch) throw new Error('TERRAIN_POLYS not found');
@@ -29,6 +29,18 @@ const cityEntries = Object.entries(box.CITY_BASE).map(([id, c]) => {
 });
 const cityById = Object.fromEntries(cityEntries.map(c => [c.id, c]));
 const mapInkBaseView = {x: 0, y: -12, w: 1360, h: 765};
+
+function roadKey(aid, bid) {
+  return [aid, bid].sort().join('-');
+}
+
+function roadPoints(aid, bid) {
+  const ca = cityById[aid], cb = cityById[bid];
+  if (!ca || !cb) return [];
+  const waypoints = (box.ROAD_WAYPOINTS && box.ROAD_WAYPOINTS[roadKey(aid, bid)] || [])
+    .map(([q, r]) => ({...hexToPixel(q, r)}));
+  return [ca, ...waypoints, cb];
+}
 
 const terrainColors = {
   water: 'rgba(30,100,180,.32)',
@@ -62,9 +74,9 @@ for (const path of box.RIVERS) {
 
 let roadSvg = '';
 for (const [a, b] of box.ROADS) {
-  const ca = cityById[a], cb = cityById[b];
-  if (!ca || !cb) continue;
-  roadSvg += `<line x1="${ca.x.toFixed(1)}" y1="${ca.y.toFixed(1)}" x2="${cb.x.toFixed(1)}" y2="${cb.y.toFixed(1)}" stroke="rgba(90,60,20,.42)" stroke-width="1.1"/>`;
+  const pts = roadPoints(a, b);
+  if (pts.length < 2) continue;
+  roadSvg += `<polyline points="${pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')}" fill="none" stroke="rgba(90,60,20,.42)" stroke-width="1.1"/>`;
 }
 
 let citySvg = '';

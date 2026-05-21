@@ -886,7 +886,7 @@ function buildHexTerrain() {
     const ca = CITY_MAP[aid];
     const cb = CITY_MAP[bid];
     if (!ca || !cb) return;
-    const path = hexLineDraw(ca.q, ca.r, cb.q, cb.r);
+    const path = roadHexPath(aid, bid);
     path.forEach(({col, row}) => {
       const k = hkey(col, row);
       const t = HEX_TERRAIN[k];
@@ -1031,6 +1031,29 @@ function hexLineDraw(c1, r1, c2, r2) {
     results.push(fromCube(rx, ry, rz));
   }
   return results;
+}
+
+function _roadKey(aid, bid) {
+  return [aid, bid].sort().join('-');
+}
+
+function roadHexPath(aid, bid) {
+  const ca = CITY_MAP[aid];
+  const cb = CITY_MAP[bid];
+  if (!ca || !cb) return [];
+  const rawWaypoints = (typeof ROAD_WAYPOINTS !== 'undefined' && ROAD_WAYPOINTS)
+    ? (ROAD_WAYPOINTS[_roadKey(aid, bid)] || [])
+    : [];
+  const pts = [{ q: ca.q, r: ca.r }]
+    .concat(rawWaypoints.map(([q, r]) => ({ q, r })))
+    .concat({ q: cb.q, r: cb.r });
+  const out = [];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const seg = hexLineDraw(pts[i].q, pts[i].r, pts[i + 1].q, pts[i + 1].r);
+    if (i > 0) seg.shift();
+    out.push(...seg);
+  }
+  return out;
 }
 
 

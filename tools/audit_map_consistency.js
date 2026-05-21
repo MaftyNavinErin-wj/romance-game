@@ -8,7 +8,7 @@ const mapSrc = fs.readFileSync('src/core/map.js', 'utf8');
 const box = {};
 vm.createContext(box);
 vm.runInContext(citySrc + '\nthis.CITY_BASE = CITY_BASE;', box);
-vm.runInContext(citiesSrc + '\nthis.ROADS = ROADS; this.RIVERS = RIVERS;', box);
+vm.runInContext(citiesSrc + '\nthis.ROADS = ROADS; this.RIVERS = RIVERS; this.ROAD_WAYPOINTS = ROAD_WAYPOINTS;', box);
 const start = mapSrc.indexOf('const TERRAIN_POLYS = [') + 'const TERRAIN_POLYS = ['.length;
 const end = mapSrc.indexOf('];', start);
 vm.runInContext('this.TERRAIN_POLYS = [' + mapSrc.slice(start, end) + '];', box);
@@ -54,6 +54,21 @@ const cities = Object.entries(box.CITY_BASE).map(([id, c]) => {
 });
 const cityById = Object.fromEntries(cities.map(c => [c.id, c]));
 
+function roadKey(aid, bid) {
+  return [aid, bid].sort().join('-');
+}
+
+function roadPixelPoints(aId, bId) {
+  const a = cityById[aId], b = cityById[bId];
+  if (!a || !b) return [];
+  const waypoints = (box.ROAD_WAYPOINTS && box.ROAD_WAYPOINTS[roadKey(aId, bId)] || [])
+    .map(([q, r]) => {
+      const p = hexToPixel(q, r);
+      return { x: p.x, y: p.y };
+    });
+  return [{ x: a.x, y: a.y }, ...waypoints, { x: b.x, y: b.y }];
+}
+
 const blockedCities = cities.filter(c => BLOCKED.has(c.terrain));
 const hardRoadIssues = [];
 const mountainPassRoads = [];
@@ -61,13 +76,18 @@ const longRoads = [];
 for (const [aId, bId] of box.ROADS) {
   const a = cityById[aId], b = cityById[bId];
   if (!a || !b) continue;
-  const dist = Math.hypot(b.x - a.x, b.y - a.y);
-  const samples = Math.max(1, Math.ceil(dist / 6));
+  const pts = roadPixelPoints(aId, bId);
+  const dist = pts.slice(1).reduce((sum, p, i) => sum + Math.hypot(p.x - pts[i].x, p.y - pts[i].y), 0);
   const counts = {};
-  for (let i = 1; i < samples; i++) {
-    const t = i / samples;
-    const terrain = terrainAt(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t);
-    counts[terrain] = (counts[terrain] || 0) + 1;
+  for (let j = 0; j < pts.length - 1; j++) {
+    const pa = pts[j], pb = pts[j + 1];
+    const segDist = Math.hypot(pb.x - pa.x, pb.y - pa.y);
+    const samples = Math.max(1, Math.ceil(segDist / 6));
+    for (let i = 1; i < samples; i++) {
+      const t = i / samples;
+      const terrain = terrainAt(pa.x + (pb.x - pa.x) * t, pa.y + (pb.y - pa.y) * t);
+      counts[terrain] = (counts[terrain] || 0) + 1;
+    }
   }
   const water = counts.water || 0;
   const impassable = counts.impassable || 0;
