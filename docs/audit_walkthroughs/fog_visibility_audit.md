@@ -12,6 +12,8 @@ Scope: fog rendering policy, city visibility policy, terrain tooltip policy, and
 - PASS: city visible no longer uses full territory flood-fill
 - PASS: road-adjacent explored city area is radius-limited
 - PASS: known control areas remain explored when not visible
+- PASS: own faction territory remains explored when not visible
+- PASS: city ownership changes invalidate territory cache
 - PASS: overlay base masks unexplored instead of overriding fog
 - PASS: live resource overlays require visible authorized city data
 - PASS: live resource overlays require visible hexes
@@ -72,5 +74,6 @@ Scope: fog rendering policy, city visibility policy, terrain tooltip policy, and
 - Sea and ink-mode open water remain fog-clear to preserve the parchment/ink base-map treatment.
 - City visible range is radius-based; overlay territory flood-fill is no longer used as a visibility source.
 - Known control areas remain explored even when they are outside current visible radius.
+- Own and allied territory-map control areas remain explored even when they are outside current visible radius.
 - Resource overlays are now gated by fog visibility and faction-data permission.
 - Scout reveal now uses city-radius visibility plus control-radius explored memory instead of overlay territory flood-fill.

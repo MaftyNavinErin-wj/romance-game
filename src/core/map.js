@@ -254,6 +254,11 @@ const FOG_UNIT_RADIUS_BASE = 3, FOG_STEALTH_RADIUS = 1;
 const FOG_CITY_RADIUS = { large: 7, medium: 5, small: 4 };
 const FOG_CONTROL_RADIUS = { large: 10, medium: 7, small: 5 };
 
+function invalidateTerritoryCache() {
+  if (typeof _ovTerritoryCache !== 'undefined') _ovTerritoryCache = null;
+  if (typeof _ovTerritoryTurn !== 'undefined') _ovTerritoryTurn = -1;
+}
+
 /** ★ v95: 部队视野范围 = 基础3 + INT加成（部队中最高INT武将）
  *  INT >= 90 → +2（视野5）
  *  INT >= 75 → +1（视野4）
@@ -448,6 +453,14 @@ function markCityAreaExplored(fid, fog, cityId, turn, radius) {
   }
 }
 
+function markKnownFactionTerritoryExplored(fid, fog, allyFacs) {
+  const territory = _buildTerritoryMap();
+  for (const [k, t] of Object.entries(territory)) {
+    if (!t || !allyFacs.includes(t.fac)) continue;
+    if ((fog[k] ?? FOG_UNEXPLORED) === FOG_UNEXPLORED) fog[k] = FOG_EXPLORED;
+  }
+}
+
 function markKnownControlAreasExplored(fid, fog, allyFacs) {
   CITIES_DEF.forEach(def => {
     const city = G.cities[def.id];
@@ -523,8 +536,9 @@ function updateFog(fid) {
   const territory = _buildTerritoryMap();
   collectFactionCityVisionKeys(allyFacs).forEach(k => visibleKeys.add(k));
 
-  // Step 2a.5: 已知势力控制区至少保持 explored。visible 代表当前实时视野；
+  // Step 2a.5: 己方/盟友势力范围至少保持 explored。visible 代表当前实时视野；
   // explored 代表已知政治/地理范围，避免控制区边缘因不在当前视野内退回 unexplored。
+  markKnownFactionTerritoryExplored(fid, fog, allyFacs);
   markKnownControlAreasExplored(fid, fog, allyFacs);
 
   // Step 2b: 部队视野
@@ -577,6 +591,7 @@ function updateFog(fid) {
 function updateFogCitySnapshot(cityId, newFac) {
   const cdef = CITY_MAP?.[cityId];
   if (!cdef) return;
+  invalidateTerritoryCache();
   const k = hkey(cdef.q, cdef.r);
   getScenarioFactions().forEach(fid => {
     if (!G.fog?.[fid]) return;
