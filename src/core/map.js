@@ -251,7 +251,8 @@ const HEX_PATH_INNER = hexPathStr(HEX_SIZE * 0.92);
 
 const FOG_UNEXPLORED = 0, FOG_EXPLORED = 1, FOG_VISIBLE = 2;
 const FOG_UNIT_RADIUS_BASE = 3, FOG_STEALTH_RADIUS = 1;
-// 城市无固定视野半径——己方领地范围（由_buildTerritoryMap计算）即为城市视野
+const FOG_CITY_RADIUS = { large: 7, medium: 5, small: 4 };
+const FOG_CONTROL_RADIUS = { large: 10, medium: 7, small: 5 };
 
 /** ★ v95: 部队视野范围 = 基础3 + INT加成（部队中最高INT武将）
  *  INT >= 90 → +2（视野5）
@@ -410,6 +411,54 @@ function fogBFS(col, row, radius) {
   return result;
 }
 
+function getCityVisionRadius(def) {
+  return (FOG_CITY_RADIUS[def.size] || 4) + (def.isCapital ? 1 : 0);
+}
+
+function getCityControlRadius(def) {
+  return (FOG_CONTROL_RADIUS[def.size] || 5) + (def.isCapital ? 2 : 0);
+}
+
+function collectFactionCityVisionKeys(allyFacs) {
+  const visibleKeys = new Set();
+  CITIES_DEF.forEach(def => {
+    const city = G.cities[def.id];
+    if (!city || !allyFacs.includes(city.fac)) return;
+    fogBFS(def.q, def.r, getCityVisionRadius(def)).forEach(k => {
+      const terrain = HEX_TERRAIN[k] || 'plain';
+      if (terrain === 'coastal_water' || terrain === 'deep_water') return;
+      visibleKeys.add(k);
+    });
+  });
+  return visibleKeys;
+}
+
+function markCityAreaExplored(fid, fog, cityId, turn, radius) {
+  const def = CITY_MAP?.[cityId];
+  if (!def) return;
+  fogBFS(def.q, def.r, radius ?? getCityVisionRadius(def)).forEach(k => {
+    const terrain = HEX_TERRAIN[k] || 'plain';
+    if (terrain === 'coastal_water' || terrain === 'deep_water') return;
+    if ((fog[k] ?? FOG_UNEXPLORED) === FOG_UNEXPLORED) fog[k] = FOG_EXPLORED;
+  });
+  const city = G.cities[cityId];
+  if (city) {
+    if (!G.fogSnap[fid]) G.fogSnap[fid] = {};
+    if (!G.fogSnap[fid][cityId]) G.fogSnap[fid][cityId] = { fac: city.fac, turn };
+  }
+}
+
+function markKnownControlAreasExplored(fid, fog, allyFacs) {
+  CITIES_DEF.forEach(def => {
+    const city = G.cities[def.id];
+    if (!city) return;
+    const isOwnIntel = allyFacs.includes(city.fac);
+    const hasSnap = !!G.fogSnap?.[fid]?.[def.id];
+    if (!isOwnIntel && !hasSnap) return;
+    markCityAreaExplored(fid, fog, def.id, G.turn, getCityControlRadius(def));
+  });
+}
+
 /** 初始化迷雾数据（新游戏 or 旧存档兼容） */
 function initFog() {
   G.fog = {};
@@ -445,12 +494,7 @@ function initFog() {
         }
       });
     }
-    // 把这些城市的整个辖区设为explored
-    for (const k in territory) {
-      if (neighborCities.has(territory[k].cityId)) {
-        if ((fog[k] ?? FOG_UNEXPLORED) === FOG_UNEXPLORED) fog[k] = FOG_EXPLORED;
-      }
-    }
+    neighborCities.forEach(cityId => markCityAreaExplored(fid, fog, cityId, 0));
     // 快照：visible和explored城市都建立归属快照
     for (const k in fog) {
       if (fog[k] >= FOG_EXPLORED && HEX_CITY[k]) {
@@ -474,14 +518,14 @@ function updateFog(fid) {
   const allyFacs = getFogAllyFacs(fid);
   const visibleKeys = new Set();
 
-  // Step 2a: 领地视野 — 己方（含盟友/附庸）城市的领地范围全部可见
+  // Step 2a: 城市视野。不要复用 overlay 的 territory map；它会把全地图可通行区域回填到最近城市，
+  // 适合势力覆盖层，不适合 fog visible 判定。
   const territory = _buildTerritoryMap();
-  for (const k in territory) {
-    const t = territory[k];
-    if (allyFacs.includes(t.fac)) {
-      visibleKeys.add(k);
-    }
-  }
+  collectFactionCityVisionKeys(allyFacs).forEach(k => visibleKeys.add(k));
+
+  // Step 2a.5: 已知势力控制区至少保持 explored。visible 代表当前实时视野；
+  // explored 代表已知政治/地理范围，避免控制区边缘因不在当前视野内退回 unexplored。
+  markKnownControlAreasExplored(fid, fog, allyFacs);
 
   // Step 2b: 部队视野
   for (const srcFid of allyFacs) {
@@ -526,26 +570,7 @@ function updateFog(fid) {
       }
     });
   });
-  if (neighborEnemyCities.size > 0) {
-    // 只把这些城市的领地范围（territory里cityId匹配的hex）设为explored
-    for (const k in territory) {
-      if (neighborEnemyCities.has(territory[k].cityId)) {
-        if ((fog[k] ?? FOG_UNEXPLORED) === FOG_UNEXPLORED) {
-          fog[k] = FOG_EXPLORED;
-          if (HEX_CITY[k]) {
-            const cityId = HEX_CITY[k];
-            const city = G.cities[cityId];
-            if (city) {
-              if (!G.fogSnap[fid]) G.fogSnap[fid] = {};
-              if (!G.fogSnap[fid][cityId]) {
-                G.fogSnap[fid][cityId] = { fac: city.fac, turn: G.turn };
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+  neighborEnemyCities.forEach(cityId => markCityAreaExplored(fid, fog, cityId, G.turn));
 }
 
 /** C4: 城市易主时更新所有能看到该城的势力快照 */

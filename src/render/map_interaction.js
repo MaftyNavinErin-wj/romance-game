@@ -24,9 +24,8 @@ function _animateFogReveal(revealedKeys, oldFogLevels){
   revealedKeys.forEach(k => {
     const {col, row} = hparse(k);
     const ter = HEX_TERRAIN[k] || 'plain';
-    if(ter === 'impassable' || ter === 'deep_water' || ter === 'coastal_water') return;
+    if(typeof _isFogClearTerrain === 'function' && _isFogClearTerrain(ter)) return;
     const inkFog = !_mapShowGrid;
-    if(inkFog && ter === 'water') return;
     const p = hexToPixel(col, row);
     const path = document.createElementNS(ns, 'path');
     path.setAttribute('d', HEX_PATH);
@@ -206,6 +205,9 @@ function handleMapClick(e){
   const hex = pixelToHex(mx, my);
   const hexK = hkey(hex.col, hex.row);
   const cityId = HEX_CITY[hexK];
+  const pFog = G.fog?.[G.playerFac];
+  const cityFogLv = cityId && pFog ? (pFog[hexK] ?? FOG_UNEXPLORED) : FOG_VISIBLE;
+  const cityKnown = !cityId || cityFogLv !== FOG_UNEXPLORED;
 
   if(G.selUnitId){
     const unit = G.units.find(u=>u.id===G.selUnitId);
@@ -221,7 +223,6 @@ function handleMapClick(e){
 
     // ── 检查hex上是否有可见敌方部队 → 自动转为进军 ──
     // ★ v133fix: 敌方城市hex上的敌军 → 视为进攻城市（走城市移动路径），不走野战攻击
-    const pFog = G.fog?.[G.playerFac];
     const isHostileCity = cityId && G.cities[cityId] && G.cities[cityId].fac !== unit.fac
       && G.cities[cityId].fac !== 'none' && isHostile(unit.fac, G.cities[cityId].fac);
     const enemyOnHex = !isHostileCity && G.units.find(eu =>
@@ -239,7 +240,7 @@ function handleMapClick(e){
     }
 
     // ── 点击城市 → handleCityClick ──
-    if(cityId){
+    if(cityId && cityKnown){
       if(_marchAnimating) return; // ★ v99
       // 城市点击也走预览逻辑
       const destCity = CITY_MAP[cityId];
@@ -300,7 +301,7 @@ function handleMapClick(e){
   } else {
     // 无选中部队
     clearMovePreview();
-    if(cityId){
+    if(cityId && cityKnown){
       handleCityClick(cityId);
       return;
     }
@@ -313,6 +314,9 @@ function handleMapClick(e){
 // 城市点击：选中城市，或（有选中部队时）设为移动目标（带预览确认）
 function handleCityClick(cityId){
   if(_marchAnimating) return; // ★ v99
+  const cdef = CITY_MAP[cityId];
+  const fogLv = cdef && G.fog?.[G.playerFac] ? (G.fog[G.playerFac][hkey(cdef.q, cdef.r)] ?? FOG_UNEXPLORED) : FOG_VISIBLE;
+  if(fogLv === FOG_UNEXPLORED) return;
   if(G.selUnitId){
     const unit = G.units.find(u=>u.id===G.selUnitId);
     if(!unit||unit.fac!==G.playerFac) return;

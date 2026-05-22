@@ -683,3 +683,22 @@ active only, W4a step-2)。
 F-W4c-3/F-W6-GENSFULL/F-W6-pending-3-1 已 closed;
 F-W4c-1 (190 武将 GEN_TAGS/GEN_META/GEN_CLASS 80/99/166 缺漏) 仍 open — 实测大 data sprint,
 待制作人定 scope (全量 / 关键 actor / 仅 GEN_CLASS))
+---
+
+## Fog Visibility Followup (2026-05-22)
+
+**Scope**: map fog / overlay visibility semantics after the first `explored` / `unexplored` / `visible` cleanup.
+
+**Resolved in current batch**:
+- `visible` no longer uses overlay territory flood-fill. City visibility is radius-based and unit visibility is additive.
+- known control areas stay at least `FOG_EXPLORED` instead of falling back to `FOG_UNEXPLORED`.
+- unexplored cities/terrain blockers no longer leak through map icons, hover tooltip, click target handling, or fog rendering.
+- faction overlay uses old `fogSnap` ownership for explored areas.
+
+**Followup findings to fix next**:
+- **HIGH** `src/render/overlay.js`: `gold` / `food` / `foodflow` gate by visible city, but still paint all territory hexes for that city. Each rendered hex should also require `_playerFogLevelAtKey(k) === FOG_VISIBLE`, unless a resource snapshot system is added.
+- **HIGH** `src/chains/diplomacy.js:_applyScoutReveal`: still uses `_buildTerritoryMap()` and marks the full target-city territory `FOG_VISIBLE`. It should use the new city visible radius for `VISIBLE` and control radius for `EXPLORED`, or otherwise avoid overlay territory flood-fill.
+- **MEDIUM** fog cache invalidation: `_applyScoutReveal()` writes `G.fog` without `invalidateFogCache()`, while overlay base cache now depends on `_fogCacheVersion`.
+- **LOW** `src/render/overlay.js:_renderOvBase`: stale `if(t === 'water') fill = ...` assignment is immediately overwritten by the following `if/else` chain; clean it up when touching overlay next.
+
+**Verification note**: `node tools/audit_fog_visibility.js` covers the closed items, but does not yet assert the two HIGH followups above.

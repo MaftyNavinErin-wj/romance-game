@@ -209,19 +209,47 @@ function _buildTerritoryMap(){
 }
 
 // 不透明底层：暗底覆盖全图，每旬缓存
+function _playerFogLevelAtKey(k) {
+  return G.fog?.[G.playerFac] ? (G.fog[G.playerFac][k] ?? FOG_UNEXPLORED) : FOG_VISIBLE;
+}
+
+function _playerCityFogLevel(cityId) {
+  const def = CITY_MAP?.[cityId];
+  if (!def) return FOG_UNEXPLORED;
+  return _playerFogLevelAtKey(hkey(def.q, def.r));
+}
+
+function _overlayKnownFac(cityId, currentFac) {
+  const fogLv = _playerCityFogLevel(cityId);
+  if (fogLv === FOG_VISIBLE) return currentFac;
+  if (fogLv === FOG_EXPLORED) return G.fogSnap?.[G.playerFac]?.[cityId]?.fac || null;
+  return null;
+}
+
+function _canShowLiveCityOverlay(cityId) {
+  const city = G.cities[cityId];
+  if (!city) return false;
+  return _playerCityFogLevel(cityId) === FOG_VISIBLE && canSeeFactionData(G.playerFac, city.fac);
+}
+
 let _ovBaseCache = null;
 let _ovBaseTurn = -1;
+let _ovBaseFogVersion = -1;
 function _renderOvBase(){
-  if(_ovBaseCache && _ovBaseTurn === G.turn) return _ovBaseCache;
+  const fogVersion = (typeof _fogCacheVersion !== 'undefined') ? _fogCacheVersion : 0;
+  if(_ovBaseCache && _ovBaseTurn === G.turn && _ovBaseFogVersion === fogVersion) return _ovBaseCache;
   const parts = [];
   for(let c=0; c<HEX_COLS; c++){
     for(let r=0; r<HEX_ROWS; r++){
       const k = hkey(c,r);
       const t = HEX_TERRAIN[k] || 'plain';
       const px = hexToPixel(c,r);
+      const fogLv = _playerFogLevelAtKey(k);
       let fill;
       // ★ v134: 水墨风overlay底色——宣纸暖灰
       if(t === 'water')                               fill = 'rgba(180,175,160,.88)';
+      if(fogLv === FOG_UNEXPLORED)                    fill = 'rgba(78,82,76,.52)';
+      else if(t === 'water')                          fill = 'rgba(180,175,160,.88)';
       else if(t === 'coastal_water' || t === 'deep_water') fill = 'rgba(155,168,178,.90)';
       else if(t === 'impassable')                     fill = 'rgba(80,72,58,.92)';
       else                                            fill = 'rgba(218,210,192,.93)';
@@ -230,6 +258,7 @@ function _renderOvBase(){
   }
   _ovBaseCache = parts.join('');
   _ovBaseTurn = G.turn;
+  _ovBaseFogVersion = fogVersion;
   return _ovBaseCache;
 }
 
@@ -245,28 +274,34 @@ function renderOverlayFaction(){
       const k = hkey(c,r);
       const t = HEX_TERRAIN[k] || 'plain';
       if(t === 'coastal_water' || t === 'deep_water' || t === 'impassable') continue;
+      if(_playerFogLevelAtKey(k) === FOG_UNEXPLORED) continue;
       if(terr[k]) continue;
       const px = hexToPixel(c,r);
       // ★ v134: 无主地用淡墨灰
       hexes.push(`<path d="${HEX_PATH}" transform="translate(${px.x.toFixed(1)},${px.y.toFixed(1)})" fill="rgba(165,155,138,.30)"/>`);
     }
   }
-  Object.entries(terr).forEach(([k, {fac, dist, cityDef}]) => {
-    const fc = _OV_FAC_RGB[fac]; if(!fc) return;
+  Object.entries(terr).forEach(([k, {fac, cityId, dist, cityDef}]) => {
+    const fogLv = _playerFogLevelAtKey(k);
+    if(fogLv === FOG_UNEXPLORED) return;
+    const displayFac = _overlayKnownFac(cityId, fac);
+    const fc = _OV_FAC_RGB[displayFac]; if(!fc) return;
     const {col, row} = hparse(k);
     const px = hexToPixel(col, row);
     const maxR = (_OV_RADIUS[cityDef.size]||5) + (cityDef.isCapital?2:0);
     // ★ v134: 水墨晕染——中心浓(alpha~0.55)边缘淡(alpha~0.18)
-    const alpha = 0.55 - (dist/maxR) * 0.37;
+    const alpha = (0.55 - (dist/maxR) * 0.37) * (fogLv === FOG_VISIBLE ? 1 : 0.58);
     hexes.push(`<path d="${HEX_PATH}" transform="translate(${px.x.toFixed(1)},${px.y.toFixed(1)})" fill="rgba(${fc.r},${fc.g},${fc.b},${alpha.toFixed(2)})" stroke="rgba(${fc.r},${fc.g},${fc.b},.06)" stroke-width=".3"/>`);
   });
   const FAC_NAME={wei:'曹魏',shu:'蜀汉',wu:'孫吳',nanman:'南蛮'};
   const centers = {};
   CITIES_DEF.forEach(def => {
     const city = G.cities[def.id]; if(!city || !city.fac || city.fac==='rebel') return;
-    if(!centers[city.fac]) centers[city.fac] = {sx:0,sy:0,n:0};
+    const displayFac = _overlayKnownFac(def.id, city.fac);
+    if(!displayFac) return;
+    if(!centers[displayFac]) centers[displayFac] = {sx:0,sy:0,n:0};
     const px = hexToPixel(def.q, def.r);
-    centers[city.fac].sx += px.x; centers[city.fac].sy += px.y; centers[city.fac].n++;
+    centers[displayFac].sx += px.x; centers[displayFac].sy += px.y; centers[displayFac].n++;
   });
   Object.entries(FAC_NAME).forEach(([fac,name]) => {
     const c = centers[fac]; if(!c || !c.n) return;
@@ -282,6 +317,7 @@ function renderOverlayGold(){
   const cityGold = {};
   let maxGold = 1;
   CITIES_DEF.forEach(def => {
+    if(!_canShowLiveCityOverlay(def.id)) return;
     const city = G.cities[def.id]; if(!city) return;
     const g = getCityProd(city).gold || 0;
     cityGold[def.id] = g;
@@ -289,6 +325,7 @@ function renderOverlayGold(){
   });
   const hexes = [];
   Object.entries(terr).forEach(([k, {fac, cityId, dist, cityDef}]) => {
+    if(!_canShowLiveCityOverlay(cityId)) return;
     const {col, row} = hparse(k);
     const px = hexToPixel(col, row);
     const val = cityGold[cityId] || 0;
@@ -313,6 +350,7 @@ function renderOverlayFood(){
   const terr = _buildTerritoryMap();
   const cityData = {};
   CITIES_DEF.forEach(def => {
+    if(!_canShowLiveCityOverlay(def.id)) return;
     const city = G.cities[def.id]; if(!city) return;
     const food = Math.max(0, city.storage||0);
     const foodCost = getCityFoodCost(city);
@@ -320,6 +358,7 @@ function renderOverlayFood(){
   });
   const hexes = [];
   Object.entries(terr).forEach(([k, {fac, cityId, dist, cityDef}]) => {
+    if(!_canShowLiveCityOverlay(cityId)) return;
     const {col, row} = hparse(k);
     const px = hexToPixel(col, row);
     const d = cityData[cityId]; if(!d) return;
@@ -344,6 +383,7 @@ function renderOverlaySupply(){
   for(let c=0; c<HEX_COLS; c++){
     for(let r=0; r<HEX_ROWS; r++){
       const k = hkey(c,r);
+      if(_playerFogLevelAtKey(k) !== FOG_VISIBLE) continue;
       const t = HEX_TERRAIN[k] || 'plain';
       if(t === 'coastal_water' || t === 'deep_water' || t === 'impassable') continue;
       if(t === 'water') continue;
@@ -383,6 +423,7 @@ function renderOverlayFoodFlow(){
   const cityFood = {};
   let maxFood = 1;
   CITIES_DEF.forEach(def => {
+    if(!_canShowLiveCityOverlay(def.id)) return;
     const city = G.cities[def.id]; if(!city) return;
     const f = Math.max(0, getCityProd(city).food || 0);
     cityFood[def.id] = f;
@@ -390,6 +431,7 @@ function renderOverlayFoodFlow(){
   });
   const hexes = [];
   Object.entries(terr).forEach(([k, {fac, cityId, dist, cityDef}]) => {
+    if(!_canShowLiveCityOverlay(cityId)) return;
     const {col, row} = hparse(k);
     const px = hexToPixel(col, row);
     const val = cityFood[cityId] || 0;

@@ -50,6 +50,11 @@ const TERRAIN_TIP_LABELS = {
 
 function showHexTerrainTip(e, col, row){
   const k = hkey(col, row);
+  const fogLv = G.fog?.[G.playerFac] ? (G.fog[G.playerFac][k] ?? FOG_UNEXPLORED) : FOG_VISIBLE;
+  if(fogLv === FOG_UNEXPLORED){
+    hideTip();
+    return;
+  }
   const terrain = HEX_TERRAIN[k] || 'plain';
   const label = TERRAIN_TIP_LABELS[terrain] || terrain;
   const isBlocked = terrain === 'impassable' || terrain === 'coastal_water' || terrain === 'deep_water';

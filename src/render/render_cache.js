@@ -203,6 +203,12 @@ let _fogCacheTurn = -1;
 let _fogCacheVersion = 0; // ★ v117fix: 递增版本号替代G.turn，支持同旬多次刷新
 
 function invalidateFogCache() { _fogCacheVersion++; }
+function _isFogClearTerrain(terrain) {
+  if (terrain === 'deep_water') return true;
+  if (terrain === 'coastal_water') return true;
+  if (!_mapShowGrid && terrain === 'water') return true;
+  return false;
+}
 
 function _getFogSvgCache() {
   if (_fogCacheTurn === _fogCacheVersion && _fogSvgCache) return _fogSvgCache;
@@ -216,10 +222,7 @@ function _getFogSvgCache() {
       const level = pFog[k] ?? FOG_UNEXPLORED;
       if (level === FOG_VISIBLE) continue;
       const terrain = HEX_TERRAIN[k] || 'plain';
-      if (terrain === 'impassable') continue; // impassable始终可见
-      if (terrain === 'deep_water') continue; // 深海始终可见
-      if (terrain === 'coastal_water') continue; // 近海始终可见
-      if (inkFog && terrain === 'water') continue; // 水墨底图上海域/湖泊不叠战争迷雾，避免边界阴影外溢
+      if (_isFogClearTerrain(terrain)) continue; // 海域/湖泊保留底图水墨，不暴露陆地阻挡信息
       const p = hexToPixel(col, row);
       const tx = p.x.toFixed(1), ty = p.y.toFixed(1);
       const shape = inkFog
@@ -261,13 +264,12 @@ function _getCitySvgCache() {
   CITIES_DEF.forEach(def => {
     const city = G.cities[def.id]; if (!city) return;
     const fogLv = G.fog?.[G.playerFac] ? (G.fog[G.playerFac][hkey(def.q, def.r)] ?? FOG_UNEXPLORED) : FOG_VISIBLE;
+    if (fogLv === FOG_UNEXPLORED) return;
     let displayFac = city.fac;
     const isExplored = fogLv === FOG_EXPLORED;
     if (isExplored) {
       const snap = G.fogSnap?.[G.playerFac]?.[def.id];
       displayFac = snap ? snap.fac : 'none';
-    } else if (fogLv === FOG_UNEXPLORED) {
-      displayFac = 'none';
     }
     const fc = getFactionDef(displayFac) || null;
     const col = fc ? fc.color : '#666';
