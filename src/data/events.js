@@ -2265,7 +2265,10 @@ const EVENT_DEFS = [
         const cdef = CITY_MAP[u.siegeTarget];
         if(!cdef) continue;
         const nbs = hexNeighbors(cdef.q, cdef.r);
-        const hasWater = nbs.some(nb => WATER_TERRAINS.has(HEX_TERRAIN[hkey(nb.col, nb.row)] || ''));
+        const hasWater = nbs.some(nb => {
+          const terrain = HEX_TERRAIN[hkey(nb.col, nb.row)] || '';
+          return WATER_TERRAINS.has(terrain) || terrain === 'river';
+        });
         if(!hasWater) continue;
         // 历史城市（下邳/襄阳）加成概率
         const hist = (u.siegeTarget === 'xiapi' || u.siegeTarget === 'xiangyang');

@@ -695,10 +695,10 @@ F-W4c-1 (190 武将 GEN_TAGS/GEN_META/GEN_CLASS 80/99/166 缺漏) 仍 open — �
 - unexplored cities/terrain blockers no longer leak through map icons, hover tooltip, click target handling, or fog rendering.
 - faction overlay uses old `fogSnap` ownership for explored areas.
 
-**Followup findings to fix next**:
-- **HIGH** `src/render/overlay.js`: `gold` / `food` / `foodflow` gate by visible city, but still paint all territory hexes for that city. Each rendered hex should also require `_playerFogLevelAtKey(k) === FOG_VISIBLE`, unless a resource snapshot system is added.
-- **HIGH** `src/chains/diplomacy.js:_applyScoutReveal`: still uses `_buildTerritoryMap()` and marks the full target-city territory `FOG_VISIBLE`. It should use the new city visible radius for `VISIBLE` and control radius for `EXPLORED`, or otherwise avoid overlay territory flood-fill.
-- **MEDIUM** fog cache invalidation: `_applyScoutReveal()` writes `G.fog` without `invalidateFogCache()`, while overlay base cache now depends on `_fogCacheVersion`.
-- **LOW** `src/render/overlay.js:_renderOvBase`: stale `if(t === 'water') fill = ...` assignment is immediately overwritten by the following `if/else` chain; clean it up when touching overlay next.
+**Followup findings closed (2026-05-22)**:
+- **HIGH closed** `src/render/overlay.js`: `gold` / `food` / `foodflow` territory hexes now require `_playerFogLevelAtKey(k) === FOG_VISIBLE` through `_canShowLiveResourceHex(cityId, k)`.
+- **HIGH closed** `src/chains/diplomacy.js:_applyScoutReveal`: no longer uses `_buildTerritoryMap()` territory flood-fill; it applies city-radius `FOG_VISIBLE` plus control-radius `FOG_EXPLORED`.
+- **MEDIUM closed** `_applyScoutReveal()` now calls `invalidateFogCache()` after writing `G.fog`.
+- **LOW closed** stale overlay-base water assignment reviewed; the live branch is the `else if(t === 'water')` path and the audit checker now covers the behavior-level fog/cache policy.
 
-**Verification note**: `node tools/audit_fog_visibility.js` covers the closed items, but does not yet assert the two HIGH followups above.
+**Verification note**: `node tools/audit_fog_visibility.js` now asserts the two HIGH followups and the cache invalidation path.

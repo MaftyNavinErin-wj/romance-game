@@ -232,6 +232,10 @@ function _canShowLiveCityOverlay(cityId) {
   return _playerCityFogLevel(cityId) === FOG_VISIBLE && canSeeFactionData(G.playerFac, city.fac);
 }
 
+function _canShowLiveResourceHex(cityId, k) {
+  return _playerFogLevelAtKey(k) === FOG_VISIBLE && _canShowLiveCityOverlay(cityId);
+}
+
 let _ovBaseCache = null;
 let _ovBaseTurn = -1;
 let _ovBaseFogVersion = -1;
@@ -325,7 +329,7 @@ function renderOverlayGold(){
   });
   const hexes = [];
   Object.entries(terr).forEach(([k, {fac, cityId, dist, cityDef}]) => {
-    if(!_canShowLiveCityOverlay(cityId)) return;
+    if(!_canShowLiveResourceHex(cityId, k)) return;
     const {col, row} = hparse(k);
     const px = hexToPixel(col, row);
     const val = cityGold[cityId] || 0;
@@ -358,7 +362,7 @@ function renderOverlayFood(){
   });
   const hexes = [];
   Object.entries(terr).forEach(([k, {fac, cityId, dist, cityDef}]) => {
-    if(!_canShowLiveCityOverlay(cityId)) return;
+    if(!_canShowLiveResourceHex(cityId, k)) return;
     const {col, row} = hparse(k);
     const px = hexToPixel(col, row);
     const d = cityData[cityId]; if(!d) return;
@@ -431,7 +435,7 @@ function renderOverlayFoodFlow(){
   });
   const hexes = [];
   Object.entries(terr).forEach(([k, {fac, cityId, dist, cityDef}]) => {
-    if(!_canShowLiveCityOverlay(cityId)) return;
+    if(!_canShowLiveResourceHex(cityId, k)) return;
     const {col, row} = hparse(k);
     const px = hexToPixel(col, row);
     const val = cityFood[cityId] || 0;

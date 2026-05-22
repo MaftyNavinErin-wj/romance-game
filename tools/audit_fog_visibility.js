@@ -6,6 +6,7 @@ const renderCacheSrc = fs.readFileSync('src/render/render_cache.js', 'utf8');
 const mapInteractionSrc = fs.readFileSync('src/render/map_interaction.js', 'utf8');
 const tooltipSrc = fs.readFileSync('src/render/tooltips.js', 'utf8');
 const overlaySrc = fs.readFileSync('src/render/overlay.js', 'utf8');
+const diplomacySrc = fs.readFileSync('src/chains/diplomacy.js', 'utf8');
 
 const terrainMatch = mapSrc.match(/const TERRAIN_POLYS = \[([\s\S]*?)\];/);
 if (!terrainMatch) throw new Error('TERRAIN_POLYS not found');
@@ -133,11 +134,27 @@ const checks = [
   {
     name: 'live resource overlays require visible authorized city data',
     pass: overlaySrc.includes('_canShowLiveCityOverlay(cityId)') &&
-      overlaySrc.match(/if\(!_canShowLiveCityOverlay\(cityId\)\) return;/g)?.length >= 3,
+      overlaySrc.includes('_canShowLiveResourceHex(cityId, k)'),
+  },
+  {
+    name: 'live resource overlays require visible hexes',
+    pass: overlaySrc.includes('function _canShowLiveResourceHex(cityId, k)') &&
+      overlaySrc.includes('_playerFogLevelAtKey(k) === FOG_VISIBLE') &&
+      overlaySrc.match(/if\(!_canShowLiveResourceHex\(cityId, k\)\) return;/g)?.length >= 3,
   },
   {
     name: 'supply overlay only paints visible hexes',
     pass: overlaySrc.includes('_playerFogLevelAtKey(k) !== FOG_VISIBLE'),
+  },
+  {
+    name: 'scout reveal is city-radius limited and not territory flood-fill',
+    pass: diplomacySrc.includes('getCityVisionRadius(def)') &&
+      diplomacySrc.includes('getCityControlRadius(def)') &&
+      !/function _applyScoutReveal[\s\S]*?_buildTerritoryMap\(\)[\s\S]*?\n\}/.test(diplomacySrc),
+  },
+  {
+    name: 'scout reveal invalidates fog cache',
+    pass: /function _applyScoutReveal[\s\S]*?invalidateFogCache\(\);[\s\S]*?\n\}/.test(diplomacySrc),
   },
 ];
 
@@ -165,6 +182,7 @@ lines.push('- Sea and ink-mode open water remain fog-clear to preserve the parch
 lines.push('- City visible range is radius-based; overlay territory flood-fill is no longer used as a visibility source.');
 lines.push('- Known control areas remain explored even when they are outside current visible radius.');
 lines.push('- Resource overlays are now gated by fog visibility and faction-data permission.');
+lines.push('- Scout reveal now uses city-radius visibility plus control-radius explored memory instead of overlay territory flood-fill.');
 
 fs.writeFileSync('docs/audit_walkthroughs/fog_visibility_audit.md', lines.join('\n') + '\n');
 console.log(lines.join('\n'));

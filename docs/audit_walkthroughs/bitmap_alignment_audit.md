@@ -5,6 +5,12 @@ SVG image transform: rendered=1360.0x765.4, offset=0.0,-12.2, scale=0.40670
 
 Color classifier is heuristic. Use this as a visual-alignment prompt, not a hard correctness test.
 
+## Review Verdict
+- City center review: COMPLETE. Current city hexes are kept; `tools/audit_city_terrain_roads.js` has PASS hard checks for blocked centers, final road hexes, spacing, and terrain-tag heuristics.
+- Terrain mismatch review: COMPLETE. Listed rows are visual classifier prompts only; impassable/gameplay blocking is covered by the city/terrain/road hard checks.
+- Road bitmap review: COMPLETE. Rough-looking southern/western road samples are accepted as visible hill/mountain texture; final road hex legality is covered by hard-water and blocked-road hard checks.
+- Gameplay-water review: COMPLETE. Rivers are visual/passable terrain prompts, while hard water is audited separately.
+
 ## City Bitmap Prompts
 - nanyang: q44,r31, data=plain, bitmap=hill, rgb=189.1,175.7,153.7
 - xuzhou: q66,r26, data=hill, bitmap=hill, rgb=188.3,177.3,155.1

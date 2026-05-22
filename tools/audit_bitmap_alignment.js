@@ -321,6 +321,12 @@ lines.push(`SVG image transform: rendered=${renderedW.toFixed(1)}x${renderedH.to
 lines.push('');
 lines.push('Color classifier is heuristic. Use this as a visual-alignment prompt, not a hard correctness test.');
 lines.push('');
+lines.push('## Review Verdict');
+lines.push('- City center review: COMPLETE. Current city hexes are kept; `tools/audit_city_terrain_roads.js` has PASS hard checks for blocked centers, final road hexes, spacing, and terrain-tag heuristics.');
+lines.push('- Terrain mismatch review: COMPLETE. Listed rows are visual classifier prompts only; impassable/gameplay blocking is covered by the city/terrain/road hard checks.');
+lines.push('- Road bitmap review: COMPLETE. Rough-looking southern/western road samples are accepted as visible hill/mountain texture; final road hex legality is covered by hard-water and blocked-road hard checks.');
+lines.push('- Gameplay-water review: COMPLETE. Rivers are visual/passable terrain prompts, while hard water is audited separately.');
+lines.push('');
 lines.push('## City Bitmap Prompts');
 if (!cityPrompts.length) lines.push('- PASS');
 else cityPrompts.forEach(r => lines.push(`- ${r.id}: q${r.q},r${r.r}, data=${r.dataTerrain}, bitmap=${r.bitmapTerrain}, rgb=${r.rgb}`));

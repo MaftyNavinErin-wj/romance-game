@@ -14,7 +14,10 @@ Scope: fog rendering policy, city visibility policy, terrain tooltip policy, and
 - PASS: known control areas remain explored when not visible
 - PASS: overlay base masks unexplored instead of overriding fog
 - PASS: live resource overlays require visible authorized city data
+- PASS: live resource overlays require visible hexes
 - PASS: supply overlay only paints visible hexes
+- PASS: scout reveal is city-radius limited and not territory flood-fill
+- PASS: scout reveal invalidates fog cache
 
 ## Terrain Hex Counts
 - forest: 208
@@ -70,3 +73,4 @@ Scope: fog rendering policy, city visibility policy, terrain tooltip policy, and
 - City visible range is radius-based; overlay territory flood-fill is no longer used as a visibility source.
 - Known control areas remain explored even when they are outside current visible radius.
 - Resource overlays are now gated by fog visibility and faction-data permission.
+- Scout reveal now uses city-radius visibility plus control-radius explored memory instead of overlay territory flood-fill.

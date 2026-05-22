@@ -1095,7 +1095,7 @@ const TERRAIN_AP_COST = {
   water:      2,    // ★ v138: 统一cost=2，入水/上岸的"慢"靠AP清零实现
   swamp:      3,
   impassable: 999,  // 绝壁/高山不可通行
-  river:      2,    // ★ v138: 同water，可渡
+  river:      2,    // visible/passable river trace, not gameplay water
   coastal_water: 999, // 近海（距陆地5~9格），不可通行
   deep_water: 999,  // 深海（距陆地10+格），不可通行
 };
@@ -1103,7 +1103,7 @@ const TERRAIN_AP_COST = {
 // ── 水战常量 ──
 const NAVAL_WATER_COST = 2;  // 水上部队在水域hex间移动cost
 const NAVAL_AP = 4;          // 水上部队每旬AP
-const WATER_TERRAINS = new Set(['water','river']);
+const WATER_TERRAINS = new Set(['water']);
 
 /** 判断hex是否为可通行水域 */
 function isWaterHex(col, row) {

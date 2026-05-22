@@ -993,23 +993,26 @@ function stratScout(targetCityId){
   renderRight();
 }
 
-/** ★ v116: 应用侦察揭雾——目标城市领地范围设为VISIBLE */
+/** ★ v116: 应用侦察揭雾——目标城市视野范围设为VISIBLE，控制范围保留EXPLORED */
 function _applyScoutReveal(fid, cityId){
   const fog = G.fog[fid];
   if(!fog) return;
-  const territory = _buildTerritoryMap();
-  for(const k in territory){
-    if(territory[k].cityId === cityId){
-      fog[k] = FOG_VISIBLE;
-      if(HEX_CITY[k]){
-        const city = G.cities[HEX_CITY[k]];
-        if(city){
-          if(!G.fogSnap[fid]) G.fogSnap[fid] = {};
-          G.fogSnap[fid][HEX_CITY[k]] = {fac:city.fac, turn:G.turn};
-        }
+  const def = CITY_MAP?.[cityId];
+  if(!def) return;
+  markCityAreaExplored(fid, fog, cityId, G.turn, getCityControlRadius(def));
+  fogBFS(def.q, def.r, getCityVisionRadius(def)).forEach(k => {
+    const terrain = HEX_TERRAIN[k] || 'plain';
+    if(terrain === 'coastal_water' || terrain === 'deep_water') return;
+    fog[k] = FOG_VISIBLE;
+    if(HEX_CITY[k]){
+      const city = G.cities[HEX_CITY[k]];
+      if(city){
+        if(!G.fogSnap[fid]) G.fogSnap[fid] = {};
+        G.fogSnap[fid][HEX_CITY[k]] = {fac:city.fac, turn:G.turn};
       }
     }
-  }
+  });
+  invalidateFogCache();
 }
 
 // ═══════════════════════════════════════

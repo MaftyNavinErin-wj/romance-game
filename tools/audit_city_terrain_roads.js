@@ -30,7 +30,8 @@ const HEX_COLS = 102;
 const HEX_ROWS = 68;
 const TERRAIN_PRIO = { water: 6, impassable: 5, mountain: 4, forest: 3, hill: 2, plain: 1, swamp: 2, deep_water: 7, coastal_water: 7 };
 const BLOCKED_T = new Set(['impassable', 'coastal_water', 'deep_water']);
-const WATER_T = new Set(['water', 'river']);
+const HARD_WATER_T = new Set(['water', 'coastal_water', 'deep_water']);
+const WATER_T = new Set(['water']);
 
 function hexToPixel(col, row) {
   return {
@@ -300,6 +301,27 @@ for (const [a, ns] of Object.entries(box.ROAD_ADJ)) {
   }
 }
 
+const waypointIssues = [];
+for (const [key, points] of Object.entries(box.ROAD_WAYPOINTS || {})) {
+  const [a, b] = key.split('-');
+  if (!citySet.has(a) || !citySet.has(b)) waypointIssues.push(`${key}: unknown endpoint`);
+  if (!edgeSeen.has([a, b].sort().join('|'))) waypointIssues.push(`${key}: no matching ROAD edge`);
+  if (!Array.isArray(points)) {
+    waypointIssues.push(`${key}: waypoints must be an array`);
+    continue;
+  }
+  points.forEach((pt, idx) => {
+    if (!Array.isArray(pt) || pt.length !== 2 || !Number.isInteger(pt[0]) || !Number.isInteger(pt[1])) {
+      waypointIssues.push(`${key}[${idx}]: waypoint must be [integer q, integer r]`);
+      return;
+    }
+    const [q, r] = pt;
+    if (q < 0 || q >= HEX_COLS || r < 0 || r >= HEX_ROWS) {
+      waypointIssues.push(`${key}[${idx}]: out of bounds q${q},r${r}`);
+    }
+  });
+}
+
 const roadGraphSeen = new Set();
 const roadComponents = [];
 for (const start of cityIds) {
@@ -332,12 +354,16 @@ for (const [aId, bId] of box.ROADS) {
   const counts = {};
   let blockedAfter = 0;
   let missingRoad = 0;
+  let hardWater = 0;
+  let river = 0;
   const line = roadHexPath(aId, bId);
   for (const h of line) {
     const k = hkey(h.col, h.row);
     const t = terrainBuilt.terrain[k] || 'plain';
     counts[t] = (counts[t] || 0) + 1;
     if (BLOCKED_T.has(t)) blockedAfter++;
+    if (HARD_WATER_T.has(t)) hardWater++;
+    if (t === 'river') river++;
     if (!terrainBuilt.road[k]) missingRoad++;
   }
   const pa = hexToPixel(a.q, a.r), pb = hexToPixel(b.q, b.r);
@@ -347,12 +373,15 @@ for (const [aId, bId] of box.ROADS) {
     dist: Math.hypot(pb.x - pa.x, pb.y - pa.y),
     blockedAfter,
     missingRoad,
-    waterLike: (counts.water || 0) + (counts.river || 0) + (counts.coastal_water || 0) + (counts.deep_water || 0),
+    hardWater,
+    river,
+    waterLike: hardWater + river,
     counts,
   });
 }
 const blockedRoads = roadTerrainRows.filter(r => r.blockedAfter || r.missingRoad);
-const riverRoads = roadTerrainRows.filter(r => r.waterLike > 0).sort((a, b) => b.waterLike - a.waterLike || b.dist - a.dist);
+const hardWaterRoads = roadTerrainRows.filter(r => r.hardWater > 0).sort((a, b) => b.hardWater - a.hardWater || b.dist - a.dist);
+const riverRoads = roadTerrainRows.filter(r => r.river > 0).sort((a, b) => b.river - a.river || b.dist - a.dist);
 const longestRoads = [...roadTerrainRows].sort((a, b) => b.dist - a.dist).slice(0, 10);
 
 function cityPixel(id) {
@@ -578,7 +607,7 @@ lines.push(`Cities: ${cityIds.length}`);
 lines.push(`Road edges: ${box.ROADS.length}`);
 lines.push(`Road components: ${roadComponents.map(c => c.length).join(' + ')}`);
 lines.push('');
-lines.push('Verdict rules: reference/coverage/connectivity/blockage sections are hard checks; terrain tag heuristics and water-touching roads are audit prompts, not automatic defects.');
+lines.push('Verdict rules: reference/coverage/connectivity/blockage/hard-water road sections are hard checks; terrain tag heuristics and river-touching roads are audit prompts, not automatic defects.');
 lines.push('');
 section(lines, 'Road Reference Integrity', [
   ...uniqueIssues(roadUnknown),
@@ -586,11 +615,13 @@ section(lines, 'Road Reference Integrity', [
   ...uniqueIssues(roadDupes).map(x => `duplicate ${x}`),
   ...uniqueIssues(roadAdjIssues).map(x => `ROAD_ADJ ${x}`),
 ]);
+section(lines, 'Road Waypoint Integrity', uniqueIssues(waypointIssues));
 section(lines, 'Road Graph Connectivity', roadComponents.length === 1 ? [] : roadComponents, c => `- component(${c.length}): ${c.join(', ')}`);
 section(lines, 'Low Degree Cities', lowDegree, r => `- ${r.id}: degree=${r.deg}`);
 section(lines, 'High Degree Cities', highDegree, r => `- ${r.id}: degree=${r.deg}`);
 section(lines, 'Blocked / Broken Final Road Hexes', blockedRoads, r => `- ${r.road}: blockedAfter=${r.blockedAfter}, missingRoad=${r.missingRoad}, terrain=${JSON.stringify(r.counts)}`);
-section(lines, 'Roads Touching River/Water Hexes', riverRoads.slice(0, 30), r => `- ${r.road}: waterLike=${r.waterLike}, hex=${r.hex}, terrain=${JSON.stringify(r.counts)}`);
+section(lines, 'Roads Crossing Hard Water Hexes', hardWaterRoads, r => `- ${r.road}: hardWater=${r.hardWater}, hex=${r.hex}, terrain=${JSON.stringify(r.counts)}`);
+section(lines, 'Roads Touching River Hexes', riverRoads.slice(0, 30), r => `- ${r.road}: river=${r.river}, hex=${r.hex}, terrain=${JSON.stringify(r.counts)}`);
 section(lines, 'Longest Roads', longestRoads, r => `- ${r.road}: dist=${r.dist.toFixed(0)}, hex=${r.hex}, terrain=${JSON.stringify(r.counts)}`);
 section(lines, 'Distribution Hard Checks', distributionIssues);
 section(lines, 'Widest City Spacing', citySpacingRows.slice(0, 12), r => `- ${r.id}: nearest=${r.nearest}, dist=${r.px.toFixed(0)}px, hex=${r.hex}`);

@@ -6,9 +6,12 @@ Cities: 55
 Road edges: 111
 Road components: 55
 
-Verdict rules: reference/coverage/connectivity/blockage sections are hard checks; terrain tag heuristics and water-touching roads are audit prompts, not automatic defects.
+Verdict rules: reference/coverage/connectivity/blockage/hard-water road sections are hard checks; terrain tag heuristics and river-touching roads are audit prompts, not automatic defects.
 
 ## Road Reference Integrity
+- PASS
+
+## Road Waypoint Integrity
 - PASS
 
 ## Road Graph Connectivity
@@ -30,37 +33,40 @@ Verdict rules: reference/coverage/connectivity/blockage sections are hard checks
 ## Blocked / Broken Final Road Hexes
 - PASS
 
-## Roads Touching River/Water Hexes
-- tianshui-changan: waterLike=10, hex=13, terrain={"plain":2,"river":10,"mountain":1}
-- wuchang-changsha: waterLike=9, hex=11, terrain={"plain":2,"river":9}
-- bazhong-yiling: waterLike=7, hex=12, terrain={"plain":2,"river":7,"mountain":3}
-- jingzhou-yiling: waterLike=7, hex=10, terrain={"plain":3,"river":7}
-- xiapi-shouchun: waterLike=6, hex=11, terrain={"plain":5,"river":6}
-- chaigang-yuzhang: waterLike=5, hex=17, terrain={"plain":12,"river":5}
-- lingling-changsha: waterLike=5, hex=10, terrain={"plain":2,"river":5,"mountain":3}
-- changsha-jiaozhou: waterLike=4, hex=18, terrain={"plain":5,"river":4,"mountain":5,"forest":4}
-- xuzhou-guangling: waterLike=4, hex=17, terrain={"plain":11,"hill":2,"river":4}
-- donghai-xiapi: waterLike=4, hex=11, terrain={"plain":7,"river":4}
-- bazhong-chengdu: waterLike=4, hex=8, terrain={"plain":4,"river":4}
-- jingzhou-wuchang: waterLike=4, hex=7, terrain={"plain":3,"river":4}
-- beihai-guangling: waterLike=3, hex=22, terrain={"plain":19,"river":3}
-- luoyang-xuchang: waterLike=3, hex=15, terrain={"plain":6,"hill":6,"river":3}
-- shangyong-nanyang: waterLike=3, hex=10, terrain={"plain":5,"river":3,"hill":2}
-- changan-luoyang: waterLike=3, hex=10, terrain={"plain":7,"river":3}
-- puyang-qingzhou: waterLike=3, hex=9, terrain={"plain":6,"river":3}
-- jianning-jiaozhou: waterLike=2, hex=28, terrain={"plain":8,"mountain":14,"forest":4,"river":2}
-- nanyang-hanzhong: waterLike=2, hex=19, terrain={"plain":17,"river":2}
-- ye-qingzhou: waterLike=2, hex=15, terrain={"plain":11,"hill":2,"river":2}
-- chaigang-changsha: waterLike=2, hex=14, terrain={"plain":12,"river":2}
-- luoyang-nanyang: waterLike=2, hex=14, terrain={"plain":10,"mountain":2,"river":2}
-- jianye-jingkou: waterLike=2, hex=13, terrain={"plain":11,"river":2}
-- shangyong-xiangyang: waterLike=2, hex=11, terrain={"plain":7,"hill":2,"river":2}
-- shangyong-hanzhong: waterLike=2, hex=10, terrain={"plain":8,"river":2}
-- xiangyang-jingzhou: waterLike=2, hex=9, terrain={"plain":6,"hill":1,"river":2}
-- lingling-panyu: waterLike=2, hex=9, terrain={"plain":6,"river":2,"forest":1}
-- xiapi-xuzhou: waterLike=2, hex=8, terrain={"plain":4,"river":2,"hill":2}
-- hanzhong-yizhou_n: waterLike=2, hex=6, terrain={"plain":2,"river":2,"mountain":2}
-- jingkou-guangling: waterLike=2, hex=6, terrain={"plain":4,"river":2}
+## Roads Crossing Hard Water Hexes
+- PASS
+
+## Roads Touching River Hexes
+- tianshui-changan: river=10, hex=13, terrain={"plain":2,"river":10,"mountain":1}
+- wuchang-changsha: river=9, hex=11, terrain={"plain":2,"river":9}
+- bazhong-yiling: river=7, hex=12, terrain={"plain":2,"river":7,"mountain":3}
+- jingzhou-yiling: river=7, hex=10, terrain={"plain":3,"river":7}
+- xiapi-shouchun: river=6, hex=11, terrain={"plain":5,"river":6}
+- chaigang-yuzhang: river=5, hex=17, terrain={"plain":12,"river":5}
+- lingling-changsha: river=5, hex=10, terrain={"plain":2,"river":5,"mountain":3}
+- changsha-jiaozhou: river=4, hex=18, terrain={"plain":5,"river":4,"mountain":5,"forest":4}
+- xuzhou-guangling: river=4, hex=17, terrain={"plain":11,"hill":2,"river":4}
+- donghai-xiapi: river=4, hex=11, terrain={"plain":7,"river":4}
+- bazhong-chengdu: river=4, hex=8, terrain={"plain":4,"river":4}
+- jingzhou-wuchang: river=4, hex=7, terrain={"plain":3,"river":4}
+- beihai-guangling: river=3, hex=22, terrain={"plain":19,"river":3}
+- luoyang-xuchang: river=3, hex=15, terrain={"plain":6,"hill":6,"river":3}
+- shangyong-nanyang: river=3, hex=10, terrain={"plain":5,"river":3,"hill":2}
+- changan-luoyang: river=3, hex=10, terrain={"plain":7,"river":3}
+- puyang-qingzhou: river=3, hex=9, terrain={"plain":6,"river":3}
+- jianning-jiaozhou: river=2, hex=28, terrain={"plain":8,"mountain":14,"forest":4,"river":2}
+- nanyang-hanzhong: river=2, hex=19, terrain={"plain":17,"river":2}
+- ye-qingzhou: river=2, hex=15, terrain={"plain":11,"hill":2,"river":2}
+- chaigang-changsha: river=2, hex=14, terrain={"plain":12,"river":2}
+- luoyang-nanyang: river=2, hex=14, terrain={"plain":10,"mountain":2,"river":2}
+- jianye-jingkou: river=2, hex=13, terrain={"plain":11,"river":2}
+- shangyong-xiangyang: river=2, hex=11, terrain={"plain":7,"hill":2,"river":2}
+- shangyong-hanzhong: river=2, hex=10, terrain={"plain":8,"river":2}
+- xiangyang-jingzhou: river=2, hex=9, terrain={"plain":6,"hill":1,"river":2}
+- lingling-panyu: river=2, hex=9, terrain={"plain":6,"river":2,"forest":1}
+- xiapi-xuzhou: river=2, hex=8, terrain={"plain":4,"river":2,"hill":2}
+- hanzhong-yizhou_n: river=2, hex=6, terrain={"plain":2,"river":2,"mountain":2}
+- jingkou-guangling: river=2, hex=6, terrain={"plain":4,"river":2}
 
 ## Longest Roads
 - jianning-jiaozhou: dist=255, hex=28, terrain={"plain":8,"mountain":14,"forest":4,"river":2}

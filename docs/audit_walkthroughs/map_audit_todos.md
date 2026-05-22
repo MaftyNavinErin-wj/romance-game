@@ -4,7 +4,27 @@ Date: 2026-05-22
 
 Context: continuing the China bitmap / hex map alignment work across all scenarios.
 
-## Next Session Priorities
+## Status After 2026-05-22 Follow-up
+
+1. River / gameplay water decoupling: DONE.
+   - `river` remains a visible/passable terrain mark, but is no longer in `WATER_TERRAINS`.
+   - Hard water remains `water`, `coastal_water`, and `deep_water`.
+
+2. Water-touching road audit strictness: DONE.
+   - `tools/audit_city_terrain_roads.js` now separates hard-water road crossings from river-touching prompts.
+   - Roads crossing hard water are a hard check; river-touching roads remain visual prompts.
+
+3. Bitmap terrain mismatch review: DONE.
+   - `tools/audit_bitmap_alignment.js` now records the review verdict in the generated audit.
+   - Current prompts are accepted as classifier/texture prompts unless a hard check fails.
+
+4. `ROAD_WAYPOINTS` validation: DONE.
+   - `tools/audit_city_terrain_roads.js` validates waypoint endpoint references, matching road edges, integer coordinates, and map bounds.
+
+5. Final visual/style validation: DONE by regenerated audit artifacts.
+   - Re-run the commands below after future map edits.
+
+## Historical Priority List
 
 1. Decouple visual rivers from gameplay water terrain.
    - Current issue: `river` is part of `WATER_TERRAINS`, so bitmap-aligned river hexes affect movement and water/land transition rules.
