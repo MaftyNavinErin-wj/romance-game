@@ -202,7 +202,10 @@ let _fogSvgCache = '';
 let _fogCacheTurn = -1;
 let _fogCacheVersion = 0; // ★ v117fix: 递增版本号替代G.turn，支持同旬多次刷新
 
-function invalidateFogCache() { _fogCacheVersion++; }
+function invalidateFogCache() {
+  _fogCacheVersion++;
+  if (typeof invalidateCityCache === 'function') invalidateCityCache();
+}
 function _isFogClearTerrain(terrain) {
   if (terrain === 'deep_water') return true;
   if (terrain === 'coastal_water') return true;
@@ -250,82 +253,114 @@ function _getFogSvgCache() {
 
 
 // ★ v115优化: 城市图标SVG按旬缓存
-let _citySvgCache = '';
-let _cityCacheTurn = -1;
-let _cityCacheSelCity = null;
+let _citySvgCache = {};
 let _cityCacheVersion = 0; // ★ v117fix: 递增版本号
-function invalidateCityCache() { _cityCacheVersion++; }
-function _getCitySvgCache() {
-  if (_cityCacheTurn === _cityCacheVersion && _citySvgCache && _cityCacheSelCity === G.selCity) return _citySvgCache;
-  const FAC_DARK_FILL = {wei:'rgba(220,235,248,.92)',shu:'rgba(220,242,228,.92)',wu:'rgba(248,225,222,.92)',nanman:'rgba(248,240,215,.92)'};
-  const FAC_STROKE = {wei:'rgba(26,95,138,1)',shu:'rgba(26,122,58,1)',wu:'rgba(168,42,26,1)',nanman:'rgba(139,105,20,1)'};
-  const FAC_GLOW = {wei:'rgba(26,95,138,.15)',shu:'rgba(26,122,58,.15)',wu:'rgba(168,42,26,.15)',nanman:'rgba(139,105,20,.15)'};
+let _cityCacheMeta = {};
+function invalidateCityCache() { _cityCacheVersion++; _citySvgCache = {}; _cityCacheMeta = {}; }
+
+const CITY_FAC_FILL = {wei:'rgb(220,235,248)',shu:'rgb(220,242,228)',wu:'rgb(248,225,222)',nanman:'rgb(248,240,215)'};
+const CITY_FAC_STROKE = {wei:'rgba(26,95,138,1)',shu:'rgba(26,122,58,1)',wu:'rgba(168,42,26,1)',nanman:'rgba(139,105,20,1)'};
+const CITY_FAC_GLOW = {wei:'rgba(26,95,138,.15)',shu:'rgba(26,122,58,.15)',wu:'rgba(168,42,26,.15)',nanman:'rgba(139,105,20,.15)'};
+const CITY_FOG_STYLE = {
+  visible:    { opacity: 1,    outlineOpacity: 1,    tintOpacity: .18, neutralFill: false, showCapital: true },
+  explored:   { opacity: .78,  outlineOpacity: 1,    tintOpacity: .18, neutralFill: false, showCapital: true },
+  unexplored: { opacity: .46,  outlineOpacity: .56,  tintOpacity: .10, neutralFill: true,  showCapital: false }
+};
+
+function _cityFogKind(fogLv) {
+  if (fogLv === FOG_VISIBLE) return 'visible';
+  if (fogLv === FOG_EXPLORED) return 'explored';
+  return 'unexplored';
+}
+
+function _cityDisplayFac(def, city, fogKind) {
+  if (fogKind !== 'explored') return city.fac;
+  return G.fogSnap?.[G.playerFac]?.[def.id]?.fac || city.fac;
+}
+
+function _cityRenderStyle(def, city, fogLv) {
+  const fogKind = _cityFogKind(fogLv);
+  const displayFac = _cityDisplayFac(def, city, fogKind);
+  const facDef = getFactionDef(displayFac) || null;
+  const color = facDef ? facDef.color : '#666';
+  const state = CITY_FOG_STYLE[fogKind];
+  return {
+    fogKind,
+    displayFac,
+    color,
+    fill: state.neutralFill ? 'rgb(234,232,222)' : (CITY_FAC_FILL[displayFac] || 'rgb(240,235,220)'),
+    stroke: CITY_FAC_STROKE[displayFac] || color || '#888',
+    nameColor: color || '#444',
+    glow: fogKind === 'visible' ? (CITY_FAC_GLOW[displayFac] || 'rgba(80,65,40,.15)') : 'rgba(0,0,0,0)',
+    opacity: state.opacity,
+    outlineOpacity: state.outlineOpacity,
+    tintOpacity: state.tintOpacity,
+    showCapital: state.showCapital && def.isCapital
+  };
+}
+
+function _getCitySvgCache(layer = 'known') {
+  const meta = _cityCacheMeta[layer];
+  if (meta && meta.version === _cityCacheVersion && meta.selCity === G.selCity && _citySvgCache[layer]) return _citySvgCache[layer];
   let ch = '';
   CITIES_DEF.forEach(def => {
     const city = G.cities[def.id]; if (!city) return;
     const fogLv = G.fog?.[G.playerFac] ? (G.fog[G.playerFac][hkey(def.q, def.r)] ?? FOG_UNEXPLORED) : FOG_VISIBLE;
-    if (fogLv === FOG_UNEXPLORED) return;
-    let displayFac = city.fac;
-    const isExplored = fogLv === FOG_EXPLORED;
-    if (isExplored) {
-      const snap = G.fogSnap?.[G.playerFac]?.[def.id];
-      displayFac = snap ? snap.fac : 'none';
-    }
-    const fc = getFactionDef(displayFac) || null;
-    const col = fc ? fc.color : '#666';
-    const darkFill = (fogLv === FOG_VISIBLE) ? (FAC_DARK_FILL[displayFac] || 'rgba(240,235,220,.92)')
-                   : isExplored ? (FAC_DARK_FILL[displayFac] || 'rgba(235,228,215,.92)')
-                   : 'rgba(220,215,200,.92)';
-    const strokeCol = (fogLv === FOG_VISIBLE) ? (FAC_STROKE[displayFac] || '#888')
-                    : isExplored ? (col + '88') : '#666';
-    const nameCol = (fogLv === FOG_VISIBLE) ? (col || '#444')
-                  : isExplored ? (col + '88') : '#999';
-    const glowCol = (fogLv === FOG_VISIBLE) ? (FAC_GLOW[displayFac] || 'rgba(80,65,40,.15)')
-                  : 'rgba(0,0,0,0)';
-    const dotCol = fc ? fc.color : '#888';
+    const style = _cityRenderStyle(def, city, fogLv);
+    if (layer === 'unexplored' && style.fogKind !== 'unexplored') return;
+    if (layer === 'known' && style.fogKind === 'unexplored') return;
     const isSel = G.selCity === def.id;
-    const isCap = def.isCapital;
+    const isCap = style.showCapital;
     const r = def.size === 'large' ? 9 : def.size === 'medium' ? 7 : 5.5;
     const nameSize = def.size === 'large' ? 9 : def.size === 'medium' ? 8 : 7;
+    const nameWeight = isCap ? 800 : 750;
     // ★ v122: 水墨城楼图标
     const s = r * 0.65;
     const sw = isSel ? 1.2 : 0.7;
+    const clickAttr = style.fogKind === 'unexplored'
+      ? ' pointer-events="none" style="cursor:default"'
+      : ' onclick="handleCityClick(\'' + def.id + '\')" style="cursor:pointer"';
     ch += '<g class="city-g' + (isSel?' sel':'') + '" transform="translate(' + city.x + ',' + city.y + ')"' +
-      ' onclick="selCity(\'' + def.id + '\')" style="cursor:pointer">' +
-      '<circle r="' + (r*1.6) + '" fill="' + glowCol + '" opacity="' + (isSel?.8:.4) + '"/>' +
+      ' opacity="' + style.opacity + '"' + clickAttr + '>' +
+      '<circle r="' + (r*1.6) + '" fill="' + style.glow + '" opacity="' + (isSel?.8:.4) + '"/>' +
       '<rect x="' + (-s*1.3) + '" y="' + (-s*1.7) + '" width="' + (s*2.6) + '" height="' + (s*2.8) + '" fill="rgba(0,0,0,0)" stroke="none"/>' +
       '<rect x="' + (-s*1.1) + '" y="' + (s*.1) + '" width="' + (s*2.2) + '" height="' + (s*.7) + '" rx="0.5"' +
-        ' fill="' + darkFill + '" stroke="' + strokeCol + '" stroke-width="' + sw + '"/>' +
+        ' fill="' + style.fill + '" stroke="' + style.stroke + '" stroke-width="' + sw + '"/>' +
       '<path d="M' + (-s*.3) + ',' + (s*.8) + ' L' + (-s*.3) + ',' + (s*.25) +
         ' Q' + (-s*.3) + ',' + (-s*.05) + ' 0,' + (-s*.05) +
         ' Q' + (s*.3) + ',' + (-s*.05) + ' ' + (s*.3) + ',' + (s*.25) +
         ' L' + (s*.3) + ',' + (s*.8) + '"' +
-        ' fill="' + (fogLv===FOG_VISIBLE ? 'rgba(40,32,20,.3)' : 'rgba(80,70,55,.15)') + '" stroke="' + strokeCol + '" stroke-width="' + (sw*.6) + '"/>' +
+        ' fill="' + (style.color || 'rgba(80,70,55,.35)') + '" opacity="' + style.tintOpacity + '" stroke="' + style.stroke + '" stroke-width="' + (sw*.6) + '"/>' +
       '<rect x="' + (-s*.7) + '" y="' + (-s*.6) + '" width="' + (s*1.4) + '" height="' + (s*.7) + '" rx="0.5"' +
-        ' fill="' + darkFill + '" stroke="' + strokeCol + '" stroke-width="' + sw + '"/>' +
+        ' fill="' + style.fill + '" stroke="' + style.stroke + '" stroke-width="' + sw + '"/>' +
       '<path d="M' + (-s*1.0) + ',' + (-s*.6) + ' L0,' + (-s*1.15) + ' L' + (s*1.0) + ',' + (-s*.6) + '"' +
-        ' fill="' + darkFill + '" stroke="' + strokeCol + '" stroke-width="' + (sw*1.1) + '" stroke-linejoin="round"/>' +
-      (isCap ? '<path d="M0,' + (-s*1.15) + ' L0,' + (-s*1.45) + '" stroke="' + strokeCol + '" stroke-width="' + (sw*.8) + '" stroke-linecap="round"/>' +
-        '<circle cy="' + (-s*1.5) + '" r="' + (s*.12) + '" fill="' + strokeCol + '"/>' : '') +
+        ' fill="' + style.fill + '" stroke="' + style.stroke + '" stroke-width="' + (sw*1.1) + '" stroke-linejoin="round"/>' +
+      (isCap ? '<path d="M0,' + (-s*1.15) + ' L0,' + (-s*1.45) + '" stroke="' + style.stroke + '" stroke-width="' + (sw*.8) + '" stroke-linecap="round"/>' +
+        '<circle cy="' + (-s*1.5) + '" r="' + (s*.12) + '" fill="' + style.stroke + '"/>' : '') +
       '<path d="M' + (-s*1.1) + ',' + (s*.1) + ' L' + (-s*1.1) + ',' + (-s*.08) +
         ' M' + (-s*.7) + ',' + (s*.1) + ' L' + (-s*.7) + ',' + (-s*.08) +
         ' M' + (-s*.3) + ',' + (s*.1) + ' L' + (-s*.3) + ',' + (-s*.08) +
         ' M' + (s*.3) + ',' + (s*.1) + ' L' + (s*.3) + ',' + (-s*.08) +
         ' M' + (s*.7) + ',' + (s*.1) + ' L' + (s*.7) + ',' + (-s*.08) +
         ' M' + (s*1.1) + ',' + (s*.1) + ' L' + (s*1.1) + ',' + (-s*.08) +
-        '" fill="none" stroke="' + strokeCol + '" stroke-width="' + (sw*.5) + '" stroke-linecap="round"/>' +
+        '" fill="none" stroke="' + style.stroke + '" stroke-width="' + (sw*.5) + '" stroke-linecap="round"/>' +
       '<text y="' + (r+13) + '" text-anchor="middle"' +
-        ' font-family="Noto Serif SC,serif" font-size="' + nameSize + '" font-weight="' + (isCap?700:600) + '"' +
-        ' fill="' + nameCol + '"' +
-        ' stroke="rgba(245,240,230,.9)" stroke-width="3.5" paint-order="stroke"' +
+        ' font-family="Noto Serif SC,serif" font-size="' + nameSize + '" font-weight="' + nameWeight + '"' +
+        ' fill="none" stroke="rgb(245,240,230)" stroke-width="2.4" stroke-linejoin="round"' +
+        ' opacity="' + style.outlineOpacity + '" pointer-events="none">' + city.name + '</text>' +
+      '<text y="' + (r+13) + '" text-anchor="middle"' +
+        ' font-family="Noto Serif SC,serif" font-size="' + nameSize + '" font-weight="' + nameWeight + '"' +
+        ' fill="' + style.nameColor + '" stroke="none"' +
         ' pointer-events="none">' + city.name + '</text>' +
       (isCap ? '<text y="' + (r+23) + '" text-anchor="middle" font-size="7.5"' +
-        ' fill="' + strokeCol + '" stroke="rgba(245,240,230,.88)" stroke-width="3" paint-order="stroke"' +
+        ' font-family="Noto Serif SC,serif" font-weight="800" fill="none" stroke="rgb(245,240,230)" stroke-width="2" stroke-linejoin="round"' +
+        ' pointer-events="none">都</text>' +
+        '<text y="' + (r+23) + '" text-anchor="middle" font-size="7.5"' +
+        ' font-family="Noto Serif SC,serif" font-weight="800" fill="' + style.stroke + '" stroke="none"' +
         ' pointer-events="none">都</text>' : '') +
     '</g>';
   });
-  _citySvgCache = ch;
-  _cityCacheTurn = _cityCacheVersion;
-  _cityCacheSelCity = G.selCity;
-  return _citySvgCache;
+  _citySvgCache[layer] = ch;
+  _cityCacheMeta[layer] = { version: _cityCacheVersion, selCity: G.selCity };
+  return _citySvgCache[layer];
 }

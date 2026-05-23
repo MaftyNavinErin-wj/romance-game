@@ -438,12 +438,18 @@ function collectFactionCityVisionKeys(allyFacs) {
   return visibleKeys;
 }
 
-function markCityAreaExplored(fid, fog, cityId, turn, radius) {
+function markCityAreaExplored(fid, fog, cityId, turn, radius, opts) {
   const def = CITY_MAP?.[cityId];
   if (!def) return;
+  const knownFacs = opts?.knownFacs || [fid];
   fogBFS(def.q, def.r, radius ?? getCityVisionRadius(def)).forEach(k => {
     const terrain = HEX_TERRAIN[k] || 'plain';
     if (terrain === 'coastal_water' || terrain === 'deep_water') return;
+    if (opts?.preserveUnknownCityCenters && HEX_CITY[k] && HEX_CITY[k] !== cityId) {
+      const otherCityId = HEX_CITY[k];
+      const otherCity = G.cities[otherCityId];
+      if (otherCity && !knownFacs.includes(otherCity.fac) && (fog[k] ?? FOG_UNEXPLORED) === FOG_UNEXPLORED) return;
+    }
     if ((fog[k] ?? FOG_UNEXPLORED) === FOG_UNEXPLORED) fog[k] = FOG_EXPLORED;
   });
   const city = G.cities[cityId];
@@ -466,9 +472,13 @@ function markKnownControlAreasExplored(fid, fog, allyFacs) {
     const city = G.cities[def.id];
     if (!city) return;
     const isOwnIntel = allyFacs.includes(city.fac);
-    const hasSnap = !!G.fogSnap?.[fid]?.[def.id];
-    if (!isOwnIntel && !hasSnap) return;
-    markCityAreaExplored(fid, fog, def.id, G.turn, getCityControlRadius(def));
+    const cityFogLv = fog[hkey(def.q, def.r)] ?? FOG_UNEXPLORED;
+    const hasKnownSnap = !!G.fogSnap?.[fid]?.[def.id] && cityFogLv >= FOG_EXPLORED;
+    if (!isOwnIntel && !hasKnownSnap) return;
+    markCityAreaExplored(fid, fog, def.id, G.turn, getCityControlRadius(def), {
+      preserveUnknownCityCenters: true,
+      knownFacs: allyFacs
+    });
   });
 }
 
@@ -625,7 +635,7 @@ function getKnownCityCount(viewerFid, targetFid) {
     const level = getCityFogLevel(viewerFid, def.id);
     if (level === FOG_VISIBLE) {
       if (G.cities[def.id]?.fac === targetFid) count++;
-    } else {
+    } else if (level === FOG_EXPLORED) {
       const snap = G.fogSnap?.[viewerFid]?.[def.id];
       if (snap && snap.fac === targetFid) count++;
     }
@@ -845,6 +855,69 @@ function pointInPoly(px, py, pts) {
   return inside;
 }
 
+function sampleSvgPathPoints(pathStr, stepPx = 3) {
+  const out = [];
+  let cur = null;
+  const re = /([MLQC])\s*([^MLQC]+)/gi;
+  let match;
+  const pushPoint = (x, y) => {
+    const p = { x, y };
+    const last = out[out.length - 1];
+    if (!last || Math.hypot(last.x - x, last.y - y) > 0.001) out.push(p);
+    cur = p;
+  };
+  const sampleLine = (from, to) => {
+    const steps = Math.max(1, Math.ceil(Math.hypot(to.x - from.x, to.y - from.y) / stepPx));
+    for (let s = 1; s <= steps; s++) {
+      const t = s / steps;
+      pushPoint(from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t);
+    }
+  };
+  while ((match = re.exec(pathStr)) !== null) {
+    const cmd = match[1].toUpperCase();
+    const nums = match[2].trim().split(/[\s,]+/).map(Number).filter(Number.isFinite);
+    if (cmd === 'M') {
+      for (let i = 0; i < nums.length - 1; i += 2) {
+        const p = { x: nums[i], y: nums[i + 1] };
+        if (!cur) pushPoint(p.x, p.y);
+        else sampleLine(cur, p);
+      }
+    } else if (cmd === 'L') {
+      for (let i = 0; i < nums.length - 1 && cur; i += 2) sampleLine(cur, { x: nums[i], y: nums[i + 1] });
+    } else if (cmd === 'Q') {
+      for (let i = 0; i < nums.length - 3 && cur; i += 4) {
+        const from = cur;
+        const c = { x: nums[i], y: nums[i + 1] };
+        const to = { x: nums[i + 2], y: nums[i + 3] };
+        const approxLen = Math.hypot(c.x - from.x, c.y - from.y) + Math.hypot(to.x - c.x, to.y - c.y);
+        const steps = Math.max(1, Math.ceil(approxLen / stepPx));
+        for (let s = 1; s <= steps; s++) {
+          const t = s / steps;
+          const mt = 1 - t;
+          pushPoint(mt * mt * from.x + 2 * mt * t * c.x + t * t * to.x,
+                    mt * mt * from.y + 2 * mt * t * c.y + t * t * to.y);
+        }
+      }
+    } else if (cmd === 'C') {
+      for (let i = 0; i < nums.length - 5 && cur; i += 6) {
+        const from = cur;
+        const c1 = { x: nums[i], y: nums[i + 1] };
+        const c2 = { x: nums[i + 2], y: nums[i + 3] };
+        const to = { x: nums[i + 4], y: nums[i + 5] };
+        const approxLen = Math.hypot(c1.x - from.x, c1.y - from.y) + Math.hypot(c2.x - c1.x, c2.y - c1.y) + Math.hypot(to.x - c2.x, to.y - c2.y);
+        const steps = Math.max(1, Math.ceil(approxLen / stepPx));
+        for (let s = 1; s <= steps; s++) {
+          const t = s / steps;
+          const mt = 1 - t;
+          pushPoint(mt ** 3 * from.x + 3 * mt ** 2 * t * c1.x + 3 * mt * t ** 2 * c2.x + t ** 3 * to.x,
+                    mt ** 3 * from.y + 3 * mt ** 2 * t * c1.y + 3 * mt * t ** 2 * c2.y + t ** 3 * to.y);
+        }
+      }
+    }
+  }
+  return out;
+}
+
 
 // ════════════════════════════════════════════════════════════════════
 // ── M7 buildHexTerrain (v181 L2105-L2290) ──
@@ -878,17 +951,8 @@ function buildHexTerrain() {
 
   // 2. 河流hex化 — 沿RIVERS SVG路径采样，把经过的hex标为river
   RIVERS.forEach(pathStr => {
-    // 从SVG path字符串中提取关键坐标点，然后密集采样
-    const pts = [];
-    const re = /([MQLC])\s*([\d.,\s]+)/gi;
-    let match;
-    while ((match = re.exec(pathStr)) !== null) {
-      const nums = match[2].trim().split(/[\s,]+/).map(Number);
-      for (let i = 0; i < nums.length - 1; i += 2) {
-        pts.push({x: nums[i], y: nums[i+1]});
-      }
-    }
-    // 在相邻控制点之间密集插值采样
+    const pts = sampleSvgPathPoints(pathStr, 3);
+    // 在相邻采样点之间密集插值采样
     for (let i = 0; i < pts.length - 1; i++) {
       const a = pts[i], b = pts[i+1];
       const steps = Math.ceil(Math.hypot(b.x-a.x, b.y-a.y) / 3); // 每3px采样一次
@@ -898,6 +962,7 @@ function buildHexTerrain() {
         const py = a.y + (b.y - a.y) * t;
         const h = pixelToHex(px, py);
         const k = hkey(h.col, h.row);
+        if (typeof RIVER_BITMAP_MOUNTAIN_SKIP !== 'undefined' && RIVER_BITMAP_MOUNTAIN_SKIP.has(k)) continue;
         const cur = HEX_TERRAIN[k];
         // river不覆盖water/deep_water/coastal_water（湖泊保留），不覆盖impassable
         if (cur !== 'water' && cur !== 'deep_water' && cur !== 'coastal_water' && cur !== 'impassable') {

@@ -39,7 +39,9 @@ function _animateFogReveal(revealedKeys, oldFogLevels){
     g.appendChild(path);
   });
 
-  mapRoot.appendChild(g);
+  const refLayer = document.getElementById('moveLayer') || document.getElementById('citiesLayer');
+  if(refLayer && refLayer.parentNode === mapRoot) mapRoot.insertBefore(g, refLayer);
+  else mapRoot.appendChild(g);
   requestAnimationFrame(() => {
     requestAnimationFrame(() => { g.style.opacity = '0'; });
   });
@@ -316,8 +318,9 @@ function handleCityClick(cityId){
   if(_marchAnimating) return; // ★ v99
   const cdef = CITY_MAP[cityId];
   const fogLv = cdef && G.fog?.[G.playerFac] ? (G.fog[G.playerFac][hkey(cdef.q, cdef.r)] ?? FOG_UNEXPLORED) : FOG_VISIBLE;
-  if(fogLv === FOG_UNEXPLORED) return;
+  if(!G.selUnitId && fogLv === FOG_UNEXPLORED) return;
   if(G.selUnitId){
+    if(fogLv === FOG_UNEXPLORED) return;
     const unit = G.units.find(u=>u.id===G.selUnitId);
     if(!unit||unit.fac!==G.playerFac) return;
     const destCity = CITY_MAP[cityId];

@@ -185,20 +185,26 @@ function renderMap(){
 
   // ─── 粮草输送点（不做地图视觉体现） ───
 
+  // ─── 未探索城市位置提示：放在 fog 下方，让迷雾自然压住 ───
+  h += `<g id="unexploredCityLayer">${_getCitySvgCache('unexplored')}</g>`;
+
   // ─── C4 战争迷雾渲染（缓存优化：仅fog变更时重建） ───
   h += `<g id="fogLayer">${_getFogSvgCache()}</g>`;
-
-  // ─── 城市图标（盾形简化，高对比度）── C4 迷雾感知 ───
-  // ★ v115优化: 按旬缓存城市图标层（只有城池易手/迷雾变更时才变）
-  h += `<g id="citiesLayer">${_getCitySvgCache()}</g>`;
-
-  // ─── 围城指示条（C4: 只显示可见区域的围城） ───
-  h += `<g id="siegeLayer">${_renderSiegeIndicators()}</g>`;
 
   // ─── 选中提示条+移动范围 ───
   h += `<g id="moveLayer">${_renderMoveRange()}</g>`;
 
-  h += `<g id="unitsLayer">${renderUnitsOnMap()}</g>`;
+  // ─── 部队路线/移动预览：放在城市下方，避免压灰城市文字和图标 ───
+  h += `<g id="unitPathsLayer">${renderUnitsOnMap('paths')}</g>`;
+
+  // ─── 城市图标（盾形简化，高对比度）── C4 迷雾感知 ───
+  // ★ v115优化: 按旬缓存城市图标层（只有城池易手/迷雾变更时才变）
+  h += `<g id="citiesLayer">${_getCitySvgCache('known')}</g>`;
+
+  // ─── 围城指示条（C4: 只显示可见区域的围城） ───
+  h += `<g id="siegeLayer">${_renderSiegeIndicators()}</g>`;
+
+  h += `<g id="unitsLayer">${renderUnitsOnMap('icons')}</g>`;
 
   // 图例
   h += `<g style="pointer-events:none">
@@ -227,15 +233,32 @@ function renderMap(){
   const existingRoot = document.getElementById('mapRoot');
   if (existingRoot) {
     // 增量模式：只更新动态层，不重建整个DOM
+    let ucl = document.getElementById('unexploredCityLayer');
     const fl = document.getElementById('fogLayer');
+    if (!ucl && fl) {
+      ucl = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      ucl.setAttribute('id', 'unexploredCityLayer');
+      existingRoot.insertBefore(ucl, fl);
+    }
+    if (ucl && fl && ucl.nextSibling !== fl) existingRoot.insertBefore(ucl, fl);
+    if (ucl) ucl.innerHTML = _getCitySvgCache('unexplored');
     if (fl) fl.innerHTML = _getFogSvgCache();
+    const ml = document.getElementById('moveLayer');
     const cl = document.getElementById('citiesLayer');
-    if (cl) cl.innerHTML = _getCitySvgCache();
+    if (ml && cl && ml.nextSibling !== cl) existingRoot.insertBefore(ml, cl);
+    let pl = document.getElementById('unitPathsLayer');
+    if (!pl && cl) {
+      pl = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      pl.setAttribute('id', 'unitPathsLayer');
+      existingRoot.insertBefore(pl, cl);
+    }
+    if (pl && cl && pl.nextSibling !== cl) existingRoot.insertBefore(pl, cl);
+    if (pl) pl.innerHTML = renderUnitsOnMap('paths');
+    if (cl) cl.innerHTML = _getCitySvgCache('known');
     const sl = document.getElementById('siegeLayer');
     if (sl) sl.innerHTML = _renderSiegeIndicators();
     const ul = document.getElementById('unitsLayer');
-    if (ul) ul.innerHTML = renderUnitsOnMap();
-    const ml = document.getElementById('moveLayer');
+    if (ul) ul.innerHTML = renderUnitsOnMap('icons');
     if (ml) ml.innerHTML = _renderMoveRange();
     // 更新transform（缩放/平移）
     existingRoot.setAttribute('transform', `translate(${_mapTx.toFixed(1)},${_mapTy.toFixed(1)}) scale(${_mapScale.toFixed(4)})`);
@@ -258,12 +281,23 @@ function renderUnitsOnly(){
   const svg = document.getElementById('mapSvg');
   if(!svg) return;
   svg.style.cursor = G.selUnitId ? 'crosshair' : 'default';
+  const root = document.getElementById('mapRoot');
+  const moveLayer = document.getElementById('moveLayer');
+  let unitPathsLayer = document.getElementById('unitPathsLayer');
+  const citiesLayer = document.getElementById('citiesLayer');
+  if(root && moveLayer && citiesLayer && moveLayer.nextSibling !== citiesLayer) root.insertBefore(moveLayer, citiesLayer);
+  if(root && !unitPathsLayer && citiesLayer) {
+    unitPathsLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    unitPathsLayer.setAttribute('id', 'unitPathsLayer');
+    root.insertBefore(unitPathsLayer, citiesLayer);
+  }
+  if(root && unitPathsLayer && citiesLayer && unitPathsLayer.nextSibling !== citiesLayer) root.insertBefore(unitPathsLayer, citiesLayer);
   const unitsLayer = document.getElementById('unitsLayer');
   if(!unitsLayer){ renderMap(); return; }  // fallback: 首次或层丢失时走全量
-  unitsLayer.innerHTML = renderUnitsOnMap();
+  unitsLayer.innerHTML = renderUnitsOnMap('icons');
   // ★ v115: 同步更新移动范围层（选中/取消选中时需刷新）
-  const moveLayer = document.getElementById('moveLayer');
   if(moveLayer) moveLayer.innerHTML = _renderMoveRange();
+  if(unitPathsLayer) unitPathsLayer.innerHTML = renderUnitsOnMap('paths');
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -277,7 +311,9 @@ function getUnitDisplayPos(unit){
   return hexToPixel(unit.hq ?? 0, unit.hr ?? 0);
 }
 
-function renderUnitsOnMap(){
+function renderUnitsOnMap(mode = 'all'){
+  const renderPaths = mode === 'all' || mode === 'paths';
+  const renderIcons = mode === 'all' || mode === 'icons';
   let h='';
   const pFog = G.fog?.[G.playerFac];
   const byPos = {};
@@ -313,7 +349,7 @@ function renderUnitsOnMap(){
     let py = pos.y;
 
     // 行进路径线 — v111: 只显示玩家部队的路线，AI部队路线隐藏
-    if((stackIdx===0||isSel) && unit.hexPath && unit.hexPath.length > 0 && unit.fac === G.playerFac){
+    if(renderPaths && (stackIdx===0||isSel) && unit.hexPath && unit.hexPath.length > 0 && unit.fac === G.playerFac){
       let pts = `${pos.x.toFixed(1)},${pos.y.toFixed(1)}`;
       unit.hexPath.forEach(hp => {
         const pp = hexToPixel(hp.col, hp.row);
@@ -329,6 +365,8 @@ function renderUnitsOnMap(){
         h += `<circle cx="${lp.x}" cy="${lp.y}" r="10" fill="${col}" fill-opacity=".1" stroke="${col}" stroke-width="1.5" stroke-dasharray="3,2" opacity=".8"/>`;
       }
     }
+
+    if(!renderIcons) return;
 
     const gname = unit.squads[0]?.genName||'?';
     const total = getUnitTroops(unit);
@@ -399,7 +437,7 @@ function renderUnitsOnMap(){
 
   // ── v86/v99: 移动预览路径渲染（双色区分本旬可达/跨旬） ──
   const preview = G._movePreview;
-  if(preview && preview.hexPath && preview.hexPath.length > 0 && G.selUnitId){
+  if(renderPaths && preview && preview.hexPath && preview.hexPath.length > 0 && G.selUnitId){
     const selUnit = G.units.find(u => u.id === G.selUnitId);
     if(selUnit){
       const startPos = hexToPixel(selUnit.hq??0, selUnit.hr??0);
