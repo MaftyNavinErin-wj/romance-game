@@ -185,9 +185,6 @@ function renderMap(){
 
   // ─── 粮草输送点（不做地图视觉体现） ───
 
-  // ─── 未探索城市位置提示：放在 fog 下方，让迷雾自然压住 ───
-  h += `<g id="unexploredCityLayer">${_getCitySvgCache('unexplored')}</g>`;
-
   // ─── C4 战争迷雾渲染（缓存优化：仅fog变更时重建） ───
   h += `<g id="fogLayer">${_getFogSvgCache()}</g>`;
 
@@ -233,15 +230,9 @@ function renderMap(){
   const existingRoot = document.getElementById('mapRoot');
   if (existingRoot) {
     // 增量模式：只更新动态层，不重建整个DOM
-    let ucl = document.getElementById('unexploredCityLayer');
+    const ucl = document.getElementById('unexploredCityLayer');
     const fl = document.getElementById('fogLayer');
-    if (!ucl && fl) {
-      ucl = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      ucl.setAttribute('id', 'unexploredCityLayer');
-      existingRoot.insertBefore(ucl, fl);
-    }
-    if (ucl && fl && ucl.nextSibling !== fl) existingRoot.insertBefore(ucl, fl);
-    if (ucl) ucl.innerHTML = _getCitySvgCache('unexplored');
+    if (ucl) ucl.remove();
     if (fl) fl.innerHTML = _getFogSvgCache();
     const ml = document.getElementById('moveLayer');
     const cl = document.getElementById('citiesLayer');

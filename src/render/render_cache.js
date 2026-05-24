@@ -263,23 +263,24 @@ const CITY_FAC_STROKE = {wei:'rgba(26,95,138,1)',shu:'rgba(26,122,58,1)',wu:'rgb
 const CITY_FAC_GLOW = {wei:'rgba(26,95,138,.15)',shu:'rgba(26,122,58,.15)',wu:'rgba(168,42,26,.15)',nanman:'rgba(139,105,20,.15)'};
 const CITY_FOG_STYLE = {
   visible:    { opacity: 1,    outlineOpacity: 1,    tintOpacity: .18, neutralFill: false, showCapital: true },
-  explored:   { opacity: .78,  outlineOpacity: 1,    tintOpacity: .18, neutralFill: false, showCapital: true },
-  unexplored: { opacity: .46,  outlineOpacity: .56,  tintOpacity: .10, neutralFill: true,  showCapital: false }
+  explored:   { opacity: .78,  outlineOpacity: 1,    tintOpacity: .18, neutralFill: false, showCapital: true }
 };
 
 function _cityFogKind(fogLv) {
   if (fogLv === FOG_VISIBLE) return 'visible';
   if (fogLv === FOG_EXPLORED) return 'explored';
-  return 'unexplored';
+  return null;
 }
 
 function _cityDisplayFac(def, city, fogKind) {
+  if (!fogKind) return 'none';
   if (fogKind !== 'explored') return city.fac;
-  return G.fogSnap?.[G.playerFac]?.[def.id]?.fac || city.fac;
+  return G.fogSnap?.[G.playerFac]?.[def.id]?.fac || 'none';
 }
 
 function _cityRenderStyle(def, city, fogLv) {
   const fogKind = _cityFogKind(fogLv);
+  if (!fogKind) return null;
   const displayFac = _cityDisplayFac(def, city, fogKind);
   const facDef = getFactionDef(displayFac) || null;
   const color = facDef ? facDef.color : '#666';
@@ -307,8 +308,7 @@ function _getCitySvgCache(layer = 'known') {
     const city = G.cities[def.id]; if (!city) return;
     const fogLv = G.fog?.[G.playerFac] ? (G.fog[G.playerFac][hkey(def.q, def.r)] ?? FOG_UNEXPLORED) : FOG_VISIBLE;
     const style = _cityRenderStyle(def, city, fogLv);
-    if (layer === 'unexplored' && style.fogKind !== 'unexplored') return;
-    if (layer === 'known' && style.fogKind === 'unexplored') return;
+    if (!style) return;
     const isSel = G.selCity === def.id;
     const isCap = style.showCapital;
     const r = def.size === 'large' ? 9 : def.size === 'medium' ? 7 : 5.5;

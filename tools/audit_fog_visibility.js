@@ -96,7 +96,14 @@ const checks = [
   },
   {
     name: 'unexplored cities are skipped in map city layer',
-    pass: renderCacheSrc.includes('if (fogLv === FOG_UNEXPLORED) return;'),
+    pass: !fs.readFileSync('src/render/map_render.js', 'utf8').includes("_getCitySvgCache('unexplored')") &&
+      renderCacheSrc.includes('if (!style) return;'),
+  },
+  {
+    name: 'city svg cache has no unexplored render path',
+    pass: !renderCacheSrc.includes("layer === 'unexplored'") &&
+      !renderCacheSrc.includes("return 'unexplored'") &&
+      !(renderCacheSrc.includes('CITY_FOG_STYLE') && renderCacheSrc.includes('unexplored:')),
   },
   {
     name: 'fog reveal animation uses shared fog-clear terrain rule',
@@ -127,10 +134,16 @@ const checks = [
       mapSrc.includes('markKnownControlAreasExplored(fid, fog, allyFacs)'),
   },
   {
-    name: 'own faction territory remains explored when not visible',
-    pass: mapSrc.includes('function markKnownFactionTerritoryExplored(fid, fog, allyFacs)') &&
-      mapSrc.includes('allyFacs.includes(t.fac)') &&
-      mapSrc.includes('markKnownFactionTerritoryExplored(fid, fog, allyFacs)'),
+    name: 'fog does not reuse overlay territory flood-fill',
+    pass: !mapSrc.includes('markKnownFactionTerritoryExplored') &&
+      !/function initFog[\s\S]*?_buildTerritoryMap\(\)[\s\S]*?function updateFog/.test(mapSrc) &&
+      !/function updateFog[\s\S]*?_buildTerritoryMap\(\)[\s\S]*?function updateFogCitySnapshot/.test(mapSrc),
+  },
+  {
+    name: 'road-adjacent explored cities use bounded fog helper',
+    pass: mapSrc.includes('function markRoadAdjacentEnemyCitiesExplored') &&
+      mapSrc.includes('getCityControlRadius(def)') &&
+      (mapSrc.match(/markRoadAdjacentEnemyCitiesExplored\(fid, fog/g) || []).length >= 2,
   },
   {
     name: 'city ownership changes invalidate territory cache',
@@ -192,7 +205,7 @@ lines.push('- Unexplored city icons/names are now suppressed on the map layer.')
 lines.push('- Sea and ink-mode open water remain fog-clear to preserve the parchment/ink base-map treatment.');
 lines.push('- City visible range is radius-based; overlay territory flood-fill is no longer used as a visibility source.');
 lines.push('- Known control areas remain explored even when they are outside current visible radius.');
-lines.push('- Own and allied territory-map control areas remain explored even when they are outside current visible radius.');
+lines.push('- Own, allied, and previously known city control-radius areas remain explored even when they are outside current visible radius.');
 lines.push('- Resource overlays are now gated by fog visibility and faction-data permission.');
 lines.push('- Scout reveal now uses city-radius visibility plus control-radius explored memory instead of overlay territory flood-fill.');
 

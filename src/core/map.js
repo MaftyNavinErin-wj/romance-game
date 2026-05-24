@@ -459,14 +459,6 @@ function markCityAreaExplored(fid, fog, cityId, turn, radius, opts) {
   }
 }
 
-function markKnownFactionTerritoryExplored(fid, fog, allyFacs) {
-  const territory = _buildTerritoryMap();
-  for (const [k, t] of Object.entries(territory)) {
-    if (!t || !allyFacs.includes(t.fac)) continue;
-    if ((fog[k] ?? FOG_UNEXPLORED) === FOG_UNEXPLORED) fog[k] = FOG_EXPLORED;
-  }
-}
-
 function markKnownControlAreasExplored(fid, fog, allyFacs) {
   CITIES_DEF.forEach(def => {
     const city = G.cities[def.id];
@@ -478,6 +470,25 @@ function markKnownControlAreasExplored(fid, fog, allyFacs) {
     markCityAreaExplored(fid, fog, def.id, G.turn, getCityControlRadius(def), {
       preserveUnknownCityCenters: true,
       knownFacs: allyFacs
+    });
+  });
+}
+
+function markRoadAdjacentEnemyCitiesExplored(fid, fog, allyFacs, turn) {
+  const knownFacs = allyFacs || [fid];
+  const ownedDefs = CITIES_DEF.filter(def => knownFacs.includes(G.cities[def.id]?.fac));
+  const adjacentEnemyCities = new Set();
+  ownedDefs.forEach(def => {
+    (ROAD_ADJ[def.id] || []).forEach(nbId => {
+      const nbCity = G.cities[nbId];
+      if (nbCity && !knownFacs.includes(nbCity.fac)) adjacentEnemyCities.add(nbId);
+    });
+  });
+  adjacentEnemyCities.forEach(cityId => {
+    const def = CITY_MAP?.[cityId];
+    markCityAreaExplored(fid, fog, cityId, turn, def ? getCityControlRadius(def) : undefined, {
+      preserveUnknownCityCenters: true,
+      knownFacs
     });
   });
 }
@@ -504,20 +515,7 @@ function initFog() {
   // 逻辑：你知道京口在边境旁，你也知道它大致控制多大范围——但不知道谁控制
   getScenarioFactions().forEach(fid => {
     const fog = G.fog[fid];
-    const territory = _buildTerritoryMap();
-    // 找出所有与己方visible区域相邻格属于的非己方城市
-    const neighborCities = new Set();
-    for (const k in fog) {
-      if (fog[k] !== FOG_VISIBLE) continue;
-      const {col, row} = hparse(k);
-      hexNeighbors(col, row).forEach(nb => {
-        const nk = hkey(nb.col, nb.row);
-        if (territory[nk] && territory[nk].fac !== fid) {
-          neighborCities.add(territory[nk].cityId);
-        }
-      });
-    }
-    neighborCities.forEach(cityId => markCityAreaExplored(fid, fog, cityId, 0));
+    markRoadAdjacentEnemyCitiesExplored(fid, fog, getFogAllyFacs(fid), 0);
     // 快照：visible和explored城市都建立归属快照
     for (const k in fog) {
       if (fog[k] >= FOG_EXPLORED && HEX_CITY[k]) {
@@ -543,12 +541,10 @@ function updateFog(fid) {
 
   // Step 2a: 城市视野。不要复用 overlay 的 territory map；它会把全地图可通行区域回填到最近城市，
   // 适合势力覆盖层，不适合 fog visible 判定。
-  const territory = _buildTerritoryMap();
   collectFactionCityVisionKeys(allyFacs).forEach(k => visibleKeys.add(k));
 
-  // Step 2a.5: 己方/盟友势力范围至少保持 explored。visible 代表当前实时视野；
-  // explored 代表已知政治/地理范围，避免控制区边缘因不在当前视野内退回 unexplored。
-  markKnownFactionTerritoryExplored(fid, fog, allyFacs);
+  // Step 2a.5: 己方/盟友及已知城市控制半径至少保持 explored。visible 代表当前实时视野；
+  // explored 代表有界的旧情报范围，避免已知城市周边因不在当前视野内退回 unexplored。
   markKnownControlAreasExplored(fid, fog, allyFacs);
 
   // Step 2b: 部队视野
@@ -584,17 +580,7 @@ function updateFog(fid) {
   // Step 4 (v111): 己方城市的ROADS邻接敌城 → explored（城市hex+领地范围）
   // 解决"攻下新城后看不到下一个敌城→AI不进攻"的根因
   // 用ROADS邻接而非territory hex边界，避免无限BFS回填导致半张地图都变explored
-  const myFacCities = CITIES_DEF.filter(def => G.cities[def.id]?.fac === fid || allyFacs.includes(G.cities[def.id]?.fac));
-  const neighborEnemyCities = new Set();
-  myFacCities.forEach(def => {
-    (ROAD_ADJ[def.id] || []).forEach(nbId => {
-      const nbCity = G.cities[nbId];
-      if (nbCity && nbCity.fac !== fid && !allyFacs.includes(nbCity.fac)) {
-        neighborEnemyCities.add(nbId);
-      }
-    });
-  });
-  neighborEnemyCities.forEach(cityId => markCityAreaExplored(fid, fog, cityId, G.turn));
+  markRoadAdjacentEnemyCitiesExplored(fid, fog, allyFacs, G.turn);
 }
 
 /** C4: 城市易主时更新所有能看到该城的势力快照 */
