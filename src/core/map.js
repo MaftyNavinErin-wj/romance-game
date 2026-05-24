@@ -431,10 +431,14 @@ function setCityFogSnapshot(fid, cityId, turn, overwrite) {
   if (overwrite || !G.fogSnap[fid][cityId]) G.fogSnap[fid][cityId] = { fac: city.fac, turn };
 }
 
+function markFogControlKnown(fid, cityId) {
+  if (!G.fogControlKnown) G.fogControlKnown = {};
+  if (!G.fogControlKnown[fid]) G.fogControlKnown[fid] = {};
+  G.fogControlKnown[fid][cityId] = true;
+}
+
 function markFogKeyExplored(fid, fog, k, turn) {
   if ((fog[k] ?? FOG_UNEXPLORED) === FOG_UNEXPLORED) fog[k] = FOG_EXPLORED;
-  const cityId = HEX_CITY[k];
-  if (cityId && (fog[k] ?? FOG_UNEXPLORED) >= FOG_EXPLORED) setCityFogSnapshot(fid, cityId, turn, false);
 }
 
 function collectFactionCityVisionKeys(allyFacs) {
@@ -451,26 +455,36 @@ function collectFactionCityVisionKeys(allyFacs) {
   return visibleKeys;
 }
 
-function markCityAreaExplored(fid, fog, cityId, turn, radius) {
+function markCityAreaExplored(fid, fog, cityId, turn, radius, opts) {
   const def = CITY_MAP?.[cityId];
   if (!def) return;
+  const knownCityIds = opts?.knownCityIds || null;
+  const grantControl = opts?.grantControl !== false;
   fogBFS(def.q, def.r, radius ?? getCityVisionRadius(def)).forEach(k => {
     const terrain = HEX_TERRAIN[k] || 'plain';
     if (terrain === 'coastal_water' || terrain === 'deep_water') return;
+    const hexCityId = HEX_CITY[k];
+    if (hexCityId && hexCityId !== cityId && knownCityIds && !knownCityIds.has(hexCityId)) return;
     markFogKeyExplored(fid, fog, k, turn);
   });
+  markFogKeyExplored(fid, fog, hkey(def.q, def.r), turn);
   setCityFogSnapshot(fid, cityId, turn, false);
+  if (grantControl) markFogControlKnown(fid, cityId);
 }
 
 function markKnownControlAreasExplored(fid, fog, allyFacs) {
+  const knownCityIds = new Set();
   CITIES_DEF.forEach(def => {
     const city = G.cities[def.id];
     if (!city) return;
     const isOwnIntel = allyFacs.includes(city.fac);
     const cityFogLv = fog[hkey(def.q, def.r)] ?? FOG_UNEXPLORED;
-    const hasKnownSnap = !!G.fogSnap?.[fid]?.[def.id] && cityFogLv >= FOG_EXPLORED;
-    if (!isOwnIntel && !hasKnownSnap) return;
-    markCityAreaExplored(fid, fog, def.id, G.turn, getCityControlRadius(def));
+    const hasControlIntel = !!G.fogControlKnown?.[fid]?.[def.id] && cityFogLv >= FOG_EXPLORED;
+    if (isOwnIntel || hasControlIntel) knownCityIds.add(def.id);
+  });
+  CITIES_DEF.forEach(def => {
+    if (!knownCityIds.has(def.id)) return;
+    markCityAreaExplored(fid, fog, def.id, G.turn, getCityControlRadius(def), { knownCityIds });
   });
 }
 
@@ -494,15 +508,18 @@ function markRoadAdjacentEnemyCitiesExplored(fid, fog, allyFacs, turn) {
 function initFog() {
   G.fog = {};
   G.fogSnap = {};
+  G.fogControlKnown = {};
   ensureInitialCityFacs();
   getScenarioFactions().forEach(fid => {
     G.fog[fid] = {};
     G.fogSnap[fid] = {};
+    G.fogControlKnown[fid] = {};
     // 只有己方城市位置开局标记explored（远方城市保持unexplored）
     CITIES_DEF.forEach(def => {
       const city = G.cities[def.id];
       if (city && city.fac === fid) {
         G.fog[fid][hkey(def.q, def.r)] = FOG_EXPLORED;
+        markFogControlKnown(fid, def.id);
       }
     });
   });
@@ -560,6 +577,7 @@ function updateFog(fid) {
     if (HEX_CITY[k]) {
       const cityId = HEX_CITY[k];
       setCityFogSnapshot(fid, cityId, G.turn, true);
+      markFogControlKnown(fid, cityId);
     }
   }
 

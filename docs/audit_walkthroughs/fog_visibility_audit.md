@@ -9,6 +9,7 @@ Scope: fog rendering policy, city visibility policy, terrain tooltip policy, and
 - PASS: unexplored city style is neutral and does not reveal ownership
 - PASS: explored city ownership falls back to opening owner
 - PASS: explored fog writes synchronize city-center intel
+- PASS: city intel is separate from control-area memory
 - PASS: fog reveal animation uses shared fog-clear terrain rule
 - PASS: unexplored city hex clicks can select known geography
 - PASS: unexplored terrain tooltip is hidden

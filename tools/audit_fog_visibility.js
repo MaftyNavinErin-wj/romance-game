@@ -121,9 +121,16 @@ const checks = [
   {
     name: 'explored fog writes synchronize city-center intel',
     pass: mapSrc.includes('function markFogKeyExplored(fid, fog, k, turn)') &&
+      mapSrc.includes('function markFogControlKnown(fid, cityId)') &&
       mapSrc.includes('setCityFogSnapshot(fid, cityId, turn, false)') &&
-      mapSrc.includes('markFogKeyExplored(fid, fog, k, turn)') &&
+      mapSrc.includes('markFogKeyExplored(fid, fog, hkey(def.q, def.r), turn)') &&
       !mapSrc.includes('preserveUnknownCityCenters'),
+  },
+  {
+    name: 'city intel is separate from control-area memory',
+    pass: mapSrc.includes('G.fogControlKnown') &&
+      mapSrc.includes('const hasControlIntel = !!G.fogControlKnown?.[fid]?.[def.id]') &&
+      !mapSrc.includes('const hasKnownSnap = !!G.fogSnap?.[fid]?.[def.id] && cityFogLv >= FOG_EXPLORED'),
   },
   {
     name: 'fog reveal animation uses shared fog-clear terrain rule',
