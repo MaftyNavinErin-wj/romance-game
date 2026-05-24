@@ -424,6 +424,19 @@ function getCityControlRadius(def) {
   return (FOG_CONTROL_RADIUS[def.size] || 5) + (def.isCapital ? 2 : 0);
 }
 
+function setCityFogSnapshot(fid, cityId, turn, overwrite) {
+  const city = G.cities?.[cityId];
+  if (!city) return;
+  if (!G.fogSnap[fid]) G.fogSnap[fid] = {};
+  if (overwrite || !G.fogSnap[fid][cityId]) G.fogSnap[fid][cityId] = { fac: city.fac, turn };
+}
+
+function markFogKeyExplored(fid, fog, k, turn) {
+  if ((fog[k] ?? FOG_UNEXPLORED) === FOG_UNEXPLORED) fog[k] = FOG_EXPLORED;
+  const cityId = HEX_CITY[k];
+  if (cityId && (fog[k] ?? FOG_UNEXPLORED) >= FOG_EXPLORED) setCityFogSnapshot(fid, cityId, turn, false);
+}
+
 function collectFactionCityVisionKeys(allyFacs) {
   const visibleKeys = new Set();
   CITIES_DEF.forEach(def => {
@@ -438,25 +451,15 @@ function collectFactionCityVisionKeys(allyFacs) {
   return visibleKeys;
 }
 
-function markCityAreaExplored(fid, fog, cityId, turn, radius, opts) {
+function markCityAreaExplored(fid, fog, cityId, turn, radius) {
   const def = CITY_MAP?.[cityId];
   if (!def) return;
-  const knownFacs = opts?.knownFacs || [fid];
   fogBFS(def.q, def.r, radius ?? getCityVisionRadius(def)).forEach(k => {
     const terrain = HEX_TERRAIN[k] || 'plain';
     if (terrain === 'coastal_water' || terrain === 'deep_water') return;
-    if (opts?.preserveUnknownCityCenters && HEX_CITY[k] && HEX_CITY[k] !== cityId) {
-      const otherCityId = HEX_CITY[k];
-      const otherCity = G.cities[otherCityId];
-      if (otherCity && !knownFacs.includes(otherCity.fac) && (fog[k] ?? FOG_UNEXPLORED) === FOG_UNEXPLORED) return;
-    }
-    if ((fog[k] ?? FOG_UNEXPLORED) === FOG_UNEXPLORED) fog[k] = FOG_EXPLORED;
+    markFogKeyExplored(fid, fog, k, turn);
   });
-  const city = G.cities[cityId];
-  if (city) {
-    if (!G.fogSnap[fid]) G.fogSnap[fid] = {};
-    if (!G.fogSnap[fid][cityId]) G.fogSnap[fid][cityId] = { fac: city.fac, turn };
-  }
+  setCityFogSnapshot(fid, cityId, turn, false);
 }
 
 function markKnownControlAreasExplored(fid, fog, allyFacs) {
@@ -467,10 +470,7 @@ function markKnownControlAreasExplored(fid, fog, allyFacs) {
     const cityFogLv = fog[hkey(def.q, def.r)] ?? FOG_UNEXPLORED;
     const hasKnownSnap = !!G.fogSnap?.[fid]?.[def.id] && cityFogLv >= FOG_EXPLORED;
     if (!isOwnIntel && !hasKnownSnap) return;
-    markCityAreaExplored(fid, fog, def.id, G.turn, getCityControlRadius(def), {
-      preserveUnknownCityCenters: true,
-      knownFacs: allyFacs
-    });
+    markCityAreaExplored(fid, fog, def.id, G.turn, getCityControlRadius(def));
   });
 }
 
@@ -486,10 +486,7 @@ function markRoadAdjacentEnemyCitiesExplored(fid, fog, allyFacs, turn) {
   });
   adjacentEnemyCities.forEach(cityId => {
     const def = CITY_MAP?.[cityId];
-    markCityAreaExplored(fid, fog, cityId, turn, def ? getCityControlRadius(def) : undefined, {
-      preserveUnknownCityCenters: true,
-      knownFacs
-    });
+    markCityAreaExplored(fid, fog, cityId, turn, def ? getCityControlRadius(def) : undefined);
   });
 }
 
@@ -497,6 +494,7 @@ function markRoadAdjacentEnemyCitiesExplored(fid, fog, allyFacs, turn) {
 function initFog() {
   G.fog = {};
   G.fogSnap = {};
+  ensureInitialCityFacs();
   getScenarioFactions().forEach(fid => {
     G.fog[fid] = {};
     G.fogSnap[fid] = {};
@@ -520,8 +518,7 @@ function initFog() {
     for (const k in fog) {
       if (fog[k] >= FOG_EXPLORED && HEX_CITY[k]) {
         const cityId = HEX_CITY[k];
-        const city = G.cities[cityId];
-        if (city) G.fogSnap[fid][cityId] = { fac: city.fac, turn: 0 };
+        setCityFogSnapshot(fid, cityId, 0, false);
       }
     }
   });
@@ -562,11 +559,7 @@ function updateFog(fid) {
     // 如果该hex有城市，更新快照
     if (HEX_CITY[k]) {
       const cityId = HEX_CITY[k];
-      const city = G.cities[cityId];
-      if (city) {
-        if (!G.fogSnap[fid]) G.fogSnap[fid] = {};
-        G.fogSnap[fid][cityId] = { fac: city.fac, turn: G.turn };
-      }
+      setCityFogSnapshot(fid, cityId, G.turn, true);
     }
   }
 
@@ -581,6 +574,8 @@ function updateFog(fid) {
   // 解决"攻下新城后看不到下一个敌城→AI不进攻"的根因
   // 用ROADS邻接而非territory hex边界，避免无限BFS回填导致半张地图都变explored
   markRoadAdjacentEnemyCitiesExplored(fid, fog, allyFacs, G.turn);
+
+  if (typeof invalidateFogCache === 'function') invalidateFogCache();
 }
 
 /** C4: 城市易主时更新所有能看到该城的势力快照 */
@@ -613,18 +608,31 @@ function getCityFogLevel(fid, cityId) {
   return getFogLevel(fid, cdef.q, cdef.r);
 }
 
-/** 获取fid对某城市的快照归属（explored时显示旧数据） */
+function ensureInitialCityFacs() {
+  if (!G.initialCityFac) G.initialCityFac = {};
+  CITIES_DEF.forEach(def => {
+    if (!G.initialCityFac[def.id]) G.initialCityFac[def.id] = def.fac || 'none';
+  });
+}
+
+function getInitialCityFac(cityId) {
+  ensureInitialCityFacs();
+  return G.initialCityFac?.[cityId] || CITY_MAP?.[cityId]?.fac || 'none';
+}
+
+function getKnownCityFac(viewerFid, cityId) {
+  const level = getCityFogLevel(viewerFid, cityId);
+  if (level === FOG_VISIBLE) return G.cities?.[cityId]?.fac || 'none';
+  if (level === FOG_EXPLORED) return G.fogSnap?.[viewerFid]?.[cityId]?.fac || getInitialCityFac(cityId);
+  return 'none';
+}
+
+/** 获取fid对某城市的已知归属：visible=实时，explored=旧情报或开局归属，unexplored=未知 */
 /** 计算fid已知的某势力城市数量（可见+快照） */
 function getKnownCityCount(viewerFid, targetFid) {
   let count = 0;
   CITIES_DEF.forEach(def => {
-    const level = getCityFogLevel(viewerFid, def.id);
-    if (level === FOG_VISIBLE) {
-      if (G.cities[def.id]?.fac === targetFid) count++;
-    } else if (level === FOG_EXPLORED) {
-      const snap = G.fogSnap?.[viewerFid]?.[def.id];
-      if (snap && snap.fac === targetFid) count++;
-    }
+    if (getKnownCityFac(viewerFid, def.id) === targetFid) count++;
   });
   return count;
 }
@@ -749,30 +757,26 @@ const TERRAIN_POLYS = [
   // 成都平原
   {type:'plain', pts:'150,408 180,398 216,405 238,420 242,445 226,462 195,468 166,460 144,442 142,422'},
 
-  // ══════ 水域 (water) — 大湖泊 ══════
-  // 洞庭湖（江陵/武昌之间，手动校准不被stretch放大）
-  {type:'water', pts:'448,438 462,430 478,438 482,453 475,468 460,473 448,466 442,453'},
-  // 鄱阳湖（柴桑东侧，江右水网）
-  {type:'water', pts:'586,420 612,414 638,424 642,450 624,470 596,466 578,448'},
-  // 太湖（吴郡西南，保留京口-吴郡陆路走廊）
-  {type:'water', pts:'774,420 798,412 814,426 810,448 790,458 770,448 762,432'},
+  // ══════ 内陆湖泊 ══════
+  // 洞庭湖、鄱阳湖、太湖在当前hex尺度和底图上不作为硬water面处理；
+  // 对应水系由RIVERS表达，避免把城市/陆路误判为湖面。
 
   // ══════ 海洋 (water) — 统一海岸线polygon，基于真实中国海岸弧度 ══════
   // 渤海湾凹入→山东半岛突出→黄海→长江口微凸→杭州湾凹入→
   // 浙闽海岸→福建大幅内收→广东最深凹入→珠江口回弹→南海
-  {type:'water', pts:'812,13 812,23 812,33 803,49 790,54 780,70 766,78 778,92 784,104 798,116 815,130 834,144 840,160 826,176 822,192 832,210 836,232 850,255 858,280 854,302 842,322 824,340 810,358 806,378 820,402 840,426 862,448 842,468 804,488 768,506 735,525 706,548 682,572 660,600 640,628 620,654 600,674 575,690 535,704 1075,750 1075,0'},
+  {type:'water', pts:'812,13 812,23 812,33 803,49 790,54 780,70 766,78 778,92 784,104 798,116 815,130 834,144 840,160 826,176 822,192 832,210 836,232 850,255 858,280 854,302 842,322 824,340 810,358 806,378 820,402 840,426 862,448 842,468 804,488 768,506 735,525 710,548 695,575 690,604 700,632 720,660 755,690 1075,750 1075,0'},
   // 东北近海补水（北海/琅琊以东，避免地图右上缘被判作大片平原）
   {type:'water', pts:'770,48 806,44 846,70 874,112 878,160 856,194 822,200 806,168 815,132 790,102 765,78'},
   // 黄海西缘补水（东海/琅琊东北侧，避免海岸外侧残留平原格）
   {type:'water', pts:'792,92 836,100 872,138 878,190 858,232 824,246 798,222 792,178 804,132'},
   // 南海补充（交州/番禺正南方海域，与主海岸线polygon底部衔接）
   // 南海补充（斜切海岸线底部→番禺以南→交州以南，与主海岸线衔接）
-  {type:'water', pts:'550,692 580,692 615,692 645,692 666,692 698,692 720,700 741,715 1075,740 705,738 550,740 407,738 312,728 276,710 288,695 371,692 455,692 520,692'},
+  {type:'water', pts:'742,704 790,708 840,716 1075,740 1075,750 760,742 720,732'},
   // 岭南东南外海（番禺东南，压掉边缘空白平原）
-  {type:'water', pts:'560,635 600,632 650,646 690,674 705,704 650,710 590,700 548,680 536,655'},
+  {type:'water', pts:'650,650 690,668 720,700 700,720 655,708 620,684 622,662'},
   // 东南近海（豫章以南～番禺以东，斜切至南海，无直角）
   // 西界从会稽(y≈470)沿武夷山东麓内收，到珠江口斜切向西南至番禺东方
-  {type:'water', pts:'846,478 865,500 872,530 862,560 842,590 812,620 775,646 732,666 690,680 640,692 590,696 575,690 600,674 628,652 655,628 682,598 710,568 742,538 780,508 818,486'},
+  {type:'water', pts:'846,478 865,500 872,530 862,560 842,590 812,620 780,646 750,670 720,690 700,682 710,660 735,630 760,598 790,560 818,520 836,492'},
 
   // ══════ 边界不可通行 (impassable) ══════
   // 北方塞外（上边界，延伸覆盖到燕山脚下，x>700留给渤海水域）
@@ -798,6 +802,8 @@ const TERRAIN_POLYS = [
   {type:'impassable', pts:'82,582 121,575 150,588 162,618 162,648 150,668 127,675 97,672 79,652 70,625 70,600'},
   // 南中-五岭间大面积补丁（x=195~375, y=588~650，封堵所有残余plain）
   {type:'impassable', pts:'162,588 204,582 252,585 300,590 347,598 377,610 381,648 347,650 300,645 252,640 204,638 168,640 162,625'},
+  // 武夷-岭南东段边界（豫章东南至番禺东侧，避免东南山海边缘残留可通行plain）
+  {type:'impassable', pts:'590,620 640,620 690,630 725,650 735,690 705,705 660,690 610,668'},
 
   // ══════ 林地 (forest) ══════
   // 荆南林区（夷陵南侧）
@@ -1034,18 +1040,6 @@ function buildHexTerrain() {
       else if (d <= 9)  { HEX_TERRAIN[k] = 'coastal_water'; }
       else              { HEX_TERRAIN[k] = 'deep_water'; }
     });
-  }
-
-  // 5.5 地理硬规则：番禺(col52,row62)以南(row≥64)的西段(col<63)不应有水域
-  //   big_east/east_coast poly西南角延伸至此，强制改为impassable（岭南山脉延伸）
-  for (let col = 0; col < 63; col++) {
-    for (let row = 64; row < HEX_ROWS; row++) {
-      const k = hkey(col, row);
-      const t = HEX_TERRAIN[k];
-      if (t === 'water' || t === 'coastal_water' || t === 'deep_water') {
-        HEX_TERRAIN[k] = 'impassable';
-      }
-    }
   }
 
   // 6. 孤岛检测：找最大连通分量，其余可通行hex标为impassable（消除地图边缘孤岛）

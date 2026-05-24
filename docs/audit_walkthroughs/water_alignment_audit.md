@@ -30,7 +30,7 @@ The player-facing contract is:
 | Pearl / Xi River trunk | covered by `RIVERS` | added |
 | Southwest visible waterway, southern Yunnan | covered by `RIVERS` | added |
 | Coast / offshore sea | covered by `TERRAIN_POLYS` water polygons | retained |
-| Large lake/near-water bodies in middle/lower Yangtze area | covered by `TERRAIN_POLYS` and nearby `RIVERS` | retained |
+| Large lake/near-water bodies in middle/lower Yangtze area | represented by nearby `RIVERS`; oversized hard-water lake polygons removed from `TERRAIN_POLYS` | corrected |
 
 ## Validation
 - `node --check src/data/cities.js`: PASS
@@ -41,5 +41,5 @@ The player-facing contract is:
 
 ## Notes
 - `Roads Touching River/Water Hexes` increased after this pass. That is expected and desirable: those roads now acknowledge visible bitmap rivers rather than silently treating the same ground as plain.
-- Hard water remains separate: roads still do not cross `water`, `coastal_water`, or `deep_water` illegally.
+- Hard water remains separate: roads still do not cross `water`, `coastal_water`, or `deep_water` illegally. Inland lake-scale water near Dongting/Poyang/Taihu is not modeled as hard-water hexes because the bitmap and road/city layout do not support those large surfaces at current scale.
 - The dashed river overlay was removed from the render layer. Rivers remain in rules/tooltip/movement and as subtle per-hex water glyphs, while the bitmap provides the continuous visual river line.

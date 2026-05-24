@@ -195,10 +195,8 @@ function _renderCityList(c) {
       ${cities.map(cd=>{
         const city=G.cities[cd.id];
         const fogLv = getCityFogLevel(G.playerFac, cd.id);
-        // ★ v116: unexplored城市不在列表中显示
-        if(fogLv === FOG_UNEXPLORED) return '';
         let displayFac = fogLv === FOG_VISIBLE ? city.fac
-          : fogLv === FOG_EXPLORED ? (G.fogSnap?.[G.playerFac]?.[cd.id]?.fac || 'none')
+          : fogLv === FOG_EXPLORED ? getKnownCityFac(G.playerFac, cd.id)
           : 'none';
         const dfc = getFactionDef(displayFac);
         const cityCol = fogLv === FOG_VISIBLE ? (dfc ? dfc.color : 'rgba(120,100,70,.4)')
@@ -263,10 +261,13 @@ function _renderCityDetail(c){
       <div style="margin-top:16px;font-size:9px;color:rgba(120,100,70,.3)">敌方城池无法查看详细内政信息</div>`;
     } else if (fogLv === FOG_EXPLORED) {
       const snap = G.fogSnap?.[G.playerFac]?.[G.selCity];
-      dispFacName = snap ? (getFactionDef(snap.fac)?.name || '未知') : '未知';
-      dispCol = snap ? (getFactionDef(snap.fac)?.color || '#888') : '#888';
+      const knownFac = getKnownCityFac(G.playerFac, G.selCity);
+      const knownFacDef = getFactionDef(knownFac);
+      const intelTurn = snap ? `第${snap.turn}旬` : '开局归属';
+      dispFacName = knownFacDef?.name || '未知';
+      dispCol = knownFacDef?.color || '#888';
       dispInfo = `${tagsHtmlLimited}
-        <div style="font-size:10px;color:${dispCol}99;margin-bottom:4px">归属：${dispFacName}（旧情报，第${snap?.turn??'?'}旬）</div>
+        <div style="font-size:10px;color:${dispCol}99;margin-bottom:4px">归属：${dispFacName}（旧情报，${intelTurn}）</div>
         <div style="color:rgba(120,100,70,.5);font-size:10px;line-height:2;margin-top:12px">
           人口：<span style="color:rgba(120,100,70,.35)">???</span><br>
           驻军：<span style="color:rgba(120,100,70,.35)">???</span><br>

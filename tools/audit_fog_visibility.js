@@ -4,6 +4,7 @@ const vm = require('vm');
 const mapSrc = fs.readFileSync('src/core/map.js', 'utf8');
 const renderCacheSrc = fs.readFileSync('src/render/render_cache.js', 'utf8');
 const mapInteractionSrc = fs.readFileSync('src/render/map_interaction.js', 'utf8');
+const uiPanelsSrc = fs.readFileSync('src/render/ui_panels.js', 'utf8');
 const tooltipSrc = fs.readFileSync('src/render/tooltips.js', 'utf8');
 const overlaySrc = fs.readFileSync('src/render/overlay.js', 'utf8');
 const diplomacySrc = fs.readFileSync('src/chains/diplomacy.js', 'utf8');
@@ -95,24 +96,43 @@ const checks = [
     pass: helperMatch && !helperBody.includes("'impassable'") && !helperBody.includes('"impassable"'),
   },
   {
-    name: 'unexplored cities are skipped in map city layer',
-    pass: !fs.readFileSync('src/render/map_render.js', 'utf8').includes("_getCitySvgCache('unexplored')") &&
-      renderCacheSrc.includes('if (!style) return;'),
+    name: 'unexplored city geography is still rendered on map',
+    pass: renderCacheSrc.includes("unexplored:") &&
+      renderCacheSrc.includes("return 'unexplored';") &&
+      !renderCacheSrc.includes('if (!style) return;'),
   },
   {
-    name: 'city svg cache has no unexplored render path',
-    pass: !renderCacheSrc.includes("layer === 'unexplored'") &&
-      !renderCacheSrc.includes("return 'unexplored'") &&
-      !(renderCacheSrc.includes('CITY_FOG_STYLE') && renderCacheSrc.includes('unexplored:')),
+    name: 'unexplored city style is neutral and does not reveal ownership',
+    pass: renderCacheSrc.includes("unexplored:") &&
+      renderCacheSrc.includes("neutralFill: true") &&
+      renderCacheSrc.includes("if (!fogKind) return 'none';") &&
+      renderCacheSrc.includes("if (fogKind === 'visible') return city.fac;") &&
+      renderCacheSrc.includes("return 'none';"),
+  },
+  {
+    name: 'explored city ownership falls back to opening owner',
+    pass: mapSrc.includes('function getInitialCityFac(cityId)') &&
+      mapSrc.includes('function getKnownCityFac(viewerFid, cityId)') &&
+      mapSrc.includes('G.fogSnap?.[viewerFid]?.[cityId]?.fac || getInitialCityFac(cityId)') &&
+      renderCacheSrc.includes("if (fogKind === 'explored') return getKnownCityFac(G.playerFac, def.id);") &&
+      uiPanelsSrc.includes("fogLv === FOG_EXPLORED ? getKnownCityFac(G.playerFac, cd.id)") &&
+      overlaySrc.includes('if (fogLv === FOG_EXPLORED) return getKnownCityFac(G.playerFac, cityId);'),
+  },
+  {
+    name: 'explored fog writes synchronize city-center intel',
+    pass: mapSrc.includes('function markFogKeyExplored(fid, fog, k, turn)') &&
+      mapSrc.includes('setCityFogSnapshot(fid, cityId, turn, false)') &&
+      mapSrc.includes('markFogKeyExplored(fid, fog, k, turn)') &&
+      !mapSrc.includes('preserveUnknownCityCenters'),
   },
   {
     name: 'fog reveal animation uses shared fog-clear terrain rule',
     pass: mapInteractionSrc.includes('_isFogClearTerrain(ter)'),
   },
   {
-    name: 'unexplored city hex clicks do not select hidden cities',
-    pass: mapInteractionSrc.includes('cityKnown') &&
-      mapInteractionSrc.includes('fogLv === FOG_UNEXPLORED) return;'),
+    name: 'unexplored city hex clicks can select known geography',
+    pass: !mapInteractionSrc.includes('cityKnown') &&
+      !mapInteractionSrc.includes('fogLv === FOG_UNEXPLORED) return;'),
   },
   {
     name: 'unexplored terrain tooltip is hidden',
@@ -201,7 +221,7 @@ samples.forEach(s => lines.push(`- ${s}`));
 lines.push('');
 lines.push('## Current Interpretation');
 lines.push('- Unexplored land blockers are now covered by fog instead of being visually treated as always known.');
-lines.push('- Unexplored city icons/names are now suppressed on the map layer.');
+lines.push('- City geography is static knowledge: unexplored city icons/names stay visible in a neutral style.');
 lines.push('- Sea and ink-mode open water remain fog-clear to preserve the parchment/ink base-map treatment.');
 lines.push('- City visible range is radius-based; overlay territory flood-fill is no longer used as a visibility source.');
 lines.push('- Known control areas remain explored even when they are outside current visible radius.');

@@ -5,10 +5,12 @@ Scope: fog rendering policy, city visibility policy, terrain tooltip policy, and
 ## Policy Checks
 - PASS: fog clear helper exists
 - PASS: impassable is not fog-clear by default
-- PASS: unexplored cities are skipped in map city layer
-- PASS: city svg cache has no unexplored render path
+- PASS: unexplored city geography is still rendered on map
+- PASS: unexplored city style is neutral and does not reveal ownership
+- PASS: explored city ownership falls back to opening owner
+- PASS: explored fog writes synchronize city-center intel
 - PASS: fog reveal animation uses shared fog-clear terrain rule
-- PASS: unexplored city hex clicks do not select hidden cities
+- PASS: unexplored city hex clicks can select known geography
 - PASS: unexplored terrain tooltip is hidden
 - PASS: city visible no longer uses full territory flood-fill
 - PASS: road-adjacent explored city area is radius-limited
@@ -24,19 +26,19 @@ Scope: fog rendering policy, city visibility policy, terrain tooltip policy, and
 - PASS: scout reveal invalidates fog cache
 
 ## Terrain Hex Counts
-- forest: 208
-- hill: 275
-- impassable: 1783
-- mountain: 577
-- plain: 2728
-- water: 1365
+- forest: 204
+- hill: 276
+- impassable: 1932
+- mountain: 584
+- plain: 2832
+- water: 1108
 
 ## Impassable Distribution
 - top: 388
-- bottom: 286
+- bottom: 404
 - left: 319
 - right: 0
-- interior: 790
+- interior: 821
 
 ## Impassable Samples
 - q0,r0
@@ -72,7 +74,7 @@ Scope: fog rendering policy, city visibility policy, terrain tooltip policy, and
 
 ## Current Interpretation
 - Unexplored land blockers are now covered by fog instead of being visually treated as always known.
-- Unexplored city icons/names are now suppressed on the map layer.
+- City geography is static knowledge: unexplored city icons/names stay visible in a neutral style.
 - Sea and ink-mode open water remain fog-clear to preserve the parchment/ink base-map treatment.
 - City visible range is radius-based; overlay territory flood-fill is no longer used as a visibility source.
 - Known control areas remain explored even when they are outside current visible radius.

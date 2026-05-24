@@ -37,17 +37,17 @@ Very long roads: 2
 - langya 琅琊: nonPlain=0/49, terrain={"plain":49}
 - puyang 濮阳: nonPlain=0/49, terrain={"plain":49}
 - qingzhou 青州: nonPlain=0/49, terrain={"plain":49}
+- wuchang 武昌: nonPlain=0/49, terrain={"plain":49}
 - xiapi 下邳: nonPlain=0/49, terrain={"plain":49}
+- jingzhou 江陵: nonPlain=2/49, terrain={"plain":47,"hill":2}
 - lujiang 庐江: nonPlain=2/49, terrain={"mountain":2,"plain":47}
 - yuzhang 豫章: nonPlain=3/49, terrain={"plain":46,"impassable":1,"hill":2}
 - chenliu 陈留: nonPlain=5/49, terrain={"plain":44,"hill":5}
 - luoyang 洛阳: nonPlain=6/49, terrain={"plain":43,"hill":5,"mountain":1}
 - pingyuan 平原: nonPlain=6/49, terrain={"plain":43,"forest":6}
-- wuchang 武昌: nonPlain=6/49, terrain={"plain":43,"water":6}
 - luocheng 雒城: nonPlain=7/49, terrain={"plain":42,"mountain":7}
 - chengdu 成都: nonPlain=8/49, terrain={"plain":41,"mountain":8}
 - shangdang 上党: nonPlain=8/49, terrain={"plain":41,"mountain":8}
-- xuchang 许昌: nonPlain=8/49, terrain={"hill":8,"plain":41}
 
 ## Cities
 - youzhou 蓟城: q56,r6, px=518,72, terrain=mountain

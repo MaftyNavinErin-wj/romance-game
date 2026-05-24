@@ -209,7 +209,6 @@ function handleMapClick(e){
   const cityId = HEX_CITY[hexK];
   const pFog = G.fog?.[G.playerFac];
   const cityFogLv = cityId && pFog ? (pFog[hexK] ?? FOG_UNEXPLORED) : FOG_VISIBLE;
-  const cityKnown = !cityId || cityFogLv !== FOG_UNEXPLORED;
 
   if(G.selUnitId){
     const unit = G.units.find(u=>u.id===G.selUnitId);
@@ -242,7 +241,7 @@ function handleMapClick(e){
     }
 
     // ── 点击城市 → handleCityClick ──
-    if(cityId && cityKnown){
+    if(cityId){
       if(_marchAnimating) return; // ★ v99
       // 城市点击也走预览逻辑
       const destCity = CITY_MAP[cityId];
@@ -303,7 +302,7 @@ function handleMapClick(e){
   } else {
     // 无选中部队
     clearMovePreview();
-    if(cityId && cityKnown){
+    if(cityId){
       handleCityClick(cityId);
       return;
     }
@@ -318,9 +317,7 @@ function handleCityClick(cityId){
   if(_marchAnimating) return; // ★ v99
   const cdef = CITY_MAP[cityId];
   const fogLv = cdef && G.fog?.[G.playerFac] ? (G.fog[G.playerFac][hkey(cdef.q, cdef.r)] ?? FOG_UNEXPLORED) : FOG_VISIBLE;
-  if(!G.selUnitId && fogLv === FOG_UNEXPLORED) return;
   if(G.selUnitId){
-    if(fogLv === FOG_UNEXPLORED) return;
     const unit = G.units.find(u=>u.id===G.selUnitId);
     if(!unit||unit.fac!==G.playerFac) return;
     const destCity = CITY_MAP[cityId];

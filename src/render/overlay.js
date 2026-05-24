@@ -222,7 +222,7 @@ function _playerCityFogLevel(cityId) {
 function _overlayKnownFac(cityId, currentFac) {
   const fogLv = _playerCityFogLevel(cityId);
   if (fogLv === FOG_VISIBLE) return currentFac;
-  if (fogLv === FOG_EXPLORED) return G.fogSnap?.[G.playerFac]?.[cityId]?.fac || null;
+  if (fogLv === FOG_EXPLORED) return getKnownCityFac(G.playerFac, cityId);
   return null;
 }
 

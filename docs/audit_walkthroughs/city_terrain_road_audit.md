@@ -98,18 +98,18 @@ Verdict rules: reference/coverage/connectivity/blockage/hard-water road sections
 - chaigang: nearest=wuchang, dist=62px, hex=6
 
 ## Sparse Passable Hex Prompts
+- q76,r60: nearest=yuzhang, dist=137px, terrain=plain
 - q80,r49: nearest=huiji, dist=125px, terrain=mountain
+- q65,r61: nearest=panyu, dist=117px, terrain=plain
 - q31,r56: nearest=yongan, dist=105px, terrain=mountain
-- q64,r60: nearest=yuzhang, dist=105px, terrain=plain
 - q86,r17: nearest=beihai, dist=104px, terrain=plain
-- q69,r59: nearest=yuzhang, dist=102px, terrain=forest
 - q87,r10: nearest=beihai, dist=100px, terrain=plain
+- q75,r55: nearest=yuzhang, dist=99px, terrain=river
 - q81,r44: nearest=suzhou, dist=99px, terrain=mountain
+- q71,r58: nearest=yuzhang, dist=99px, terrain=plain
 - q93,r24: nearest=donghai, dist=95px, terrain=plain
 - q36,r53: nearest=jiaozhou, dist=92px, terrain=plain
 - q83,r5: nearest=beihai, dist=92px, terrain=plain
-- q26,r55: nearest=yongan, dist=92px, terrain=plain
-- q76,r52: nearest=yuzhang, dist=92px, terrain=mountain
 
 ## Road Network Detour Prompts
 - PASS
@@ -145,7 +145,7 @@ Verdict rules: reference/coverage/connectivity/blockage/hard-water road sections
 | jianye / 建业 | 72,37 | plain->plain | 13/49 rough, 10/49 water | 4 | lujiang 58px | OK: east/river lowland placement; bitmap darkness is ink/shore texture, not a data mountain enclosure. |
 | jiaozhou / 交州 | 43,59 | forest->plain | 6/49 rough, 8/49 water | 4 | lingling 78px | ACCEPTED: rough or river-adjacent region matches the real western/southern terrain band. |
 | jingkou / 京口 | 84,34 | plain->plain | 0/49 rough, 4/49 water | 4 | guangling 45px | OK: east/river lowland placement; bitmap darkness is ink/shore texture, not a data mountain enclosure. |
-| jingzhou / 江陵 | 47,40 | plain->plain | 2/49 rough, 18/49 water | 4 | wuchang 54px | OK: center is passable and spacing/road checks are within thresholds. |
+| jingzhou / 江陵 | 47,40 | plain->plain | 2/49 rough, 10/49 water | 4 | wuchang 54px | OK: center is passable and spacing/road checks are within thresholds. |
 | langya / 琅琊 | 75,20 | plain->plain | 0/49 rough, 9/49 water | 3 | xiapi 85px | OK: east/river lowland placement; bitmap darkness is ink/shore texture, not a data mountain enclosure. |
 | liangzhou / 姑臧 | 8,18 | mountain->plain | 47/49 rough, 0/49 water | 2 | wuwei 48px | OK: center is passable and spacing/road checks are within thresholds. |
 | lingling / 零陵 | 50,55 | plain->plain | 18/49 rough, 3/49 water | 4 | panyu 75px | ACCEPTED: rough or river-adjacent region matches the real western/southern terrain band. |
@@ -160,9 +160,9 @@ Verdict rules: reference/coverage/connectivity/blockage/hard-water road sections
 | shangdang / 上党 | 36,14 | plain->plain | 8/49 rough, 0/49 water | 3 | hedong 45px | OK: center is passable and spacing/road checks are within thresholds. |
 | shangyong / 上庸 | 35,34 | plain->plain | 12/49 rough, 7/49 water | 3 | yiling 45px | ACCEPTED: rough or river-adjacent region matches the real western/southern terrain band. |
 | shouchun / 寿春 | 63,28 | hill->plain | 24/49 rough, 6/49 water | 5 | hefei 10px | OK: east/river lowland placement; bitmap darkness is ink/shore texture, not a data mountain enclosure. |
-| suzhou / 吴郡 | 90,39 | plain->plain | 0/49 rough, 29/49 water | 2 | huiji 45px | ACCEPTED: rough or river-adjacent region matches the real western/southern terrain band. |
+| suzhou / 吴郡 | 90,39 | plain->plain | 0/49 rough, 24/49 water | 2 | huiji 45px | ACCEPTED: rough or river-adjacent region matches the real western/southern terrain band. |
 | tianshui / 天水 | 19,24 | mountain->plain | 16/49 rough, 4/49 water | 5 | anding 55px | ACCEPTED: rough or river-adjacent region matches the real western/southern terrain band. |
-| wuchang / 武昌 | 53,40 | plain->plain | 0/49 rough, 20/49 water | 4 | jingzhou 54px | OK: center is passable and spacing/road checks are within thresholds. |
+| wuchang / 武昌 | 53,40 | plain->plain | 0/49 rough, 14/49 water | 4 | jingzhou 54px | OK: center is passable and spacing/road checks are within thresholds. |
 | wuling / 武陵 | 44,47 | hill->plain | 38/49 rough, 0/49 water | 3 | jingzhou 73px | ACCEPTED: rough or river-adjacent region matches the real western/southern terrain band. |
 | wuwei / 武威 | 12,15 | mountain->plain | 29/49 rough, 0/49 water | 2 | liangzhou 48px | OK: center is passable and spacing/road checks are within thresholds. |
 | xiangyang / 襄阳 | 45,33 | hill->plain | 17/49 rough, 9/49 water | 5 | nanyang 27px | OK: center is passable and spacing/road checks are within thresholds. |

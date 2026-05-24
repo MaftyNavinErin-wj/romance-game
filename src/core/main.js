@@ -57,6 +57,7 @@ function initGame(scenarioId){
   G.scenarioId = m.scenarioId;
   G.turn=1; G.year=0; G.seasonIdx=0; // 重置回合计数 (G.year 是 YEARS[] 索引, 每 36 旬 +1)
   G.startYear = m.startYear;         // §8.4 W1: 消费 scenario startYear (绝对年, 阶段 6 年龄 hook 用)
+  G.initialCityFac = Object.fromEntries(m.CITIES_DEF.map(c => [c.id, c.fac || 'none']));
   getScenarioFactions().forEach(fid=>{
     G.factions[fid]={res:{...m.initialRes[fid]},cityCount:0,totalTroops:0,totalPop:0, // §8.4 W1: res ← m.initialRes (v181 硬编码字面搬到 SCENARIO.factions[fid].res)
       taxId:'norm',    // ★ 每势力独立赋税
