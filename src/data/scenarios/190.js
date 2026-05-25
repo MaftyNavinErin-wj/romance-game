@@ -46,7 +46,7 @@ const SCENARIO_190 = {
       "reputation": 10,
       "emperor": true,
       "techPreunlock": ["mil1"],
-      "aiPersonality": { "atkThreshold": 0.45, "siegeThreshold": 0.5, "diploAggro": 0.75, "deployBias": 0.2, "budgetBias": 0.15 },
+      "aiPersonality": { "atkThreshold": 0.58, "siegeThreshold": 0.62, "diploAggro": 0.55, "deployBias": 0.05, "budgetBias": 0.1 },
       "foundingCore": ["董卓","吕布","李傕","郭汜","华雄","张辽","牛辅","徐荣"]
     },
     "yuanshao": {
@@ -63,7 +63,7 @@ const SCENARIO_190 = {
       "reputation": 85,
       "emperor": false,
       "techPreunlock": ["econ1"],
-      "aiPersonality": { "atkThreshold": 0.55, "siegeThreshold": 0.55, "diploAggro": 0.6, "deployBias": 0.1, "budgetBias": 0.05 },
+      "aiPersonality": { "atkThreshold": 0.62, "siegeThreshold": 0.65, "diploAggro": 0.45, "deployBias": 0, "budgetBias": 0.05 },
       "foundingCore": ["袁绍","颜良","文丑","审配","麴义","田丰","沮授","逢纪","许攸"]
     },
     "yuanshu": {
@@ -80,7 +80,7 @@ const SCENARIO_190 = {
       "reputation": 60,
       "emperor": false,
       "techPreunlock": ["econ1"],
-      "aiPersonality": { "atkThreshold": 0.5, "siegeThreshold": 0.55, "diploAggro": 0.65, "deployBias": 0.15, "budgetBias": 0.2 },
+      "aiPersonality": { "atkThreshold": 0.6, "siegeThreshold": 0.65, "diploAggro": 0.48, "deployBias": 0.05, "budgetBias": 0.15 },
       "foundingCore": ["袁术","纪灵","张勋","桥蕤","雷薄"]
     },
     // ── 中等 (warlord / regional, 一州之主) ──
@@ -98,7 +98,7 @@ const SCENARIO_190 = {
       "reputation": 45,
       "emperor": false,
       "techPreunlock": [],
-      "aiPersonality": { "atkThreshold": 0.45, "siegeThreshold": 0.5, "diploAggro": 0.55, "deployBias": 0.15, "budgetBias": 0.05 },
+      "aiPersonality": { "atkThreshold": 0.58, "siegeThreshold": 0.62, "diploAggro": 0.42, "deployBias": 0.05, "budgetBias": 0.05 },
       "foundingCore": ["曹操","夏侯惇","夏侯渊","曹仁","曹洪","典韦","卫兹","荀彧","荀攸","程昱","戏志才","鲍信"]
     },
     "sunjian": {
@@ -115,7 +115,7 @@ const SCENARIO_190 = {
       "reputation": 55,
       "emperor": false,
       "techPreunlock": ["train1"],
-      "aiPersonality": { "atkThreshold": 0.4, "siegeThreshold": 0.5, "diploAggro": 0.5, "deployBias": 0.2, "budgetBias": 0 },
+      "aiPersonality": { "atkThreshold": 0.56, "siegeThreshold": 0.62, "diploAggro": 0.42, "deployBias": 0.05, "budgetBias": 0 },
       "foundingCore": ["孙坚","程普","黄盖","韩当","祖茂","孙策"]
     },
     "liubiao": {
@@ -132,7 +132,7 @@ const SCENARIO_190 = {
       "reputation": 70,
       "emperor": false,
       "techPreunlock": ["civ1"],
-      "aiPersonality": { "atkThreshold": 0.65, "siegeThreshold": 0.65, "diploAggro": 0.35, "deployBias": -0.1, "budgetBias": -0.05 },
+      "aiPersonality": { "atkThreshold": 0.72, "siegeThreshold": 0.72, "diploAggro": 0.25, "deployBias": -0.2, "budgetBias": -0.05 },
       "foundingCore": ["刘表","蒯越","蒯良","蔡瑁","文聘"]
     },
     "liuyan": {
@@ -149,7 +149,7 @@ const SCENARIO_190 = {
       "reputation": 65,
       "emperor": false,
       "techPreunlock": ["civ1"],
-      "aiPersonality": { "atkThreshold": 0.7, "siegeThreshold": 0.7, "diploAggro": 0.3, "deployBias": -0.15, "budgetBias": -0.1 },
+      "aiPersonality": { "atkThreshold": 0.75, "siegeThreshold": 0.75, "diploAggro": 0.22, "deployBias": -0.2, "budgetBias": -0.1 },
       "foundingCore": ["刘焉","张任","严颜","吴懿","张松"]
     },
     "liuyu": {
@@ -166,7 +166,7 @@ const SCENARIO_190 = {
       "reputation": 85,
       "emperor": false,
       "techPreunlock": ["pol1"],
-      "aiPersonality": { "atkThreshold": 0.75, "siegeThreshold": 0.75, "diploAggro": 0.2, "deployBias": -0.2, "budgetBias": -0.15 },
+      "aiPersonality": { "atkThreshold": 0.8, "siegeThreshold": 0.8, "diploAggro": 0.18, "deployBias": -0.25, "budgetBias": -0.15 },
       "foundingCore": ["刘虞","鲜于辅","阎柔","田畴"]
     },
     "gongsunzan": {
@@ -184,7 +184,7 @@ const SCENARIO_190 = {
       "emperor": false,
       // mil4=坚盾 (tier1 守备型, prereq=[], 跟 mil1 锐兵 平级; 公孙瓒边军善守)
       "techPreunlock": ["mil4"],
-      "aiPersonality": { "atkThreshold": 0.4, "siegeThreshold": 0.55, "diploAggro": 0.6, "deployBias": 0.2, "budgetBias": 0.1 },
+      "aiPersonality": { "atkThreshold": 0.58, "siegeThreshold": 0.65, "diploAggro": 0.45, "deployBias": 0.05, "budgetBias": 0.1 },
       "foundingCore": ["公孙瓒","严纲","田楷","关靖","赵云","邹丹","单经"]
     },
     "taoqian": {
@@ -201,7 +201,7 @@ const SCENARIO_190 = {
       "reputation": 60,
       "emperor": false,
       "techPreunlock": [],
-      "aiPersonality": { "atkThreshold": 0.7, "siegeThreshold": 0.65, "diploAggro": 0.3, "deployBias": -0.1, "budgetBias": -0.05 },
+      "aiPersonality": { "atkThreshold": 0.75, "siegeThreshold": 0.72, "diploAggro": 0.22, "deployBias": -0.2, "budgetBias": -0.05 },
       "foundingCore": ["陶谦","陈登","曹豹","糜竺","糜芳"]
     },
     "hanfu": {
@@ -218,7 +218,7 @@ const SCENARIO_190 = {
       "reputation": 40,
       "emperor": false,
       "techPreunlock": [],
-      "aiPersonality": { "atkThreshold": 0.8, "siegeThreshold": 0.75, "diploAggro": 0.2, "deployBias": -0.2, "budgetBias": -0.1 },
+      "aiPersonality": { "atkThreshold": 0.85, "siegeThreshold": 0.82, "diploAggro": 0.16, "deployBias": -0.25, "budgetBias": -0.1 },
       "foundingCore": ["韩馥","耿武","赵浮","闵纯","高览"]
     },
     "matenghan": {
@@ -235,7 +235,7 @@ const SCENARIO_190 = {
       "reputation": 35,
       "emperor": false,
       "techPreunlock": ["mil1"],
-      "aiPersonality": { "atkThreshold": 0.45, "siegeThreshold": 0.6, "diploAggro": 0.55, "deployBias": 0.15, "budgetBias": 0.05 },
+      "aiPersonality": { "atkThreshold": 0.6, "siegeThreshold": 0.68, "diploAggro": 0.42, "deployBias": 0.03, "budgetBias": 0.05 },
       "foundingCore": ["马腾","韩遂","庞德","阎行","马超","成宜"]
     },
     // ── 弱势 / 边缘 ──
@@ -249,11 +249,11 @@ const SCENARIO_190 = {
       "stage": "warlord",
       "anchorState": null,
       "ethos": { "mandate": 0, "power": -10, "civil": 0, "military": -5, "strategy": 10 },
-      "res": { "gold": 1500, "wood": 600, "iron": 400, "horses": 300 },
+      "res": { "gold": 2500, "wood": 900, "iron": 600, "horses": 500 },
       "reputation": 70,
       "emperor": false,
       "techPreunlock": [],
-      "aiPersonality": { "atkThreshold": 0.55, "siegeThreshold": 0.6, "diploAggro": 0.4, "deployBias": 0, "budgetBias": -0.1 },
+      "aiPersonality": { "atkThreshold": 0.7, "siegeThreshold": 0.72, "diploAggro": 0.25, "deployBias": -0.1, "budgetBias": -0.05 },
       "foundingCore": ["刘备","关羽","张飞","简雍"]
     },
     "kongrong": {
@@ -270,126 +270,126 @@ const SCENARIO_190 = {
       "reputation": 75,
       "emperor": false,
       "techPreunlock": ["pol1"],
-      "aiPersonality": { "atkThreshold": 0.8, "siegeThreshold": 0.75, "diploAggro": 0.25, "deployBias": -0.2, "budgetBias": -0.15 },
+      "aiPersonality": { "atkThreshold": 0.85, "siegeThreshold": 0.82, "diploAggro": 0.18, "deployBias": -0.25, "budgetBias": -0.15 },
       "foundingCore": ["孔融","太史慈","武安国"]
     }
   },
   // ─── 初始外交 ───────────────────────────────────────────────────────
   // diplo 4-tuple: [a, b, rel(-100~100), status('enemy'|'neutral'|'ally'|'vassal')]
   // 关键关系参考 (190 年初平元年, 关东讨董联盟刚成):
-  //   - dongzhuo vs 关东诸侯 (yuanshao 盟主 / yuanshu / caocao / sunjian / 等 10 路) = enemy
-  //   - dongzhuo vs matenghan (凉州反董) = enemy
+  //   - dongzhuo vs 反董前线 (yuanshao / yuanshu / sunjian) = enemy
+  //   - 其余诸侯多为讨董名义或远距离敌意, 但未直接开战者用中性/偏高 neutral 避免触发全局宣战阈值
   //   - 关东诸侯之间: 联盟期 ally / neutral (后期反目尚未发生)
   //   - 袁绍 vs 袁术: 兄弟反目要晚一些, 190 期表面合作 neutral
   //   - liubei + gongsunzan: 同学情谊 ally
   //   - sunjian 名义投袁术 (后期被任命破虏将军): ally
   //   - 宗室之间 (liubiao/liuyan/liuyu/liubei): 通常 neutral, 同宗
   "diplo": [
-    // dongzhuo vs 关东诸侯讨董联盟 (10 路 + matenghan, 全 enemy)
+    // dongzhuo vs 反董前线: 主力开战; 远方/弱小诸侯先保留外交缓冲
     ["dongzhuo", "yuanshao",   -80, "enemy"],
     ["dongzhuo", "yuanshu",    -75, "enemy"],
-    ["dongzhuo", "caocao",     -70, "enemy"],
+    ["dongzhuo", "caocao",      55, "neutral"],
     ["dongzhuo", "sunjian",    -78, "enemy"],
-    ["dongzhuo", "gongsunzan", -50, "enemy"],
-    ["dongzhuo", "liubei",     -65, "enemy"],
-    ["dongzhuo", "liubiao",    -45, "enemy"],
-    ["dongzhuo", "taoqian",    -40, "enemy"],
-    ["dongzhuo", "hanfu",      -55, "enemy"],
-    ["dongzhuo", "kongrong",   -50, "enemy"],
-    ["dongzhuo", "matenghan",  -85, "enemy"],
-    ["dongzhuo", "liuyan",     -30, "neutral"],
-    ["dongzhuo", "liuyu",      -35, "neutral"],
+    ["dongzhuo", "gongsunzan",  55, "neutral"],
+    ["dongzhuo", "liubei",      55, "neutral"],
+    ["dongzhuo", "liubiao",     55, "neutral"],
+    ["dongzhuo", "taoqian",     55, "neutral"],
+    ["dongzhuo", "hanfu",       55, "neutral"],
+    ["dongzhuo", "kongrong",    55, "neutral"],
+    ["dongzhuo", "matenghan",   55, "neutral"],
+    ["dongzhuo", "liuyan",      60, "neutral"],
+    ["dongzhuo", "liuyu",       60, "neutral"],
 
     // 联盟内部 (盟主袁绍 + 关东诸侯)
     ["yuanshao", "caocao",      75, "ally"],
-    ["yuanshao", "yuanshu",     40, "neutral"],
-    ["yuanshao", "hanfu",       50, "neutral"],
-    ["yuanshao", "sunjian",     30, "neutral"],
-    ["yuanshao", "kongrong",    35, "neutral"],
-    ["yuanshao", "taoqian",     25, "neutral"],
-    ["yuanshao", "liubei",      20, "neutral"],
-    ["yuanshao", "gongsunzan",  -20, "neutral"],
-    ["yuanshao", "liubiao",     30, "neutral"],
+    ["yuanshao", "yuanshu",     60, "neutral"],
+    ["yuanshao", "hanfu",       60, "neutral"],
+    ["yuanshao", "sunjian",     60, "neutral"],
+    ["yuanshao", "kongrong",    60, "neutral"],
+    ["yuanshao", "taoqian",     60, "neutral"],
+    ["yuanshao", "liubei",      60, "neutral"],
+    ["yuanshao", "gongsunzan",   60, "neutral"],
+    ["yuanshao", "liubiao",     60, "neutral"],
 
     // yuanshu 拉拢 sunjian (任破虏将军)
     ["yuanshu", "sunjian",      65, "ally"],
-    ["yuanshu", "caocao",       20, "neutral"],
-    ["yuanshu", "liubiao",     -40, "neutral"],
-    ["yuanshu", "taoqian",      15, "neutral"],
-    ["yuanshu", "kongrong",     10, "neutral"],
-    ["yuanshu", "gongsunzan",   30, "neutral"],
+    ["yuanshu", "caocao",       60, "neutral"],
+    ["yuanshu", "liubiao",      60, "neutral"],
+    ["yuanshu", "taoqian",      60, "neutral"],
+    ["yuanshu", "kongrong",     60, "neutral"],
+    ["yuanshu", "gongsunzan",   60, "neutral"],
 
     // 公孙瓒 + 刘备 同学
     ["gongsunzan", "liubei",    70, "ally"],
-    ["gongsunzan", "liuyu",    -55, "enemy"],
+    ["gongsunzan", "liuyu",     60, "neutral"],
 
     // 宗室
-    ["liubei",  "liubiao",     35, "neutral"],
-    ["liubei",  "liuyu",       40, "neutral"],
-    ["liubei",  "liuyan",      30, "neutral"],
-    ["liubiao", "liuyu",       30, "neutral"],
-    ["liubiao", "liuyan",      25, "neutral"],
-    ["liuyu",   "liuyan",      20, "neutral"],
+    ["liubei",  "liubiao",     60, "neutral"],
+    ["liubei",  "liuyu",       60, "neutral"],
+    ["liubei",  "liuyan",      60, "neutral"],
+    ["liubiao", "liuyu",       60, "neutral"],
+    ["liubiao", "liuyan",      60, "neutral"],
+    ["liuyu",   "liuyan",      60, "neutral"],
 
     // 其他重要
-    ["caocao",  "sunjian",      30, "neutral"],
-    ["caocao",  "liubei",       45, "neutral"],
-    ["caocao",  "taoqian",     -15, "neutral"],
-    ["caocao",  "kongrong",     30, "neutral"],
-    ["taoqian", "kongrong",     45, "neutral"],
-    ["sunjian", "liubiao",     -55, "enemy"],
-    ["matenghan", "caocao",     20, "neutral"],
+    ["caocao",  "sunjian",      60, "neutral"],
+    ["caocao",  "liubei",       60, "neutral"],
+    ["caocao",  "taoqian",      60, "neutral"],
+    ["caocao",  "kongrong",     60, "neutral"],
+    ["taoqian", "kongrong",     60, "neutral"],
+    ["sunjian", "liubiao",      60, "neutral"],
+    ["matenghan", "caocao",     60, "neutral"],
 
     // F.1 invariant 补齐: 14 factions 须 91 pair 全列 (codex trial 2 catch). 以下 48 对 = 无强史实关系
-    // 默认 neutral 0 — 远距离 / 无直接冲突 / 未触发的中性. 后续 phase 可按 narrative 调整.
-    ["caocao", "gongsunzan",     0, "neutral"],
-    ["caocao", "hanfu",          0, "neutral"],
-    ["caocao", "liubiao",        0, "neutral"],
-    ["caocao", "liuyan",         0, "neutral"],
-    ["caocao", "liuyu",          0, "neutral"],
-    ["gongsunzan", "hanfu",      0, "neutral"],
-    ["gongsunzan", "kongrong",   0, "neutral"],
-    ["gongsunzan", "liubiao",    0, "neutral"],
-    ["gongsunzan", "liuyan",     0, "neutral"],
-    ["gongsunzan", "matenghan",  0, "neutral"],
-    ["gongsunzan", "sunjian",    0, "neutral"],
-    ["gongsunzan", "taoqian",    0, "neutral"],
-    ["hanfu", "kongrong",        0, "neutral"],
-    ["hanfu", "liubei",          0, "neutral"],
-    ["hanfu", "liubiao",         0, "neutral"],
-    ["hanfu", "liuyan",          0, "neutral"],
-    ["hanfu", "liuyu",           0, "neutral"],
-    ["hanfu", "matenghan",       0, "neutral"],
-    ["hanfu", "sunjian",         0, "neutral"],
-    ["hanfu", "taoqian",         0, "neutral"],
-    ["hanfu", "yuanshu",         0, "neutral"],
-    ["kongrong", "liubei",       0, "neutral"],
-    ["kongrong", "liubiao",      0, "neutral"],
-    ["kongrong", "liuyan",       0, "neutral"],
-    ["kongrong", "liuyu",        0, "neutral"],
-    ["kongrong", "matenghan",    0, "neutral"],
-    ["kongrong", "sunjian",      0, "neutral"],
-    ["liubei", "matenghan",      0, "neutral"],
-    ["liubei", "sunjian",        0, "neutral"],
-    ["liubei", "taoqian",        0, "neutral"],
-    ["liubei", "yuanshu",        0, "neutral"],
-    ["liubiao", "matenghan",     0, "neutral"],
-    ["liubiao", "taoqian",       0, "neutral"],
-    ["liuyan", "matenghan",      0, "neutral"],
-    ["liuyan", "sunjian",        0, "neutral"],
-    ["liuyan", "taoqian",        0, "neutral"],
-    ["liuyan", "yuanshao",       0, "neutral"],
-    ["liuyan", "yuanshu",        0, "neutral"],
-    ["liuyu", "matenghan",       0, "neutral"],
-    ["liuyu", "sunjian",         0, "neutral"],
-    ["liuyu", "taoqian",         0, "neutral"],
-    ["liuyu", "yuanshao",        0, "neutral"],
-    ["liuyu", "yuanshu",         0, "neutral"],
-    ["matenghan", "sunjian",     0, "neutral"],
-    ["matenghan", "taoqian",     0, "neutral"],
-    ["matenghan", "yuanshao",    0, "neutral"],
-    ["matenghan", "yuanshu",     0, "neutral"],
-    ["sunjian", "taoqian",       0, "neutral"]
+    // 默认 neutral 60 — 远距离 / 无直接冲突 / 未触发的中性. 避免被全局关系漂移和宣称阈值误读为早战对象.
+    ["caocao", "gongsunzan", 60, "neutral"],
+    ["caocao", "hanfu", 60, "neutral"],
+    ["caocao", "liubiao", 60, "neutral"],
+    ["caocao", "liuyan", 60, "neutral"],
+    ["caocao", "liuyu", 60, "neutral"],
+    ["gongsunzan", "hanfu", 60, "neutral"],
+    ["gongsunzan", "kongrong", 60, "neutral"],
+    ["gongsunzan", "liubiao", 60, "neutral"],
+    ["gongsunzan", "liuyan", 60, "neutral"],
+    ["gongsunzan", "matenghan", 60, "neutral"],
+    ["gongsunzan", "sunjian", 60, "neutral"],
+    ["gongsunzan", "taoqian", 60, "neutral"],
+    ["hanfu", "kongrong", 60, "neutral"],
+    ["hanfu", "liubei", 60, "neutral"],
+    ["hanfu", "liubiao", 60, "neutral"],
+    ["hanfu", "liuyan", 60, "neutral"],
+    ["hanfu", "liuyu", 60, "neutral"],
+    ["hanfu", "matenghan", 60, "neutral"],
+    ["hanfu", "sunjian", 60, "neutral"],
+    ["hanfu", "taoqian", 60, "neutral"],
+    ["hanfu", "yuanshu", 60, "neutral"],
+    ["kongrong", "liubei", 60, "neutral"],
+    ["kongrong", "liubiao", 60, "neutral"],
+    ["kongrong", "liuyan", 60, "neutral"],
+    ["kongrong", "liuyu", 60, "neutral"],
+    ["kongrong", "matenghan", 60, "neutral"],
+    ["kongrong", "sunjian", 60, "neutral"],
+    ["liubei", "matenghan", 60, "neutral"],
+    ["liubei", "sunjian", 60, "neutral"],
+    ["liubei", "taoqian", 60, "neutral"],
+    ["liubei", "yuanshu", 60, "neutral"],
+    ["liubiao", "matenghan", 60, "neutral"],
+    ["liubiao", "taoqian", 60, "neutral"],
+    ["liuyan", "matenghan", 60, "neutral"],
+    ["liuyan", "sunjian", 60, "neutral"],
+    ["liuyan", "taoqian", 60, "neutral"],
+    ["liuyan", "yuanshao", 60, "neutral"],
+    ["liuyan", "yuanshu", 60, "neutral"],
+    ["liuyu", "matenghan", 60, "neutral"],
+    ["liuyu", "sunjian", 60, "neutral"],
+    ["liuyu", "taoqian", 60, "neutral"],
+    ["liuyu", "yuanshao", 60, "neutral"],
+    ["liuyu", "yuanshu", 60, "neutral"],
+    ["matenghan", "sunjian", 60, "neutral"],
+    ["matenghan", "taoqian", 60, "neutral"],
+    ["matenghan", "yuanshao", 60, "neutral"],
+    ["matenghan", "yuanshu", 60, "neutral"],
+    ["sunjian", "taoqian", 60, "neutral"]
   ],
   // ─── 55 城归属 ─────────────────────────────────────────────────────
   // fac 分配按 190 期史实 + 简化处理 (整年合并 + 主要诸侯版图):
@@ -490,7 +490,7 @@ const SCENARIO_190 = {
     "qingzhou":  { "fac": "kongrong",  "pop": 275000, "troops": 1500, "isCapital": false }, // 青州治 (孔融名义控)
 
     // ── liubei (1): 平原相 ──
-    "pingyuan":  { "fac": "liubei",    "pop": 130000, "troops":  900, "isCapital": true  }  // 平原郡 (1f 新城)
+    "pingyuan":  { "fac": "liubei",    "pop": 130000, "troops": 1200, "isCapital": true  }  // 平原郡 (1f 新城)
   },
   // ─── 104 active 武将 (14 ruler + 90 心腹/史实任职) ────────────────────
   // 14 ruler 必 active (validator B.4); 各 fac 起手 2-4 心腹武将.

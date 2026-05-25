@@ -55,6 +55,10 @@ function initGame(scenarioId){
   // §8.4 W1: applyScenario 返回 §7.2 materialized contract, initGame 改读 m.* (势力杂项 + 入口/叙事)
   const m = applyScenario(scenarioId || '214');
   G.scenarioId = m.scenarioId;
+  if (!m.FAC[G.playerFac]) {
+    G.playerFac = m.PLAYABLE_FACS[0] || m.ALL_FACS[0] || G.playerFac;
+  }
+  if (!m.FAC[G.selFac]) G.selFac = G.playerFac;
   G.turn=1; G.year=0; G.seasonIdx=0; // 重置回合计数 (G.year 是 YEARS[] 索引, 每 36 旬 +1)
   G.startYear = m.startYear;         // §8.4 W1: 消费 scenario startYear (绝对年, 阶段 6 年龄 hook 用)
   G.initialCityFac = Object.fromEntries(m.CITIES_DEF.map(c => [c.id, c.fac || 'none']));
