@@ -24,7 +24,7 @@ const SCENARIO_190 = {
   "name": "诸侯讨董",
   "startYear": 190,
   "description": "东汉初平元年,董卓废少帝立献帝,关东诸侯起兵讨董,群雄并起。",
-  "provenance": "phase 4-d/4-e + audit v2 + metadata gate; 当前 104 active / 13 wild / 96 pending = 213/213; 190 validator 0 errors/0 warnings",
+  "provenance": "phase 4-d/4-e + audit v2 + metadata gate; 当前 98 active / 13 wild / 102 pending = 213/213; 190 validator 0 errors/0 warnings",
   // startYear=190 (初平元年) 时天子献帝仍在洛阳, 董卓持. 191 年才西迁长安.
   "emperor": {
     "cityId": "luoyang",
@@ -64,7 +64,7 @@ const SCENARIO_190 = {
       "emperor": false,
       "techPreunlock": ["econ1"],
       "aiPersonality": { "atkThreshold": 0.62, "siegeThreshold": 0.65, "diploAggro": 0.45, "deployBias": 0, "budgetBias": 0.05 },
-      "foundingCore": ["袁绍","颜良","文丑","审配","麴义","田丰","沮授","逢纪","许攸"]
+      "foundingCore": ["袁绍","颜良","文丑","逢纪","许攸","淳于琼"]
     },
     "yuanshu": {
       "ruler": "袁术",
@@ -99,7 +99,7 @@ const SCENARIO_190 = {
       "emperor": false,
       "techPreunlock": [],
       "aiPersonality": { "atkThreshold": 0.58, "siegeThreshold": 0.62, "diploAggro": 0.42, "deployBias": 0.05, "budgetBias": 0.05 },
-      "foundingCore": ["曹操","夏侯惇","夏侯渊","曹仁","曹洪","典韦","卫兹","荀彧","荀攸","程昱","戏志才","鲍信"]
+      "foundingCore": ["曹操","夏侯惇","夏侯渊","曹仁","曹洪","典韦","卫兹","戏志才","鲍信"]
     },
     "sunjian": {
       "ruler": "孙坚",
@@ -116,7 +116,7 @@ const SCENARIO_190 = {
       "emperor": false,
       "techPreunlock": ["train1"],
       "aiPersonality": { "atkThreshold": 0.56, "siegeThreshold": 0.62, "diploAggro": 0.42, "deployBias": 0.05, "budgetBias": 0 },
-      "foundingCore": ["孙坚","程普","黄盖","韩当","祖茂","孙策"]
+      "foundingCore": ["孙坚","程普","黄盖","韩当","祖茂"]
     },
     "liubiao": {
       "ruler": "刘表",
@@ -185,7 +185,7 @@ const SCENARIO_190 = {
       // mil4=坚盾 (tier1 守备型, prereq=[], 跟 mil1 锐兵 平级; 公孙瓒边军善守)
       "techPreunlock": ["mil4"],
       "aiPersonality": { "atkThreshold": 0.58, "siegeThreshold": 0.65, "diploAggro": 0.45, "deployBias": 0.05, "budgetBias": 0.1 },
-      "foundingCore": ["公孙瓒","严纲","田楷","关靖","赵云","邹丹","单经"]
+      "foundingCore": ["公孙瓒","严纲","田楷","关靖","邹丹","单经"]
     },
     "taoqian": {
       "ruler": "陶谦",
@@ -219,7 +219,7 @@ const SCENARIO_190 = {
       "emperor": false,
       "techPreunlock": [],
       "aiPersonality": { "atkThreshold": 0.85, "siegeThreshold": 0.82, "diploAggro": 0.16, "deployBias": -0.25, "budgetBias": -0.1 },
-      "foundingCore": ["韩馥","耿武","赵浮","闵纯","高览"]
+      "foundingCore": ["韩馥","耿武","赵浮","闵纯","张郃","高览","审配","麴义","田丰","沮授"]
     },
     "matenghan": {
       "ruler": "马腾",
@@ -236,7 +236,7 @@ const SCENARIO_190 = {
       "emperor": false,
       "techPreunlock": ["mil1"],
       "aiPersonality": { "atkThreshold": 0.6, "siegeThreshold": 0.68, "diploAggro": 0.42, "deployBias": 0.03, "budgetBias": 0.05 },
-      "foundingCore": ["马腾","韩遂","庞德","阎行","马超","成宜"]
+      "foundingCore": ["马腾","韩遂","庞德","阎行","成宜"]
     },
     // ── 弱势 / 边缘 ──
     "liubei": {
@@ -271,7 +271,7 @@ const SCENARIO_190 = {
       "emperor": false,
       "techPreunlock": ["pol1"],
       "aiPersonality": { "atkThreshold": 0.85, "siegeThreshold": 0.82, "diploAggro": 0.18, "deployBias": -0.25, "budgetBias": -0.15 },
-      "foundingCore": ["孔融","太史慈","武安国"]
+      "foundingCore": ["孔融","武安国"]
     }
   },
   // ─── 初始外交 ───────────────────────────────────────────────────────
@@ -392,7 +392,8 @@ const SCENARIO_190 = {
     ["sunjian", "taoqian", 60, "neutral"]
   ],
   // ─── 55 城归属 ─────────────────────────────────────────────────────
-  // fac 分配按 190 期史实 + 简化处理 (整年合并 + 主要诸侯版图):
+  // fac 分配按 190 史实基础 + 可玩性预置处理：
+  //   不是严格逐日控制线；部分城市采用整年合并、名义影响和后续发展压缩，给各势力保留开局空间。
   //   dongzhuo (司隶+并州+关中): luoyang/changan/hedong/bingzhou/shangdang
   //   yuanshao (渤海起家): bohai
   //   yuanshu (南阳+淮南): nanyang/xinye/lujiang/shouchun/hefei
@@ -430,7 +431,7 @@ const SCENARIO_190 = {
     "chenliu":   { "fac": "caocao",    "pop": 240000, "troops": 1800, "isCapital": true  }, // 起兵地
     "guandu":    { "fac": "caocao",    "pop": 125000, "troops": 1500, "isCapital": false }, // 兖州西门
     "puyang":    { "fac": "caocao",    "pop": 190000, "troops": 1200, "isCapital": false }, // 兖州东郡治
-    "xuchang":   { "fac": "caocao",    "pop": 425000, "troops": 4000, "isCapital": false }, // 颍川许县 (荀彧/颍川士族归附)
+    "xuchang":   { "fac": "caocao",    "pop": 425000, "troops": 4000, "isCapital": false }, // 颍川许县 (兖州西门, 可玩性预置)
 
     // ── sunjian (9): 长沙 + 江东主体 + 荆南 ──
     "changsha":  { "fac": "sunjian",   "pop": 200000, "troops": 1200, "isCapital": true  }, // 长沙太守起家
@@ -502,7 +503,7 @@ const SCENARIO_190 = {
   // - relations: [] (留 phase 4-c)
   // wild/pending 武将 不列在 generals (= 不出现于 190 scenario); 后续 phase 4-c 补 wild 池.
   "generals": {
-    // ── dongzhuo 集团 (5) ──
+    // ── dongzhuo 集团 (14) ──
     "董卓":   { "status":"active", "fac":"dongzhuo",   "city":"luoyang",   "role":"ruler", "post":{"name":"相国","rank":"王"},      "title":"挟天相国", "loyalty":100,"merit":800,"retainer":{"count":2400,"type":"cavalry"},"initialUnit":true , "relations":[{"target":"李儒","type":"臣下","intimacy":90}] },
     "吕布":   { "status":"active", "fac":"dongzhuo",   "city":"luoyang",   "role":null,    "post":{"name":"骑都尉","rank":"将"},     "title":"并州飞将", "loyalty":70, "merit":400,"retainer":{"count":1800,"type":"cavalry"},"initialUnit":true , "gamePost":"大将军", "relations":[{"target":"高顺","type":"臣下","intimacy":90}] },
     "李傕":   { "status":"active", "fac":"dongzhuo",   "city":"changan",   "role":null,    "post":{"name":"中郎将","rank":"将"},     "title":"西凉悍将", "loyalty":85, "merit":300,"retainer":{"count":1200,"type":"cavalry"},"initialUnit":false, "gamePost":"偏将军", "relations":[{"target":"郭汜","type":"同僚","intimacy":65}] },
@@ -511,69 +512,69 @@ const SCENARIO_190 = {
     "胡轸":   { "status":"active", "fac":"dongzhuo", "city":"luoyang", "role":null, "post":{"name":"中郎将","rank":"将"}, "title":"凉州旧将", "loyalty":80, "merit":120,"retainer":{"count":800, "type":"cavalry"},"initialUnit":false, "relations":[] },
     "樊稠":   { "status":"active", "fac":"dongzhuo", "city":"changan", "role":null, "post":{"name":"中郎将","rank":"将"}, "title":"西凉骑将", "loyalty":85, "merit":150,"retainer":{"count":1000,"type":"cavalry"},"initialUnit":false, "relations":[] },
     "张济":   { "status":"active", "fac":"dongzhuo", "city":"hedong",  "role":null, "post":{"name":"骁骑校尉","rank":"将"}, "title":"凉州骁骑", "loyalty":85, "merit":130,"retainer":{"count":900, "type":"cavalry"},"initialUnit":false, "relations":[{"target":"张绣","type":"侄","intimacy":85}] },
-    "高顺":   { "status":"active", "fac":"dongzhuo", "city":"luoyang", "role":null, "post":{"name":"陷阵将","rank":"将"}, "title":"陷阵营统", "loyalty":90, "merit":150,"retainer":{"count":700, "type":"heavy"},  "initialUnit":false, "gamePost":"后将军", "relations":[{"target":"吕布","type":"主君","intimacy":90}] },
+    "高顺":   { "status":"active", "fac":"dongzhuo", "city":"luoyang", "role":null, "post":{"name":"陷阵将","rank":"将"}, "title":"陷阵营统领", "loyalty":90, "merit":150,"retainer":{"count":700, "type":"heavy"},  "initialUnit":false, "gamePost":"后将军", "relations":[{"target":"吕布","type":"主君","intimacy":90}] },
 
     
     "张辽":   { "status":"active", "fac":"dongzhuo", "city":"luoyang", "role":null, "post":{"name":"骑都尉","rank":"将"}, "title":"并州良将", "loyalty":75,"merit":180,"retainer":{"count":1100,"type":"cavalry"},"initialUnit":false, "gamePost":"前将军", "relations":[] },
-    "牛辅":   { "status":"active", "fac":"dongzhuo", "city":"changan", "role":null, "post":{"name":"女婿/中郎将","rank":"将"}, "title":"董卓女婿", "loyalty":95,"merit":120,"retainer":{"count":800,"type":"cavalry"},"initialUnit":false, "relations":[] },
+    "牛辅":   { "status":"active", "fac":"dongzhuo", "city":"changan", "role":null, "post":{"name":"中郎将","rank":"将"}, "title":"凉州姻亲", "loyalty":95,"merit":120,"retainer":{"count":800,"type":"cavalry"},"initialUnit":false, "relations":[] },
     "徐荣":   { "status":"active", "fac":"dongzhuo", "city":"luoyang", "role":null, "post":{"name":"中郎将","rank":"将"}, "title":"荥阳名将", "loyalty":85,"merit":250,"retainer":{"count":1100,"type":"cavalry"},"initialUnit":false, "relations":[] },
     "贾诩":   { "status":"active", "fac":"dongzhuo", "city":"changan", "role":"strategist", "post":{"name":"讨虏校尉","rank":"文官"}, "title":"毒士初仕", "loyalty":65, "merit":250,"retainer":{"count":150,"type":"light"},"initialUnit":false, "relations":[], "gamePost":"尚书令" },
     "李儒":   { "status":"active", "fac":"dongzhuo", "city":"luoyang", "role":"strategist", "post":{"name":"郎中令","rank":"文官"}, "title":"董卓谋主", "loyalty":95, "merit":350,"retainer":{"count":300,"type":"light"},"initialUnit":false, "relations":[{"target":"董卓","type":"主君","intimacy":90}], "gamePost":"丞相" },
 
-    // ── yuanshao 集团 (5) ──
-    "袁绍":   { "status":"active", "fac":"yuanshao",   "city":"bohai",     "role":"ruler", "post":{"name":"渤海太守","rank":"将"},   "title":"讨董盟主", "loyalty":100,"merit":700,"retainer":{"count":1500,"type":"cavalry"},"initialUnit":true , "relations":[{"target":"袁术","type":"兄长","intimacy":25},{"target":"曹操","type":"旧友","intimacy":60}] },
+    // ── yuanshao 集团 (6) ──
+    "袁绍":   { "status":"active", "fac":"yuanshao",   "city":"bohai",     "role":"ruler", "post":{"name":"渤海太守","rank":"将"},   "title":"讨董盟主", "loyalty":100,"merit":700,"retainer":{"count":1500,"type":"cavalry"},"initialUnit":true , "relations":[{"target":"袁术","type":"弟","intimacy":25},{"target":"曹操","type":"旧友","intimacy":60}] },
     "颜良":   { "status":"active", "fac":"yuanshao",   "city":"bohai",     "role":null,    "post":{"name":"先锋","rank":"将"},       "title":"河北上将", "loyalty":90, "merit":250,"retainer":{"count":1200,"type":"heavy"},  "initialUnit":true , "gamePost":"前将军", "relations":[{"target":"文丑","type":"同僚","intimacy":70}] },
     "文丑":   { "status":"active", "fac":"yuanshao",   "city":"bohai",     "role":null,    "post":{"name":"先锋","rank":"将"},       "title":"河北猛将", "loyalty":90, "merit":230,"retainer":{"count":1100,"type":"cavalry"},"initialUnit":false, "gamePost":"校尉", "relations":[{"target":"颜良","type":"同僚","intimacy":70}] },
-    "审配":   { "status":"active", "fac":"yuanshao",   "city":"bohai",     "role":"strategist","post":{"name":"治中","rank":"文官"},"title":"刚直谋臣", "loyalty":90, "merit":350,"retainer":{"count":300, "type":"archer"}, "initialUnit":false, "gamePost":"从事", "relations":[] },
-    "麴义":   { "status":"active", "fac":"yuanshao",   "city":"bohai",     "role":null,    "post":{"name":"先登","rank":"将"},       "title":"先登骁将", "loyalty":75, "merit":220,"retainer":{"count":1000,"type":"archer"}, "initialUnit":false, "gamePost":"偏将军", "relations":[] },
+    "审配":   { "status":"active", "fac":"hanfu",   "city":"ye",     "role":null,"post":{"name":"从事","rank":"文官"},"title":"刚直谋臣", "loyalty":65, "merit":220,"retainer":{"count":200, "type":"archer"}, "initialUnit":false, "gamePost":"从事", "relations":[] },
+    "麴义":   { "status":"active", "fac":"hanfu",   "city":"ye",     "role":null,    "post":{"name":"先登都尉","rank":"将"},       "title":"先登骁将", "loyalty":45, "merit":220,"retainer":{"count":1000,"type":"archer"}, "initialUnit":false, "gamePost":"偏将军", "relations":[] },
 
     
-    "田丰":   { "status":"active", "fac":"yuanshao", "city":"bohai", "role":"strategist", "post":{"name":"谋主","rank":"文官"}, "title":"刚而犯上", "loyalty":90,"merit":400,"retainer":{"count":300,"type":"archer"},"initialUnit":false, "gamePost":"尚书令", "relations":[] },
-    "沮授":   { "status":"active", "fac":"yuanshao", "city":"bohai", "role":"strategist", "post":{"name":"监军","rank":"文官"}, "title":"河北谋主", "loyalty":95,"merit":420,"retainer":{"count":350,"type":"cavalry"},"initialUnit":false, "gamePost":"主簿", "relations":[] },
-    "逢纪":   { "status":"active", "fac":"yuanshao", "city":"bohai", "role":null, "post":{"name":"谋士","rank":"文官"}, "title":"河北谋士", "loyalty":85,"merit":280,"retainer":{"count":250,"type":"archer"},"initialUnit":false, "relations":[] },
+    "田丰":   { "status":"active", "fac":"hanfu", "city":"ye", "role":null, "post":{"name":"从事","rank":"文官"}, "title":"刚而犯上", "loyalty":60,"merit":280,"retainer":{"count":200,"type":"archer"},"initialUnit":false, "gamePost":"尚书令", "relations":[] },
+    "沮授":   { "status":"active", "fac":"hanfu", "city":"ye", "role":"strategist", "post":{"name":"别驾","rank":"文官"}, "title":"河北谋主", "loyalty":80,"merit":350,"retainer":{"count":250,"type":"cavalry"},"initialUnit":false, "gamePost":"主簿", "relations":[] },
+    "逢纪":   { "status":"active", "fac":"yuanshao", "city":"bohai", "role":"strategist", "post":{"name":"谋士","rank":"文官"}, "title":"河北谋士", "loyalty":85,"merit":280,"retainer":{"count":250,"type":"archer"},"initialUnit":false, "gamePost":"主簿", "relations":[] },
     "许攸":   { "status":"active", "fac":"yuanshao", "city":"bohai", "role":null, "post":{"name":"谋士","rank":"文官"}, "title":"旧交善谋", "loyalty":60,"merit":300,"retainer":{"count":250,"type":"light"},"initialUnit":false, "relations":[] },
     "淳于琼": { "status":"active", "fac":"yuanshao", "city":"bohai", "role":null, "post":{"name":"虎贲中郎将","rank":"将"}, "title":"虎贲旧将", "loyalty":75, "merit":200,"retainer":{"count":1200,"type":"light"},  "initialUnit":false, "relations":[] },
 
-    // ── yuanshu 集团 (3) ──
-    "袁术":   { "status":"active", "fac":"yuanshu",    "city":"nanyang",   "role":"ruler", "post":{"name":"南阳太守","rank":"将"},   "title":"淮南野心", "loyalty":100,"merit":600,"retainer":{"count":1200,"type":"heavy"},  "initialUnit":true , "relations":[{"target":"袁绍","type":"弟","intimacy":25}] },
+    // ── yuanshu 集团 (5) ──
+    "袁术":   { "status":"active", "fac":"yuanshu",    "city":"nanyang",   "role":"ruler", "post":{"name":"南阳太守","rank":"将"},   "title":"淮南野心", "loyalty":100,"merit":600,"retainer":{"count":1200,"type":"heavy"},  "initialUnit":true , "relations":[{"target":"袁绍","type":"兄长","intimacy":25}] },
     "纪灵":   { "status":"active", "fac":"yuanshu",    "city":"nanyang",   "role":null,    "post":{"name":"先锋","rank":"将"},       "title":"袁术上将", "loyalty":90, "merit":220,"retainer":{"count":1100,"type":"heavy"},  "initialUnit":true , "gamePost":"前将军", "relations":[] },
     "张勋":   { "status":"active", "fac":"yuanshu",    "city":"shouchun",  "role":null,    "post":{"name":"大将","rank":"将"},       "title":"淮南大将", "loyalty":85, "merit":180,"retainer":{"count":900, "type":"heavy"},  "initialUnit":false, "gamePost":"校尉", "relations":[] },
 
     
     "桥蕤":   { "status":"active", "fac":"yuanshu", "city":"nanyang", "role":null, "post":{"name":"大将","rank":"将"}, "title":"南阳将佐", "loyalty":85,"merit":180,"retainer":{"count":900,"type":"heavy"},"initialUnit":false, "gamePost":"偏将军", "relations":[] },
-    "雷薄":   { "status":"active", "fac":"yuanshu", "city":"shouchun", "role":null, "post":{"name":"将","rank":"将"}, "title":"淮南部将", "loyalty":75,"merit":150,"retainer":{"count":800,"type":"heavy"},"initialUnit":false, "relations":[] },
+    "雷薄":   { "status":"active", "fac":"yuanshu", "city":"shouchun", "role":null, "post":{"name":"部将","rank":"将"}, "title":"淮南部将", "loyalty":75,"merit":150,"retainer":{"count":800,"type":"heavy"},"initialUnit":false, "relations":[] },
 
-    // ── caocao 集团 (9) ──
+    // ── caocao 集团 (13) ──
     "曹操":   { "status":"active", "fac":"caocao",     "city":"chenliu",   "role":"ruler", "post":{"name":"奋武将军","rank":"将"},   "title":"陈留举义", "loyalty":100,"merit":500,"retainer":{"count":1500,"type":"light"},  "initialUnit":true , "relations":[{"target":"夏侯惇","type":"宗族","intimacy":88},{"target":"夏侯渊","type":"宗族","intimacy":85},{"target":"曹仁","type":"宗族","intimacy":88},{"target":"曹洪","type":"宗族","intimacy":85},{"target":"曹纯","type":"宗族","intimacy":90},{"target":"袁绍","type":"旧友","intimacy":60},{"target":"张邈","type":"故友","intimacy":70}] },
-    "夏侯惇": { "status":"active", "fac":"caocao",     "city":"chenliu",   "role":null,    "post":{"name":"先锋","rank":"将"},       "title":"宗族先锋", "loyalty":100,"merit":300,"retainer":{"count":1200,"type":"heavy"},  "initialUnit":true , "gamePost":"前将军", "relations":[{"target":"曹操","type":"宗族","intimacy":88},{"target":"夏侯渊","type":"兄长","intimacy":85}] },
-    "夏侯渊": { "status":"active", "fac":"caocao",     "city":"chenliu",   "role":null,    "post":{"name":"骑督","rank":"将"},       "title":"妙才骑督", "loyalty":100,"merit":280,"retainer":{"count":1200,"type":"cavalry"},"initialUnit":false, "gamePost":"偏将军", "relations":[{"target":"曹操","type":"宗族","intimacy":85},{"target":"夏侯惇","type":"弟","intimacy":85}] },
+    "夏侯惇": { "status":"active", "fac":"caocao",     "city":"chenliu",   "role":null,    "post":{"name":"先锋","rank":"将"},       "title":"宗族先锋", "loyalty":100,"merit":300,"retainer":{"count":1200,"type":"heavy"},  "initialUnit":true , "gamePost":"前将军", "relations":[{"target":"曹操","type":"宗族","intimacy":88},{"target":"夏侯渊","type":"弟","intimacy":85}] },
+    "夏侯渊": { "status":"active", "fac":"caocao",     "city":"chenliu",   "role":null,    "post":{"name":"骑督","rank":"将"},       "title":"妙才骑督", "loyalty":100,"merit":280,"retainer":{"count":1200,"type":"cavalry"},"initialUnit":false, "gamePost":"偏将军", "relations":[{"target":"曹操","type":"宗族","intimacy":85},{"target":"夏侯惇","type":"兄长","intimacy":85}] },
     "曹仁":   { "status":"active", "fac":"caocao",     "city":"chenliu",   "role":null,    "post":{"name":"别部司马","rank":"将"},   "title":"曹氏屏障", "loyalty":100,"merit":250,"retainer":{"count":1100,"type":"heavy"},  "initialUnit":false, "gamePost":"校尉", "relations":[{"target":"曹操","type":"宗族","intimacy":88}] },
     "曹洪":   { "status":"active", "fac":"caocao",     "city":"chenliu",   "role":null,    "post":{"name":"别部司马","rank":"将"},   "title":"曹氏骏驹", "loyalty":100,"merit":200,"retainer":{"count":900, "type":"cavalry"},"initialUnit":false, "relations":[{"target":"曹操","type":"宗族","intimacy":85}] },
     "典韦":   { "status":"active", "fac":"caocao",     "city":"chenliu",   "role":null,    "post":{"name":"校尉","rank":"将"},       "title":"古之恶来", "loyalty":95, "merit":180,"retainer":{"count":800, "type":"heavy"},  "initialUnit":false, "relations":[] },
     "卫兹":   { "status":"active", "fac":"caocao",     "city":"chenliu",   "role":null,    "post":{"name":"长史","rank":"文官"},     "title":"陈留义士", "loyalty":95, "merit":200,"retainer":{"count":400, "type":"light"},  "initialUnit":false, "relations":[] },
     "乐进":   { "status":"active", "fac":"caocao", "city":"chenliu", "role":null, "post":{"name":"军假司马","rank":"将"}, "title":"先登勇将", "loyalty":85, "merit":120,"retainer":{"count":600,"type":"heavy"},   "initialUnit":false, "relations":[] },
     "李典":   { "status":"active", "fac":"caocao", "city":"chenliu", "role":null, "post":{"name":"军假司马","rank":"将"}, "title":"儒侠将军", "loyalty":80, "merit":100,"retainer":{"count":500,"type":"light"},   "initialUnit":false, "relations":[] },
-    "曹纯":   { "status":"active", "fac":"caocao", "city":"chenliu", "role":null, "post":{"name":"虎豹骑前身","rank":"将"}, "title":"虎豹骑督", "loyalty":95, "merit":80, "retainer":{"count":400,"type":"cavalry"}, "initialUnit":false, "relations":[{"target":"曹操","type":"宗族","intimacy":90}] },
-    "史涣":   { "status":"active", "fac":"caocao", "city":"chenliu", "role":null, "post":{"name":"中军校尉","rank":"将"}, "title":"中军校尉", "loyalty":85, "merit":80, "retainer":{"count":400,"type":"heavy"},   "initialUnit":false, "relations":[] },
-    "荀彧":   { "status":"active", "fac":"caocao",     "city":"xuchang",   "role":"strategist","post":{"name":"司马","rank":"文官"},"title":"王佐之才", "loyalty":95, "merit":350,"retainer":{"count":300, "type":"archer"}, "initialUnit":false, "gamePost":"尚书令", "relations":[{"target":"荀攸","type":"宗族","intimacy":88}] },
-    "荀攸":   { "status":"active", "fac":"caocao",     "city":"xuchang",   "role":null,    "post":{"name":"参军","rank":"文官"},     "title":"谋主之侄", "loyalty":90, "merit":250,"retainer":{"count":250, "type":"archer"}, "initialUnit":false, "gamePost":"主簿", "relations":[{"target":"荀彧","type":"宗族","intimacy":88}] },
+    "曹纯":   { "status":"active", "fac":"caocao", "city":"chenliu", "role":null, "post":{"name":"骑督","rank":"将"}, "title":"曹氏骑督", "loyalty":95, "merit":80, "retainer":{"count":400,"type":"cavalry"}, "initialUnit":false, "relations":[{"target":"曹操","type":"宗族","intimacy":90}] },
+    "史涣":   { "status":"active", "fac":"caocao", "city":"chenliu", "role":null, "post":{"name":"中军校尉","rank":"将"}, "title":"中军宿将", "loyalty":85, "merit":80, "retainer":{"count":400,"type":"heavy"},   "initialUnit":false, "relations":[] },
+    "荀彧":   { "status":"pending", "fac":"wild", "pendingFac":"caocao", "availableYear":191, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"191 转投曹操"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[{"target":"荀攸","type":"宗族","intimacy":88}] }},
+    "荀攸":   { "status":"pending", "fac":"wild", "pendingFac":"caocao", "availableYear":196, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"196 入曹操幕府"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[{"target":"荀彧","type":"宗族","intimacy":88}] }},
 
     
-    "程昱":   { "status":"active", "fac":"caocao", "city":"chenliu", "role":"strategist", "post":{"name":"谋士","rank":"文官"}, "title":"刚戾谋臣", "loyalty":90,"merit":300,"retainer":{"count":300,"type":"archer"},"initialUnit":false, "gamePost":"从事", "relations":[] },
+    "程昱":   { "status":"pending", "fac":"wild", "pendingFac":"caocao", "availableYear":192, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"192 受曹操征辟"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "戏志才":   { "status":"active", "fac":"caocao", "city":"chenliu", "role":"strategist", "post":{"name":"谋士","rank":"文官"}, "title":"早逝奇佐", "loyalty":92,"merit":280,"retainer":{"count":250,"type":"archer"},"initialUnit":false, "relations":[] },
     "鲍信":   { "status":"active", "fac":"caocao", "city":"chenliu", "role":null, "post":{"name":"济北相","rank":"将"}, "title":"济北义士", "loyalty":95,"merit":300,"retainer":{"count":1100,"type":"heavy"},"initialUnit":false, "relations":[{"target":"于禁","type":"臣下","intimacy":80}] },
 
     // ── sunjian 集团 (5) ──
-    "孙坚":   { "status":"active", "fac":"sunjian",    "city":"changsha",  "role":"ruler", "post":{"name":"长沙太守","rank":"将"},   "title":"江东猛虎", "loyalty":100,"merit":650,"retainer":{"count":1500,"type":"light"},  "initialUnit":true , "relations":[{"target":"孙策","type":"父亲","intimacy":95}] },
+    "孙坚":   { "status":"active", "fac":"sunjian",    "city":"changsha",  "role":"ruler", "post":{"name":"长沙太守","rank":"将"},   "title":"江东猛虎", "loyalty":100,"merit":650,"retainer":{"count":1500,"type":"light"},  "initialUnit":true , "relations":[{"target":"孙策","type":"子嗣","intimacy":95}] },
     "程普":   { "status":"active", "fac":"sunjian",    "city":"changsha",  "role":null,    "post":{"name":"司马","rank":"将"},       "title":"江东宿将", "loyalty":100,"merit":300,"retainer":{"count":1100,"type":"cavalry"},"initialUnit":true , "gamePost":"校尉", "relations":[{"target":"黄盖","type":"同僚","intimacy":75},{"target":"韩当","type":"同僚","intimacy":72}] },
     "黄盖":   { "status":"active", "fac":"sunjian",    "city":"changsha",  "role":null,    "post":{"name":"司马","rank":"将"},       "title":"忠烈老将", "loyalty":100,"merit":280,"retainer":{"count":1000,"type":"naval"},  "initialUnit":false, "gamePost":"前将军", "relations":[{"target":"程普","type":"同僚","intimacy":75},{"target":"韩当","type":"同僚","intimacy":72}] },
     "韩当":   { "status":"active", "fac":"sunjian",    "city":"changsha",  "role":null,    "post":{"name":"司马","rank":"将"},       "title":"辽西宿将", "loyalty":95, "merit":250,"retainer":{"count":1000,"type":"cavalry"},"initialUnit":false, "relations":[{"target":"程普","type":"同僚","intimacy":72},{"target":"黄盖","type":"同僚","intimacy":72}] },
     "祖茂":   { "status":"active", "fac":"sunjian",    "city":"changsha",  "role":null,    "post":{"name":"校尉","rank":"将"},       "title":"赤帻护主", "loyalty":100,"merit":180,"retainer":{"count":700, "type":"light"},  "initialUnit":false, "gamePost":"偏将军", "relations":[] },
 
     
-    "孙策":   { "status":"pending", "fac":"wild", "pendingFac":"sunjian", "availableYear":191, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"191 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[{"target":"孙坚","type":"子嗣","intimacy":95}] }},
+    "孙策":   { "status":"pending", "fac":"wild", "pendingFac":"sunjian", "availableYear":191, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"191 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[{"target":"孙坚","type":"父亲","intimacy":95}] }},
 
-    // ── liubiao 集团 (4) ──
+    // ── liubiao 集团 (9) ──
     "刘表":   { "status":"active", "fac":"liubiao",    "city":"xiangyang", "role":"ruler", "post":{"name":"荆州牧","rank":"文官"},   "title":"荆州文牧", "loyalty":100,"merit":700,"retainer":{"count":800, "type":"light"},  "initialUnit":true , "relations":[] },
     "蒯越":   { "status":"active", "fac":"liubiao",    "city":"xiangyang", "role":"strategist","post":{"name":"别驾","rank":"文官"},"title":"荆襄谋主", "loyalty":90, "merit":350,"retainer":{"count":300, "type":"archer"}, "initialUnit":false, "gamePost":"尚书令", "relations":[{"target":"蒯良","type":"兄长","intimacy":88}] },
     "蒯良":   { "status":"active", "fac":"liubiao",    "city":"xiangyang", "role":null,    "post":{"name":"主簿","rank":"文官"},     "title":"荆州名士", "loyalty":90, "merit":280,"retainer":{"count":250, "type":"archer"}, "initialUnit":false, "gamePost":"主簿", "relations":[{"target":"蒯越","type":"弟","intimacy":88}] },
@@ -584,9 +585,9 @@ const SCENARIO_190 = {
     
     "文聘":   { "status":"active", "fac":"liubiao", "city":"xiangyang", "role":null, "post":{"name":"大将","rank":"将"}, "title":"荆州柱石", "loyalty":90,"merit":250,"retainer":{"count":1000,"type":"archer"},"initialUnit":false, "gamePost":"校尉", "relations":[] },
 
-    // ── liuyan 集团 (4) ──
-    "刘焉":   { "status":"active", "fac":"liuyan",     "city":"chengdu",   "role":"ruler", "post":{"name":"益州牧","rank":"文官"},   "title":"益州牧", "loyalty":100,"merit":650,"retainer":{"count":700, "type":"light"},  "initialUnit":true , "relations":[{"target":"刘璋","type":"子嗣","intimacy":95}] },
-    "刘璋":   { "status":"active", "fac":"liuyan", "city":"chengdu", "role":null, "post":{"name":"奉车都尉","rank":"将"}, "title":"益州嗣子", "loyalty":100,"merit":200,"retainer":{"count":600, "type":"light"},  "initialUnit":false, "gamePost":"偏将军", "relations":[{"target":"刘焉","type":"父亲","intimacy":95}] },
+    // ── liuyan 集团 (7) ──
+    "刘焉":   { "status":"active", "fac":"liuyan",     "city":"chengdu",   "role":"ruler", "post":{"name":"益州牧","rank":"文官"},   "title":"宗室州牧", "loyalty":100,"merit":650,"retainer":{"count":700, "type":"light"},  "initialUnit":true , "relations":[{"target":"刘璋","type":"子嗣","intimacy":95}] },
+    "刘璋":   { "status":"pending", "fac":"wild", "pendingFac":"liuyan", "availableYear":194, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"194 奉使入蜀"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[{"target":"刘焉","type":"父亲","intimacy":95}] }},
     "王累":   { "status":"active", "fac":"liuyan", "city":"chengdu", "role":null, "post":{"name":"治中从事","rank":"文官"}, "title":"益州忠臣", "loyalty":95, "merit":120,"retainer":{"count":200, "type":"light"},  "initialUnit":false, "gamePost":"侍中", "relations":[] },
     "吴兰":   { "status":"active", "fac":"liuyan", "city":"chengdu", "role":null, "post":{"name":"校尉","rank":"将"}, "title":"蜀中将校", "loyalty":80, "merit":100,"retainer":{"count":600, "type":"heavy"},  "initialUnit":false, "gamePost":"校尉", "relations":[] },
     "张任":   { "status":"active", "fac":"liuyan",     "city":"chengdu",   "role":null,    "post":{"name":"先锋","rank":"将"},       "title":"蜀中劲弩", "loyalty":95, "merit":250,"retainer":{"count":1000,"type":"archer"}, "initialUnit":true , "gamePost":"前将军", "relations":[] },
@@ -594,36 +595,36 @@ const SCENARIO_190 = {
     "吴懿":   { "status":"active", "fac":"liuyan",     "city":"chengdu",   "role":null,    "post":{"name":"中郎将","rank":"将"},     "title":"东州皇亲", "loyalty":85, "merit":200,"retainer":{"count":700, "type":"heavy"},  "initialUnit":false, "gamePost":"左将军", "relations":[] },
 
     
-    "张松":   { "status":"active", "fac":"liuyan", "city":"chengdu", "role":"strategist", "post":{"name":"别驾","rank":"文官"}, "title":"倒持西蜀", "loyalty":70,"merit":280,"retainer":{"count":200,"type":"light"},"initialUnit":false, "gamePost":"尚书令", "relations":[] },
+    "张松":   { "status":"active", "fac":"liuyan", "city":"chengdu", "role":"strategist", "post":{"name":"别驾","rank":"文官"}, "title":"蜀中文士", "loyalty":70,"merit":280,"retainer":{"count":200,"type":"light"},"initialUnit":false, "gamePost":"尚书令", "relations":[] },
 
-    // ── liuyu 集团 (4) ──
+    // ── liuyu 集团 (5) ──
     "刘虞":   { "status":"active", "fac":"liuyu",      "city":"youzhou",   "role":"ruler", "post":{"name":"幽州牧","rank":"文官"},   "title":"幽州仁主", "loyalty":100,"merit":600,"retainer":{"count":600, "type":"light"},  "initialUnit":true , "relations":[] },
     "鲜于辅": { "status":"active", "fac":"liuyu",      "city":"youzhou",   "role":null,    "post":{"name":"长史","rank":"将"},       "title":"渔阳义从", "loyalty":90, "merit":230,"retainer":{"count":1000,"type":"cavalry"},"initialUnit":false, "gamePost":"校尉", "relations":[{"target":"鲜于银","type":"同族","intimacy":85}] },
-    "阎柔":   { "status":"active", "fac":"liuyu",      "city":"youzhou",   "role":null,    "post":{"name":"乌桓司马","rank":"将"},   "title":"乌桓司马", "loyalty":85, "merit":280,"retainer":{"count":1100,"type":"cavalry"},"initialUnit":false, "gamePost":"前将军", "relations":[] },
+    "阎柔":   { "status":"active", "fac":"liuyu",      "city":"youzhou",   "role":null,    "post":{"name":"乌桓司马","rank":"将"},   "title":"边塞抚胡", "loyalty":85, "merit":280,"retainer":{"count":1100,"type":"cavalry"},"initialUnit":false, "gamePost":"前将军", "relations":[] },
     "田畴":   { "status":"active", "fac":"liuyu",      "city":"youzhou",   "role":"strategist","post":{"name":"主簿","rank":"文官"},"title":"无终名士", "loyalty":95, "merit":300,"retainer":{"count":200, "type":"cavalry"},"initialUnit":false, "gamePost":"尚书令", "relations":[] },
 
-    // ── gongsunzan 集团 (5) ──
+    // ── gongsunzan 集团 (6) ──
     "公孙瓒": { "status":"active", "fac":"gongsunzan", "city":"beiping",   "role":"ruler", "post":{"name":"奋武将军","rank":"将"},   "title":"白马将军", "loyalty":100,"merit":650,"retainer":{"count":1500,"type":"cavalry"},"initialUnit":true , "relations":[{"target":"刘备","type":"同门","intimacy":80}] },
     "严纲":   { "status":"active", "fac":"gongsunzan", "city":"beiping",   "role":null,    "post":{"name":"先锋","rank":"将"},       "title":"白马先锋", "loyalty":95, "merit":220,"retainer":{"count":1100,"type":"cavalry"},"initialUnit":true , "gamePost":"校尉", "relations":[] },
-    "田楷":   { "status":"active", "fac":"gongsunzan", "city":"beiping",   "role":null,    "post":{"name":"青州刺史","rank":"将"},   "title":"青州刺史", "loyalty":90, "merit":250,"retainer":{"count":900, "type":"cavalry"},"initialUnit":false, "gamePost":"偏将军", "relations":[] },
+    "田楷":   { "status":"active", "fac":"gongsunzan", "city":"beiping",   "role":null,    "post":{"name":"边军校尉","rank":"将"},   "title":"白马外镇", "loyalty":90, "merit":250,"retainer":{"count":900, "type":"cavalry"},"initialUnit":false, "gamePost":"偏将军", "relations":[] },
     "关靖":   { "status":"active", "fac":"gongsunzan", "city":"beiping",   "role":"strategist","post":{"name":"主簿","rank":"文官"},"title":"白马主簿", "loyalty":95, "merit":230,"retainer":{"count":200, "type":"light"},  "initialUnit":false, "gamePost":"尚书令", "relations":[] },
-    "赵云":   { "status":"active", "fac":"gongsunzan", "city":"beiping",   "role":null,    "post":{"name":"校尉","rank":"将"},       "title":"常山之龙", "loyalty":80, "merit":150,"retainer":{"count":800, "type":"cavalry"},"initialUnit":false, "gamePost":"前将军", "relations":[] },
+    "赵云":   { "status":"pending", "fac":"wild", "pendingFac":"gongsunzan", "availableYear":191, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"191 率常山义从归公孙瓒"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
 
     
     "邹丹":   { "status":"active", "fac":"gongsunzan", "city":"beiping", "role":null, "post":{"name":"校尉","rank":"将"}, "title":"白马部将", "loyalty":90,"merit":180,"retainer":{"count":900,"type":"cavalry"},"initialUnit":false, "relations":[] },
     "单经":   { "status":"active", "fac":"gongsunzan", "city":"beiping", "role":null, "post":{"name":"校尉","rank":"将"}, "title":"边军校尉", "loyalty":85,"merit":160,"retainer":{"count":800,"type":"light"},"initialUnit":false, "relations":[] },
 
-    // ── taoqian 集团 (3) ──
+    // ── taoqian 集团 (6) ──
     "陶谦":   { "status":"active", "fac":"taoqian",    "city":"xuzhou",    "role":"ruler", "post":{"name":"徐州牧","rank":"文官"},   "title":"徐州老臣", "loyalty":100,"merit":700,"retainer":{"count":900, "type":"light"},  "initialUnit":true , "relations":[] },
     "陈登":   { "status":"active", "fac":"taoqian",    "city":"xuzhou",    "role":"strategist","post":{"name":"典农校尉","rank":"文官"},"title":"广陵智士", "loyalty":85, "merit":300,"retainer":{"count":400, "type":"archer"}, "initialUnit":false, "gamePost":"尚书令", "relations":[] },
     "曹豹":   { "status":"active", "fac":"taoqian",    "city":"xiapi",     "role":null,    "post":{"name":"丹阳兵都尉","rank":"将"}, "title":"丹阳兵督", "loyalty":80, "merit":200,"retainer":{"count":1000,"type":"light"},  "initialUnit":false, "gamePost":"前将军", "relations":[] },
     "张闿":   { "status":"active", "fac":"taoqian", "city":"xiapi", "role":null, "post":{"name":"司马","rank":"将"}, "title":"徐州悍卒", "loyalty":60, "merit":80, "retainer":{"count":500, "type":"cavalry"},"initialUnit":false, "gamePost":"校尉", "relations":[] },
 
     
-    "糜竺":   { "status":"active", "fac":"taoqian", "city":"xuzhou", "role":null, "post":{"name":"别驾","rank":"文官"}, "title":"东海豪商", "loyalty":95,"merit":300,"retainer":{"count":400,"type":"light"},"initialUnit":false, "gamePost":"主簿", "relations":[{"target":"糜芳","type":"兄长","intimacy":85}] },
-    "糜芳":   { "status":"active", "fac":"taoqian", "city":"xuzhou", "role":null, "post":{"name":"主簿","rank":"文官"}, "title":"糜氏子弟", "loyalty":85,"merit":200,"retainer":{"count":500,"type":"light"},"initialUnit":false, "gamePost":"偏将军", "relations":[{"target":"糜竺","type":"弟","intimacy":85}] },
+    "糜竺":   { "status":"active", "fac":"taoqian", "city":"xuzhou", "role":null, "post":{"name":"别驾","rank":"文官"}, "title":"东海豪商", "loyalty":95,"merit":300,"retainer":{"count":400,"type":"light"},"initialUnit":false, "gamePost":"主簿", "relations":[{"target":"糜芳","type":"弟","intimacy":85}] },
+    "糜芳":   { "status":"active", "fac":"taoqian", "city":"xuzhou", "role":null, "post":{"name":"主簿","rank":"文官"}, "title":"糜氏子弟", "loyalty":85,"merit":200,"retainer":{"count":500,"type":"light"},"initialUnit":false, "gamePost":"偏将军", "relations":[{"target":"糜竺","type":"兄长","intimacy":85}] },
 
-    // ── hanfu 集团 (3) ──
+    // ── hanfu 集团 (10) ──
     "韩馥":   { "status":"active", "fac":"hanfu",      "city":"ye",        "role":"ruler", "post":{"name":"冀州牧","rank":"文官"},   "title":"冀州弱主", "loyalty":100,"merit":500,"retainer":{"count":700, "type":"light"},  "initialUnit":true , "relations":[] },
     "耿武":   { "status":"active", "fac":"hanfu",      "city":"ye",        "role":"strategist","post":{"name":"治中","rank":"文官"},"title":"冀州忠臣", "loyalty":95, "merit":230,"retainer":{"count":250, "type":"archer"}, "initialUnit":false, "gamePost":"尚书令", "relations":[] },
     "赵浮":   { "status":"active", "fac":"hanfu",      "city":"ye",        "role":null,    "post":{"name":"都督","rank":"将"},       "title":"河阳都督", "loyalty":90, "merit":200,"retainer":{"count":900, "type":"cavalry"},"initialUnit":false, "gamePost":"校尉", "relations":[] },
@@ -633,41 +634,41 @@ const SCENARIO_190 = {
     "张郃":   { "status":"active", "fac":"hanfu", "city":"ye", "role":null, "post":{"name":"司马","rank":"将"}, "title":"河北良将", "loyalty":70, "merit":100,"retainer":{"count":600, "type":"cavalry"},"initialUnit":false, "gamePost":"前将军", "relations":[] },
     "高览":   { "status":"active", "fac":"hanfu", "city":"ye", "role":null, "post":{"name":"校尉","rank":"将"}, "title":"韩馥部将", "loyalty":80, "merit":130,"retainer":{"count":800, "type":"heavy"},  "initialUnit":false, "relations":[] },
 
-    // ── matenghan 集团 (4) ──
-    "马腾":   { "status":"active", "fac":"matenghan",  "city":"liangzhou", "role":"ruler", "post":{"name":"征西将军","rank":"将"},   "title":"西凉豪帅", "loyalty":100,"merit":600,"retainer":{"count":1400,"type":"cavalry"},"initialUnit":true , "relations":[{"target":"韩遂","type":"义兄弟","intimacy":75},{"target":"马超","type":"父亲","intimacy":92},{"target":"马铁","type":"子嗣","intimacy":95},{"target":"马休","type":"子嗣","intimacy":95}] },
+    // ── matenghan 集团 (5) ──
+    "马腾":   { "status":"active", "fac":"matenghan",  "city":"liangzhou", "role":"ruler", "post":{"name":"征西将军","rank":"将"},   "title":"西凉豪帅", "loyalty":100,"merit":600,"retainer":{"count":1400,"type":"cavalry"},"initialUnit":true , "relations":[{"target":"韩遂","type":"义兄弟","intimacy":75},{"target":"马超","type":"子嗣","intimacy":92},{"target":"马铁","type":"子嗣","intimacy":95},{"target":"马休","type":"子嗣","intimacy":95}] },
     "韩遂":   { "status":"active", "fac":"matenghan",  "city":"liangzhou", "role":"strategist","post":{"name":"金城太守","rank":"将"},"title":"凉州枭雄","loyalty":75, "merit":450,"retainer":{"count":1200,"type":"cavalry"},"initialUnit":true , "gamePost":"尚书令", "relations":[{"target":"马腾","type":"义兄弟","intimacy":75}] },
     "庞德":   { "status":"active", "fac":"matenghan",  "city":"liangzhou", "role":null,    "post":{"name":"先锋","rank":"将"},       "title":"西凉猛将", "loyalty":95, "merit":250,"retainer":{"count":1100,"type":"cavalry"},"initialUnit":false, "gamePost":"前将军", "relations":[] },
     "阎行":   { "status":"active", "fac":"matenghan",  "city":"liangzhou", "role":null,    "post":{"name":"校尉","rank":"将"},       "title":"金城健儿", "loyalty":85, "merit":200,"retainer":{"count":1000,"type":"cavalry"},"initialUnit":false, "gamePost":"校尉", "relations":[] },
 
     
-    "马超":   { "status":"pending", "fac":"wild", "pendingFac":"matenghan", "availableYear":195, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"195 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[{"target":"马腾","type":"子嗣","intimacy":92},{"target":"马铁","type":"弟","intimacy":85},{"target":"马休","type":"弟","intimacy":85}] }},
-    "成宜":   { "status":"active", "fac":"matenghan", "city":"liangzhou", "role":null, "post":{"name":"将","rank":"将"}, "title":"西凉部将", "loyalty":85,"merit":150,"retainer":{"count":900,"type":"cavalry"},"initialUnit":false, "gamePost":"偏将军", "relations":[] },
+    "马超":   { "status":"pending", "fac":"wild", "pendingFac":"matenghan", "availableYear":195, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"195 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[{"target":"马腾","type":"父亲","intimacy":92},{"target":"马铁","type":"弟","intimacy":85},{"target":"马休","type":"弟","intimacy":85}] }},
+    "成宜":   { "status":"active", "fac":"matenghan", "city":"liangzhou", "role":null, "post":{"name":"部将","rank":"将"}, "title":"西凉部将", "loyalty":85,"merit":150,"retainer":{"count":900,"type":"cavalry"},"initialUnit":false, "gamePost":"偏将军", "relations":[] },
     "马铁":   { "status":"pending", "fac":"wild", "pendingFac":"matenghan", "availableYear":200, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"200 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[{"target":"马腾","type":"父亲","intimacy":95},{"target":"马超","type":"兄长","intimacy":85}] }},
     "马休":   { "status":"pending", "fac":"wild", "pendingFac":"matenghan", "availableYear":200, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"200 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[{"target":"马腾","type":"父亲","intimacy":95},{"target":"马超","type":"兄长","intimacy":85}] }},
 
     // ── kongrong 集团 (3) ──
     "孔融":   { "status":"active", "fac":"kongrong",   "city":"beihai",    "role":"ruler", "post":{"name":"北海相","rank":"文官"},   "title":"北海名士", "loyalty":100,"merit":500,"retainer":{"count":500, "type":"light"},  "initialUnit":true , "relations":[] },
-    "太史慈": { "status":"active", "fac":"kongrong",   "city":"beihai",    "role":null,    "post":{"name":"奉义校尉","rank":"将"},   "title":"东莱义士", "loyalty":85, "merit":200,"retainer":{"count":900, "type":"archer"}, "initialUnit":true , "gamePost":"前将军", "relations":[] },
-    "武安国": { "status":"active", "fac":"kongrong",   "city":"beihai",    "role":null,    "post":{"name":"先锋","rank":"将"},       "title":"北海猛士", "loyalty":90, "merit":150,"retainer":{"count":800, "type":"heavy"},  "initialUnit":false, "gamePost":"校尉", "relations":[] },
+    "太史慈": { "status":"pending", "fac":"wild", "pendingFac":"kongrong", "availableYear":192, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"192 北海救援孔融"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
+    "武安国": { "status":"active", "fac":"kongrong",   "city":"beihai",    "role":null,    "post":{"name":"先锋","rank":"将"},       "title":"北海猛士", "loyalty":90, "merit":150,"retainer":{"count":900, "type":"heavy"},  "initialUnit":true, "gamePost":"校尉", "relations":[] },
     "宗宝":   { "status":"active", "fac":"kongrong", "city":"beihai", "role":null, "post":{"name":"校尉","rank":"将"}, "title":"北海部将", "loyalty":85, "merit":80, "retainer":{"count":500, "type":"heavy"},  "initialUnit":false, "gamePost":"偏将军", "relations":[] },
 
-    // ── liubei 集团 (3) ──
-    "刘备":   { "status":"active", "fac":"liubei",     "city":"pingyuan",  "role":"ruler", "post":{"name":"平原相","rank":"文官"},   "title":"平原仁主", "loyalty":100,"merit":300,"retainer":{"count":500, "type":"light"},  "initialUnit":true , "relations":[{"target":"关羽","type":"义兄弟","intimacy":95},{"target":"张飞","type":"义兄弟","intimacy":95},{"target":"公孙瓒","type":"同门","intimacy":80}] },
+    // ── liubei 集团 (4) ──
+    "刘备":   { "status":"active", "fac":"liubei",     "city":"pingyuan",  "role":"ruler", "post":{"name":"别部司马","rank":"将"},   "title":"平原客将", "loyalty":100,"merit":300,"retainer":{"count":500, "type":"light"},  "initialUnit":true , "relations":[{"target":"关羽","type":"义兄弟","intimacy":95},{"target":"张飞","type":"义兄弟","intimacy":95},{"target":"公孙瓒","type":"同门","intimacy":80}] },
     "关羽":   { "status":"active", "fac":"liubei",     "city":"pingyuan",  "role":null,    "post":{"name":"别部司马","rank":"将"},   "title":"河东义士", "loyalty":100,"merit":200,"retainer":{"count":900, "type":"light"},  "initialUnit":true , "gamePost":"前将军", "relations":[{"target":"刘备","type":"义兄弟","intimacy":95},{"target":"张飞","type":"义兄弟","intimacy":92}] },
     "张飞":   { "status":"active", "fac":"liubei",     "city":"pingyuan",  "role":null,    "post":{"name":"别部司马","rank":"将"},   "title":"燕人猛士", "loyalty":100,"merit":180,"retainer":{"count":900, "type":"cavalry"},"initialUnit":false, "gamePost":"校尉", "relations":[{"target":"刘备","type":"义兄弟","intimacy":95},{"target":"关羽","type":"义兄弟","intimacy":92}] },
     "简雍":   { "status":"active", "fac":"liubei", "city":"pingyuan", "role":null, "post":{"name":"从事","rank":"文官"}, "title":"涿郡旧友", "loyalty":95,"merit":150,"retainer":{"count":200,"type":"light"},"initialUnit":false, "gamePost":"尚书令", "relations":[] },
 
     // ── wild 池 (13) — 190 时已成年(≥18) 未仕 14 fac 之任何一方 ──
     "陈宫":   { "status":"wild", "fac":"wild", "wildData":{ "title":"东郡名士",   "post":{"name":"郡吏","rank":"文官","desc":"东郡名士,智谋深远。"},          "loyalty":60, "merit":100, "retainer":{"count":300, "type":"light"},   "relations":[] }},
-    "王朗":   { "status":"wild", "fac":"wild", "wildData":{ "title":"会稽太守",   "post":{"name":"会稽太守","rank":"文官","desc":"经学名士,地方良吏,孤悬东南。"}, "loyalty":55, "merit":150, "retainer":{"count":600, "type":"light"},   "relations":[] }},
-    "张邈":   { "status":"wild", "fac":"wild", "wildData":{ "title":"陈留太守",   "post":{"name":"陈留太守","rank":"文官","desc":"反董盟主之一,与曹操早年友善。"},"loyalty":50, "merit":250, "retainer":{"count":1200,"type":"light"},   "relations":[{"target":"曹操","type":"故友","intimacy":70},{"target":"张超","type":"弟","intimacy":90}] }},
+    "王朗":   { "status":"wild", "fac":"wild", "wildData":{ "title":"经学名士",   "post":{"name":"会稽太守","rank":"文官","desc":"经学名士,地方良吏,孤悬东南。"}, "loyalty":55, "merit":150, "retainer":{"count":600, "type":"light"},   "relations":[] }},
+    "张邈":   { "status":"wild", "fac":"wild", "wildData":{ "title":"陈留名士",   "post":{"name":"陈留太守","rank":"文官","desc":"反董盟主之一,与曹操早年友善。"},"loyalty":50, "merit":250, "retainer":{"count":1200,"type":"light"},   "relations":[{"target":"曹操","type":"故友","intimacy":70},{"target":"张超","type":"弟","intimacy":90}] }},
     "张超":   { "status":"wild", "fac":"wild", "wildData":{ "title":"张邈之弟",   "post":{"name":"广陵太守","rank":"文官","desc":"张邈之弟,与兄共反董。"},      "loyalty":55, "merit":150, "retainer":{"count":800, "type":"light"},   "relations":[{"target":"张邈","type":"兄长","intimacy":90}] }},
-    "王匡":   { "status":"wild", "fac":"wild", "wildData":{ "title":"河内太守",   "post":{"name":"河内太守","rank":"将","desc":"反董盟军先锋,与董卓战于河阳。"}, "loyalty":50, "merit":200, "retainer":{"count":1500,"type":"heavy"},   "relations":[{"target":"韩浩","type":"臣下","intimacy":75}] }},
+    "王匡":   { "status":"wild", "fac":"wild", "wildData":{ "title":"河内义军",   "post":{"name":"河内太守","rank":"将","desc":"反董盟军先锋,与董卓战于河阳。"}, "loyalty":50, "merit":200, "retainer":{"count":1500,"type":"heavy"},   "relations":[{"target":"韩浩","type":"臣下","intimacy":75}] }},
     "韩浩":   { "status":"wild", "fac":"wild", "wildData":{ "title":"王匡部将",   "post":{"name":"都督","rank":"将","desc":"王匡心腹,治军严整。"},            "loyalty":80, "merit":120, "retainer":{"count":600, "type":"heavy"},   "relations":[{"target":"王匡","type":"主君","intimacy":80}] }},
-    "笮融":   { "status":"wild", "fac":"wild", "wildData":{ "title":"下邳相",     "post":{"name":"下邳相","rank":"将","desc":"陶谦部边缘武装,奉佛大造浮图。"},  "loyalty":40, "merit":180, "retainer":{"count":800, "type":"light"},   "relations":[] }},
-    "钟繇":   { "status":"wild", "fac":"wild", "wildData":{ "title":"廷尉正",     "post":{"name":"廷尉正","rank":"文官","desc":"汉廷名臣,长安朝官。"},        "loyalty":55, "merit":200, "retainer":{"count":100, "type":"light"},   "relations":[] }},
+    "笮融":   { "status":"wild", "fac":"wild", "wildData":{ "title":"徐州豪强",     "post":{"name":"下邳相","rank":"将","desc":"陶谦部边缘武装,奉佛大造浮图。"},  "loyalty":40, "merit":180, "retainer":{"count":800, "type":"light"},   "relations":[] }},
+    "钟繇":   { "status":"wild", "fac":"wild", "wildData":{ "title":"长安朝官",     "post":{"name":"廷尉正","rank":"文官","desc":"汉廷名臣,长安朝官。"},        "loyalty":55, "merit":200, "retainer":{"count":100, "type":"light"},   "relations":[] }},
     "华歆":   { "status":"wild", "fac":"wild", "wildData":{ "title":"颍川名士",   "post":{"name":"尚书郎","rank":"文官","desc":"颍川名士,与荀彧同举孝廉。"},   "loyalty":50, "merit":150, "retainer":{"count":50,  "type":"light"},   "relations":[] }},
-    "董昭":   { "status":"wild", "fac":"wild", "wildData":{ "title":"廮陶长",     "post":{"name":"廮陶长","rank":"文官","desc":"河北人,未定主属。"},          "loyalty":50, "merit":120, "retainer":{"count":80,  "type":"light"},   "relations":[] }},
+    "董昭":   { "status":"wild", "fac":"wild", "wildData":{ "title":"河北谋士",     "post":{"name":"廮陶长","rank":"文官","desc":"河北人,未定主属。"},          "loyalty":50, "merit":120, "retainer":{"count":80,  "type":"light"},   "relations":[] }},
     "张绣":   { "status":"wild", "fac":"wild", "wildData":{ "title":"凉州后起",   "post":{"name":"军侯","rank":"将","desc":"张济之侄,凉州勇将。"},            "loyalty":60, "merit":80,  "retainer":{"count":500, "type":"cavalry"}, "relations":[{"target":"张济","type":"叔","intimacy":85}] }},
     "于禁":   { "status":"wild", "fac":"wild", "wildData":{ "title":"鲍信部曲",   "post":{"name":"都伯","rank":"将","desc":"鲍信麾下,治军严整。"},             "loyalty":75, "merit":80,  "retainer":{"count":500, "type":"heavy"},   "relations":[{"target":"鲍信","type":"主君","intimacy":80}] }},
     "臧霸":   { "status":"wild", "fac":"wild", "wildData":{ "title":"泰山豪强",   "post":{"name":"骑都尉","rank":"将","desc":"泰山地方豪强,黄巾募起家。"},     "loyalty":50, "merit":150, "retainer":{"count":800, "type":"cavalry"}, "relations":[] }},
@@ -693,7 +694,7 @@ const SCENARIO_190 = {
     "贺齐": { "status":"pending", "fac":"wild", "pendingFac":"sunjian", "availableYear":199, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"199 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "曹真": { "status":"pending", "fac":"wild", "pendingFac":"caocao", "availableYear":200, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"200 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "曹休": { "status":"pending", "fac":"wild", "pendingFac":"caocao", "availableYear":200, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"200 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
-    "黄忠":   { "status":"active", "fac":"liubiao",    "city":"xiangyang", "role":null,    "post":{"name":"中郎将","rank":"将"},     "title":"老当益壮", "loyalty":80, "merit":250,"retainer":{"count":900, "type":"archer"},"initialUnit":false, "gamePost":"前将军", "relations":[{"target":"刘磐","type":"同僚","intimacy":75}] },
+    "黄忠":   { "status":"active", "fac":"liubiao",    "city":"xiangyang", "role":null,    "post":{"name":"中郎将","rank":"将"},     "title":"长沙宿将", "loyalty":80, "merit":250,"retainer":{"count":900, "type":"archer"},"initialUnit":false, "gamePost":"前将军", "relations":[{"target":"刘磐","type":"同僚","intimacy":75}] },
     "刘磐":   { "status":"active", "fac":"liubiao",    "city":"xiangyang", "role":null,    "post":{"name":"裨将","rank":"将"},       "title":"荆州宗将", "loyalty":85, "merit":180,"retainer":{"count":700, "type":"cavalry"},"initialUnit":false, "gamePost":"偏将军", "relations":[{"target":"黄忠","type":"同僚","intimacy":75}] },
     "法正": { "status":"pending", "fac":"wild", "pendingFac":"liuyan", "availableYear":200, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"200 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
     "黄权": { "status":"pending", "fac":"wild", "pendingFac":"liuyan", "availableYear":200, "wildData":{ "title":null, "post":{"name":"待时未仕","rank":"民","desc":"200 才出仕"}, "loyalty":50, "merit":0, "retainer":{"count":0,"type":""}, "relations":[] }},
@@ -995,8 +996,8 @@ const SCENARIO_190 = {
           "morale": 75
         },
         {
-          "genName": "太史慈",
-          "type": "archer",
+          "genName": "武安国",
+          "type": "heavy",
           "troops": 900,
           "maxTroops": 900,
           "morale": 85
