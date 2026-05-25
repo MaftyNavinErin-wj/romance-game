@@ -878,16 +878,13 @@ function _positionTutCard(page){
 // ── 开局势力选择（改造：加返回按钮 + scenario-aware 动态派生 facData）──────────────────
 // §8.4 phase 5 (C codex P1): facData 旧硬编码 4 个 214 势力, 190 14 势力无法显示
 //   → 改 dynamic 派生: SCENARIOS[scenarioId].factions 取 playable → FACTION_BASE / sc.cities 派生
-//   首都; 214 desc 保留 4 段 hardcoded 文案 (制作人手写); 190 用 fallback placeholder。
+//   首都; 214 desc 保留 4 段 hardcoded 文案 (制作人手写); 190+ 优先读 scenario faction desc。
 const SCENARIO_FAC_DESCS = {
   '214': {
     wei:    '中原大国，兵多粮足，人口最盛。国力雄厚，适合稳扎稳打，最终统一之路最为宽广。',
     shu:    '汉室正统，以义立国。益州险固，粮道艰难。需以奇谋弥补国力之差，北伐是唯一出路。',
     wu:     '坐拥江东，港口通商，金钱充裕。水师天下无双，长江天险为屏障，富庶之国徐图天下。',
     nanman: '南中蛮族，僻处建宁一隅。兵少将寡，初为蜀之附庸。需在三国夹缝中求存，地狱难度。',
-  },
-  '190': {
-    // 14 势力 desc 留 phase 7 / scenario 数据 sprint 补; 现 fallback 「XX统领的XX，待天下风云。」
   },
 };
 
@@ -915,6 +912,7 @@ function showFactionSelect(scenarioId){
       }
     }
     const desc = (SCENARIO_FAC_DESCS[scenarioId] && SCENARIO_FAC_DESCS[scenarioId][fid])
+      || sf.desc
       || `${sf.ruler}统领的${base.full}，待天下风云。`;
     facData.push({
       id: fid, name: base.name, fullName: base.full, color: base.color,

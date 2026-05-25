@@ -285,12 +285,12 @@ function validateScenario(scenarioId) {
   for (const [name, g] of Object.entries(S.generals)) {
     const base = GEN_BASE[name];
     if (!base) continue;  // A.3 已报
-    // D.1 deathYear < startYear -> should not be listed; same-year deaths can be alive at scenario start.
-    if (g.status !== 'pending' && base.deathYear != null && base.deathYear < startYear)
-      warnings.push(`D.1 general['${name}'] deathYear=${base.deathYear} <= startYear=${startYear} (shouldn't be listed)`);
-    // D.2 birthYear > startYear -> active/wild should not be listed; pending is the future arrival pool.
-    if (g.status !== 'pending' && base.birthYear != null && base.birthYear > startYear)
-      warnings.push(`D.2 general['${name}'] birthYear=${base.birthYear} > startYear=${startYear} (not born yet)`);
+    // D.1/D.2 active/wild use scenario start; pending uses its future arrival year.
+    const listedYear = (g.status === 'pending' && typeof g.availableYear === 'number') ? g.availableYear : startYear;
+    if (base.deathYear != null && base.deathYear < listedYear)
+      warnings.push(`D.1 general['${name}'] deathYear=${base.deathYear} < listedYear=${listedYear} (shouldn't be listed)`);
+    if (base.birthYear != null && base.birthYear > listedYear)
+      warnings.push(`D.2 general['${name}'] birthYear=${base.birthYear} > listedYear=${listedYear} (not born yet)`);
     // D.3 active 时 startYear >= max(birthYear+18, debutYear)
     if (g.status === 'active' && base.birthYear != null) {
       const minAge = base.birthYear + 18;
@@ -454,6 +454,8 @@ function validateScenario(scenarioId) {
           if (g && g.fac !== u.fac) errors.push(`${tag}.genName '${s.genName}' fac=${g.fac} (must be ${u.fac})`);
           if (g && g.city !== u.city) errors.push(`${tag}.genName '${s.genName}' city=${g.city} (must be ${u.city})`);
           if (g && !g.initialUnit) errors.push(`${tag}.genName '${s.genName}' initialUnit=false (must be true)`);
+          if (g && g.status === 'active' && g.retainer && (g.retainer.count !== s.maxTroops || g.retainer.type !== s.type))
+            warnings.push(`${tag}.genName '${s.genName}' initialUnits ${s.maxTroops}/${s.type} != retainer ${g.retainer.count}/${g.retainer.type}`);
         }
         if (!VALID_TYPES.has(s.type)) errors.push(`${tag}.type='${s.type}' invalid`);
         if (typeof s.troops !== 'number' || s.troops <= 0) errors.push(`${tag}.troops=${s.troops} invalid`);

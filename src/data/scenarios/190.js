@@ -2,22 +2,21 @@
 //
 // SCENARIO_190 — 诸侯讨董(190 年初平元年)初始 state 切片
 //
-// 状态: phase 4-b — generals 60 active 武将 (14 ruler + 46 心腹):
+// 状态: scenario_meta_complete — 190 剧本数据已可校验/可 UI 启动:
 //   - phase 2-a (done): 元字段 + scenarios register 基础设施
 //   - phase 2-b (done): factions 14 势力 + diplo 91 pair (F.1 invariant)
 //   - phase 3   (done): cities 55 城 fac/pop/troops/isCapital
 //   - phase 4-a (done): GEN_BASE +80 → 213 entries
-//   - phase 4-b (本):   generals 60 active (fac/city/role/post/loyalty/merit/retainer/initialUnit)
-//   - phase 4-c:        relations 双向 + wild/pending 池 + initialUnits[] + foundingCore
+//   - phase 4-b/4-c/4-d/4-e (done): active/wild/pending、relations、initialUnits、foundingCore
+//   - audit v2 / metadata gate (done): GEN_TAGS / GEN_CLASS / effectiveMeta / shared title 0 gap
 //
 // 字段 schema 同 SCENARIO_214 (见 214.js header + docs/scenario_system.md §3.4).
 // 14 势力史实参考 docs/scenario_system.md §4.
 //
 // 注意:
 // - nanman 190 期不参与中原讨董, 不列入 factions
-// - foundingCore=[] stub (phase 4-c 才填)
-// - validator (tests/scenario_validate.js) 跑 190 仍有部分 errors (wild/pending 未填) — expected
-// - 默认 applyScenario('214') 不会真 init 190, smoke 不受影响
+// - tests/scenario_validate.js 跑 190 应为 0 errors / 0 warnings
+// - tools/verify_190_realflow.js 的真实 UI 路径 startAs(fid,'190') 应可启动
 
 const SCENARIO_190 = {
   "id": "190",
@@ -25,7 +24,7 @@ const SCENARIO_190 = {
   "name": "诸侯讨董",
   "startYear": 190,
   "description": "东汉初平元年,董卓废少帝立献帝,关东诸侯起兵讨董,群雄并起。",
-  "provenance": "phase 4-d: +23 active 武将 (史实重 allocate); 后续 phase 4-c/4-e + audit v2 + 刘磐 + debutYear schema gap (马铁/马休 active→pending) 累计至 102 active / 14 wild / 96 pending = 212/212",
+  "provenance": "phase 4-d/4-e + audit v2 + metadata gate; 当前 104 active / 13 wild / 96 pending = 213/213; 190 validator 0 errors/0 warnings",
   // startYear=190 (初平元年) 时天子献帝仍在洛阳, 董卓持. 191 年才西迁长安.
   "emperor": {
     "cityId": "luoyang",
@@ -504,8 +503,8 @@ const SCENARIO_190 = {
   // wild/pending 武将 不列在 generals (= 不出现于 190 scenario); 后续 phase 4-c 补 wild 池.
   "generals": {
     // ── dongzhuo 集团 (5) ──
-    "董卓":   { "status":"active", "fac":"dongzhuo",   "city":"luoyang",   "role":"ruler", "post":{"name":"相国","rank":"王"},      "title":"挟天相国", "loyalty":100,"merit":800,"retainer":{"count":2000,"type":"cavalry"},"initialUnit":true , "relations":[{"target":"李儒","type":"臣下","intimacy":90}] },
-    "吕布":   { "status":"active", "fac":"dongzhuo",   "city":"luoyang",   "role":null,    "post":{"name":"骑都尉","rank":"将"},     "title":"并州飞将", "loyalty":70, "merit":400,"retainer":{"count":1500,"type":"cavalry"},"initialUnit":true , "gamePost":"大将军", "relations":[{"target":"高顺","type":"臣下","intimacy":90}] },
+    "董卓":   { "status":"active", "fac":"dongzhuo",   "city":"luoyang",   "role":"ruler", "post":{"name":"相国","rank":"王"},      "title":"挟天相国", "loyalty":100,"merit":800,"retainer":{"count":2400,"type":"cavalry"},"initialUnit":true , "relations":[{"target":"李儒","type":"臣下","intimacy":90}] },
+    "吕布":   { "status":"active", "fac":"dongzhuo",   "city":"luoyang",   "role":null,    "post":{"name":"骑都尉","rank":"将"},     "title":"并州飞将", "loyalty":70, "merit":400,"retainer":{"count":1800,"type":"cavalry"},"initialUnit":true , "gamePost":"大将军", "relations":[{"target":"高顺","type":"臣下","intimacy":90}] },
     "李傕":   { "status":"active", "fac":"dongzhuo",   "city":"changan",   "role":null,    "post":{"name":"中郎将","rank":"将"},     "title":"西凉悍将", "loyalty":85, "merit":300,"retainer":{"count":1200,"type":"cavalry"},"initialUnit":false, "gamePost":"偏将军", "relations":[{"target":"郭汜","type":"同僚","intimacy":65}] },
     "郭汜":   { "status":"active", "fac":"dongzhuo",   "city":"changan",   "role":null,    "post":{"name":"中郎将","rank":"将"},     "title":"西凉骁将", "loyalty":85, "merit":280,"retainer":{"count":1100,"type":"cavalry"},"initialUnit":false, "gamePost":"裨将军", "relations":[{"target":"李傕","type":"同僚","intimacy":65}] },
     "华雄":   { "status":"active", "fac":"dongzhuo",   "city":"hedong",    "role":null,    "post":{"name":"先锋","rank":"将"},       "title":"汜水先锋", "loyalty":80, "merit":150,"retainer":{"count":800, "type":"heavy"},  "initialUnit":false, "gamePost":"校尉", "relations":[] },
