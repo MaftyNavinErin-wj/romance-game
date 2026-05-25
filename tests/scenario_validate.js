@@ -285,11 +285,11 @@ function validateScenario(scenarioId) {
   for (const [name, g] of Object.entries(S.generals)) {
     const base = GEN_BASE[name];
     if (!base) continue;  // A.3 已报
-    // D.1 deathYear <= startYear → 不应列
-    if (base.deathYear != null && base.deathYear <= startYear)
+    // D.1 deathYear < startYear -> should not be listed; same-year deaths can be alive at scenario start.
+    if (g.status !== 'pending' && base.deathYear != null && base.deathYear < startYear)
       warnings.push(`D.1 general['${name}'] deathYear=${base.deathYear} <= startYear=${startYear} (shouldn't be listed)`);
-    // D.2 birthYear > startYear → 不应列
-    if (base.birthYear != null && base.birthYear > startYear)
+    // D.2 birthYear > startYear -> active/wild should not be listed; pending is the future arrival pool.
+    if (g.status !== 'pending' && base.birthYear != null && base.birthYear > startYear)
       warnings.push(`D.2 general['${name}'] birthYear=${base.birthYear} > startYear=${startYear} (not born yet)`);
     // D.3 active 时 startYear >= max(birthYear+18, debutYear)
     if (g.status === 'active' && base.birthYear != null) {
@@ -377,8 +377,7 @@ function validateScenario(scenarioId) {
       for (const k of REQ_WD) {
         if (!(k in wd)) errors.push(`J.3 ${name}.wildData.${k} missing`);
       }
-      // J.4 regionHint/clanHint optional (warning missing)
-      if (!('regionHint' in wd)) warnings.push(`J.4 ${name}.wildData.regionHint missing (optional)`);
+      // J.4 regionHint/clanHint optional; absence is accepted.
       // J.5 skillsOverride: null or array
       if ('skillsOverride' in wd && wd.skillsOverride !== null && !Array.isArray(wd.skillsOverride))
         errors.push(`J.5 ${name}.wildData.skillsOverride must be null or array`);
