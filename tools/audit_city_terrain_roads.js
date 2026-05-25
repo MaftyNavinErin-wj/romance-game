@@ -13,7 +13,7 @@ const box = { console: { warn() {}, log() {}, error() {} } };
 vm.createContext(box);
 
 run(read('src/data/city_base.js'), '\nthis.CITY_BASE = CITY_BASE;');
-run(read('src/data/cities.js'), '\nthis.ROADS = ROADS; this.ROAD_ADJ = ROAD_ADJ; this.RIVERS = RIVERS; this.ROAD_WAYPOINTS = ROAD_WAYPOINTS;');
+run(read('src/data/cities.js'), '\nthis.ROADS = ROADS; this.ROAD_ADJ = ROAD_ADJ; this.RIVERS = RIVERS; this.ROAD_WAYPOINTS = ROAD_WAYPOINTS; this.RIVER_BITMAP_MOUNTAIN_SKIP = RIVER_BITMAP_MOUNTAIN_SKIP;');
 box.GEN_TAGS = {};
 run(read('src/data/state_county.js'), '\nthis.STATE_CITIES = STATE_CITIES; this.CITY_TO_STATE = CITY_TO_STATE; this.COUNTY_DATA = COUNTY_DATA;');
 run(read('src/data/scenarios/190.js'), '\nthis.SCENARIO_190 = SCENARIO_190;');
@@ -161,11 +161,53 @@ function terrainAtPixel(x, y) {
 
 function pathPoints(pathStr) {
   const pts = [];
-  const re = /([MQLC])\s*([\d.,\s]+)/gi;
+  let cur = null;
+  const re = /([MLQC])\s*([^MLQC]+)/gi;
   let match;
+  const pushPoint = (x, y) => {
+    const p = { x, y };
+    const last = pts[pts.length - 1];
+    if (!last || Math.hypot(last.x - x, last.y - y) > 0.001) pts.push(p);
+    cur = p;
+  };
+  const sampleLine = (from, to, stepPx = 3) => {
+    const steps = Math.max(1, Math.ceil(Math.hypot(to.x - from.x, to.y - from.y) / stepPx));
+    for (let s = 1; s <= steps; s++) {
+      const t = s / steps;
+      pushPoint(from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t);
+    }
+  };
   while ((match = re.exec(pathStr)) !== null) {
-    const nums = match[2].trim().split(/[\s,]+/).map(Number);
-    for (let i = 0; i < nums.length - 1; i += 2) pts.push({ x: nums[i], y: nums[i + 1] });
+    const cmd = match[1].toUpperCase();
+    const nums = match[2].trim().split(/[\s,]+/).map(Number).filter(Number.isFinite);
+    if (cmd === 'M') {
+      for (let i = 0; i < nums.length - 1; i += 2) {
+        const p = { x: nums[i], y: nums[i + 1] };
+        if (!cur) pushPoint(p.x, p.y);
+        else sampleLine(cur, p);
+      }
+    } else if (cmd === 'L') {
+      for (let i = 0; i < nums.length - 1 && cur; i += 2) sampleLine(cur, { x: nums[i], y: nums[i + 1] });
+    } else if (cmd === 'Q') {
+      for (let i = 0; i < nums.length - 3 && cur; i += 4) {
+        const from = cur, c = { x: nums[i], y: nums[i + 1] }, to = { x: nums[i + 2], y: nums[i + 3] };
+        const steps = Math.max(1, Math.ceil((Math.hypot(c.x - from.x, c.y - from.y) + Math.hypot(to.x - c.x, to.y - c.y)) / 3));
+        for (let s = 1; s <= steps; s++) {
+          const t = s / steps, mt = 1 - t;
+          pushPoint(mt * mt * from.x + 2 * mt * t * c.x + t * t * to.x, mt * mt * from.y + 2 * mt * t * c.y + t * t * to.y);
+        }
+      }
+    } else if (cmd === 'C') {
+      for (let i = 0; i < nums.length - 5 && cur; i += 6) {
+        const from = cur, c1 = { x: nums[i], y: nums[i + 1] }, c2 = { x: nums[i + 2], y: nums[i + 3] }, to = { x: nums[i + 4], y: nums[i + 5] };
+        const steps = Math.max(1, Math.ceil((Math.hypot(c1.x - from.x, c1.y - from.y) + Math.hypot(c2.x - c1.x, c2.y - c1.y) + Math.hypot(to.x - c2.x, to.y - c2.y)) / 3));
+        for (let s = 1; s <= steps; s++) {
+          const t = s / steps, mt = 1 - t;
+          pushPoint(mt ** 3 * from.x + 3 * mt ** 2 * t * c1.x + 3 * mt * t ** 2 * c2.x + t ** 3 * to.x,
+                    mt ** 3 * from.y + 3 * mt ** 2 * t * c1.y + 3 * mt * t ** 2 * c2.y + t ** 3 * to.y);
+        }
+      }
+    }
   }
   return pts;
 }
@@ -222,13 +264,7 @@ function buildTerrain() {
     }
   }
   for (const pathStr of box.RIVERS) {
-    const pts = [];
-    const re = /([MQLC])\s*([\d.,\s]+)/gi;
-    let match;
-    while ((match = re.exec(pathStr)) !== null) {
-      const nums = match[2].trim().split(/[\s,]+/).map(Number);
-      for (let i = 0; i < nums.length - 1; i += 2) pts.push({ x: nums[i], y: nums[i + 1] });
-    }
+    const pts = pathPoints(pathStr);
     for (let i = 0; i < pts.length - 1; i++) {
       const a = pts[i], b = pts[i + 1];
       const steps = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / 3);
@@ -236,6 +272,7 @@ function buildTerrain() {
         const t = s / Math.max(steps, 1);
         const h = pixelToHex(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t);
         const k = hkey(h.col, h.row);
+        if (box.RIVER_BITMAP_MOUNTAIN_SKIP && box.RIVER_BITMAP_MOUNTAIN_SKIP.has(k)) continue;
         const cur = terrain[k];
         if (!['water', 'deep_water', 'coastal_water', 'impassable'].includes(cur)) terrain[k] = 'river';
       }

@@ -38,7 +38,7 @@ Very long roads: 2
 - puyang 濮阳: nonPlain=0/49, terrain={"plain":49}
 - qingzhou 青州: nonPlain=0/49, terrain={"plain":49}
 - wuchang 武昌: nonPlain=0/49, terrain={"plain":49}
-- xiapi 下邳: nonPlain=0/49, terrain={"plain":49}
+- xiapi 下邳: nonPlain=1/49, terrain={"plain":48,"hill":1}
 - jingzhou 江陵: nonPlain=2/49, terrain={"plain":47,"hill":2}
 - lujiang 庐江: nonPlain=2/49, terrain={"mountain":2,"plain":47}
 - yuzhang 豫章: nonPlain=3/49, terrain={"plain":46,"impassable":1,"hill":2}
@@ -74,17 +74,17 @@ Very long roads: 2
 - xiaopei 小沛: q62,r24, px=572,259, terrain=plain
 - tianshui 天水: q19,r24, px=185,264, terrain=mountain
 - xuzhou 徐州: q66,r26, px=608,279, terrain=hill
-- donghai 东海: q83,r27, px=761,295, terrain=plain
+- donghai 东海: q82,r27, px=752,290, terrain=plain
 - xinye 新野: q44,r28, px=410,300, terrain=plain
+- xiapi 下邳: q72,r28, px=662,300, terrain=plain
 - shouchun 寿春: q63,r28, px=581,305, terrain=hill
-- xiapi 下邳: q73,r28, px=671,305, terrain=plain
 - hefei 合肥: q64,r29, px=590,311, terrain=hill
 - guangling 广陵: q82,r30, px=752,321, terrain=plain
 - hanzhong 汉中: q26,r31, px=248,331, terrain=plain
 - nanyang 南阳: q44,r31, px=410,331, terrain=plain
 - xiangyang 襄阳: q45,r33, px=419,357, terrain=hill
+- shangyong 上庸: q34,r34, px=320,363, terrain=plain
 - jingkou 京口: q84,r34, px=770,363, terrain=plain
-- shangyong 上庸: q35,r34, px=329,368, terrain=plain
 - yizhou_n 梓潼: q24,r35, px=230,373, terrain=mountain
 - lujiang 庐江: q66,r35, px=608,373, terrain=plain
 - jianye 建业: q72,r37, px=662,394, terrain=plain
@@ -97,7 +97,7 @@ Very long roads: 2
 - jingzhou 江陵: q47,r40, px=437,430, terrain=plain
 - wuchang 武昌: q53,r40, px=491,430, terrain=plain
 - huiji 会稽: q92,r43, px=842,456, terrain=forest
-- yongan 永安: q29,r46, px=275,492, terrain=plain
+- yongan 永安: q29,r45, px=275,482, terrain=mountain
 - wuling 武陵: q44,r47, px=410,498, terrain=hill
 - changsha 长沙: q56,r49, px=518,518, terrain=hill
 - yuzhang 豫章: q66,r50, px=608,529, terrain=plain

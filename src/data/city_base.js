@@ -574,7 +574,7 @@ const CITY_BASE = {
   "yongan": {
     "name": "永安",
     "q": 29,
-    "r": 46,
+    "r": 45,
     "tags": [
       "山地"
     ],
@@ -748,7 +748,7 @@ const CITY_BASE = {
   },
   "xiapi": {
     "name": "下邳",
-    "q": 73,
+    "q": 72,
     "r": 28,
     "tags": [
       "平原"
@@ -765,7 +765,7 @@ const CITY_BASE = {
   },
   "shangyong": {
     "name": "上庸",
-    "q": 35,
+    "q": 34,
     "r": 34,
     "tags": [
       "山地",
@@ -888,7 +888,7 @@ const CITY_BASE = {
   },
   "donghai": {
     "name": "东海",
-    "q": 83,
+    "q": 82,
     "r": 27,
     "tags": [
       "平原"

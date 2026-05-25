@@ -8,7 +8,7 @@ const mapSrc = fs.readFileSync('src/core/map.js', 'utf8');
 const box = {};
 vm.createContext(box);
 vm.runInContext(citySrc + '\nthis.CITY_BASE = CITY_BASE;', box);
-vm.runInContext(citiesSrc + '\nthis.ROADS = ROADS; this.ROAD_WAYPOINTS = ROAD_WAYPOINTS;', box);
+vm.runInContext(citiesSrc + '\nthis.ROADS = ROADS; this.ROAD_WAYPOINTS = ROAD_WAYPOINTS; this.RIVERS = RIVERS; this.RIVER_BITMAP_MOUNTAIN_SKIP = RIVER_BITMAP_MOUNTAIN_SKIP;', box);
 
 const terrainMatch = mapSrc.match(/const TERRAIN_POLYS = \[([\s\S]*?)\];/);
 if (!terrainMatch) throw new Error('TERRAIN_POLYS not found');
@@ -61,6 +61,120 @@ function dataTerrainAt(x, y) {
   return terrain;
 }
 
+function pixelToHex(px, py) {
+  const approxCol = Math.round((px - 8 - HEX_SIZE) / (HEX_SIZE * 1.5));
+  const approxRow = Math.round((py - 4 - HEX_H / 2) / HEX_H);
+  let bestC = 0, bestR = 0, bestD = Infinity;
+  for (let dc = -3; dc <= 3; dc++) {
+    for (let dr = -3; dr <= 3; dr++) {
+      const cc = approxCol + dc;
+      const rr = approxRow + dr;
+      if (cc < 0 || cc >= HEX_COLS || rr < 0 || rr >= HEX_ROWS) continue;
+      const p = hexToPixel(cc, rr);
+      const d = (p.x - px) ** 2 + (p.y - py) ** 2;
+      if (d < bestD) {
+        bestD = d;
+        bestC = cc;
+        bestR = rr;
+      }
+    }
+  }
+  return { col: bestC, row: bestR };
+}
+
+function hkey(col, row) {
+  return `${col},${row}`;
+}
+
+function sampleSvgPathPoints(pathStr, stepPx = 3) {
+  const out = [];
+  let cur = null;
+  const re = /([MLQC])\s*([^MLQC]+)/gi;
+  let match;
+  const pushPoint = (x, y) => {
+    const p = { x, y };
+    const last = out[out.length - 1];
+    if (!last || Math.hypot(last.x - x, last.y - y) > 0.001) out.push(p);
+    cur = p;
+  };
+  const sampleLine = (from, to) => {
+    const steps = Math.max(1, Math.ceil(Math.hypot(to.x - from.x, to.y - from.y) / stepPx));
+    for (let s = 1; s <= steps; s++) {
+      const t = s / steps;
+      pushPoint(from.x + (to.x - from.x) * t, from.y + (to.y - from.y) * t);
+    }
+  };
+  while ((match = re.exec(pathStr)) !== null) {
+    const cmd = match[1].toUpperCase();
+    const nums = match[2].trim().split(/[\s,]+/).map(Number).filter(Number.isFinite);
+    if (cmd === 'M') {
+      for (let i = 0; i < nums.length - 1; i += 2) {
+        const p = { x: nums[i], y: nums[i + 1] };
+        if (!cur) pushPoint(p.x, p.y);
+        else sampleLine(cur, p);
+      }
+    } else if (cmd === 'L') {
+      for (let i = 0; i < nums.length - 1 && cur; i += 2) sampleLine(cur, { x: nums[i], y: nums[i + 1] });
+    } else if (cmd === 'Q') {
+      for (let i = 0; i < nums.length - 3 && cur; i += 4) {
+        const from = cur, c = { x: nums[i], y: nums[i + 1] }, to = { x: nums[i + 2], y: nums[i + 3] };
+        const steps = Math.max(1, Math.ceil((Math.hypot(c.x - from.x, c.y - from.y) + Math.hypot(to.x - c.x, to.y - c.y)) / stepPx));
+        for (let s = 1; s <= steps; s++) {
+          const t = s / steps, mt = 1 - t;
+          pushPoint(mt * mt * from.x + 2 * mt * t * c.x + t * t * to.x, mt * mt * from.y + 2 * mt * t * c.y + t * t * to.y);
+        }
+      }
+    } else if (cmd === 'C') {
+      for (let i = 0; i < nums.length - 5 && cur; i += 6) {
+        const from = cur, c1 = { x: nums[i], y: nums[i + 1] }, c2 = { x: nums[i + 2], y: nums[i + 3] }, to = { x: nums[i + 4], y: nums[i + 5] };
+        const steps = Math.max(1, Math.ceil((Math.hypot(c1.x - from.x, c1.y - from.y) + Math.hypot(c2.x - c1.x, c2.y - c1.y) + Math.hypot(to.x - c2.x, to.y - c2.y)) / stepPx));
+        for (let s = 1; s <= steps; s++) {
+          const t = s / steps, mt = 1 - t;
+          pushPoint(mt ** 3 * from.x + 3 * mt ** 2 * t * c1.x + 3 * mt * t ** 2 * c2.x + t ** 3 * to.x,
+                    mt ** 3 * from.y + 3 * mt ** 2 * t * c1.y + 3 * mt * t ** 2 * c2.y + t ** 3 * to.y);
+        }
+      }
+    }
+  }
+  return out;
+}
+
+function buildFinalTerrainForAudit() {
+  const terrain = {};
+  const riverSources = {};
+
+  for (let col = 0; col < HEX_COLS; col++) {
+    for (let row = 0; row < HEX_ROWS; row++) {
+      const p = hexToPixel(col, row);
+      terrain[hkey(col, row)] = dataTerrainAt(p.x, p.y);
+    }
+  }
+
+  for (const [riverIdx, pathStr] of box.RIVERS.entries()) {
+    const pts = sampleSvgPathPoints(pathStr, 3);
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i], b = pts[i + 1];
+      const steps = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / 3);
+      for (let s = 0; s <= steps; s++) {
+        const t = s / Math.max(steps, 1);
+        const px = a.x + (b.x - a.x) * t;
+        const py = a.y + (b.y - a.y) * t;
+        const h = pixelToHex(px, py);
+        const k = hkey(h.col, h.row);
+        if (box.RIVER_BITMAP_MOUNTAIN_SKIP && box.RIVER_BITMAP_MOUNTAIN_SKIP.has(k)) continue;
+        const cur = terrain[k];
+        if (cur !== 'water' && cur !== 'deep_water' && cur !== 'coastal_water' && cur !== 'impassable') {
+          terrain[k] = 'river';
+          if (!riverSources[k]) riverSources[k] = new Set();
+          riverSources[k].add(riverIdx);
+        }
+      }
+    }
+  }
+
+  return { terrain, riverSources };
+}
+
 function loadBitmap(path) {
   if (process.platform !== 'win32') {
     throw new Error('This audit uses PowerShell/System.Drawing on Windows.');
@@ -78,6 +192,7 @@ $img.Dispose()
 
 const bitmapPath = 'assets/maps/china-ink-base-v1-hd.png';
 const bitmap = loadBitmap(bitmapPath);
+const finalTerrainAudit = buildFinalTerrainForAudit();
 
 const imageBox = { x: 0, y: -12, w: 1360, h: 765 };
 const scale = Math.max(imageBox.w / bitmap.width, imageBox.h / bitmap.height);
@@ -161,6 +276,8 @@ const points = [];
 const cityPointRows = [];
 const cityCandidateRows = [];
 const roadPointRows = [];
+const riverPointRows = [];
+const skipPointRows = [];
 for (const [id, c] of Object.entries(box.CITY_BASE)) {
   const p = hexToPixel(c.q, c.r);
   const b = svgToBitmap(p.x, p.y);
@@ -212,9 +329,42 @@ for (let col = 0; col < HEX_COLS; col += 2) {
   }
 }
 
+for (let col = 0; col < HEX_COLS; col++) {
+  for (let row = 0; row < HEX_ROWS; row++) {
+    const k = hkey(col, row);
+    if (finalTerrainAudit.terrain[k] !== 'river') continue;
+    const p = hexToPixel(col, row);
+    if (p.x < 40 || p.x > 890 || p.y < 45 || p.y > 700) continue;
+    const b = svgToBitmap(p.x, p.y);
+    const pointId = `river:${k}`;
+    points.push({ id: pointId, bx: b.x, by: b.y, svgX: p.x, svgY: p.y });
+    riverPointRows.push({
+      coord: k,
+      q: col,
+      r: row,
+      x: p.x,
+      y: p.y,
+      pointId,
+      rivers: [...(finalTerrainAudit.riverSources[k] || [])],
+    });
+  }
+}
+
+for (const coord of box.RIVER_BITMAP_MOUNTAIN_SKIP || []) {
+  const [q, r] = coord.split(',').map(Number);
+  if (!Number.isFinite(q) || !Number.isFinite(r)) continue;
+  const p = hexToPixel(q, r);
+  const b = svgToBitmap(p.x, p.y);
+  const pointId = `skip:${coord}`;
+  points.push({ id: pointId, bx: b.x, by: b.y, svgX: p.x, svgY: p.y });
+  skipPointRows.push({ coord, q, r, pointId });
+}
+
 const samples = Object.fromEntries(readSamples(points).map(s => [s.id, s]));
 const cityRows = [];
 const terrainRows = [];
+const riverRows = [];
+const skipRows = [];
 const roadBuckets = {};
 for (const p of points) {
   const s = samples[p.id];
@@ -229,6 +379,31 @@ for (const p of points) {
     if (dataTerrain === 'impassable') continue;
     if (!compat(dataTerrain, bitmapTerrain)) {
       terrainRows.push({ coord, dataTerrain, bitmapTerrain, rgb: `${s.r},${s.g},${s.b}` });
+    }
+  } else if (p.id.startsWith('river:')) {
+    const coord = p.id.slice(6);
+    const row = riverPointRows.find(r => r.coord === coord);
+    if (row && (bitmapTerrain === 'mountain' || bitmapTerrain === 'hill')) {
+      riverRows.push({
+        coord,
+        q: row.q,
+        r: row.r,
+        rivers: row.rivers.join(','),
+        bitmapTerrain,
+        rgb: `${s.r},${s.g},${s.b}`,
+      });
+    }
+  } else if (p.id.startsWith('skip:')) {
+    const coord = p.id.slice(5);
+    const row = skipPointRows.find(r => r.coord === coord);
+    if (row) {
+      skipRows.push({
+        coord,
+        q: row.q,
+        r: row.r,
+        bitmapTerrain,
+        rgb: `${s.r},${s.g},${s.b}`,
+      });
     }
   }
 }
@@ -245,6 +420,15 @@ for (const row of roadPointRows) {
 }
 
 terrainRows.sort((a, b) => a.dataTerrain.localeCompare(b.dataTerrain) || a.coord.localeCompare(b.coord));
+riverRows.sort((a, b) => {
+  if (a.bitmapTerrain !== b.bitmapTerrain) return a.bitmapTerrain === 'mountain' ? -1 : 1;
+  return a.coord.localeCompare(b.coord, undefined, { numeric: true });
+});
+const riverMountainRows = riverRows.filter(r => r.bitmapTerrain === 'mountain');
+const riverHillRows = riverRows.filter(r => r.bitmapTerrain === 'hill');
+const staleSkipRows = skipRows
+  .filter(r => r.bitmapTerrain !== 'mountain')
+  .sort((a, b) => a.coord.localeCompare(b.coord, undefined, { numeric: true }));
 
 const cityPrompts = cityRows.filter(r => {
   const rough = r.bitmapTerrain === 'mountain' || r.bitmapTerrain === 'hill';
@@ -255,20 +439,22 @@ const cityPrompts = cityRows.filter(r => {
   if (r.bitmapTerrain === 'plain' && tags.has('山地')) return true;
   return false;
 });
+const cityHardPrompts = cityPrompts.filter(r => r.bitmapTerrain === 'mountain' || r.bitmapTerrain === 'water');
+const citySoftPrompts = cityPrompts.filter(r => r.bitmapTerrain !== 'mountain' && r.bitmapTerrain !== 'water');
 
 function cityCandidateScore(cityId, bitmapTerrain, movePx) {
   const tags = new Set(box.CITY_BASE[cityId].tags || []);
   let score = movePx / 8;
-  if (tags.has('骞冲師')) {
+  if (tags.has('平原')) {
     if (bitmapTerrain === 'plain') score -= 8;
     if (bitmapTerrain === 'hill') score -= 2;
     if (bitmapTerrain === 'mountain') score += 8;
   }
-  if (tags.has('灞卞湴')) {
+  if (tags.has('山地')) {
     if (bitmapTerrain === 'mountain' || bitmapTerrain === 'hill') score -= 6;
     if (bitmapTerrain === 'plain') score += 4;
   }
-  if (tags.has('姘翠埂') || tags.has('娓彛')) {
+  if (tags.has('水乡') || tags.has('港口')) {
     if (bitmapTerrain === 'water') score -= 4;
   }
   return score;
@@ -323,13 +509,22 @@ lines.push('Color classifier is heuristic. Use this as a visual-alignment prompt
 lines.push('');
 lines.push('## Review Verdict');
 lines.push('- City center review: COMPLETE. Current city hexes are kept; `tools/audit_city_terrain_roads.js` has PASS hard checks for blocked centers, final road hexes, spacing, and terrain-tag heuristics.');
-lines.push('- Terrain mismatch review: COMPLETE. Listed rows are visual classifier prompts only; impassable/gameplay blocking is covered by the city/terrain/road hard checks.');
+lines.push('- Terrain mismatch review: COMPLETE for base polygons. Listed rows are visual classifier prompts only; impassable/gameplay blocking is covered by the city/terrain/road hard checks.');
+lines.push('- River bitmap conflict review: ACTIVE. Final `river` hexes over bitmap hill/mountain are listed separately because `RIVERS` can override otherwise plain terrain.');
 lines.push('- Road bitmap review: COMPLETE. Rough-looking southern/western road samples are accepted as visible hill/mountain texture; final road hex legality is covered by hard-water and blocked-road hard checks.');
 lines.push('- Gameplay-water review: COMPLETE. Rivers are visual/passable terrain prompts, while hard water is audited separately.');
 lines.push('');
-lines.push('## City Bitmap Prompts');
-if (!cityPrompts.length) lines.push('- PASS');
-else cityPrompts.forEach(r => lines.push(`- ${r.id}: q${r.q},r${r.r}, data=${r.dataTerrain}, bitmap=${r.bitmapTerrain}, rgb=${r.rgb}`));
+lines.push('## City Bitmap Hard Conflicts');
+lines.push('');
+lines.push('City centers over bitmap mountain/water are treated as hard visual-placement conflicts.');
+if (!cityHardPrompts.length) lines.push('- PASS');
+else cityHardPrompts.forEach(r => lines.push(`- ${r.id}: q${r.q},r${r.r}, data=${r.dataTerrain}, bitmap=${r.bitmapTerrain}, rgb=${r.rgb}`));
+lines.push('');
+lines.push('## City Bitmap Soft Prompts');
+lines.push('');
+lines.push('Hill texture or mountain-tag/plain-texture city centers are review prompts, not automatic defects.');
+if (!citySoftPrompts.length) lines.push('- PASS');
+else citySoftPrompts.forEach(r => lines.push(`- ${r.id}: q${r.q},r${r.r}, data=${r.dataTerrain}, bitmap=${r.bitmapTerrain}, rgb=${r.rgb}`));
 lines.push('');
 lines.push('## City Candidate Suggestions');
 if (!candidateSuggestions.length) lines.push('- PASS');
@@ -343,6 +538,24 @@ lines.push('');
 lines.push('Impassable masks are excluded here because border/gameplay blocking is audited separately by the hard checks.');
 if (!terrainRows.length) lines.push('- PASS');
 else terrainRows.slice(0, 120).forEach(r => lines.push(`- q${r.coord}: data=${r.dataTerrain}, bitmap=${r.bitmapTerrain}, rgb=${r.rgb}`));
+lines.push('');
+lines.push('## River Bitmap Mountain Conflicts');
+lines.push('');
+lines.push('Final `river` hexes are generated after base terrain polygons. A river over bitmap mountain is treated as a hard alignment conflict.');
+if (!riverMountainRows.length) lines.push('- PASS');
+else riverMountainRows.forEach(r => lines.push(`- q${r.coord}: riverSource=${r.rivers}, bitmap=${r.bitmapTerrain}, rgb=${r.rgb}`));
+lines.push('');
+lines.push('## River Bitmap Skip Drift Check');
+lines.push('');
+lines.push('`RIVER_BITMAP_MOUNTAIN_SKIP` should only contain hexes that still sample as bitmap mountain.');
+if (!staleSkipRows.length) lines.push('- PASS');
+else staleSkipRows.forEach(r => lines.push(`- q${r.coord}: skip bitmap=${r.bitmapTerrain}, rgb=${r.rgb}`));
+lines.push('');
+lines.push('## River Bitmap Hill Prompts');
+lines.push('');
+lines.push('Hill rows are lower-confidence prompts because they often represent river valleys, foothills, or classifier-darkened wash rather than hard mountain texture.');
+if (!riverHillRows.length) lines.push('- PASS');
+else riverHillRows.slice(0, 120).forEach(r => lines.push(`- q${r.coord}: riverSource=${r.rivers}, bitmap=${r.bitmapTerrain}, rgb=${r.rgb}`));
 lines.push('');
 lines.push('## Road Bitmap Prompts');
 if (!roadPrompts.length) lines.push('- PASS');
