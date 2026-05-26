@@ -8,7 +8,7 @@ Color classifier is heuristic. Use this as a visual-alignment prompt, not a hard
 ## Review Verdict
 - City center review: COMPLETE. Current city hexes are kept; `tools/audit_city_terrain_roads.js` has PASS hard checks for blocked centers, final road hexes, spacing, and terrain-tag heuristics.
 - Terrain mismatch review: COMPLETE for base polygons. Listed rows are visual classifier prompts only; impassable/gameplay blocking is covered by the city/terrain/road hard checks.
-- River bitmap conflict review: ACTIVE. Final `river` hexes over bitmap hill/mountain are listed separately because `RIVERS` can override otherwise plain terrain.
+- River bitmap conflict review: COMPLETE. Final `river` hexes over bitmap mountain are a hard conflict and currently PASS; hill rows are retained as low-confidence visual prompts only.
 - Road bitmap review: COMPLETE. Rough-looking southern/western road samples are accepted as visible hill/mountain texture; final road hex legality is covered by hard-water and blocked-road hard checks.
 - Gameplay-water review: COMPLETE. Rivers are visual/passable terrain prompts, while hard water is audited separately.
 
