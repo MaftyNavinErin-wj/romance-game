@@ -69,6 +69,169 @@ function closePostModal(){
 }
 
 // ── 事件选择弹窗 ──
+function _escapeInlineText(v){
+  return String(v ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[ch]));
+}
+
+function _jsArg(v){
+  return String(v ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+function _htmlAttr(v){
+  return _escapeInlineText(v);
+}
+
+function _genOriginLabel(genName){
+  const tags = GEN_TAGS[genName] || {};
+  if(tags.origin === 'gentry') return '士族';
+  if(tags.origin === 'humble') return '寒门';
+  if(tags.origin === 'clan') return '宗亲';
+  return '将领';
+}
+
+function _factionLabelById(factionId){
+  return FACTION_DEFS.find(f => f.id === factionId)?.label || factionId || '所属派系';
+}
+
+function _genOfficeLeanLine(genName, officeName){
+  const origin = (GEN_TAGS[genName] || {}).origin;
+  if(origin === 'gentry') return `士族${officeName}，权力更偏地方共治`;
+  if(origin === 'humble') return `寒门${officeName}，权力更偏主君集权`;
+  if(origin === 'clan') return `宗亲${officeName}，权力更偏主君集权`;
+  return `${officeName}后，权力结构基本稳定`;
+}
+
+function _isLocalGentryForCity(genName, cityId){
+  const tags = GEN_TAGS[genName] || {};
+  const cityState = CITY_TO_STATE[cityId] || '';
+  const cityGFac = cityState ? STATE_TO_GENTRY_FAC[cityState] : null;
+  return !!(cityGFac && tags.origin === 'gentry' && !tags.clique &&
+    tags.state && STATE_TO_GENTRY_FAC[tags.state] === cityGFac);
+}
+
+function getPrefectAppointmentPreview(cityId, genName){
+  const city = G.cities[cityId];
+  const cityDef = CITY_MAP[cityId] || {};
+  const tags = GEN_TAGS[genName] || {};
+  const gen = GEN_MAP[genName] || {};
+  const unit = G.units.find(u => Array.isArray(u.squads) && u.squads.some(sq => sq.genName === genName));
+  const isOut = !!(unit && cityDef && (unit.hq !== cityDef.q || unit.hr !== cityDef.r));
+  const postName = G.genPost?.[genName] || '';
+  const reduceReasons = [];
+  if(postName) reduceReasons.push(`已兼任${postName}`);
+  if(isOut) reduceReasons.push('当前在外出征');
+  const reducedLine = reduceReasons.length
+    ? `${reduceReasons.join('，')}，太守效果减半${postName ? '；官职效果不受影响' : '；回本城坐镇后恢复完整效果'}`
+    : `在本城专任，太守效果完整生效`;
+
+  const homeCity = getGenHomeCity(genName);
+  const prefIsLocal = homeCity === cityId;
+  const sameGentryCircle = _isLocalGentryForCity(genName, cityId);
+  const origin = tags.origin;
+  const roleLabel = _genOriginLabel(genName);
+  const militaryLabel = (gen.com || 0) >= (gen.pol || 0) ? '武人' : '文臣';
+  let gentryLine;
+  if(prefIsLocal){
+    if(sameGentryCircle){
+      const clanText = tags.clan ? `${tags.clan}为本地士族` : `本地士族主政`;
+      gentryLine = `${clanText}，本郡豪族支持稳步改善（本县 +0.5/旬，同城属县 +0.3/旬），并额外压制腐败`;
+    } else {
+      gentryLine = `本地${roleLabel}${militaryLabel}主政，本郡豪族支持稳步改善（本县 +0.5/旬，同城属县 +0.3/旬）`;
+    }
+  } else if(sameGentryCircle){
+    const stateName = STATE_NAMES?.[tags.state] || '本州';
+    gentryLine = `${stateName}士族主政，本郡豪族认可其声望；非本城郡县出身，属县支持仍需磨合（约 -0.1/旬），但士族声望能帮助压制腐败`;
+  } else if(origin === 'humble' || G.genJoinSource?.[genName] === 'defect'){
+    gentryLine = `外地${roleLabel}${militaryLabel}主政，本郡豪族支持承压（属县约 -0.2/旬），且无本地士族额外压腐`;
+  } else {
+    gentryLine = `外地${roleLabel}${militaryLabel}主政，本郡豪族支持略有压力（属县约 -0.1/旬），且无本地士族额外压腐`;
+  }
+
+  const factionLine = (() => {
+    if(!city?.fac) return null;
+    const pfFacId = getGenFaction(genName, city.fac);
+    if(!pfFacId) return null;
+    const pfLabel = _factionLabelById(pfFacId);
+    const avg = getAvgFactionMod(city.fac, pfFacId);
+    if(avg <= -15) return {tone:'bad', text:`${pfLabel}离心不满，本城金产可能下降`};
+    if(avg >= 15) return {tone:'good', text:`${pfLabel}积极支持，本城金产可能提高`};
+    return {tone:'neutral', text:`${pfLabel}态度平稳，本城金产无额外修正`};
+  })();
+  const oldPrefect = city?.prefect && city.prefect !== genName ? city.prefect : null;
+  const oldFacLabel = oldPrefect && city?.fac ? _factionLabelById(getGenFaction(oldPrefect, city.fac)) : '所属派系';
+  const oldLine = oldPrefect
+    ? {tone:'bad', text:`原太守${oldPrefect}离任，本人忠诚下降，${oldFacLabel}满意度受损`}
+    : null;
+  const temperamentLine = tags.temperament === 'generous'
+    ? {tone:'good', text:'性情仁厚，额外帮助民心和人口质量恢复'}
+    : null;
+  const governanceLine = (gen.pol || 0) >= 50
+    ? {tone:'good', text:'本城金产、民心恢复、建设推进和腐败压制都会受益'}
+    : {tone:'mixed', text:'本城金产、民心恢复和建设推进会受益；政治不足，腐败压力难降'};
+  const isSamePrefect = city?.prefect === genName;
+  const apFacLabel = city?.fac ? _factionLabelById(getGenFaction(genName, city.fac)) : '所属派系';
+  const appointLine = isSamePrefect
+    ? {tone:'neutral', text:'已为本城太守，无新增忠诚或派系满意度收益'}
+    : {tone:'good', text:`本人忠诚 +8，${apFacLabel}满意度 +2`};
+  const compareLine = (() => {
+    if(!oldPrefect) return null;
+    const oldPol = GEN_MAP[oldPrefect]?.pol ?? 0;
+    const newPol = gen.pol || 0;
+    if(newPol > oldPol) return {tone:'good', text:`治理能力较原太守提高，本城内政表现可能改善`};
+    if(newPol < oldPol) return {tone:'mixed', text:`治理能力低于原太守，本城内政表现可能回落`};
+    return {tone:'neutral', text:'治理能力与原太守相近，本城内政表现大体稳定'};
+  })();
+
+  const lines = [
+    {tone: reduceReasons.length ? 'bad' : 'good', text: reducedLine},
+    {tone: gentryLine.includes('承压') || gentryLine.includes('压力') || gentryLine.includes('磨合') ? 'mixed' : 'good', text: gentryLine},
+    governanceLine,
+    {tone: 'good', text: '治安更稳，叛乱风险下降'},
+    compareLine,
+    factionLine,
+    temperamentLine,
+    appointLine,
+    oldLine,
+    {tone: 'neutral', text: _genOfficeLeanLine(genName, '主政')}
+  ].filter(Boolean);
+
+  return {
+    title: `${genName}任${city?.name || ''}太守`,
+    lines
+  };
+}
+
+function confirmSetPrefect(cityId, genName){
+  if(!genName){ setPrefect(cityId, null); return; }
+  const preview = getPrefectAppointmentPreview(cityId, genName);
+  const toneStyle = {
+    good: {icon:'＋', bg:'rgba(26,122,58,.08)', border:'#1a7a3a', color:'#1a7a3a'},
+    bad: {icon:'－', bg:'rgba(192,48,48,.08)', border:'#c03030', color:'#c03030'},
+    mixed: {icon:'!', bg:'rgba(138,106,16,.08)', border:'#8a6a10', color:'#8a6a10'},
+    neutral: {icon:'·', bg:'rgba(80,65,40,.05)', border:'rgba(80,65,40,.28)', color:'rgba(92,74,50,.70)'}
+  };
+  const lines = preview.lines.map(item => {
+    const s = toneStyle[item.tone] || toneStyle.neutral;
+    return `<div style="display:flex;gap:8px;align-items:flex-start;padding:8px 9px;margin-bottom:6px;border-left:3px solid ${s.border};background:${s.bg};border-radius:3px;font-size:11px;line-height:1.65;color:rgba(44,36,22,.84)">
+      <span style="min-width:14px;height:14px;line-height:14px;text-align:center;border-radius:50%;background:${s.color};color:#fff;font-size:10px;margin-top:2px">${s.icon}</span>
+      <span>${_escapeInlineText(item.text)}</span>
+    </div>`;
+  }
+  ).join('');
+  const html = `
+    <div style="padding:10px 12px 4px">
+      <div style="font-size:13px;font-family:'Noto Serif SC',serif;color:var(--ink);margin-bottom:8px">${_escapeInlineText(preview.title)}</div>
+      <div style="margin-bottom:14px">${lines}</div>
+      <div style="display:flex;justify-content:flex-end;gap:8px">
+        <button onclick="openPrefectModal('${_htmlAttr(_jsArg(cityId))}')" style="padding:5px 12px;background:rgba(80,65,40,.06);border:1px solid rgba(80,65,40,.18);color:rgba(92,74,50,.65);font-size:10px;cursor:pointer;border-radius:2px">返回</button>
+        <button onclick="setPrefect('${_htmlAttr(_jsArg(cityId))}','${_htmlAttr(_jsArg(genName))}')" style="padding:5px 14px;background:rgba(26,122,58,.13);border:1px solid rgba(26,122,58,.35);color:#1a7a3a;font-family:'Noto Serif SC',serif;font-size:10px;cursor:pointer;border-radius:2px">确认</button>
+      </div>
+    </div>`;
+  showGenericModal('确认任命太守', html);
+}
+
 function _showEventToPlayer(evt){
   G._pendingEvent = evt;
   const {def, ctx} = evt;
@@ -126,7 +289,7 @@ function openPrefectModal(cityId){
     const _isLocalGentry = _cityGFac && _tags.origin === 'gentry' && !_tags.clique
       && _tags.state && STATE_TO_GENTRY_FAC[_tags.state] === _cityGFac;
     const _localBadge = _isLocalGentry ? '<span style="font-size:7px;color:#daa520;background:rgba(218,165,32,.1);border:1px solid rgba(218,165,32,.25);padding:0 3px;border-radius:2px;margin-left:3px">本地士族</span>' : '';
-    return `<div onclick="setPrefect('${cityId}','${g.name}')" style="display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;border-bottom:1px solid rgba(80,65,40,.08);transition:background .15s${_isLocalGentry&&!isCurrent?';background:rgba(218,165,32,.03)':''}"
+    return `<div onclick="confirmSetPrefect('${_htmlAttr(_jsArg(cityId))}','${_htmlAttr(_jsArg(g.name))}')" style="display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;border-bottom:1px solid rgba(80,65,40,.08);transition:background .15s${_isLocalGentry&&!isCurrent?';background:rgba(218,165,32,.03)':''}"
       onmouseover="this.style.background='rgba(80,65,40,.05)'" onmouseout="this.style.background='${_isLocalGentry&&!isCurrent?'rgba(218,165,32,.03)':''}'"  >
       <div style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif SC',serif;font-weight:900;font-size:13px;background:${fc.color}22;border:1px solid ${fc.color}${isCurrent?'88':'33'};color:${isCurrent?fc.color:'rgba(92,74,50,.55)'};">${g.name[0]}</div>
       <div style="flex:1">

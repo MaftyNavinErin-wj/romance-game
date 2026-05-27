@@ -27,6 +27,91 @@
 // ═══════════════════════════════════════
 // D1 官职任命/罢免弹窗
 // ═══════════════════════════════════════
+function _postPreviewLeanLine(genName){
+  const origin = (GEN_TAGS[genName] || {}).origin;
+  if(origin === 'gentry') return '士族任官偏共治';
+  if(origin === 'humble' || origin === 'clan') return '寒门或宗亲任官偏集权';
+  return '任官后，权力结构基本稳定';
+}
+
+function _postPreviewEscape(v){
+  return String(v ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[ch]));
+}
+
+function _postJsArg(v){
+  return String(v ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+function _postHtmlAttr(v){
+  return _postPreviewEscape(v);
+}
+
+function _postFactionLabel(genName, fid){
+  const factionId = getGenFaction(genName, fid);
+  return FACTION_DEFS.find(f => f.id === factionId)?.label || factionId || '所属派系';
+}
+
+function getPostAppointmentPreview(genName, postName, fid){
+  const postDef = ALL_POSTS.find(p=>p.name===postName);
+  const facLabel = _postFactionLabel(genName, fid);
+  const isPrefect = Object.values(G.cities).some(c => c.fac === fid && c.prefect === genName);
+  const officeLine = isPrefect
+    ? '官职效果正常生效；其太守效果减半'
+    : '官职效果生效，为势力提供对应的政务或军务加成';
+  const influenceLine = postDef?.tier === 1
+    ? `一品高官显著提高${facLabel}话语权`
+    : postDef?.tier === 2
+      ? `二品官职提高${facLabel}话语权`
+      : `官职提高${facLabel}话语权`;
+  const lines = [
+    officeLine,
+    `本人忠诚 +8，${facLabel}满意度 +2`,
+    influenceLine,
+    _postPreviewLeanLine(genName)
+  ];
+  if(postDef && postDef.tier <= 2) lines.splice(3, 0, '高位官员可参与朝议，影响政策方向');
+  return lines;
+}
+
+function appointGenPostWithPreview(genName, postName, fid){
+  const preview = getPostAppointmentPreview(genName, postName, fid);
+  hideTip();
+  appointGenPost(genName, postName, fid);
+  closeModal();
+  renderAllLight();
+  showNotif(`${genName} 已任 ${postName}｜${preview[0]}`, 'ok');
+}
+
+function showPostAppointmentTip(e, genName, postName, fid){
+  if(e) e.stopPropagation();
+  const preview = getPostAppointmentPreview(genName, postName, fid);
+  let tip = document.getElementById('_tip');
+  if(!tip){
+    tip = document.createElement('div');
+    tip.id = '_tip';
+    document.body.appendChild(tip);
+  }
+  const rows = preview.map((line, i) => {
+    const isBad = line.includes('减半');
+    const isGood = i === 1 || line.includes('生效') || line.includes('加成');
+    const color = isBad ? '#c03030' : isGood ? '#1a7a3a' : 'rgba(92,74,50,.72)';
+    const icon = isBad ? '－' : isGood ? '＋' : '·';
+    return `<div style="display:flex;gap:6px;align-items:flex-start;margin-top:${i?5:0}px;color:${color}">
+      <span style="font-weight:700">${icon}</span><span>${_postPreviewEscape(line)}</span>
+    </div>`;
+  }).join('');
+  tip.style.cssText = 'position:fixed;background:rgba(246,240,226,.98);border:1px solid rgba(92,74,50,.22);padding:8px 10px;font-size:10px;z-index:10000;pointer-events:none;max-width:260px;display:none;line-height:1.55;font-family:Noto Serif SC,serif;box-shadow:0 4px 14px rgba(42,32,20,.16);border-radius:4px';
+  tip.innerHTML = `<div style="font-family:'Noto Serif SC',serif;color:#5f4b2a;font-size:11px;font-weight:700;margin-bottom:5px">${_postPreviewEscape(genName)}任${_postPreviewEscape(postName)}</div>${rows}`;
+  _positionTip(tip, e);
+}
+
+function movePostAppointmentTip(e){
+  const tip = document.getElementById('_tip');
+  if(tip) _positionTip(tip, e);
+}
+
 function openPostAppoint(postName, fid){
   const postDef = ALL_POSTS.find(p=>p.name===postName);
   if(!postDef) return;
@@ -44,14 +129,15 @@ function openPostAppoint(postName, fid){
     const merit = Math.floor(G.genMerit[g.name]||0);
     const stat = postDef.buffStat==='com' ? g.com : g.pol;
     const isPrefect = Object.values(G.cities).some(c=>c.fac===fid && c.prefect===g.name);
-    return `<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;cursor:pointer;border-bottom:1px solid rgba(80,65,40,.07);transition:background .15s" onmouseover="this.style.background='rgba(80,65,40,.07)'" onmouseout="this.style.background=''" onclick="appointGenPost('${g.name}','${postName}','${fid}');closeModal();renderAllLight()">
-      <span style="font-size:11px;color:var(--ink-l);font-family:'Noto Serif SC',serif">${g.name}</span>
+    return `<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;cursor:pointer;border-bottom:1px solid rgba(80,65,40,.07);transition:background .15s" onmouseenter="this.style.background='rgba(80,65,40,.07)';showPostAppointmentTip(event,'${_postHtmlAttr(_postJsArg(g.name))}','${_postHtmlAttr(_postJsArg(postName))}','${_postHtmlAttr(_postJsArg(fid))}')" onmousemove="movePostAppointmentTip(event)" onmouseleave="this.style.background='';hideTip()" onclick="appointGenPostWithPreview('${_postHtmlAttr(_postJsArg(g.name))}','${_postHtmlAttr(_postJsArg(postName))}','${_postHtmlAttr(_postJsArg(fid))}')">
+      <span style="font-size:11px;color:var(--ink-l);font-family:'Noto Serif SC',serif">${_postPreviewEscape(g.name)}</span>
       <span style="font-size:8px;color:rgba(92,74,50,.40)">功${merit} ${postDef.buffStat==='com'?'统':'政'}${stat}${isPrefect?' · 太守兼职':''}</span>
+      <span style="margin-left:auto;font-size:8px;color:rgba(26,122,58,.60);border:1px solid rgba(26,122,58,.20);background:rgba(26,122,58,.06);padding:0 4px;border-radius:2px">影响</span>
     </div>`;
   }).join('');
 
   showModal(`任命 ${postName}`, `
-    <div style="font-size:10px;color:rgba(92,74,50,.55);margin-bottom:4px">忠诚+${postDef.loyalty}/旬 | 俸禄${postDef.salary}金/旬 | 需功绩≥${postDef.merit}</div>
+    <div style="font-size:10px;color:rgba(92,74,50,.55);margin-bottom:4px">忠诚+${postDef.loyalty} | 需功绩≥${postDef.merit}</div>
     ${buffInfo}
     <div style="font-size:9px;color:rgba(92,74,50,.55);margin-bottom:6px">选择任命人选:</div>
     <div style="max-height:200px;overflow-y:auto">${list}</div>
@@ -68,7 +154,7 @@ function openPostAction(genName, fid){
   const buffInfo = postDef.buffDesc ? `<div style="font-size:9px;color:#6b5530;margin:6px 0">效果: ${postDef.buffDesc} (×${(stat/100).toFixed(2)})</div>` : '';
 
   showModal(`${postDef.name} · ${genName}`, `
-    <div style="font-size:10px;color:rgba(92,74,50,.55)">忠诚+${postDef.loyalty}/旬 | 俸禄${postDef.salary}金/旬 | 功绩${merit}</div>
+    <div style="font-size:10px;color:rgba(92,74,50,.55)">忠诚+${postDef.loyalty} | 功绩${merit}</div>
     ${buffInfo}
     <div style="margin-top:12px;text-align:center">
       <button onclick="dismissGenPost('${genName}','${fid}');closeModal();renderAllLight()" style="padding:5px 16px;background:rgba(192,48,48,.15);border:1px solid rgba(192,48,48,.3);color:#c03030;font-family:'Noto Serif SC',serif;font-size:10px;cursor:pointer;border-radius:2px">罢免</button>

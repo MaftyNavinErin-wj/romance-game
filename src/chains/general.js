@@ -1715,7 +1715,10 @@ function setPrefect(cityId, genName){
 
   closeModal();
   renderAllLight();
-  if(genName) showNotif(`${genName} 已就任 ${city.name} 太守（忠诚+8）`, 'ok');
+  if(genName){
+    if(genName === oldPrefect) showNotif(`${genName} 已是 ${city.name} 太守`, 'info');
+    else showNotif(`${genName} 已就任 ${city.name} 太守（忠诚+8）`, 'ok');
+  }
 }
 
 // ── 玩家外交行动（每势力每旬限一次）──

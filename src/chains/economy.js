@@ -916,10 +916,13 @@ function getPrefectBuildBuff(cityId, bldId){
     univBuff = 0.05; univLabel = '元勋';
   }
 
-  const total = typeBuff + univBuff;
+  const dutyMult = isPrefectDutyReduced(city) ? 0.5 : 1.0;
+  const effTypeBuff = typeBuff * dutyMult;
+  const effUnivBuff = univBuff * dutyMult;
+  const total = effTypeBuff + effUnivBuff;
   const parts = [];
-  if(typeBuff !== 0) parts.push(`${typeLabel}${typeBuff > 0 ? '+' : ''}${(typeBuff*100).toFixed(0)}%`);
-  if(univBuff !== 0) parts.push(`${univLabel}${univBuff > 0 ? '+' : ''}${(univBuff*100).toFixed(0)}%`);
+  if(effTypeBuff !== 0) parts.push(`${typeLabel}${effTypeBuff > 0 ? '+' : ''}${(effTypeBuff*100).toFixed(0)}%`);
+  if(effUnivBuff !== 0) parts.push(`${univLabel}${effUnivBuff > 0 ? '+' : ''}${(effUnivBuff*100).toFixed(0)}%`);
   return { bonus: total, label: parts.join(' ') };
 }
 
