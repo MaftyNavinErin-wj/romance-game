@@ -135,7 +135,7 @@
 // 本 chain 调外部链(callees):
 //   - `addStatExp`(武将链 exp,留 v181 等 3.12)— processTechResearch 调
 //   - `safeSub`(已抽 src/core/helpers.js)— startTechResearch 调
-//   - `clearPrefectByGen`(武将链 prefect helper,留 v181 等 3.12)— appointGenPost 调
+//   - `clearPrefectByGen`(武将链 prefect helper,留 v181 等 3.12)— 死亡/下野等清理路径调
 //   - `getGenFaction / getGenFactions / _genInfluence`(武将链 派系 helpers,留 v181 等 3.12)
 //     — appointGenPost / dismissGenPost / _applyCourtDecisions / calcFactionInfluence 调
 //   - `triggerFactionEvent`(武将链 派系事件 hub,留 v181 等 3.12)
@@ -648,10 +648,6 @@ function appointGenPost(genName, postName, fid){
   if(!G.genPost) G.genPost={};
   const postDef = ALL_POSTS.find(p=>p.name===postName);
   if(!postDef) return;
-  // 互斥：卸任太守
-  Object.values(G.cities).forEach(c=>{
-    if(c.prefect===genName && c.fac===fid) clearPrefectByGen(genName);
-  });
   // 若已有其他官职，先卸任
   if(G.genPost[genName]){
     dismissGenPost(genName, fid, true); // silent=true，不重复触发-3
@@ -1089,7 +1085,6 @@ function _execAppointPost(fid, act) {
   if (!postDef) { console.warn('[ClaudeAI] appoint: 官职不存在', postName); return false; }
   if ((G.genMerit[genName] || 0) < postDef.merit) { console.warn('[ClaudeAI] appoint: 功绩不足', genName, G.genMerit[genName] || 0, '<', postDef.merit); return false; }
   if (G.genPost && G.genPost[genName]) { console.warn('[ClaudeAI] appoint: 已有官职', genName, G.genPost[genName]); return false; }
-  if (Object.values(G.cities).some(c => c.fac === fid && c.prefect === genName)) { console.warn('[ClaudeAI] appoint: 是太守', genName); return false; }
   // ★ v158: 检查该官职名额是否已满
   // ★ v181: 改走 getPostSlots（自动应用 stage cap tier1），不再直读 POST_TIERS
   const allSlots = getPostSlots(fid);

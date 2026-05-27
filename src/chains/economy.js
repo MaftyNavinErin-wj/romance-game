@@ -122,7 +122,7 @@
 //   - 政治链(已抽 chains/politics.js):
 //       `processTechResearch / startTechResearch / calcPostBuffs` 写 res(本 chain 主写口),
 //       是政治写口的副作用(已 carry-over §3.7)
-//       `appointGenPost / dismissGenPost` 副作用调 `clearPrefectByGen`(武将)
+//       `appointGenPost / dismissGenPost` 官职变更会影响太守兼职减半判定
 //   - 外交链(已抽 chains/diplomacy.js):
 //       `diploGift / diploArmistice / diploAlly / stratEnvoy / strat*` 多处扣 res
 //       (本 chain 主写口),是外交写口的副作用
@@ -240,6 +240,11 @@ function isPrefectInFieldUnit(city){
   return unit.hq !== cityDef.q || unit.hr !== cityDef.r;
 }
 
+function isPrefectDutyReduced(city){
+  if(!city?.prefect) return false;
+  return isPrefectInFieldUnit(city) || !!(G.genPost && G.genPost[city.prefect]);
+}
+
 function calcCityCorruption(city, cityCount){
   const baseRate = Math.min(CORRUPT_CAP, Math.max(0, (cityCount - CORRUPT_FREE_CITIES) * CORRUPT_PER_CITY));
   if(baseRate <= 0) return 0;
@@ -256,7 +261,7 @@ function calcCityCorruption(city, cityCount){
         && tags.state && STATE_TO_GENTRY_FAC[tags.state] === STATE_TO_GENTRY_FAC[cityState];
       if(isLocalGentry) prefectMod += 0.05;
     }
-    if(isPrefectInFieldUnit(city)) prefectMod *= 0.5;
+    if(isPrefectDutyReduced(city)) prefectMod *= 0.5;
   }
   // 豪族压腐
   const gentryMod = _getCorruptGentryMod(city.gentry);
@@ -318,7 +323,7 @@ function getCityProd(city){
 
   // 太守政治加成：金币 +pol/500
   const prefectPol = city.prefect ? (GEN_MAP[city.prefect]?.pol ?? 0) : 0;
-  const prefectHalfInProd = isPrefectInFieldUnit(city) ? 0.5 : 1.0;
+  const prefectHalfInProd = isPrefectDutyReduced(city) ? 0.5 : 1.0;
   const prefectGoldMult = 1 + (prefectPol / 500) * prefectHalfInProd;
 
   // ★ v113: 太守派系产出修正（阈值同getFactionMoraleMod: ±15）
@@ -693,7 +698,7 @@ function processMorale(city){
   // pol=60→+0.15，pol=90→+0.225
   if(city.prefect){
     const prefectPolM = GEN_MAP[city.prefect]?.pol ?? 0;
-    const prefectHalfMorale = isPrefectInFieldUnit(city) ? 0.5 : 1.0;
+    const prefectHalfMorale = isPrefectDutyReduced(city) ? 0.5 : 1.0;
     d += (prefectPolM / 400) * prefectHalfMorale;
   } else {
     // 无太守：使用全势力最高pol的微弱加成（兜底）
@@ -931,7 +936,7 @@ function processBuildQueues(){
 
     // 太守通用加速：pol/100×0.5 概率额外-1旬
     const _prefectPolBuild = city.prefect ? (GEN_MAP[city.prefect]?.pol ?? 0) : 0;
-    const _prefectBuildDeployed = isPrefectInFieldUnit(city);
+    const _prefectBuildDeployed = isPrefectDutyReduced(city);
     let _baseAccelProb = _prefectPolBuild ? Math.min(0.6, _prefectPolBuild / 100 * 0.5) * (_prefectBuildDeployed ? 0.5 : 1.0) : 0;
     // ★ D1: 光禄勋建设加速buff（叠加）
     const _bsBuff = G.factions[city.fac]?._postBuffs?.buildSpeed || 0;
@@ -1160,10 +1165,9 @@ function aiDoAppointments(fid){
   const deployedGens = getDeployedGens(fid);
   myCities.forEach(city => {
     if(city.prefect) return; // 已有太守
-    // 候选人：闲置（未部署、未任太守、未任官职）
+    // 候选人：闲置（未部署、未任其他城太守；可兼官，太守加成减半）
     const candidates = gens.filter(g => {
       if(deployedGens.has(g.name)) return false;
-      if(G.genPost && G.genPost[g.name]) return false;
       if(Object.values(G.cities).some(c => c.fac === fid && c.prefect === g.name)) return false;
       return true;
     });
@@ -1213,7 +1217,6 @@ function aiDoAppointments(fid){
         const stat = postDef.buffStat === 'com' ? 'com' : 'pol';
         const cands = gens.filter(g => {
           if(G.genPost && G.genPost[g.name]) return false;
-          if(Object.values(G.cities).some(c => c.fac === fid && c.prefect === g.name)) return false;
           if((G.genMerit[g.name]||0) < postDef.merit) return false;
           return true;
         }).sort((a,b) => (b[stat]||60) - (a[stat]||60));

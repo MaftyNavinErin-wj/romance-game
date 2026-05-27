@@ -31,22 +31,22 @@ function openPostAppoint(postName, fid){
   const postDef = ALL_POSTS.find(p=>p.name===postName);
   if(!postDef) return;
   const gens = (G.generals[fid]||[]).filter(g=>g.role!=='ruler');
-  // 候选人：功绩够 + 无官职 + 无太守
+  // 候选人：功绩够 + 无官职；太守可兼任，但太守加成减半
   const candidates = gens.filter(g=>{
     if(G.genPost && G.genPost[g.name]) return false;
-    if(Object.values(G.cities).some(c=>c.fac===fid && c.prefect===g.name)) return false;
     return (G.genMerit[g.name]||0) >= postDef.merit;
   }).sort((a,b)=>(G.genMerit[b.name]||0)-(G.genMerit[a.name]||0));
 
-  if(!candidates.length){ showNotif(`无合适人选任${postName}（需功绩≥${postDef.merit}且无其他职务）`,'warn'); return; }
+  if(!candidates.length){ showNotif(`无合适人选任${postName}（需功绩≥${postDef.merit}且无官职）`,'warn'); return; }
 
   const buffInfo = postDef.buffDesc ? `<div style="font-size:9px;color:#6b5530;margin:6px 0">效果: ${postDef.buffDesc} (按${postDef.buffStat==='com'?'统帅':'政治'}缩放)</div>` : '';
   const list = candidates.map(g=>{
     const merit = Math.floor(G.genMerit[g.name]||0);
     const stat = postDef.buffStat==='com' ? g.com : g.pol;
+    const isPrefect = Object.values(G.cities).some(c=>c.fac===fid && c.prefect===g.name);
     return `<div style="display:flex;align-items:center;gap:8px;padding:5px 8px;cursor:pointer;border-bottom:1px solid rgba(80,65,40,.07);transition:background .15s" onmouseover="this.style.background='rgba(80,65,40,.07)'" onmouseout="this.style.background=''" onclick="appointGenPost('${g.name}','${postName}','${fid}');closeModal();renderAllLight()">
       <span style="font-size:11px;color:var(--ink-l);font-family:'Noto Serif SC',serif">${g.name}</span>
-      <span style="font-size:8px;color:rgba(92,74,50,.40)">功${merit} ${postDef.buffStat==='com'?'统':'政'}${stat}</span>
+      <span style="font-size:8px;color:rgba(92,74,50,.40)">功${merit} ${postDef.buffStat==='com'?'统':'政'}${stat}${isPrefect?' · 太守兼职':''}</span>
     </div>`;
   }).join('');
 

@@ -1152,7 +1152,7 @@ contingency列出2-3个"如果...则..."的预案，覆盖最可能的意外情�
 - set_camp/set_ambush：仅野外部队可用，garrison(城内驻守)状态不可用——需先move出城
 - set_ambush：额外要求地形为forest/hill/mountain/swamp
 - build：受建筑槽位限制(小城1/中城2-3/大城3-4)，部分建筑有城市类型限制(irr需平原/水乡, harbor需港口城)
-- appoint_post：武将需有足够功绩且当前无官职，不能是太守
+- appoint_post：武将需有足够功绩且当前无官职；可以兼任太守，但太守加成会减半
 - research：需闲置武将（非太守/非部队/非研究中），同时只能研究一项
 - 同一旬多条花钱指令按顺序扣费——前面的指令花完金后面的会失败，请在thinking中估算总花费
 

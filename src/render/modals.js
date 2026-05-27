@@ -105,17 +105,20 @@ function openPrefectModal(cityId){
   const fid = G.playerFac;
   const fc = getFactionDef(fid);
   const gens = (G.generals[fid]||[]).filter(g => g.role !== 'ruler');
-  const deployed = new Set();
-  G.units.forEach(u => u.squads.forEach(sq => deployed.add(sq.genName)));
-
   const rows = gens.slice().sort((a,b) => b.pol - a.pol).map(g => {
     const isCurrent = city.prefect === g.name;
-    const isOut = deployed.has(g.name);
+    const cityDef = CITY_MAP[cityId];
+    const unit = G.units.find(u => Array.isArray(u.squads) && u.squads.some(sq => sq.genName === g.name));
+    const isOut = !!(unit && cityDef && (unit.hq !== cityDef.q || unit.hr !== cityDef.r));
+    const hasPost = !!(G.genPost && G.genPost[g.name]);
+    const dutyReduced = isOut || hasPost;
     const otherCity = Object.values(G.cities).find(c => c.id !== cityId && c.prefect === g.name);
-    const hint = isCurrent ? '（当前太守）' : otherCity ? `（已任${otherCity.name}太守）` : isOut ? '（出征中）' : '';
+    const dutyHint = dutyReduced ? `（${[isOut?'在外':null, hasPost?'兼官':null].filter(Boolean).join('/')}减半）` : '';
+    const hint = isCurrent ? `（当前太守）${dutyHint}` : otherCity ? `（已任${otherCity.name}太守）` : dutyHint;
     const hintCol = isCurrent ? '#8a7040' : otherCity ? '#8a6a10' : 'rgba(92,74,50,.45)';
     const goldPct = Math.round(g.pol/500*100);
-    const moralePt = (g.pol/200).toFixed(1);
+    const goldDisplay = dutyReduced ? Math.round(goldPct/2) : goldPct;
+    const moralePt = ((g.pol/400) * (dutyReduced ? 0.5 : 1)).toFixed(2);
     // ★ v144→v172: "本地士族"按士族派系判定（含跨州同派系）
     const _tags = GEN_TAGS[g.name] || {};
     const _cityState = CITY_TO_STATE[cityId] || '';
@@ -131,7 +134,7 @@ function openPrefectModal(cityId){
           <span style="font-family:'Noto Serif SC',serif;font-size:11px;color:${isCurrent?fc.color:'rgba(44,36,22,.75)'}">${g.name}</span>${_localBadge}
           <span style="font-size:8px;color:${hintCol}">${hint}</span>
         </div>
-        <div style="font-size:9px;color:rgba(92,74,50,.45)">政${g.pol} · 💰+${goldPct}% · 🌿+${moralePt}/旬${isCurrent?'':' · <span style="color:#60c060">任命+8忠诚</span>'}</div>
+        <div style="font-size:9px;color:rgba(92,74,50,.45)">政${g.pol} · 💰+${goldDisplay}% · 🌿+${moralePt}/旬${isCurrent?'':' · <span style="color:#60c060">任命+8忠诚</span>'}</div>
       </div>
       ${isCurrent ? `<span style="font-size:9px;color:#8a7040">✓任职</span>` : `<span style="font-size:9px;color:rgba(92,74,50,.35)">任命→</span>`}
     </div>`;
@@ -139,7 +142,7 @@ function openPrefectModal(cityId){
 
   const html = `<div style="font-size:11px;color:rgba(92,74,50,.55);padding:10px 12px 8px;border-bottom:1px solid rgba(80,65,40,.10)">
     <b style="color:${fc.color};font-family:'Noto Serif SC',serif">${city.name}</b> · 任命太守
-    <span style="font-size:9px;margin-left:6px">（太守提供政治加成；出征时buff减半；任命可+8忠诚）</span>
+    <span style="font-size:9px;margin-left:6px">（太守提供政治加成；在外或兼官时buff减半；任命可+8忠诚）</span>
   </div>
   ${city.prefect ? `<div onclick="setPrefect('${cityId}',null)" style="display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;border-bottom:1px solid rgba(80,65,40,.08);color:rgba(92,74,50,.40);font-size:10px" onmouseover="this.style.background='rgba(192,48,48,.04)'" onmouseout="this.style.background=''">
     <span style="font-size:12px">✕</span> 撤销太守任命

@@ -101,7 +101,7 @@
 //       diplomacy 4 处 (truce/betray) + military 1 处 (conquer) + politics 2 处
 //       (appointPost/removePost) = 7 处
 //   - setPrefect / clearPrefectByGen (本 chain GEN10):
-//       politics 1 处 (appointGenPost 互斥太守)
+//       politics 1 处 (appointGenPost 后太守兼职减半)
 //   - getStrategistInt / setStrategist (本 chain GEN11):
 //       diplomacy 1 处 (计谋 INT) + claude_ai 1 处 = 2 处
 //   - addStatExp / addAptExp (本 chain GEN2):
@@ -1673,9 +1673,6 @@ function setPrefect(cityId, genName){
   const oldPrefect = city.prefect;
   city.prefect = genName || null;
   const cityFac = city.fac;
-
-  // ★ D1: 太守与官职互斥——任命太守时清除官职
-  if(genName) clearAllPostsByGen(genName);
 
   // 太守任命忠诚度效果
   if(genName && genName !== oldPrefect){

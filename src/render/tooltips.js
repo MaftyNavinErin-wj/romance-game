@@ -199,9 +199,9 @@ function showBreakdown(e, type, cityId){
     // ★ v136: 太守政治加成
     if(city.prefect){
       const _bdPrefPol = GEN_MAP[city.prefect]?.pol ?? 0;
-      const _bdPrefDeployed = isPrefectInFieldUnit(city);
+      const _bdPrefDeployed = isPrefectDutyReduced(city);
       const _bdPrefMult = 1 + (_bdPrefPol / 500) * (_bdPrefDeployed ? 0.5 : 1.0);
-      if(_bdPrefMult > 1.001) html += `<div class="bd-row"><span class="bd-label">太守政治（${city.prefect}·政${_bdPrefPol}${_bdPrefDeployed?'·在外减半':''}）</span><span class="bd-val pos">×${_bdPrefMult.toFixed(3)}</span></div>`;
+      if(_bdPrefMult > 1.001) html += `<div class="bd-row"><span class="bd-label">太守政治（${city.prefect}·政${_bdPrefPol}${_bdPrefDeployed?'·任事减半':''}）</span><span class="bd-val pos">×${_bdPrefMult.toFixed(3)}</span></div>`;
     }
     // ★ v136: 官职/朝议金产buff
     const _pbGold = G.factions[city.fac]?._postBuffs?.goldProd || 0;
@@ -236,7 +236,7 @@ function showBreakdown(e, type, cityId){
             && STATE_TO_GENTRY_FAC[_cTags.state] === STATE_TO_GENTRY_FAC[_cSt];
           if(_cLocal) _cPrefMod += 0.05;
         }
-        if(isPrefectInFieldUnit(city)) _cPrefMod *= 0.5;
+        if(isPrefectDutyReduced(city)) _cPrefMod *= 0.5;
       }
       const _cGentryMod = _getCorruptGentryMod(city.gentry);
       html += `<div class="bd-sep"></div>`;
@@ -325,10 +325,10 @@ function showBreakdown(e, type, cityId){
     let prefectD = 0, prefectLabel = '无太守';
     if(city.prefect){
       const _polM = GEN_MAP[city.prefect]?.pol ?? 0;
-      const _deployed = isPrefectInFieldUnit(city);
+      const _deployed = isPrefectDutyReduced(city);
       const _half = _deployed ? 0.5 : 1.0;
       prefectD = (_polM / 400) * _half;
-      prefectLabel = `${city.prefect}（政${_polM}${_deployed?'·在外减半':''}）`;
+      prefectLabel = `${city.prefect}（政${_polM}${_deployed?'·任事减半':''}）`;
     } else {
       const gens = G.generals[city.fac]||[];
       const bestPol = gens.length?Math.max(...gens.map(g=>g.pol)):0;

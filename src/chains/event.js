@@ -163,7 +163,7 @@ function checkRebellions(){
     let prefectMod = 1.0;
     if(city.prefect){
       const pol = GEN_MAP[city.prefect]?.pol ?? 0;
-      const half = isPrefectInFieldUnit(city) ? 0.5 : 1.0;
+      const half = isPrefectDutyReduced(city) ? 0.5 : 1.0;
       prefectMod = Math.max(0, 1 - (pol/300)*half);
     }
 
