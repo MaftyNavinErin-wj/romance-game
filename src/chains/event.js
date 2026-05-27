@@ -149,9 +149,6 @@
  * 冷却：大乱后城市有 rebellionCooldown 字段，N旬内不再判断
  */
 function checkRebellions(){
-  const deployed = new Set();
-  G.units.forEach(u=>u.squads.forEach(sq=>deployed.add(sq.genName)));
-
   Object.values(G.cities).forEach(city=>{
     // 中立/rebel城市不再触发
     if(!G.factions[city.fac] || city.fac==='rebel') return;
@@ -166,7 +163,7 @@ function checkRebellions(){
     let prefectMod = 1.0;
     if(city.prefect){
       const pol = GEN_MAP[city.prefect]?.pol ?? 0;
-      const half = deployed.has(city.prefect) ? 0.5 : 1.0;
+      const half = isPrefectInFieldUnit(city) ? 0.5 : 1.0;
       prefectMod = Math.max(0, 1 - (pol/300)*half);
     }
 

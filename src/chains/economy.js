@@ -231,6 +231,15 @@ function getBilletCities(fid) {
 // ── E2 城市腐败 calcCityCorruption (v181 L3979-L4008) ──
 // ════════════════════════════════════════════════════════════════════
 
+function isPrefectInFieldUnit(city){
+  if(!city?.prefect) return false;
+  const cityDef = CITY_MAP[city.id];
+  if(!cityDef) return false;
+  const unit = G.units.find(u => Array.isArray(u.squads) && u.squads.some(sq => sq.genName === city.prefect));
+  if(!unit) return false;
+  return unit.hq !== cityDef.q || unit.hr !== cityDef.r;
+}
+
 function calcCityCorruption(city, cityCount){
   const baseRate = Math.min(CORRUPT_CAP, Math.max(0, (cityCount - CORRUPT_FREE_CITIES) * CORRUPT_PER_CITY));
   if(baseRate <= 0) return 0;
@@ -247,6 +256,7 @@ function calcCityCorruption(city, cityCount){
         && tags.state && STATE_TO_GENTRY_FAC[tags.state] === STATE_TO_GENTRY_FAC[cityState];
       if(isLocalGentry) prefectMod += 0.05;
     }
+    if(isPrefectInFieldUnit(city)) prefectMod *= 0.5;
   }
   // 豪族压腐
   const gentryMod = _getCorruptGentryMod(city.gentry);
@@ -308,11 +318,7 @@ function getCityProd(city){
 
   // 太守政治加成：金币 +pol/500
   const prefectPol = city.prefect ? (GEN_MAP[city.prefect]?.pol ?? 0) : 0;
-  const prefectDeployedInProd = city.prefect
-    ? G.units.some(u=>u.status==='march'||u.status==='siege'
-        ? u.squads.some(sq=>sq.genName===city.prefect) : false)
-    : false;
-  const prefectHalfInProd = prefectDeployedInProd ? 0.5 : 1.0;
+  const prefectHalfInProd = isPrefectInFieldUnit(city) ? 0.5 : 1.0;
   const prefectGoldMult = 1 + (prefectPol / 500) * prefectHalfInProd;
 
   // ★ v113: 太守派系产出修正（阈值同getFactionMoraleMod: ±15）
@@ -687,8 +693,7 @@ function processMorale(city){
   // pol=60→+0.15，pol=90→+0.225
   if(city.prefect){
     const prefectPolM = GEN_MAP[city.prefect]?.pol ?? 0;
-    const prefectDeployedMorale = _getDeployedGensForMorale().has(city.prefect);
-    const prefectHalfMorale = prefectDeployedMorale ? 0.5 : 1.0;
+    const prefectHalfMorale = isPrefectInFieldUnit(city) ? 0.5 : 1.0;
     d += (prefectPolM / 400) * prefectHalfMorale;
   } else {
     // 无太守：使用全势力最高pol的微弱加成（兜底）
@@ -914,9 +919,6 @@ function getPrefectBuildBuff(cityId, bldId){
 }
 
 function processBuildQueues(){
-  const _deployedGensBuild = new Set();
-  G.units.forEach(u=>u.squads.forEach(sq=>_deployedGensBuild.add(sq.genName)));
-
   Object.values(G.cities).forEach(city=>{
     if(city.fac === 'rebel') return; // ★ batch-21 D-026: rebel 城状态冻结
     if(city._lastBuildFac && city._lastBuildFac !== city.fac){
@@ -929,7 +931,7 @@ function processBuildQueues(){
 
     // 太守通用加速：pol/100×0.5 概率额外-1旬
     const _prefectPolBuild = city.prefect ? (GEN_MAP[city.prefect]?.pol ?? 0) : 0;
-    const _prefectBuildDeployed = city.prefect ? _deployedGensBuild.has(city.prefect) : false;
+    const _prefectBuildDeployed = isPrefectInFieldUnit(city);
     let _baseAccelProb = _prefectPolBuild ? Math.min(0.6, _prefectPolBuild / 100 * 0.5) * (_prefectBuildDeployed ? 0.5 : 1.0) : 0;
     // ★ D1: 光禄勋建设加速buff（叠加）
     const _bsBuff = G.factions[city.fac]?._postBuffs?.buildSpeed || 0;

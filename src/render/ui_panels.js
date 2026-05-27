@@ -351,10 +351,10 @@ function _renderCityDetail(c){
   <div class="sec">城池状态</div>
   ${(()=>{
     const prefectGen = city.prefect ? GEN_MAP[city.prefect] : null; // ★ v167fix #33
-    const prefectDeployed = prefectGen ? G.units.some(u=>u.squads.some(sq=>sq.genName===city.prefect)) : false;
+    const prefectDeployed = prefectGen ? isPrefectInFieldUnit(city) : false;
     const polBonus = prefectGen ? prefectGen.pol : 0;
     const goldPct = prefectGen ? Math.round(polBonus/500*100) : 0;
-    const moralePt = prefectGen ? (polBonus/200).toFixed(2) : 0;
+    const moralePt = prefectGen ? (polBonus/400).toFixed(2) : 0;
     if(prefectGen){
       return `<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;margin-bottom:7px;background:rgba(80,65,40,.05);border:1px solid rgba(92,74,50,.2);border-radius:1px">
         <div style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif SC',serif;font-weight:900;font-size:12px;background:${fc.color}22;border:1px solid ${fc.color}44;color:${fc.color};flex-shrink:0">${city.prefect[0]}</div>
@@ -363,10 +363,10 @@ function _renderCityDetail(c){
             <span style="font-family:'Noto Serif SC',serif;font-size:11px;color:${fc.color}">${city.prefect}</span>
             <span style="font-size:8px;color:rgba(92,74,50,.40)">太守</span>
             <span style="font-size:8px;color:rgba(92,74,50,.40)">政${polBonus}</span>
-            ${prefectDeployed ? `<span style="font-size:8px;color:#c03030;border:1px solid rgba(232,60,60,.3);padding:0 3px">出征中</span>` : ''}
+            ${prefectDeployed ? `<span style="font-size:8px;color:#c03030;border:1px solid rgba(232,60,60,.3);padding:0 3px">在外</span>` : ''}
           </div>
           <div style="font-size:9px;color:rgba(92,74,50,.45)">${prefectDeployed
-            ? `<span style="color:#c03030">出征减半：</span>💰+${Math.round(goldPct/2)}% · 🌿+${(moralePt/2).toFixed(2)}/旬 · 叛乱-${Math.round(polBonus/300*100/2)}%`
+            ? `<span style="color:#c03030">在外减半：</span>💰+${Math.round(goldPct/2)}% · 🌿+${(moralePt/2).toFixed(2)}/旬 · 叛乱-${Math.round(polBonus/300*100/2)}%`
             : `💰+${goldPct}% · 🌿+${moralePt}/旬 · 叛乱-${Math.round(polBonus/300*100)}%`
           }</div>
         </div>
