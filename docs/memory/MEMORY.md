@@ -25,3 +25,4 @@
 - [typeof X !== 'undefined' guard sweep](feedback_typeof_guard_sweep.md) — 删 top-level const 前必 grep `typeof X` 守卫 (1c-c 漏改 + 1d-c 暴露 battle_anim 4 site 教训)
 - [v170 籍贯系统 latent broken](reference_v170_birthplace_bug.md) — getGenBirthplace 读 GEN_TAGS (无 birthplace) 而非 GEN_META, 县属 loyalty 本族放大 / magnate shock 从未真正 trigger; 1f-p4-p3 修
 - [Scenario sprint streamline pattern](feedback_scenario_sprint_pattern.md) — feature 改 baseline 类 sprint: history-correct 优先 (B 选项) + codex 多 trial sweep catch cascading dep (region set / STATE_CITIES / COUNTY_DATA / type enum / v181 latent)
+- [Game iteration review workflow](feedback_game_iteration_review_workflow.md) — normal gameplay/UI iteration uses focused checks plus independent review agent; `smoke` is no longer the default hard gate except for high-risk refactor/init/tick/save-load/AI/cross-chain work.

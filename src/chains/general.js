@@ -616,9 +616,11 @@ function processFactionLoyalty(){
     //    ★ v71 Bug1修复：删除「未占高位 -0.08/旬」默认惩罚，只保留正向奖励
     //    ★ D1: 官职tier1+tier2也算高位
     const prefectFacs = {};
+    let defectorAsPrefect = false;
     Object.values(G.cities).filter(c => c.fac === fid && c.prefect).forEach(c => {
       const f = getGenFaction(c.prefect, fid);
       if(f) prefectFacs[f] = (prefectFacs[f]||0) + 1;
+      if(f === 'defector') defectorAsPrefect = true;
     });
     // 官职tier1+tier2纳入高位统计
     getFacPosts(fid).forEach(({genName, postDef})=>{
@@ -630,7 +632,6 @@ function processFactionLoyalty(){
     const totalPrefects = Object.values(prefectFacs).reduce((a,b)=>a+b,0) || 1;
 
     // 2. 降将担任太守
-    const defectorAsPrefect = (prefectFacs['defector']||0) > 0;
 
     // 3. 派系紧张关系
     const defectorInf       = fi['defector']?.influence       || 0;
@@ -803,10 +804,15 @@ function getGenFactionModBreakdown(genName, fid){
     return getGenFaction(city.prefect, fid) === 'defector';
   });
 
-  // 高位占比（太守+军师）
+  // 高位占比（太守+一品/二品官职），与 processFactionLoyalty 口径保持一致
   const allPosts = [];
   Object.values(G.cities||{}).forEach(c=>{ if(c.fac===fid && c.prefect) allPosts.push(c.prefect); });
-  if(G.factions[fid]?.strategist) allPosts.push(G.factions[fid].strategist);
+  Object.entries(G.genPost||{}).forEach(([name, postName])=>{
+    const postDef = ALL_POSTS.find(p=>p.name===postName);
+    if(postDef && postDef.tier <= 2 && (G.generals[fid]||[]).some(g=>g.name===name)){
+      allPosts.push(name);
+    }
+  });
   const totalPrefects = allPosts.length;
   const prefectFacs = {};
   allPosts.forEach(n=>{ const f=getGenFaction(n,fid); prefectFacs[f]=(prefectFacs[f]||0)+1; });
@@ -815,7 +821,7 @@ function getGenFactionModBreakdown(genName, fid){
 
   // ① 高位占比奖励
   if(mainFac && totalPrefects>0 && (prefectFacs[mainFac]||0)/totalPrefects > 0.4){
-    items.push({label:'本派系占据高位（太守/军师>40%）', delta:+0.20, type:'good'});
+    items.push({label:'本派系占据高位（太守/一二品官职>40%）', delta:+0.20, type:'good'});
   }
 
   // ② 降将任太守
