@@ -120,7 +120,7 @@ header{background:rgba(235,225,205,.98);border-bottom:1px solid rgba(80,65,40,.2
 
 /* FACTION CARDS */
 .fc{border:1px solid var(--border);padding:9px 11px;margin-bottom:7px;cursor:pointer;position:relative;overflow:hidden;transition:all .2s;background:rgba(255,252,245,.6)}
-.fc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.fc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--fc-color,transparent)}
 .fc.wei::before{background:var(--wei)}.fc.shu::before{background:var(--shu)}.fc.wu::before{background:var(--wu)}.fc.nanman::before{background:var(--nanman)}
 .fc:hover{background:rgba(80,65,40,.06);border-color:rgba(80,65,40,.3)}
 .fc.active{background:rgba(80,65,40,.08);border-color:var(--ink-l)}

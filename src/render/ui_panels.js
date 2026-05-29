@@ -48,12 +48,16 @@ function invalidateLeftCache() { _leftPanelCache.turn = -1; }
 function renderLeft(){
   // ★ v167fix #34: 势力卡数据只在旬切换时变化，交互操作直接用缓存
   const el = document.getElementById('factionList');
-  if(_leftPanelCache.turn === G.turn && _leftPanelCache.selFac === G.selFac){
+  const visibleFacKey = getScenarioFactions().filter(fid=>canSeeFactionData(G.playerFac, fid)).join('|');
+  if(_leftPanelCache.turn === G.turn && _leftPanelCache.selFac === G.selFac && _leftPanelCache.visibleFacKey === visibleFacKey){
     el.innerHTML = _leftPanelCache.html;
   } else {
   // ★ 势力卡（增加金钱净产出/旬 和 粮食净变化/旬）
   const _html = getScenarioFactions().map(fid=>{
     const f=G.factions[fid],fd=getFactionDef(fid);
+    const canSee = canSeeFactionData(G.playerFac, fid);
+    if(!canSee) return '';
+    const facColor = fd?.color || '#888';
     const tax=TAX.find(t=>t.id===(f?.taxId||'norm'));
     // 一次遍历城市，计算所有需要的净收入/存粮
     let totalFood=0,grossGold=0,woodNet=0,ironNet=0,totalGar=0,foodNetRaw=0;
@@ -100,14 +104,12 @@ function renderLeft(){
     const goldNetCls=goldNet>=0?'pos':'neg';
     const foodWarn=totalFood<5000?'danger':totalFood<12000?'warn':'';
 
-    // C4: 判断是否可以看到该势力数据
-    const canSee = canSeeFactionData(G.playerFac, fid);
     const knownCities = canSee ? f.cityCount : getKnownCityCount(G.playerFac, fid);
     const h_v = (v) => canSee ? v : '<span style="color:rgba(120,100,70,.4)">***</span>';
     const cityDisplay = canSee ? `${f.cityCount}` : `<span style="color:rgba(120,100,70,.5)">≥${knownCities}</span>`;
 
-    return`<div class="fc ${fid}${G.selFac===fid?' active':''}" onclick="selFac('${fid}')">
-      <div class="fc-h"><span class="fc-n ${fid}">${fd.full}</span><span class="fc-r">${getFactionRuler(fid)}</span></div>
+    return`<div class="fc ${fid}${G.selFac===fid?' active':''}" style="--fc-color:${facColor}" onclick="selFac('${fid}')">
+      <div class="fc-h"><span class="fc-n ${fid}" style="color:${facColor}">${fd.full}</span><span class="fc-r">${getFactionRuler(fid)}</span></div>
       ${canSee ? `<div class="fc-stage" style="font-size:9px;color:${getStageColor(getStage(fid))};padding:0 8px 4px;letter-spacing:1px">⚑ ${getStageBadgeText(fid)}</div>` : ''}
       <div class="fc-s">
         <div class="sr">🌾总存粮<span class="sr-v ${canSee?foodWarn:''} ${canSee?'clickable-val':''}" ${canSee?`onclick="showFacBreakdown(event,'storage','${fid}')"`:''} >${h_v(fmt(totalFood))}</span></div>
@@ -131,7 +133,7 @@ function renderLeft(){
     </div>`;
   }).join('');
   el.innerHTML = _html;
-  _leftPanelCache = { turn: G.turn, selFac: G.selFac, html: _html };
+  _leftPanelCache = { turn: G.turn, selFac: G.selFac, visibleFacKey, html: _html };
   } // end else (cache miss)
 
   // Tax
