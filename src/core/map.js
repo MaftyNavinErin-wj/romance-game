@@ -803,6 +803,8 @@ const TERRAIN_POLYS = [
   // ══════ 边界不可通行 (impassable) ══════
   // 北方塞外（上边界，延伸覆盖到燕山脚下，x>700留给渤海水域）
   {type:'impassable', pts:'-70,0 765,0 765,42 670,48 622,52 550,48 479,40 407,42 335,50 264,62 192,72 121,82 49,92 -11,105 -70,120'},
+  // Northeast off-map land: visible bitmap land should be blocked cliffs, not sea.
+  {type:'impassable', prio:8, pts:'760,42 900,42 1075,0 1075,338 950,336 888,306 842,304 824,250 804,230 788,190 790,140 786,100 766,78'},
   // 西北边塞补丁（武威东北缘，压掉地图边界残留平原）
   {type:'impassable', pts:'150,72 205,62 270,66 304,96 288,130 230,145 174,132 142,102'},
   // 左上西域（姑臧以西以北，大面积封死）
@@ -879,7 +881,7 @@ function _getPreparedTerrainPolys(terrainPrio) {
     const ys = coords.map(p => p[1]);
     return {
       type: poly.type,
-      prio: terrainPrio[poly.type] || 0,
+      prio: (poly.prio ?? terrainPrio[poly.type]) || 0,
       coords,
       minX: Math.min(...xs),
       maxX: Math.max(...xs),
