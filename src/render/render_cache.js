@@ -24,7 +24,7 @@ function renderAllLight(){
 // ★ v122: 水墨风地图 + hex网格叠加开关
 let _staticMapCache = '';
 let _mapShowGrid = false;
-const MAP_INK_BASE_ASSET = 'assets/maps/china-ink-base-v1-hd.png';
+const MAP_INK_BASE_ASSET = 'assets/maps/china-ink-base-v1.png';
 const MAP_INK_BASE_VIEW = { x: 0, y: -12, w: 1360, h: 765 };
 function toggleMapStyle() {
   _mapShowGrid = !_mapShowGrid;
@@ -201,9 +201,12 @@ function _getStaticMapCache() {
 let _fogSvgCache = '';
 let _fogCacheTurn = -1;
 let _fogCacheVersion = 0; // ★ v117fix: 递增版本号替代G.turn，支持同旬多次刷新
+let _fogRenderKeyCacheVersion = -1;
+let _fogRenderKey = '';
 
 function invalidateFogCache() {
   _fogCacheVersion++;
+  _fogRenderKeyCacheVersion = -1;
   if (typeof invalidateCityCache === 'function') invalidateCityCache();
 }
 function _isFogClearTerrain(terrain) {
@@ -249,6 +252,31 @@ function _getFogSvgCache() {
   _fogSvgCache = result;
   _fogCacheTurn = _fogCacheVersion;
   return result;
+}
+
+function _getFogRenderKey() {
+  if (_fogRenderKeyCacheVersion === _fogCacheVersion && _fogRenderKey) return _fogRenderKey;
+  const pFog = G.fog?.[G.playerFac];
+  if (!pFog) {
+    _fogRenderKey = `none|${G.playerFac || ''}|${_mapShowGrid ? 1 : 0}`;
+    _fogRenderKeyCacheVersion = _fogCacheVersion;
+    return _fogRenderKey;
+  }
+  let hash = 2166136261;
+  let visible = 0, explored = 0, unexplored = 0;
+  for (let col = 0; col < HEX_COLS; col++) {
+    for (let row = 0; row < HEX_ROWS; row++) {
+      const level = pFog[hkey(col, row)] ?? FOG_UNEXPLORED;
+      if (level === FOG_VISIBLE) visible++;
+      else if (level === FOG_EXPLORED) explored++;
+      else unexplored++;
+      hash ^= ((col + 1) * 73856093) ^ ((row + 1) * 19349663) ^ (level * 83492791);
+      hash = Math.imul(hash, 16777619);
+    }
+  }
+  _fogRenderKey = `${G.playerFac || ''}|${_mapShowGrid ? 1 : 0}|${visible}|${explored}|${unexplored}|${hash >>> 0}`;
+  _fogRenderKeyCacheVersion = _fogCacheVersion;
+  return _fogRenderKey;
 }
 
 
@@ -371,4 +399,19 @@ function _getCitySvgCache(layer = 'known') {
   _citySvgCache[layer] = ch;
   _cityCacheMeta[layer] = { version: _cityCacheVersion, fogVersion, selCity: G.selCity };
   return _citySvgCache[layer];
+}
+
+function _getCityRenderKey(layer = 'known') {
+  let hash = 2166136261;
+  CITIES_DEF.forEach(def => {
+    const city = G.cities[def.id];
+    const snap = G.fogSnap?.[G.playerFac]?.[def.id];
+    const parts = `${def.id}:${city?.fac || 'none'}:${snap?.fac || ''}:${snap?.turn ?? ''}`;
+    for (let i = 0; i < parts.length; i++) {
+      hash ^= parts.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+  });
+  const fogKey = (typeof _getFogRenderKey === 'function') ? _getFogRenderKey() : String(_fogCacheVersion);
+  return `${layer}|${G.playerFac || ''}|${G.selCity || ''}|${fogKey}|${hash >>> 0}`;
 }

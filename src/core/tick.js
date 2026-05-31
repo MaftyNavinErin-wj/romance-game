@@ -299,9 +299,7 @@ async function nextTurn(){
   if(G._pendingEvent){ showNotif('请先处理当前事件','warn'); return; }
   // ★ v119: 胜利/失败后阻止推进（快进模式除外，允许继续观战）
   if(!_fastForward && G._victoryShown) return;
-  // ★ v115优化: 清除增量渲染缓存，旬切换必须全量重建（迷雾/城市归属可能变）
-  const _mr = document.getElementById('mapRoot');
-  if(_mr) _mr.remove();
+  // ★ perf: 旬切换只失效动态缓存，保留地图SVG骨架；renderMap增量刷新迷雾/城市/部队层。
   invalidateCityCache(); invalidateFogCache();
   _deployedGensMoraleCache = null; // 重置每旬缓存
   _pendingSiegeArrival = null;     // ★ v86: 重置围城到达标记

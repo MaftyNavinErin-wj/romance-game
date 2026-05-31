@@ -180,7 +180,24 @@ function svgEventCoords(e){
 }
 
 let _terrainTipLastKey = '';
+let _terrainHoverRaf = null;
+let _terrainHoverEvent = null;
 function _handleMapTerrainHover(e){
+  _terrainHoverEvent = { clientX: e.clientX, clientY: e.clientY, target: e.target };
+  if(_terrainHoverRaf) return;
+  _terrainHoverRaf = requestAnimationFrame(() => {
+    _terrainHoverRaf = null;
+    const ev = _terrainHoverEvent;
+    _terrainHoverEvent = null;
+    if(ev) _processMapTerrainHover(ev);
+  });
+}
+function _cancelMapTerrainHover(){
+  if(_terrainHoverRaf) cancelAnimationFrame(_terrainHoverRaf);
+  _terrainHoverRaf = null;
+  _terrainHoverEvent = null;
+}
+function _processMapTerrainHover(e){
   if(_mapDrag) return;
   const target = e.target;
   if(target?.closest?.('.unit-g,.city-g')){ _terrainTipLastKey=''; return; }
@@ -367,7 +384,7 @@ function _clampMapTransform(){
 }
 function resetMapView(){
   _mapScale=1.2; _mapTx=-100; _mapTy=-50;
-  renderMap(); renderOverlay();
+  renderMap(); renderOverlayTransformOnly();
 }
 // ★ v102: 缩放/拖拽性能优化——只更新transform属性，debounce全量渲染
 let _zoomRenderTimer = null;
@@ -377,7 +394,7 @@ function _applyMapTransformOnly(){
 }
 function _debouncedMapRender(){
   if(_zoomRenderTimer) clearTimeout(_zoomRenderTimer);
-  _zoomRenderTimer = setTimeout(()=>{ _zoomRenderTimer=null; renderMap(); renderOverlay(); }, 180);
+  _zoomRenderTimer = setTimeout(()=>{ _zoomRenderTimer=null; renderMap(); renderOverlayTransformOnly(); }, 180);
 }
 function zoomMap(delta, cx, cy){
   const oldScale=_mapScale;
@@ -408,7 +425,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   // 左键拖拽地图（mousedown后记录起始，mousemove判断是否触发拖拽）
   let _dragStarted=false, _dragMoved=false;
   mapWrap.addEventListener('mousemove', _handleMapTerrainHover);
-  mapWrap.addEventListener('mouseleave', () => { _terrainTipLastKey=''; hideTip(); });
+  mapWrap.addEventListener('mouseleave', () => { _cancelMapTerrainHover(); _terrainTipLastKey=''; hideTip(); });
 
   mapWrap.addEventListener('mousedown',e=>{
     if(e.button!==0&&e.button!==1) return;
@@ -447,7 +464,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       _mapDrag=null; _dragStarted=false;
       mapWrap.style.cursor='';
       // ★ v102: 拖拽结束立即做一次全量渲染（确保反缩放文字正确）
-      if(wasDrag){ _suppressNextClick=true; if(_zoomRenderTimer){clearTimeout(_zoomRenderTimer);_zoomRenderTimer=null;} renderMap(); renderOverlay(); }
+      if(wasDrag){ _suppressNextClick=true; if(_zoomRenderTimer){clearTimeout(_zoomRenderTimer);_zoomRenderTimer=null;} renderMap(); renderOverlayTransformOnly(); }
     }
   }
   document.addEventListener('mousemove', _onDocMouseMove);

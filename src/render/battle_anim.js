@@ -73,8 +73,8 @@
 let _battleAnimating = false;
 
 // ★ v175: 被动战斗（AI 主动攻玩家）的动画请求队列。
-// 问题：aiInitiateBattle 在 runAI 链中被调用，此时 nextTurn 已经把 mapRoot remove 掉（v115 优化），
-//       动画无法挂载。解决：把请求 push 进此队列，由 runAI 结束后 renderAll 完成再逐个播。
+// 问题：aiInitiateBattle 在 runAI 链中被调用，此时 nextTurn 可能正在刷新 mapRoot 动态层，
+//       动画挂载时序不稳。解决：把请求 push 进此队列，由 runAI 结束后 renderAll 完成再逐个播。
 // 结构：{ kind: 'camp'|'ambush'|'battle'|'siege'|'naval', report, attackers, defenders, posSnap }
 // 军事链 M_LET _pendingBattleAnimations (L13467) 已抽离到 src/chains/military.js
 

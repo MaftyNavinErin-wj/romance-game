@@ -27,6 +27,7 @@ yarn.lock
 # Smoke test output (current run, not baseline)
 tests/current.json
 tests/diff_report.txt
+tests/artifacts/
 
 # Build / temp
 dist/

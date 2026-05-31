@@ -394,9 +394,12 @@ function canSeeFactionData(fid, otherFid) {
 }
 
 /** 从一个中心hex做BFS扩散半径r，收集所有覆盖的hex keys */
+const _fogBfsCache = {};
 function fogBFS(col, row, radius) {
+  const cacheKey = `${col},${row},${radius}`;
+  if (_fogBfsCache[cacheKey]) return _fogBfsCache[cacheKey].slice();
   const result = [hkey(col, row)];
-  if (radius <= 0) return result;
+  if (radius <= 0) { _fogBfsCache[cacheKey] = result; return result.slice(); }
   const visited = new Set(result);
   let frontier = [{col, row}];
   for (let d = 0; d < radius; d++) {
@@ -413,7 +416,8 @@ function fogBFS(col, row, radius) {
     }
     frontier = next;
   }
-  return result;
+  _fogBfsCache[cacheKey] = result;
+  return result.slice();
 }
 
 function getCityVisionRadius(def) {
@@ -852,6 +856,8 @@ const TERRAIN_POLYS = [
 let HEX_TERRAIN = {};    // key: "col,row" → terrain type
 let HEX_ROAD = {};       // key: "col,row" → true (有官道)
 let HEX_CITY = {};       // key: "col,row" → cityId
+let _hexTerrainCacheByScenario = {}; // scenarioId -> cloned HEX_TERRAIN / HEX_ROAD / HEX_CITY
+let _preparedTerrainPolys = null;
 
 // 多边形内测试（射线法）
 function pointInPoly(px, py, pts) {
@@ -861,6 +867,38 @@ function pointInPoly(px, py, pts) {
     const [xi, yi] = coords[i], [xj, yj] = coords[j];
     if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi))
       inside = !inside;
+  }
+  return inside;
+}
+
+function _getPreparedTerrainPolys(terrainPrio) {
+  if (_preparedTerrainPolys) return _preparedTerrainPolys;
+  _preparedTerrainPolys = TERRAIN_POLYS.map(poly => {
+    const coords = poly.pts.split(' ').map(p => p.split(',').map(Number));
+    const xs = coords.map(p => p[0]);
+    const ys = coords.map(p => p[1]);
+    return {
+      type: poly.type,
+      prio: terrainPrio[poly.type] || 0,
+      coords,
+      minX: Math.min(...xs),
+      maxX: Math.max(...xs),
+      minY: Math.min(...ys),
+      maxY: Math.max(...ys),
+    };
+  });
+  return _preparedTerrainPolys;
+}
+
+function _pointInPreparedPoly(px, py, poly) {
+  if (px < poly.minX || px > poly.maxX || py < poly.minY || py > poly.maxY) return false;
+  let inside = false;
+  const coords = poly.coords;
+  for (let i = 0, j = coords.length - 1; i < coords.length; j = i++) {
+    const [xi, yi] = coords[i], [xj, yj] = coords[j];
+    if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) {
+      inside = !inside;
+    }
   }
   return inside;
 }
@@ -934,6 +972,16 @@ function sampleSvgPathPoints(pathStr, stepPx = 3) {
 // ════════════════════════════════════════════════════════════════════
 
 function buildHexTerrain() {
+  const cacheKey = G?.scenarioId || '_default';
+  const cached = _hexTerrainCacheByScenario[cacheKey];
+  if (cached) {
+    HEX_TERRAIN = { ...cached.terrain };
+    HEX_ROAD = { ...cached.road };
+    HEX_CITY = { ...cached.city };
+    _staticMapCache = '';
+    return;
+  }
+
   HEX_TERRAIN = {};
   HEX_ROAD = {};
   HEX_CITY = {};
@@ -941,6 +989,7 @@ function buildHexTerrain() {
 
   // 地形优先级（高优先覆盖低优先）
   const TERRAIN_PRIO = {water:6, impassable:5, mountain:4, forest:3, hill:2, plain:1, swamp:2, deep_water:7, coastal_water:7};
+  const preparedTerrainPolys = _getPreparedTerrainPolys(TERRAIN_PRIO);
 
   // 1. 填充基础地形（从TERRAIN_POLYS）
   for (let col = 0; col < HEX_COLS; col++) {
@@ -948,11 +997,10 @@ function buildHexTerrain() {
       const p = hexToPixel(col, row);
       let terrain = 'plain';
       let bestPrio = 0;
-      for (const poly of TERRAIN_POLYS) {
-        const prio = TERRAIN_PRIO[poly.type] || 0;
-        if (prio > bestPrio && pointInPoly(p.x, p.y, poly.pts)) {
+      for (const poly of preparedTerrainPolys) {
+        if (poly.prio > bestPrio && _pointInPreparedPoly(p.x, p.y, poly)) {
           terrain = poly.type;
-          bestPrio = prio;
+          bestPrio = poly.prio;
         }
       }
       HEX_TERRAIN[hkey(col, row)] = terrain;
@@ -1097,6 +1145,12 @@ function buildHexTerrain() {
       }
     }
   }
+
+  _hexTerrainCacheByScenario[cacheKey] = {
+    terrain: { ...HEX_TERRAIN },
+    road: { ...HEX_ROAD },
+    city: { ...HEX_CITY },
+  };
 }
 
 

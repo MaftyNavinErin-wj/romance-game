@@ -105,7 +105,7 @@ function renderOverlay(){
   if(!_activeOverlay){ ovEl.innerHTML=''; return; }
 
   // 叠加层内容生成（在 mapRoot 坐标系内，含 translate+scale）
-  const tx=_mapTx.toFixed(1), ty=_mapTy.toFixed(1), sc=_mapScale.toFixed(4);
+  const transform = _overlayTransformAttr();
 
   // ★ v78: 不透明底层覆盖所有hex，隐藏地形颜色
   let base = _renderOvBase();
@@ -123,7 +123,22 @@ function renderOverlay(){
     inner=renderOverlaySupply();
   }
 
-  ovEl.innerHTML=`<g transform="translate(${tx},${ty}) scale(${sc})">${base}${inner}</g>`;
+  ovEl.innerHTML=`<g transform="${transform}">${base}${inner}</g>`;
+}
+
+function _overlayTransformAttr(){
+  return `translate(${_mapTx.toFixed(1)},${_mapTy.toFixed(1)}) scale(${_mapScale.toFixed(4)})`;
+}
+
+function renderOverlayTransformOnly(){
+  const ovEl=document.getElementById('ovRoot');
+  if(!_activeOverlay){ if(ovEl) ovEl.innerHTML=''; return; }
+  const g=ovEl?.firstElementChild;
+  if(g && g.tagName && g.tagName.toLowerCase()==='g'){
+    g.setAttribute('transform', _overlayTransformAttr());
+    return;
+  }
+  renderOverlay();
 }
 
 // ════════════════════════════════════════════════════════════════════

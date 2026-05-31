@@ -178,3 +178,33 @@ v181 L16303 `async function nextTurn()`,内部有多个 `await sleep(...)` 和 `
 - 当前 baseline 基于 `project_romance_v181.html` (39547 行 / 2.0 MB,即 v181 BUG A/B 修复后版本)
 - 阶段 1+ 重构开始后,**v181.html 自身被减重**(抽数据移到 src/data/*.js + 用 `<script src=...>` 引入)
 - baseline 不变,因为 baseline 是**行为快照**,与文件结构无关
+
+---
+
+## 九、Playwright visual checks
+
+这些检查使用 `playwright-core` + 本机 Chrome。它们不会接管 Windows 桌面,截图写入 `tests/artifacts/visual/`。
+依赖以 `package.json` 为准;本仓库不提交 `package-lock.json`,请用 `npm install` 安装/刷新依赖,不要用旧 lockfile 跑 `npm ci`。
+
+```bash
+# 标准 UI 启动检查:进 214 蜀,推进 1 旬,并检查 console/page error
+npm run visual:boot
+
+# 太守 / 官职任命弹窗专项检查
+npm run visual:appoint
+
+# 当前标准 visual bundle。保持小而稳,具体 UI 改动另加专项 visual:* 脚本
+npm run visual:standard
+```
+
+运行原则:
+- 极小文案改动不需要跑 visual。
+- 涉及机制 / 架构 / init / tick / save-load / AI / 跨链改动,跑相关 jsdom 检查后,再跑 `npm run visual:standard`。
+- 涉及具体 UI 流程改动,跑对应 `visual:*` 专项测试;如果没有,为本次触达路径新增一个小专项脚本。
+- `tests/artifacts/visual/` 被 `.gitignore` 排除;只有失败或 UI 有实质变化时才需要查看截图。
+
+专项 visual 测试流程:
+1. 先写清楚本次改动的 purpose:它想让哪个机制或 UI 行为成立。
+2. 把 purpose 翻译成验收点:关键状态、关键文案/tooltip/弹窗、关键用户路径、console/page error 是否干净。
+3. 再写或选择 `visual:*` 脚本。脚本应尽量证明意图,不只证明"没有阻断"。
+4. 跑完后查看关键截图,判断 UI 是否真的可读、无明显遮挡/错位,并在汇报里区分"已验证"和"未穷举"。

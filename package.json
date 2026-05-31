@@ -6,11 +6,15 @@
   "scripts": {
     "smoke": "node tests/smoke.js",
     "compare": "node tests/compare.js",
+    "visual:boot": "node tests/visual_boot.js",
+    "visual:appoint": "node tests/visual_appoint.js",
+    "visual:standard": "npm run visual:boot",
     "scenario:flow": "node tests/scenario_flow.js",
     "scenario:meta": "node tests/check_190_meta.js",
     "test": "npm run smoke && npm run compare"
   },
   "devDependencies": {
-    "jsdom": "^25.0.1"
+    "jsdom": "^25.0.1",
+    "playwright-core": "^1.60.0"
   }
 }

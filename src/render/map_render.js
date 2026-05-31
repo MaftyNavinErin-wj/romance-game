@@ -160,6 +160,49 @@ function renderMap(){
   svg.onclick = handleMapClick;
   svg.style.cursor = G.selUnitId ? 'crosshair' : 'default';
 
+  // ★ perf: 如果SVG骨架已建好，直接更新动态层，避免先拼完整地图SVG字符串。
+  const existingRoot = document.getElementById('mapRoot');
+  if (existingRoot) {
+    const ucl = document.getElementById('unexploredCityLayer');
+    const fl = document.getElementById('fogLayer');
+    if (ucl) ucl.remove();
+    if (fl) {
+      const fogHtml = _getFogSvgCache();
+      const fogKey = (typeof _getFogRenderKey === 'function') ? _getFogRenderKey() : String(typeof _fogCacheVersion !== 'undefined' ? _fogCacheVersion : 0);
+      if (fl.getAttribute('data-render-key') !== fogKey) {
+        fl.innerHTML = fogHtml;
+        fl.setAttribute('data-render-key', fogKey);
+      }
+    }
+    const ml = document.getElementById('moveLayer');
+    const cl = document.getElementById('citiesLayer');
+    if (ml && cl && ml.nextSibling !== cl) existingRoot.insertBefore(ml, cl);
+    let pl = document.getElementById('unitPathsLayer');
+    if (!pl && cl) {
+      pl = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      pl.setAttribute('id', 'unitPathsLayer');
+      existingRoot.insertBefore(pl, cl);
+    }
+    if (pl && cl && pl.nextSibling !== cl) existingRoot.insertBefore(pl, cl);
+    if (pl) pl.innerHTML = renderUnitsOnMap('paths');
+    if (cl) {
+      const cityHtml = _getCitySvgCache('known');
+      const cityKey = (typeof _getCityRenderKey === 'function') ? _getCityRenderKey('known') : String(typeof _cityCacheVersion !== 'undefined' ? _cityCacheVersion : 0);
+      if (cl.getAttribute('data-render-key') !== cityKey) {
+        cl.innerHTML = cityHtml;
+        cl.setAttribute('data-render-key', cityKey);
+      }
+    }
+    const sl = document.getElementById('siegeLayer');
+    if (sl) sl.innerHTML = _renderSiegeIndicators();
+    const ul = document.getElementById('unitsLayer');
+    if (ul) ul.innerHTML = renderUnitsOnMap('icons');
+    if (ml) ml.innerHTML = _renderMoveRange();
+    existingRoot.setAttribute('transform', `translate(${_mapTx.toFixed(1)},${_mapTy.toFixed(1)}) scale(${_mapScale.toFixed(4)})`);
+    svg.style.cursor = G.selUnitId ? 'crosshair' : 'default';
+    return;
+  }
+
   let h = `<defs>
     <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     <filter id="glow2"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
@@ -226,42 +269,15 @@ function renderMap(){
   const defsStr = defsMatch ? defsMatch[1] : '';
   const bodyStr = h.replace(/^(<defs>[\s\S]*?<\/defs>)/, '');
 
-  // ★ v115优化: 增量更新——如果SVG骨架已建好，只更新动态层，不重建整个DOM
-  const existingRoot = document.getElementById('mapRoot');
-  if (existingRoot) {
-    // 增量模式：只更新动态层，不重建整个DOM
-    const ucl = document.getElementById('unexploredCityLayer');
-    const fl = document.getElementById('fogLayer');
-    if (ucl) ucl.remove();
-    if (fl) fl.innerHTML = _getFogSvgCache();
-    const ml = document.getElementById('moveLayer');
-    const cl = document.getElementById('citiesLayer');
-    if (ml && cl && ml.nextSibling !== cl) existingRoot.insertBefore(ml, cl);
-    let pl = document.getElementById('unitPathsLayer');
-    if (!pl && cl) {
-      pl = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      pl.setAttribute('id', 'unitPathsLayer');
-      existingRoot.insertBefore(pl, cl);
-    }
-    if (pl && cl && pl.nextSibling !== cl) existingRoot.insertBefore(pl, cl);
-    if (pl) pl.innerHTML = renderUnitsOnMap('paths');
-    if (cl) cl.innerHTML = _getCitySvgCache('known');
-    const sl = document.getElementById('siegeLayer');
-    if (sl) sl.innerHTML = _renderSiegeIndicators();
-    const ul = document.getElementById('unitsLayer');
-    if (ul) ul.innerHTML = renderUnitsOnMap('icons');
-    if (ml) ml.innerHTML = _renderMoveRange();
-    // 更新transform（缩放/平移）
-    existingRoot.setAttribute('transform', `translate(${_mapTx.toFixed(1)},${_mapTy.toFixed(1)}) scale(${_mapScale.toFixed(4)})`);
-    svg.style.cursor = G.selUnitId ? 'crosshair' : 'default';
-    return;
-  }
-
   // 首次全量建SVG——包含命名层骨架
   svg.innerHTML = defsStr +
     `<g id="mapRoot" transform="translate(${_mapTx.toFixed(1)},${_mapTy.toFixed(1)}) scale(${_mapScale.toFixed(4)})">${bodyStr}</g>` +
     `<text x="955" y="736" text-anchor="end" font-size="9" font-family="Noto Serif SC,sans-serif"
       fill="rgba(80,65,40,.25)" pointer-events="none">三国志 · 建安十九年</text>`;
+  const fogLayer = document.getElementById('fogLayer');
+  if (fogLayer && typeof _getFogRenderKey === 'function') fogLayer.setAttribute('data-render-key', _getFogRenderKey());
+  const citiesLayer = document.getElementById('citiesLayer');
+  if (citiesLayer && typeof _getCityRenderKey === 'function') citiesLayer.setAttribute('data-render-key', _getCityRenderKey('known'));
 }
 
 /**
