@@ -403,39 +403,70 @@ function rollEventsV2(){
     log(`${t.def.icon} ${t.ctx.city?.name||t.ctx.genName||t.ctx.facLabel||t.ctx.complainerName||''}${t.def.name}（${getFactionDef(t.fid)?.name||t.fid}）`,'event');
   });
 
-  // 玩家势力：每旬最多1个弹窗，其余排队到下旬
+  // 玩家势力：同旬多个事件串行展示，不拖到下旬
   const playerEvents = triggered.filter(t=>t.forPlayer);
   if(playerEvents.length){
     const first = playerEvents[0];
-    // 排队其余
-    for(let i=1;i<playerEvents.length;i++){
-      G._eventQueue.push(playerEvents[i]);
-    }
     // ★ 快进模式下玩家事件也静默处理
     if(_fastForward){
-      const pers = AI_PERSONALITY[first.fid] || AI_PERSONALITY.wei;
-      const choices = first.def.choices(first.ctx);
-      let idx = first.def.aiChoose(first.ctx, pers);
-      if(choices[idx]?.disabled) idx = choices.findIndex(c=>!c.disabled);
-      if(idx>=0) choices[idx].effect();
-      G._eventCooldown[first.def.id] = first.def.cooldown;
-      G._eventCatCooldown[first.def.category] = EVENT_CAT_COOLDOWN;
-      // ★ v131: 一次性事件标记
-      if(first.def.oneTime){ if(!G._eventFired) G._eventFired={}; G._eventFired[first.def.id]=G.turn; }
-      log(`${first.def.icon} ${first.ctx.city?.name||first.ctx.genName||first.ctx.facLabel||first.ctx.complainerName||''}${first.def.name}`,'event');
+      playerEvents.forEach(evt=>_autoResolvePlayerEvent(evt));
     } else {
+      for(let i=1;i<playerEvents.length;i++){
+        G._eventQueue.push(playerEvents[i]);
+      }
       _showEventToPlayer(first);
     }
   }
 }
 
+function _autoResolvePlayerEvent(evt){
+  if(!_isQueuedEventStillValid(evt)) return;
+  const pers = AI_PERSONALITY[evt.fid] || AI_PERSONALITY.wei;
+  const choices = evt.def.choices(evt.ctx);
+  let idx = evt.def.aiChoose(evt.ctx, pers);
+  if(choices[idx]?.disabled) idx = choices.findIndex(c=>!c.disabled);
+  if(idx<0) return;
+  choices[idx].effect();
+  if(!G._eventCooldown) G._eventCooldown={};
+  if(!G._eventCatCooldown) G._eventCatCooldown={};
+  G._eventCooldown[evt.def.id] = evt.def.cooldown;
+  G._eventCatCooldown[evt.def.category] = EVENT_CAT_COOLDOWN;
+  if(evt.def.oneTime){ if(!G._eventFired) G._eventFired={}; G._eventFired[evt.def.id]=G.turn; }
+  log(`${evt.def.icon} ${evt.ctx.city?.name||evt.ctx.genName||evt.ctx.facLabel||evt.ctx.complainerName||''}${evt.def.name}`,'event');
+}
+
+function _isQueuedEventStillValid(evt){
+  if(!evt || !evt.def || !evt.ctx) return false;
+  if(evt.fid !== G.playerFac) return false;
+  const ctx = evt.ctx;
+  if(ctx.city && (!G.cities[ctx.city.id] || G.cities[ctx.city.id].fac !== G.playerFac)) return false;
+  if(ctx.cityId && !G.cities[ctx.cityId]) return false;
+  const unitRefs = [ctx.unit, ctx.enemyUnit].filter(Boolean);
+  for(const unit of unitRefs){
+    const live = G.units.find(u => u === unit || (unit.id != null && u.id === unit.id));
+    if(!live || getUnitTroops(live) <= 0) return false;
+  }
+  const unitIds = [ctx.unitId, ctx.enemyUnitId].filter(id => id != null);
+  for(const unitId of unitIds){
+    const live = G.units.find(u => u.id === unitId);
+    if(!live || getUnitTroops(live) <= 0) return false;
+  }
+  const names = [ctx.genName, ctx.complainerName, ctx.genA, ctx.genB].filter(Boolean);
+  for(const name of names){
+    if(!(G.generals[G.playerFac]||[]).some(g=>g.name===name)) return false;
+  }
+  return true;
+}
+
 /** 从队列中弹出下一个玩家事件（如有） */
 function _popEventQueue(){
-  if(!G._eventQueue || !G._eventQueue.length) return;
+  if(!G._eventQueue || !G._eventQueue.length) return false;
   const next = G._eventQueue.shift();
-  // 重新验证condition（城市可能已变化）
-  if(next.ctx.city && next.ctx.city.fac !== G.playerFac) return; // 城市已丢失（A类天灾）
+  if(!_isQueuedEventStillValid(next)){
+    return _popEventQueue();
+  }
   _showEventToPlayer(next);
+  return true;
 }
 
 /** 展示事件弹窗给玩家 */
@@ -466,6 +497,8 @@ function resolveEventChoice(idx){
   G._pendingEvent = null;
   document.getElementById('eventModal').style.display = 'none';
 
-  // 检查队列中是否还有事件
-  // 不立即弹出，让玩家喘口气，下旬处理
+  // 同一旬内串行处理队列事件，不拖到下旬
+  if(G._eventQueue && G._eventQueue.length){
+    setTimeout(_popEventQueue, 120);
+  }
 }

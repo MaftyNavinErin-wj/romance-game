@@ -1959,7 +1959,7 @@ const SCENARIO_214 = {
       "merit": 100,
       "retainer": {
         "count": 1500,
-        "type": "heavy"
+        "type": "light"
       },
       "initialUnit": true,
       "relations": [
@@ -3078,7 +3078,7 @@ const SCENARIO_214 = {
       "merit": 70,
       "retainer": {
         "count": 800,
-        "type": "light"
+        "type": "cavalry"
       },
       "initialUnit": true,
       "relations": [
@@ -3247,7 +3247,7 @@ const SCENARIO_214 = {
       "merit": 55,
       "retainer": {
         "count": 600,
-        "type": "heavy"
+        "type": "light"
       },
       "initialUnit": true,
       "relations": [
@@ -3316,7 +3316,7 @@ const SCENARIO_214 = {
       "merit": 65,
       "retainer": {
         "count": 700,
-        "type": "cavalry"
+        "type": "heavy"
       },
       "initialUnit": true,
       "relations": [

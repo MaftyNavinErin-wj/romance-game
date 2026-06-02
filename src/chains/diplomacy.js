@@ -850,6 +850,44 @@ function _strategyRate(fid, baseRate){
 }
 
 // ── 计谋：驱虎吞狼（强制A向B宣战）──
+function _applyDriveWolfWar(declarer, target, instigator){
+  const kAB = `${declarer}-${target}`, kBA = `${target}-${declarer}`;
+  const d = G.diplo[kAB], rev = G.diplo[kBA];
+  if(!d || d.status === 'enemy') return false;
+  d.status = 'enemy';
+  d._warDeclaredTurn = G.turn;
+  if(rev){
+    rev.status = 'enemy';
+    rev._warDeclaredTurn = G.turn;
+  }
+  addDiplo(declarer, target, -15);
+  if(d._brokenAllyTurn != null && (G.turn - d._brokenAllyTurn) <= 6){
+    d._betrayal = true;
+    if(rev) rev._betrayal = true;
+    applyReputationPenalty(declarer, 'betray');
+    if(getScenarioFactions().includes(declarer)) triggerFactionEvent('betray', declarer, {});
+  }
+  if(d._peaceTurn != null && (G.turn - d._peaceTurn) <= 3){
+    applyReputationPenalty(declarer, 'relapse');
+  }
+  G[`_diploCD_${declarer}_${target}`] = 15;
+  G[`_diploCD_${target}_${declarer}`] = 15;
+  _syncAllyWarStatus(declarer, target);
+  const instigatorRel = (instigator && instigator !== declarer && instigator !== target) ? {
+    k1: `${declarer}-${instigator}`,
+    k2: `${instigator}-${declarer}`,
+    v1: G.diplo[`${declarer}-${instigator}`]?.rel,
+    v2: G.diplo[`${instigator}-${declarer}`]?.rel,
+  } : null;
+  applyWarDeclarationEffects(declarer, target, null);
+  if(instigatorRel){
+    if(G.diplo[instigatorRel.k1] && instigatorRel.v1 != null) G.diplo[instigatorRel.k1].rel = instigatorRel.v1;
+    if(G.diplo[instigatorRel.k2] && instigatorRel.v2 != null) G.diplo[instigatorRel.k2].rel = instigatorRel.v2;
+  }
+  if(getScenarioFactions().includes(declarer)) triggerFactionEvent('warDeclare', declarer, {});
+  return true;
+}
+
 function stratDriveWolf(targetA, targetB){
   const fid = G.playerFac;
   if(!G.strategyCD[fid]) return;
@@ -860,11 +898,7 @@ function stratDriveWolf(targetA, targetB){
   safeSub(fac.res, 'gold', 1500);
   const rate = _strategyRate(fid, 0.20);
   if(Math.random()<rate){
-    const kAB = `${targetA}-${targetB}`, kBA = `${targetB}-${targetA}`;
-    if(G.diplo[kAB]&&G.diplo[kAB].status!=='enemy'){
-      G.diplo[kAB].status='enemy'; G.diplo[kAB]._warDeclaredTurn=G.turn; if(G.diplo[kBA]) { G.diplo[kBA].status='enemy'; G.diplo[kBA]._warDeclaredTurn=G.turn; }
-      addDiplo(targetA,targetB,-15);
-      _syncAllyWarStatus(targetA,targetB);
+    if(_applyDriveWolfWar(targetA, targetB, fid)){
       log(`🐯 驱虎吞狼！${getFactionDef(targetA)?.name}向${getFactionDef(targetB)?.name}宣战`,'diplo');
     } else { log(`🐯 驱虎吞狼成功，但${getFactionDef(targetA)?.name}与${getFactionDef(targetB)?.name}已是敌对`,'diplo'); }
   } else {
@@ -1879,12 +1913,7 @@ function _execSchemeDriveWolf(fid, act) {
   safeSub(fac.res, 'gold', 1500);
   const rate = _strategyRate(fid, 0.20);
   if (Math.random() < rate) {
-    const kAB = `${targetA}-${targetB}`, kBA = `${targetB}-${targetA}`;
-    if (G.diplo[kAB] && G.diplo[kAB].status !== 'enemy') {
-      G.diplo[kAB].status = 'enemy'; G.diplo[kAB]._warDeclaredTurn = G.turn;
-      if (G.diplo[kBA]) { G.diplo[kBA].status = 'enemy'; G.diplo[kBA]._warDeclaredTurn = G.turn; }
-      addDiplo(targetA, targetB, -15);
-      _syncAllyWarStatus(targetA, targetB);
+    if (_applyDriveWolfWar(targetA, targetB, fid)) {
       log(`🐯 [AI] ${getFactionDef(fid)?.name}驱虎吞狼！${getFactionDef(targetA)?.name}向${getFactionDef(targetB)?.name}宣战`, 'diplo');
     }
   } else {

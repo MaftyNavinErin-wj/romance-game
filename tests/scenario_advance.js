@@ -15,6 +15,7 @@ const seedrandom = require('./vendor/seedrandom.js');
 const SEED = 'project_romance_test_seed_001';
 const HTML_PATH = path.resolve(__dirname, '..', 'project_romance_v181.html');
 const TURNS_214 = 200;   // 200 旬 ≈ 5.5 年 — cover 214 大多数 pending (除钟会 261/文鸯 261/羊祜 261)
+const TURNS_190 = 200;
 
 function scanNaN(obj, pathStr, hits) {
   if (obj == null) return;
@@ -70,9 +71,19 @@ async function deepRun214() {
   console.log(`  pendingStart=${pendingStart.length} (minTurn 分布: ${pendingStart.map(p => p.minTurn).sort((a,b)=>a-b).join(',')})`);
 
   w.__setFF__(true);
+  const arrivalSeen = new Map();
   for (let i = 1; i <= TURNS_214; i++) {
     try { await w.nextTurn(); }
     catch (e) { throws.advance = `turn ${i}: ${e.message}`; throws.advanceCount = i; break; }
+    const Gmid = w.__getG();
+    const pendingMid = Gmid.genPendingPool || [];
+    for (const p of pendingStart) {
+      if (p.minTurn > Gmid.turn || arrivalSeen.has(p.name)) continue;
+      const stillPending = pendingMid.some(x => x.name === p.name);
+      const inActive = (Gmid.generals[p._pendingFac] || []).some(g => g.name === p.name);
+      const chronicleHasArrival = (Gmid.genChronicle[p.name] || []).some(e => /迎来新锐/.test(e.text || ''));
+      if (!stillPending && chronicleHasArrival) arrivalSeen.set(p.name, { turn: Gmid.turn, inActive });
+    }
   }
   const G = w.__getG();
   const pendingEnd = (G.genPendingPool || []).map(p => ({ name: p.name, _pendingFac: p._pendingFac, minTurn: p.minTurn }));
@@ -87,7 +98,7 @@ async function deepRun214() {
   for (const a of expectedArrivals) {
     const stillPending = pendingEnd.some(p => p.name === a.name);
     const inActive = (activeEnd[a._pendingFac] || []).includes(a.name);
-    const chronicleHasArrival = (G.genChronicle[a.name] || []).some(e => /迎来新锐/.test(e.text || ''));
+    const chronicleHasArrival = arrivalSeen.has(a.name) || (G.genChronicle[a.name] || []).some(e => /迎来新锐/.test(e.text || ''));
     if (!stillPending && chronicleHasArrival) {
       arrivedOK.push(a.name);
       if (!inActive) arrivedSoftFail.push(`${a.name}@${a._pendingFac}(出场后离开 active, runtime 中性)`);
@@ -120,20 +131,32 @@ async function deepRun214() {
 }
 
 async function shallowCheck190() {
-  console.log('\n--- 190 shallow check (initGame only, pre-existing renderAll bug 不推进) ---');
+  console.log('\n--- 190 deep run (initGame + 200 turn fastForward) ---');
   const w = await loadWindow();
   let initThrew = null;
   try { w.initGame('190'); } catch (e) { initThrew = e.message; }
+  const G0 = w.__getG();
+  const pendingStart = (G0.genPendingPool || []).length;
+  w.__setFF__(true);
+  let advanceThrew = null;
+  for (let i = 1; i <= TURNS_190; i++) {
+    try { await w.nextTurn(); }
+    catch (e) { advanceThrew = `turn ${i}: ${e.message}`; break; }
+  }
   const G = w.__getG();
   const pendingCount = (G.genPendingPool || []).length;
   const wildPoolCount = (G.wildPool || []).length;
   const nanHits = [];
   scanNaN({ genLoyalty: G.genLoyalty, genMerit: G.genMerit, intimacy: G.intimacy }, '190', nanHits);
+  const pendingStillValid = (G.genPendingPool || []).every(p => p.minTurn > G.turn);
   console.log(`  initThrew: ${initThrew || 'none'}`);
-  console.log(`  pendingPool=${pendingCount} (expect >0 from m.pendingGenPool 93 entries)`);
+  console.log(`  advanceThrew: ${advanceThrew || 'none'}`);
+  console.log(`  G.turn=${G.turn} (expected ${TURNS_190 + 1})`);
+  console.log(`  pendingPool=${pendingStart} → ${pendingCount}`);
+  console.log(`  pendingStillValid (minTurn > G.turn): ${pendingStillValid}`);
   console.log(`  wildPool=${wildPoolCount} NaN=${nanHits.length}`);
   const isExpectedThrow = initThrew && initThrew.includes('taxId');
-  return { pendingCount, wildPoolCount, nanCount: nanHits.length, initThrew, isExpectedThrow };
+  return { pendingCount, wildPoolCount, nanCount: nanHits.length, initThrew, isExpectedThrow, advanceThrew, pendingStillValid };
 }
 
 async function main() {
@@ -149,6 +172,8 @@ async function main() {
   if (r190.nanCount > 0) { pass = false; console.log('FAIL: 190 NaN'); }
   if (r190.pendingCount === 0) { pass = false; console.log('FAIL: 190 pendingPool 空 (m.pendingGenPool consumer 未切换?)'); }
   if (r190.initThrew && !r190.isExpectedThrow) { pass = false; console.log('FAIL: 190 init threw 非 pre-existing (taxId): ' + r190.initThrew); }
+  if (r190.advanceThrew) { pass = false; console.log('FAIL: 190 advance threw: ' + r190.advanceThrew); }
+  if (!r190.pendingStillValid) { pass = false; console.log('FAIL: 190 pendingEnd 有 minTurn <= G.turn 仍卡 pending'); }
   console.log(`\n[advance] ${pass ? 'PASS' : 'FAIL'}`);
   process.exit(pass ? 0 : 1);
 }

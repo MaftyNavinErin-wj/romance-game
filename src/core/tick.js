@@ -297,6 +297,7 @@ async function nextTurn(){
   if(_marchAnimating) return; // ★ v99: 行军动画中不可推进
   // ★ v130: 事件弹窗阻塞
   if(G._pendingEvent){ showNotif('请先处理当前事件','warn'); return; }
+  if(!_fastForward && G._eventQueue && G._eventQueue.length && _popEventQueue()) return;
   // ★ v119: 胜利/失败后阻止推进（快进模式除外，允许继续观战）
   if(!_fastForward && G._victoryShown) return;
   // ★ perf: 旬切换只失效动态缓存，保留地图SVG骨架；renderMap增量刷新迷雾/城市/部队层。

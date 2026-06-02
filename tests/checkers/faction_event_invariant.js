@@ -26,7 +26,7 @@ const path = require('path');
 const REPO_ROOT = path.join(__dirname, '..', '..');
 
 const EXPECTED_CALLERS = [
-  // ──────── I1 warDeclare 5 处 ────────
+  // ──────── I1 warDeclare 7 处 ────────
   { file: 'src/chains/diplomacy.js', anchor: /^function diploWar\(/,
     name: 'diploWar 玩家正式宣战',                           trigger: 'warDeclare', within: 50 },
   { file: 'src/chains/diplomacy.js', anchor: /^function _execDeclareWar\(/,
@@ -37,6 +37,10 @@ const EXPECTED_CALLERS = [
     name: 'checkDiplo D-117c rel<=10 自然漂移宣战',         trigger: 'warDeclare', within: 30 },
   { file: 'src/data/events.js',     anchor: /id:'envoy_visit'/,
     name: 'envoy_visit 斩使立威 de facto 宣战',              trigger: 'warDeclare', within: 80 },
+  { file: 'src/chains/military.js',  anchor: /中立状态下发生战斗/,
+    name: '中立战斗 de facto 宣战',                           trigger: 'warDeclare', within: 90 },
+  { file: 'src/chains/diplomacy.js', anchor: /^function _applyDriveWolfWar\(/,
+    name: '驱虎吞狼 targetA 被迫宣战',                         trigger: 'warDeclare', within: 40 },
 
   // ──────── I2 truce 3 处 ────────
   { file: 'src/chains/diplomacy.js', anchor: /^function diploAlly\(/,
@@ -55,6 +59,10 @@ const EXPECTED_CALLERS = [
     name: 'aiDoDiplo AI 含背刺宣战',                         trigger: 'betray', within: 250 },
   { file: 'src/chains/diplomacy.js', anchor: /D-117c fix.*P15c/,
     name: 'checkDiplo D-117c 含背刺自动宣战',               trigger: 'betray', within: 30 },
+  { file: 'src/chains/military.js',  anchor: /中立状态下发生战斗/,
+    name: '中立战斗 de facto 含背刺宣战',                    trigger: 'betray', within: 90 },
+  { file: 'src/chains/diplomacy.js', anchor: /^function _applyDriveWolfWar\(/,
+    name: '驱虎吞狼 targetA 含背刺宣战',                       trigger: 'betray', within: 25 },
 
   // ──────── I4 conquer 2 处 ────────
   { file: 'src/chains/military.js', anchor: /triggerFactionEvent\('conquer'/,
@@ -65,9 +73,6 @@ const EXPECTED_CALLERS = [
 
 const KNOWN_FOLLOWUPS = [
   'v181.html 内 _exec 函数(经济/军事/政治/武将 12+ 个)留 _exec 归位架构债 sprint',
-  'v181.html 内战斗 de facto 宣战 (D-118 MEDIUM) 留独立 batch',
-  'v181.html 内驱虎吞狼计谋 (D-115 范畴 MEDIUM) 留独立 batch',
-  '斩使路径 D-115 其他 3 项副作用 (_diploCD/_syncAllyWarStatus/背刺反复) MEDIUM 留 followup',
 ];
 
 function readFile(rel) {

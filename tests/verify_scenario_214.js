@@ -188,6 +188,8 @@ function validate(S, ctx) {
           if (g && g.fac !== u.fac) errors.push(`${tag}.genName '${s.genName}' fac=${g.fac} (must be ${u.fac})`);
           if (g && g.city !== u.city) errors.push(`${tag}.genName '${s.genName}' city=${g.city} (must be ${u.city})`);
           if (g && !g.initialUnit) errors.push(`${tag}.genName '${s.genName}' initialUnit=false (must be true)`);
+          if (g && g.status === 'active' && g.retainer && g.retainer.count > 0 && g.retainer.type !== s.type)
+            errors.push(`${tag}.genName '${s.genName}' initialUnit.type=${s.type} != retainer.type=${g.retainer.type}`);
         }
         if (!VALID_TYPES.has(s.type)) errors.push(`${tag}.type='${s.type}' invalid (must be cavalry/light/heavy/archer/siege/naval)`);
         if (typeof s.troops !== 'number' || s.troops <= 0) errors.push(`${tag}.troops=${s.troops} invalid`);

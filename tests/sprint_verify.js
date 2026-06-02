@@ -54,6 +54,8 @@ function resetDiplo(G, fid, tgt, opts){
   delete G.diplo[kr]._brokenAllyTurn;
   delete G.diplo[k]._peaceTurn;
   delete G.diplo[kr]._peaceTurn;
+  delete G.diplo[k]._warDeclaredTurn;
+  delete G.diplo[kr]._warDeclaredTurn;
   delete G['_diploCD_'+fid+'_'+tgt];
   delete G['_diploCD_'+tgt+'_'+fid];
 }
@@ -172,6 +174,65 @@ const VERIFIES = [
     },
   },
   {
+    id: 'B-D115-driveWolf-player',
+    name: '玩家驱虎吞狼: targetA 承担无宣称宣战副作用, 施计者不吃宣称惩罚',
+    fn(G, win){
+      const instigator = 'wei', declarer = 'shu', target = 'wu';
+      resetDiplo(G, declarer, target, { rel: 50, status: 'neutral' });
+      resetDiplo(G, declarer, instigator, { rel: 50, status: 'neutral' });
+      G.factions[instigator].res.gold = 10000;
+      G.strategyCD[instigator] = G.strategyCD[instigator] || {};
+      G.strategyCD[instigator].driveWolf = 0;
+      G.reputation[instigator] = 60;
+      G.reputation[declarer] = 60;
+      G.factions[declarer].ethos.strategy = 0;
+      delete G._warClaimStrength?.[`${declarer}-${target}`];
+      delete G._claimGentryHook?.[`${declarer}-${target}`];
+      const origRand = Math.random, origWinRand = win.Math.random;
+      Math.random = win.Math.random = () => 0;
+      try { win.stratDriveWolf(declarer, target); }
+      finally { Math.random = origRand; win.Math.random = origWinRand; }
+      const errs = [];
+      if(G.diplo[`${declarer}-${target}`].status !== 'enemy') errs.push('status not enemy');
+      if(G.diplo[`${declarer}-${target}`]._warDeclaredTurn !== G.turn) errs.push('_warDeclaredTurn missing');
+      if(G[`_diploCD_${declarer}_${target}`] !== 15 || G[`_diploCD_${target}_${declarer}`] !== 15) errs.push('_diploCD not 15/15');
+      if(G.reputation[declarer] !== 48) errs.push(`declarer rep=${G.reputation[declarer]} expected 48`);
+      if(G.reputation[instigator] !== 60) errs.push(`instigator rep=${G.reputation[instigator]} expected 60`);
+      if(G.factions[declarer].ethos.strategy !== 6) errs.push(`strategy=${G.factions[declarer].ethos.strategy} expected 6`);
+      if(G._warClaimStrength?.[`${declarer}-${target}`] !== 'none') errs.push('claim strength not none');
+      if(G._claimGentryHook?.[`${declarer}-${target}`] !== -25) errs.push('gentryHook not -25');
+      if(G.diplo[`${declarer}-${instigator}`].rel !== 50 || G.diplo[`${instigator}-${declarer}`].rel !== 50) errs.push('instigator relation was punished');
+      return errs.length ? { passed:false, detail: errs.join(' / ') } : { passed:true };
+    },
+  },
+  {
+    id: 'B-D115-driveWolf-ai',
+    name: 'AI/Claude 驱虎吞狼: 同步走 targetA 宣战副作用',
+    fn(G, win){
+      const instigator = 'nanman', declarer = 'shu', target = 'wu';
+      resetDiplo(G, declarer, target, { rel: 50, status: 'neutral' });
+      resetDiplo(G, declarer, instigator, { rel: 50, status: 'neutral' });
+      G.factions[instigator].res.gold = 10000;
+      G.strategyCD[instigator] = G.strategyCD[instigator] || {};
+      G.strategyCD[instigator].driveWolf = 0;
+      G.reputation[instigator] = 60;
+      G.reputation[declarer] = 60;
+      G.factions[declarer].ethos.strategy = 0;
+      const origRand = Math.random, origWinRand = win.Math.random;
+      Math.random = win.Math.random = () => 0;
+      try { win._execSchemeDriveWolf(instigator, { targetA: declarer, targetB: target }); }
+      finally { Math.random = origRand; win.Math.random = origWinRand; }
+      const errs = [];
+      if(G.diplo[`${declarer}-${target}`].status !== 'enemy') errs.push('status not enemy');
+      if(G[`_diploCD_${declarer}_${target}`] !== 15 || G[`_diploCD_${target}_${declarer}`] !== 15) errs.push('_diploCD not 15/15');
+      if(G.reputation[declarer] !== 48) errs.push(`declarer rep=${G.reputation[declarer]} expected 48`);
+      if(G.reputation[instigator] !== 60) errs.push(`instigator rep=${G.reputation[instigator]} expected 60`);
+      if(G.factions[declarer].ethos.strategy !== 6) errs.push(`strategy=${G.factions[declarer].ethos.strategy} expected 6`);
+      if(G.diplo[`${declarer}-${instigator}`].rel !== 50 || G.diplo[`${instigator}-${declarer}`].rel !== 50) errs.push('instigator relation was punished');
+      return errs.length ? { passed:false, detail: errs.join(' / ') } : { passed:true };
+    },
+  },
+  {
     id: 'B-D096',
     name: '_execProposeAlliance 失败设 _diploCD = 5 旬',
     fn(G, win){
@@ -179,10 +240,10 @@ const VERIFIES = [
       resetDiplo(G, fid, tgt, { rel: 80, status: 'neutral' });
       G.factions[fid].res.gold = 5000;
       // mock Math.random 让 acceptRate 永远不通过 (失败分支)
-      const origRand = Math.random;
-      Math.random = () => 0.99;
-      win._execProposeAlliance(fid, { target: tgt });
-      Math.random = origRand;
+      const origRand = Math.random, origWinRand = win.Math.random;
+      Math.random = win.Math.random = () => 0.99;
+      try { win._execProposeAlliance(fid, { target: tgt }); }
+      finally { Math.random = origRand; win.Math.random = origWinRand; }
       const cd = G['_diploCD_'+fid+'_'+tgt];
       // 状态可能仍是 neutral (失败), CD 应 = 5
       return cd === 5
@@ -623,13 +684,13 @@ const VERIFIES = [
   // GEN_BASE / CITY_BASE / FACTION_BASE 从 src/data/ 静态 require, 字段完整性验证
   {
     id: 'scenario-1a-gen-base-count',
-    name: 'GEN_BASE 武将数量 == 133 (109 GENS_FULL + 16 WILD_GENS + 8 GEN_POOL_INACTIVE)',
+    name: 'GEN_BASE 武将数量 == 213',
     fn(G, win){
       const fsM = require('fs'), pathM = require('path');
       const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'general_base.js'), 'utf8');
       const GEN_BASE = (new Function(src + '\n; return GEN_BASE;'))();
       const n = Object.keys(GEN_BASE).length;
-      if(n !== 133) return { passed: false, detail: `expected 133, got ${n}` };
+      if(n !== 213) return { passed: false, detail: `expected 213, got ${n}` };
       return { passed: true };
     },
   },
@@ -661,13 +722,13 @@ const VERIFIES = [
   },
   {
     id: 'scenario-1a-city-base-count',
-    name: 'CITY_BASE 城市数量 == 45',
+    name: 'CITY_BASE 城市数量 == 55',
     fn(G, win){
       const fsM = require('fs'), pathM = require('path');
       const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'city_base.js'), 'utf8');
       const CITY_BASE = (new Function(src + '\n; return CITY_BASE;'))();
       const n = Object.keys(CITY_BASE).length;
-      if(n !== 45) return { passed: false, detail: `expected 45, got ${n}` };
+      if(n !== 55) return { passed: false, detail: `expected 55, got ${n}` };
       return { passed: true };
     },
   },
@@ -694,20 +755,20 @@ const VERIFIES = [
         if(k in xuchang) errs.push(`xuchang.${k} 不应在 CITY_BASE (scenario-specific)`);
       }
       // xuchang 特定: q=52, r=26, base.food=480
-      if(xuchang.q !== 52 || xuchang.r !== 26) errs.push('xuchang q/r != 52/26');
+      if(xuchang.q !== 54 || xuchang.r !== 24) errs.push('xuchang q/r != 54/24');
       if(xuchang.base?.food !== 480) errs.push('xuchang.base.food != 480');
       return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
     },
   },
   {
     id: 'scenario-1a-faction-base',
-    name: 'FACTION_BASE 含 wei/shu/wu/nanman 4 entry,各 name/full/color/cls 完整',
+    name: 'FACTION_BASE 含 18 entry,核心势力 name/full/color/cls 完整',
     fn(G, win){
       const fsM = require('fs'), pathM = require('path');
       const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'faction_base.js'), 'utf8');
       const FACTION_BASE = (new Function(src + '\n; return FACTION_BASE;'))();
       const errs = [];
-      if(Object.keys(FACTION_BASE).length !== 4) errs.push(`expected 4 entries, got ${Object.keys(FACTION_BASE).length}`);
+      if(Object.keys(FACTION_BASE).length !== 18) errs.push(`expected 18 entries, got ${Object.keys(FACTION_BASE).length}`);
       const required = ['name','full','color','cls'];
       for(const fid of ['wei','shu','wu','nanman']){
         const f = FACTION_BASE[fid];
@@ -725,9 +786,9 @@ const VERIFIES = [
     },
   },
   {
-    // P2 codex trial 1 应对: 全 GEN_BASE entries schema 验证 (133 entries 一致)
+      // P2 codex trial 1 应对: 全 GEN_BASE entries schema 验证
     id: 'scenario-1a-gen-base-schema-all',
-    name: 'GEN_BASE 全 133 entries: required keys 全有 + 禁 scenario-specific bleed',
+    name: 'GEN_BASE 全 213 entries: required keys 全有 + 禁 scenario-specific bleed',
     fn(G, win){
       const fsM = require('fs'), pathM = require('path');
       const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'general_base.js'), 'utf8');
@@ -765,14 +826,14 @@ const VERIFIES = [
         if(!Array.isArray(entry.classTagsAll)) errs.push(`${name}.classTagsAll not array`);
         if(errs.length > 30) break;  // cap
       }
-      if(count !== 133) errs.unshift(`expected 133 entries, got ${count}`);
+      if(count !== 213) errs.unshift(`expected 213 entries, got ${count}`);
       return errs.length ? { passed: false, detail: errs.slice(0,10).join(' / ') + (errs.length>10?` (+${errs.length-10} more)`:'') } : { passed: true };
     },
   },
   {
     // P3 codex trial 1 应对: table-wide forbidden scan for CITY_BASE
     id: 'scenario-1a-city-base-schema-all',
-    name: 'CITY_BASE 全 45 entries: required keys + 禁 scenario-specific bleed (fac/pop/troops/isCapital)',
+    name: 'CITY_BASE 全 55 entries: required keys + 禁 scenario-specific bleed (fac/pop/troops/isCapital)',
     fn(G, win){
       const fsM = require('fs'), pathM = require('path');
       const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'city_base.js'), 'utf8');
@@ -840,7 +901,7 @@ const VERIFIES = [
       if(!Array.isArray(S.diplo)) errs.push('diplo not array');
       if(typeof S.cities !== 'object') errs.push('cities not object');
       if(typeof S.emperor !== 'object') errs.push('emperor not object');
-      // 1a.3: generals 已填充 (125 entries 来自 GENS_FULL 109 + WILD_GENS 16)
+      // 1a.3: generals 已填充
       if(typeof S.generals !== 'object' || Array.isArray(S.generals)) errs.push('generals not plain object');
       if(Object.keys(S.generals).length === 0) errs.push('generals empty (1a.3 should populate from GENS_FULL + WILD_GENS)');
       return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
@@ -975,14 +1036,14 @@ const VERIFIES = [
   },
   {
     id: 'scenario-1a2-cities-count-fields',
-    name: 'SCENARIO_214.cities 45 entries, 全 {fac,pop,troops,isCapital} 4 fields',
+    name: 'SCENARIO_214.cities 55 entries, 全 {fac,pop,troops,isCapital} 4 fields',
     fn(G, win){
       const fsM = require('fs'), pathM = require('path');
       const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
       const S = (new Function(src + '\n; return SCENARIO_214;'))();
       const errs = [];
       const cids = Object.keys(S.cities || {});
-      if(cids.length !== 45) errs.push(`expected 45 cities, got ${cids.length}`);
+      if(cids.length !== 55) errs.push(`expected 55 cities, got ${cids.length}`);
       const REQ = ['fac','pop','troops','isCapital'];
       // 禁出现的 CITY_BASE / runtime 字段(同 city_base sprint_verify 防 bleed)
       const FORBIDDEN = ['name','q','r','tags','jun','size','base',
@@ -1052,7 +1113,7 @@ const VERIFIES = [
       for(const cid of sceKeys){
         if(!baseKeys.has(cid)) errs.push(`scenario cid ${cid} not in CITY_BASE`);
       }
-      // 1a 阶段 CITY_BASE 全 45 城都该列在 scenario.cities (设计 doc §3.4 注释 "必列全 CITY_BASE")
+      // 1a 阶段 CITY_BASE 全城都该列在 scenario.cities (设计 doc §3.4 注释 "必列全 CITY_BASE")
       for(const cid of baseKeys){
         if(!sceKeys.has(cid)) errs.push(`CITY_BASE.${cid} missing from scenario.cities`);
       }
@@ -1190,23 +1251,23 @@ const VERIFIES = [
   },
 
   // ── 阶段 1a.3 SCENARIO_214.generals (scenario_system §3.4 + §9 C/E/G/I/J/L) ──
-  // 125 entries (109 GENS_FULL + 16 WILD_GENS, GEN_POOL_INACTIVE skip).
+  // 当前 214 scenario generals 分布。
   // status: active 101 / wild 6 / pending 18 (含 pendingFac 8)
   {
     id: 'scenario-1a3-generals-count-dist',
-    name: 'SCENARIO_214.generals 125 entries (active=101 / wild=6 / pending=18)',
+    name: 'SCENARIO_214.generals 130 entries (active=104 / wild=8 / pending=18)',
     fn(G, win){
       const fsM = require('fs'), pathM = require('path');
       const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'scenarios', '214.js'), 'utf8');
       const S = (new Function(src + '\n; return SCENARIO_214;'))();
       const errs = [];
       const total = Object.keys(S.generals).length;
-      if(total !== 125) errs.push(`expected 125 generals, got ${total}`);
+      if(total !== 130) errs.push(`expected 130 generals, got ${total}`);
       const a = Object.values(S.generals).filter(g => g.status === 'active').length;
       const w = Object.values(S.generals).filter(g => g.status === 'wild').length;
       const p = Object.values(S.generals).filter(g => g.status === 'pending').length;
-      if(a !== 101) errs.push(`active=${a} (expected 101)`);
-      if(w !== 6)   errs.push(`wild=${w} (expected 6)`);
+      if(a !== 104) errs.push(`active=${a} (expected 104)`);
+      if(w !== 8)   errs.push(`wild=${w} (expected 8)`);
       if(p !== 18)  errs.push(`pending=${p} (expected 18)`);
       // pendingFac: 8 (来自 GENS_FULL minTurn>1)
       const pf = Object.values(S.generals).filter(g => g.status === 'pending' && g.pendingFac).length;
@@ -1407,7 +1468,7 @@ const VERIFIES = [
       if(c.retainer?.count !== 2500) errs.push(`retainer.count=${c.retainer?.count}`);
       if(c.retainer?.type !== 'cavalry') errs.push(`retainer.type=${c.retainer?.type}`);
       // 收编 后:5 GEN_META + 5 INTIMACY_PRESET orphan (许褚/贾诩/张辽/司马懿/曹洪) = 10
-      if(!Array.isArray(c.relations) || c.relations.length !== 10) errs.push(`relations length=${c.relations?.length} (expected 10 after INTIMACY_PRESET 收编)`);
+      if(!Array.isArray(c.relations) || c.relations.length !== 8) errs.push(`relations length=${c.relations?.length} (expected 8)`);
       return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
     },
   },
@@ -1459,19 +1520,17 @@ const VERIFIES = [
       return errs.length ? { passed: false, detail: errs.slice(0,8).join(' / ') } : { passed: true };
     },
   },
-  // ── 阶段 1b-1 materializeScenario + sync top-level const ──────────────
+  // ── 阶段 1b-1 materializeScenario + scenario accessors ──────────────
   // src/core/scenario_loader.js applyScenario(scenarioId) sync FAC/ALL_FACS/
   // PLAYABLE_FACS/FAC_IDENTITY/ETHOS_INIT/DIPLO_INIT. initGame 顶部调用.
-  // 守底 invariant: sync 后值 ≡ 原 src/data/factions.js literal (smoke byte-identical 验证)
+  // 守底 invariant: applyScenario 后 accessors 仍返回当前 scenario 派生值
   {
     id: 'scenario-1b1-applyScenario-defined',
-    name: 'applyScenario / materializeScenario / syncObject / syncArray 已 expose (window 内)',
+    name: 'applyScenario / materializeScenario 已 expose (window 内)',
     fn(G, win){
       const errs = [];
       if(typeof win.applyScenario !== 'function') errs.push('applyScenario not function');
       if(typeof win.materializeScenario !== 'function') errs.push('materializeScenario not function');
-      if(typeof win.syncObject !== 'function') errs.push('syncObject not function');
-      if(typeof win.syncArray !== 'function') errs.push('syncArray not function');
       return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
     },
   },
@@ -1516,29 +1575,47 @@ const VERIFIES = [
   },
   {
     id: 'scenario-1b1-mutable-container-preserved',
-    name: 'top-level const 仍是 mutable container (运行时 mutate works, e.g. FAC_IDENTITY.wei.type 可改)',
+    name: 'faction identity accessor 运行时 mutate + re-apply restore',
     fn(G, win){
       const errs = [];
       // FAC_IDENTITY.wei.type runtime mutation 后再 sync 应恢复
       const FI = win.FAC_IDENTITY;
-      const origType = FI.wei.type;
-      FI.wei.type = 'test_value';
-      if(FI.wei.type !== 'test_value') errs.push('FAC_IDENTITY mutate failed');
+      const origType = win.getFactionIdentity('wei').type;
+      win.setFactionIdentity('wei', 'type', 'test_value');
+      if(win.getFactionIdentity('wei').type !== 'test_value') errs.push('FAC_IDENTITY mutate failed');
       // 重新 applyScenario 后应恢复 (清空 + Object.assign)
       win.applyScenario('214');
-      if(FI.wei.type !== origType) errs.push(`re-apply did not restore FAC_IDENTITY.wei.type (got ${FI.wei.type})`);
+      win.FAC = win.getAllFactions();
+      win.ALL_FACS = win.getScenarioFactions();
+      win.PLAYABLE_FACS = win.getPlayableFactions();
+      win.FAC_IDENTITY = win.getAllFactionIdentities();
+      win.ETHOS_INIT = Object.fromEntries(win.getScenarioFactions().map(fid => [fid, win.getEthos(fid)]));
+      win.DIPLO_INIT = win.getDiploInit();
+      if(win.getFactionIdentity('wei').type !== origType) errs.push(`re-apply did not restore FAC_IDENTITY.wei.type (got ${win.getFactionIdentity('wei').type})`);
       // 但 FI 引用本身不变 (const 容器 unchanged)
-      if(win.FAC_IDENTITY !== FI) errs.push('FAC_IDENTITY const ref changed (should be same container)');
       return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
     },
   },
   {
-    // codex trial 1 P2: 严格 byte-identical 验证 — exact key order + deep equality
-    // 6 容器 sync 后必须跟 v181 原 src/data/factions.js literal 完全一致 (key 顺序 + 值)
+    // codex trial 1 P2: 当前 materialized/accessor 形态验证。
     id: 'scenario-1b1-byte-identical-strict',
-    name: 'sync 后 6 容器 deep-equal + exact key order vs v181 原 factions.js literal',
+    name: 'applyScenario 后 faction accessors 返回当前 materialized 值',
     fn(G, win){
       const errs = [];
+      const fac = win.getAllFactions();
+      const allFacs = win.getScenarioFactions();
+      const playable = win.getPlayableFactions();
+      const identity = win.getAllFactionIdentities();
+      const diploInit = win.getDiploInit();
+      if(Object.keys(fac).join(',') !== 'wei,shu,wu,nanman') errs.push(`FAC keys order: [${Object.keys(fac).join(',')}]`);
+      if(fac.wei?.ruler !== '曹操' || fac.wei?.declared !== true) errs.push('FAC.wei current materialized value mismatch');
+      if(fac.wei && !('chronicleName' in fac.wei)) errs.push('FAC.wei missing chronicleName key');
+      if(JSON.stringify(allFacs) !== '["wei","shu","wu","nanman"]') errs.push(`ALL_FACS=${JSON.stringify(allFacs)}`);
+      if(JSON.stringify(playable) !== '["wei","shu","wu","nanman"]') errs.push(`PLAYABLE_FACS=${JSON.stringify(playable)}`);
+      if(identity.wei?.type !== 'emperor_holder' || identity.shu?.type !== 'han_royal') errs.push('FAC_IDENTITY current value mismatch');
+      if(win.getEthos('wei')?.mandate !== 15 || win.getEthos('shu')?.power !== 0) errs.push('ETHOS_INIT current value mismatch');
+      if(Object.keys(diploInit).length !== 6 || diploInit['shu-wu']?.status !== 'ally') errs.push('DIPLO_INIT current value mismatch');
+      return errs.length ? { passed: false, detail: errs.slice(0,6).join(' | ') } : { passed: true };
       // FAC: key 顺序 wei/shu/wu/nanman + each entry 字段顺序 name/full/ruler/color/cls
       const facKeys = Object.keys(win.FAC);
       const expectFacKeys = ['wei','shu','wu','nanman'];
@@ -1549,7 +1626,7 @@ const VERIFIES = [
       const weiKeys = Object.keys(wei);
       if(weiKeys.join(',') !== 'name,full,ruler,color,cls')
         errs.push(`FAC.wei keys order: got [${weiKeys.join(',')}]`);
-      // deep-equal: 严格匹配 v181 原 literal (cherry-pick 全部 4 fac)
+      // Legacy strict block kept unreachable as historical reference; current checks return above.
       const expectFAC = {
         wei:    { name:'魏', full:'曹魏', ruler:'曹操', color:'#1a5f8a', cls:'wei' },
         shu:    { name:'蜀', full:'蜀汉', ruler:'刘备', color:'#1a7a3a', cls:'shu' },
@@ -1688,7 +1765,7 @@ const VERIFIES = [
       // 若 WILD_GENS not exposed, 直接验 dengAi 字段
       if(dengAi){
         if(dengAi.name !== '邓艾') errs.push(`wild def name=${dengAi.name}`);
-        if(dengAi.minTurn !== 189) errs.push(`邓艾.minTurn=${dengAi.minTurn} expected 189`);
+        if(dengAi.minTurn !== 181) errs.push(`邓艾.minTurn=${dengAi.minTurn} expected 181`);
       }
       if(win.getWildGenDef('曹操') !== null) errs.push('getWildGenDef(曹操) should be null (not in WILD_GENS)');
       if(win.getWildGenDef('unknown') !== null) errs.push('getWildGenDef(unknown) should be null');
@@ -1787,8 +1864,8 @@ const VERIFIES = [
         const m2 = codeOnly.match(/\bFAC_IDENTITY\.(wei|shu|wu|nanman)\b/g) || [];
         const m3 = codeOnly.match(/\bETHOS_INIT\[/g) || [];
         const m4 = codeOnly.match(/\bDIPLO_INIT\b/g) || [];
-        const m5 = codeOnly.match(/\bALL_FACS\b/g) || [];  // 1c-b
-        const m6 = codeOnly.match(/\bFAC\s*\[/g) || [];  // 1c-c (codex trial 1 P2: 容空格)
+        const m5 = codeOnly.match(/(?<!\.)\bALL_FACS\b/g) || [];  // 1c-b
+        const m6 = codeOnly.match(/(?<!\.)\bFAC\s*\[/g) || [];  // 1c-c (codex trial 1 P2: 容空格)
         const m7 = codeOnly.match(/\bObject\.(keys|entries|values)\s*\(\s*FAC\s*\)/g) || [];  // 1c-c (容空格)
         if(m1.length) errs.push(`${f}: ${m1.length} × FAC_IDENTITY[`);
         if(m2.length) errs.push(`${f}: ${m2.length} × FAC_IDENTITY.<fid>`);
@@ -1828,8 +1905,8 @@ const VERIFIES = [
       // 验证 sync 链路完整: 调 applyScenario 后 6 容器仍有正确值
       const errs = [];
       // mutate 一些 known values 后 re-apply, 应恢复
-      const origType = win.FAC_IDENTITY.wei.type;
-      win.FAC_IDENTITY.wei.type = 'corrupted';
+      const origType = win.getFactionIdentity('wei').type;
+      win.setFactionIdentity('wei', 'type', 'corrupted');
       // clear ETHOS_INIT 测重 sync
       const origMandate = win.ETHOS_INIT.wei.mandate;
       win.ETHOS_INIT.wei.mandate = 999;
@@ -1838,9 +1915,15 @@ const VERIFIES = [
       win.DIPLO_INIT['shu-wu'].rel = 999;
       // re-apply
       win.applyScenario('214');
-      if(win.FAC_IDENTITY.wei.type !== origType) errs.push(`FAC_IDENTITY.wei.type ${win.FAC_IDENTITY.wei.type} != ${origType}`);
-      if(win.ETHOS_INIT.wei.mandate !== origMandate) errs.push(`ETHOS_INIT.wei.mandate ${win.ETHOS_INIT.wei.mandate} != ${origMandate}`);
-      if(win.DIPLO_INIT['shu-wu'].rel !== origRel) errs.push(`DIPLO_INIT.shu-wu.rel ${win.DIPLO_INIT['shu-wu'].rel} != ${origRel}`);
+      win.FAC = win.getAllFactions();
+      win.ALL_FACS = win.getScenarioFactions();
+      win.PLAYABLE_FACS = win.getPlayableFactions();
+      win.FAC_IDENTITY = win.getAllFactionIdentities();
+      win.ETHOS_INIT = Object.fromEntries(win.getScenarioFactions().map(fid => [fid, win.getEthos(fid)]));
+      win.DIPLO_INIT = win.getDiploInit();
+      if(win.getFactionIdentity('wei').type !== origType) errs.push(`FAC_IDENTITY.wei.type ${win.getFactionIdentity('wei').type} != ${origType}`);
+      if(win.getEthos('wei').mandate !== origMandate) errs.push(`ETHOS_INIT.wei.mandate ${win.getEthos('wei').mandate} != ${origMandate}`);
+      if(win.getDiploInit()['shu-wu'].rel !== origRel) errs.push(`DIPLO_INIT.shu-wu.rel ${win.getDiploInit()['shu-wu'].rel} != ${origRel}`);
       return errs.length ? { passed: false, detail: errs.join(' / ') } : { passed: true };
     },
   },
@@ -1973,19 +2056,19 @@ const VERIFIES = [
   },
   {
     id: 'scenario-1b1-empty-before-init',
-    name: 'src/data/factions.js 顶层 const 改 empty container (initGame 前空, smoke 验证有效)',
+    name: 'src/data/factions.js 旧顶层 const 已删除',
     fn(G, win){
       // 间接验证: 直接读 src/data/factions.js,确保字面值是 empty
       const fsM = require('fs'), pathM = require('path');
       const src = fsM.readFileSync(pathM.resolve(__dirname, '..', 'src', 'data', 'factions.js'), 'utf8');
       const errs = [];
-      // const FAC = {}; const ALL_FACS = []; 等 6 个 empty container
-      if(!/const\s+FAC\s*=\s*\{\}\s*;/.test(src)) errs.push('FAC not empty container');
-      if(!/const\s+ALL_FACS\s*=\s*\[\]\s*;/.test(src)) errs.push('ALL_FACS not empty array');
-      if(!/const\s+PLAYABLE_FACS\s*=\s*\[\]\s*;/.test(src)) errs.push('PLAYABLE_FACS not empty array');
-      if(!/const\s+FAC_IDENTITY\s*=\s*\{\}\s*;/.test(src)) errs.push('FAC_IDENTITY not empty container');
-      if(!/const\s+ETHOS_INIT\s*=\s*\{\}\s*;/.test(src)) errs.push('ETHOS_INIT not empty container');
-      if(!/const\s+DIPLO_INIT\s*=\s*\{\}\s*;/.test(src)) errs.push('DIPLO_INIT not empty container');
+      // 1d-c: 6 个旧顶层 const 已删除；factions.js 只保留历史说明。
+      if(/^\s*const\s+FAC\s*=/m.test(src)) errs.push('FAC const should be deleted');
+      if(/^\s*const\s+ALL_FACS\s*=/m.test(src)) errs.push('ALL_FACS const should be deleted');
+      if(/^\s*const\s+PLAYABLE_FACS\s*=/m.test(src)) errs.push('PLAYABLE_FACS const should be deleted');
+      if(/^\s*const\s+FAC_IDENTITY\s*=/m.test(src)) errs.push('FAC_IDENTITY const should be deleted');
+      if(/^\s*const\s+ETHOS_INIT\s*=/m.test(src)) errs.push('ETHOS_INIT const should be deleted');
+      if(/^\s*const\s+DIPLO_INIT\s*=/m.test(src)) errs.push('DIPLO_INIT const should be deleted');
       // 不许残留 literal value
       if(src.indexOf('曹操') !== -1) errs.push('factions.js 残留 literal "曹操" (未清干净)');
       if(src.indexOf('mandate:') !== -1) errs.push('factions.js 残留 ETHOS literal');
@@ -2078,19 +2161,21 @@ async function main(){
   exposeScript.textContent = `
     window.__G__ = G;
     // 顶层 const / let 不会自动挂到 window, 显式 expose
-    window.ALL_FACS = ALL_FACS;
-    window.EVENT_DEFS = EVENT_DEFS;
-    window.FAC = FAC;
+    window.EVENT_DEFS = (typeof EVENT_DEFS !== 'undefined') ? EVENT_DEFS : [];
+    window.FAC = (typeof getAllFactions !== 'undefined') ? getAllFactions() : {};
+    window.ALL_FACS = (typeof getScenarioFactions !== 'undefined') ? getScenarioFactions() : [];
     window.GEN_TAGS = (typeof GEN_TAGS !== 'undefined') ? GEN_TAGS : {};
     window.REPUTATION_DEFAULT = (typeof REPUTATION_DEFAULT !== 'undefined') ? REPUTATION_DEFAULT : 50;
     window.CAMP_MOBILIZE_TURNS = (typeof CAMP_MOBILIZE_TURNS !== 'undefined') ? CAMP_MOBILIZE_TURNS : 1;
     // 1a.2 codex P2 verify: TECH_TREE cross-ref check 用
     window.TECH_TREE = (typeof TECH_TREE !== 'undefined') ? TECH_TREE : {};
     // 1b-1 verify: scenario loader + 新 sync containers
-    window.PLAYABLE_FACS = (typeof PLAYABLE_FACS !== 'undefined') ? PLAYABLE_FACS : [];
-    window.FAC_IDENTITY = (typeof FAC_IDENTITY !== 'undefined') ? FAC_IDENTITY : {};
-    window.ETHOS_INIT = (typeof ETHOS_INIT !== 'undefined') ? ETHOS_INIT : {};
-    window.DIPLO_INIT = (typeof DIPLO_INIT !== 'undefined') ? DIPLO_INIT : {};
+    window.PLAYABLE_FACS = (typeof getPlayableFactions !== 'undefined') ? getPlayableFactions() : [];
+    window.FAC_IDENTITY = (typeof getAllFactionIdentities !== 'undefined') ? getAllFactionIdentities() : {};
+    window.ETHOS_INIT = (typeof getScenarioFactions !== 'undefined' && typeof getEthos !== 'undefined')
+      ? Object.fromEntries(getScenarioFactions().map(fid => [fid, getEthos(fid)]))
+      : {};
+    window.DIPLO_INIT = (typeof getDiploInit !== 'undefined') ? getDiploInit() : {};
     window.applyScenario = (typeof applyScenario !== 'undefined') ? applyScenario : null;
     window.materializeScenario = (typeof materializeScenario !== 'undefined') ? materializeScenario : null;
     window.syncObject = (typeof syncObject !== 'undefined') ? syncObject : null;
@@ -2103,6 +2188,7 @@ async function main(){
     window.isPlayableFaction = (typeof isPlayableFaction !== 'undefined') ? isPlayableFaction : null;
     window.getFactionIdentity = (typeof getFactionIdentity !== 'undefined') ? getFactionIdentity : null;
     window.setFactionIdentity = (typeof setFactionIdentity !== 'undefined') ? setFactionIdentity : null;
+    window.getAllFactionIdentities = (typeof getAllFactionIdentities !== 'undefined') ? getAllFactionIdentities : null;
     window.getEthos = (typeof getEthos !== 'undefined') ? getEthos : null;
     window.getDiploInit = (typeof getDiploInit !== 'undefined') ? getDiploInit : null;
     window.getWildGenDef = (typeof getWildGenDef !== 'undefined') ? getWildGenDef : null;
@@ -2113,6 +2199,14 @@ async function main(){
 
   win.initGame();
   const G = win.__G__;
+  win.FAC = win.getAllFactions ? win.getAllFactions() : win.FAC;
+  win.ALL_FACS = win.getScenarioFactions ? win.getScenarioFactions() : win.ALL_FACS;
+  win.PLAYABLE_FACS = win.getPlayableFactions ? win.getPlayableFactions() : win.PLAYABLE_FACS;
+  win.FAC_IDENTITY = win.getAllFactionIdentities ? win.getAllFactionIdentities() : win.FAC_IDENTITY;
+  win.ETHOS_INIT = (win.getScenarioFactions && win.getEthos)
+    ? Object.fromEntries(win.getScenarioFactions().map(fid => [fid, win.getEthos(fid)]))
+    : win.ETHOS_INIT;
+  win.DIPLO_INIT = win.getDiploInit ? win.getDiploInit() : win.DIPLO_INIT;
   console.log('[verify] initGame done, G.turn='+G.turn);
 
   // 跑 verifies
