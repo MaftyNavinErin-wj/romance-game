@@ -702,3 +702,92 @@ F-W4c-1 (190 武将 GEN_TAGS/GEN_META/GEN_CLASS 80/99/166 缺漏) 仍 open — �
 - **LOW closed** stale overlay-base water assignment reviewed; the live branch is the `else if(t === 'water')` path and the audit checker now covers the behavior-level fog/cache policy.
 
 **Verification note**: `node tools/audit_fog_visibility.js` now asserts the two HIGH followups and the cache invalidation path.
+
+---
+
+## Event / Diplomacy / Scenario Followup (2026-06-02)
+
+**Source**: post-commit audit recap after commit `020a096` (`fix: align event queue and drive wolf side effects`).
+
+**Context**: This batch fixed same-turn event queue draining, Drive Wolf war side effects, and 214 initial-unit retainer type mismatches. The items below are intentionally left as followup instead of being handled in the same patch.
+
+### F-20260602-1 Baseline / compare gate refresh
+
+**Status**: open
+**Priority**: P1
+
+`tests/baseline` / `node tests/compare.js` no longer represents the current accepted game state. `node tests/smoke.js` passes, but `compare.js` fails against stale coordinates, event cooldowns, prefect order, and other historical drift.
+
+**Followup**:
+- Decide the new authoritative baseline policy for the current phase.
+- Either regenerate a new accepted baseline after producer approval, or replace `compare.js` as the default gate with a phase-appropriate invariant suite.
+- Do not silently edit old baseline files as part of unrelated fixes.
+
+### F-20260602-2 AGENTS.md repo ownership
+
+**Status**: open
+**Priority**: P2
+
+`AGENTS.md` exists locally as an untracked file. It was intentionally excluded from commit `020a096`.
+
+**Followup**:
+- Decide whether `AGENTS.md` should be committed as a repo-owned constitution file.
+- If it remains machine/session-local, keep it ignored or otherwise document that it should stay untracked.
+
+### F-20260602-3 214 initialUnit with zero retainer design note
+
+**Status**: open
+**Priority**: P2
+
+214 scenario still has four `initialUnit=true` generals with `retainer.count=0`: 乐进, 满宠, 廖化, 张翼. Producer confirmed this can be a design decision, so validators keep these as warnings rather than errors.
+
+**Followup**:
+- If this is intentional, add an explicit whitelist/design note so future validators do not treat it as a suspected data leak.
+- If not intentional, assign retainer data in a dedicated data sprint.
+
+### F-20260602-4 Drive Wolf deeper side-effect coverage
+
+**Status**: open
+**Priority**: P2
+
+Drive Wolf now routes war side effects through the coerced declarer instead of the instigator, and the instigator does not take no-claim penalties. Current tests cover the main player and AI paths.
+
+**Followup**:
+- Add focused tests for betray penalty when the coerced declarer breaks an alliance.
+- Add focused tests for relapse penalty when the coerced declarer recently made peace.
+- Add focused tests for ally war-sync behavior after a coerced war.
+
+### F-20260602-5 Event queue manual UI verification
+
+**Status**: open
+**Priority**: P2
+
+Automated tests cover same-turn serial event display, queued-event guard behavior, and stale queued-event discard. Manual gameplay verification is still needed for modal feel and UI sequencing.
+
+**Followup**:
+- Open the game normally and force / observe a turn with multiple player events.
+- Confirm one modal appears at a time, the second event appears after resolving the first, and next-turn input does not feel stuck.
+- Confirm fast-forward still auto-resolves all player events without modal leakage.
+
+### F-20260602-6 Cross-chain D backlog remains
+
+**Status**: open
+**Priority**: P1
+
+This batch did not systematically close the historical HIGH / MEDIUM / LOW D-class backlog. It only addressed the approved event/diplomacy/scenario items in scope.
+
+**Followup**:
+- Continue processing D-class items in explicit sprint batches after producer scope approval.
+- Keep protected audit source docs read-only; record new followups here or in a dedicated approved followup file.
+
+### F-20260602-7 Refactor mainline scope reset
+
+**Status**: open
+**Priority**: P1
+
+The project is still in the single-HTML to `data/render/chains/core` refactor arc. Commit `020a096` was an audit / behavior / test calibration patch, not a new extraction step.
+
+**Followup**:
+- Before the next refactor session, define a narrow file/function-level scope.
+- Re-run the session startup checklist: branch, baseline policy, file sizes, smoke strategy, in-scope, and out-of-scope.
+- Continue with one extraction movement per commit once the scope is approved.
