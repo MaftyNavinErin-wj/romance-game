@@ -148,3 +148,34 @@ Current judgment:
 - `real_coord_crop_base_candidate_v1.png` is visually promising but not coordinate-authoritative; some baked city footprints are still offset from the real anchors, so use it as a style/crop candidate and verify or repaint against the overlay before production.
 - The next actual art step should produce or repaint a crop that has static city/pass footprints baked into the terrain base, then drop it behind this same overlay to test snap accuracy.
 - Do not bake dynamic city names, ownership, selected state, units, war state, or development/status into the bitmap.
+
+## 2026-06-05 Anchor Candidate v2
+
+Continued the real-coordinate crop workbench with a deterministic coordinate-anchored candidate:
+
+- Added `docs/map_design/real_coord_crop_base_anchor_v2.png`, generated from the current HD bitmap crop and painted only with static city footprints, road skeleton, and small pass/ford hints snapped to the existing `hexToPixel` city anchors.
+- Updated `docs/map_design/real_coord_crop_overlay.html` with a new `锚点候选 v2 · crop` base option and URL parameters such as `?base=anchor` / `?base=candidate` for repeatable preview capture.
+- Regenerated `docs/map_design/real_coord_crop_base_anchor_v2_overlay_preview.png` and restored `docs/map_design/real_coord_crop_base_candidate_v1_overlay_preview.png`.
+- Verification: jsdom check confirmed `?base=anchor` selects `real_coord_crop_base_anchor_v2.png` with 680 hexes, 8 road links, 7 city hitboxes, and 7 footprint guides.
+
+Current judgment:
+
+- v2 is coordinate-authoritative and useful as a production/alignment bottom plate, but visually more tool-like and less rich than v1.
+- v1 remains the stronger art-style target, but it is still not coordinate-authoritative.
+- Best next step is to use v2 as the anchor/layout guide and repaint or regenerate toward v1's richness while preserving exact city centers, river paths, crop frame, and non-baked dynamic-state constraints.
+
+## 2026-06-05 Aligned Candidate v3
+
+Produced a coordinate-aligned finished crop candidate after producer sign-off on the richer art direction:
+
+- Added `docs/map_design/real_coord_crop_base_aligned_v3.png`.
+- v3 uses the coordinate crop frame and game city anchors as hard constraints, with static city/pass footprints baked at the existing `hexToPixel` anchor positions.
+- Updated `docs/map_design/real_coord_crop_overlay.html` so `成品候选 v3 · 坐标对齐` is the default base, while keeping HD, v2 anchor, and v1 style candidates available for comparison.
+- Generated `docs/map_design/real_coord_crop_base_aligned_v3_overlay_preview.png`.
+- Verification: jsdom check confirmed default/`?base=aligned` selects `real_coord_crop_base_aligned_v3.png` with 680 hexes, 8 road links, 7 city hitboxes, and 7 footprint guides.
+
+Current judgment:
+
+- v3 is the first usable coordinate-aligned art candidate for this crop: bottom bitmap city footprints and overlay city centers now match.
+- v1 should no longer be used for coordinate review; it remains only a style reference.
+- Next improvement, if desired, is purely art polish on v3 richness/texture, not coordinate correction.

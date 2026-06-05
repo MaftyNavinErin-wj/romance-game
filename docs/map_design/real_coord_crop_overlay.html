@@ -317,8 +317,10 @@
       <div class="controls">
         <p class="meta">底图候选</p>
         <div class="option-grid">
-          <button class="option" data-base="hd" data-active="true">高清 bitmap · 2x</button>
+          <button class="option" data-base="aligned" data-active="true">成品候选 v3 · 坐标对齐</button>
+          <button class="option" data-base="hd" data-active="false">高清 bitmap · 2x</button>
           <button class="option" data-base="legacy" data-active="false">旧 bitmap · 1x</button>
+          <button class="option" data-base="anchor" data-active="false">锚点候选 v2 · crop</button>
           <button class="option" data-base="candidate" data-active="false">生成候选 v1 · crop</button>
         </div>
       </div>
@@ -343,7 +345,7 @@
       </div>
 
       <div class="controls">
-        <p class="meta">下一轮高清底图必须围绕这些 city center、river path 和 crop 边界生成或重绘。</p>
+        <p class="meta">v3 是坐标对齐成品候选；v2 是坐标锚定底版，v1 是风格候选。</p>
         <textarea id="coordReadout" class="readout" spellcheck="false" readonly></textarea>
       </div>
     </aside>
@@ -352,7 +354,7 @@
       <section class="stage">
         <svg viewBox="180 135 360 155" aria-label="Luoyang Changan real coordinate crop">
           <g id="baseLayer">
-            <image id="baseImage" class="base-image" data-treatment="normal" href="../../assets/maps/china-ink-base-v1-hd.png" x="0" y="-12" width="1360" height="765" preserveAspectRatio="none"/>
+            <image id="baseImage" class="base-image" data-treatment="normal" href="real_coord_crop_base_aligned_v3.png" x="180" y="135" width="360" height="155" preserveAspectRatio="xMidYMid meet"/>
             <rect class="crop-mask" x="0" y="0" width="960" height="740"/>
             <rect class="crop-frame" x="180" y="135" width="360" height="155"/>
           </g>
@@ -384,6 +386,12 @@
     const HEX_H = Math.sqrt(3) * HEX_SIZE;
     const CROP = { x: 180, y: 135, w: 360, h: 155 };
     const baseSources = {
+      aligned: {
+        href: 'real_coord_crop_base_aligned_v3.png',
+        frame: CROP,
+        preserve: 'xMidYMid meet',
+        note: 'coordinate-aligned production candidate'
+      },
       hd: {
         href: '../../assets/maps/china-ink-base-v1-hd.png',
         frame: { x: 0, y: -12, w: 1360, h: 765 },
@@ -396,6 +404,12 @@
         preserve: 'none',
         note: 'full-map coordinate image'
       },
+      anchor: {
+        href: 'real_coord_crop_base_anchor_v2.png',
+        frame: CROP,
+        preserve: 'xMidYMid meet',
+        note: 'coordinate-anchored crop candidate'
+      },
       candidate: {
         href: 'real_coord_crop_base_candidate_v1.png',
         frame: CROP,
@@ -403,7 +417,7 @@
         note: 'generated crop candidate, visual alignment only'
       }
     };
-    let currentBase = 'hd';
+    let currentBase = 'aligned';
 
     const cities = [
       { id: 'anding', name: '安定', q: 23, r: 20, size: 'small', tags: '山地/产马', label: [-11, -17] },
@@ -540,28 +554,35 @@
       });
     }
 
+    function setBase(nextBase) {
+      const source = baseSources[nextBase];
+      if (!source) return;
+      const frame = source.frame;
+      currentBase = nextBase;
+      baseImage.setAttribute('href', source.href);
+      baseImage.setAttribute('x', frame.x);
+      baseImage.setAttribute('y', frame.y);
+      baseImage.setAttribute('width', frame.w);
+      baseImage.setAttribute('height', frame.h);
+      baseImage.setAttribute('preserveAspectRatio', source.preserve);
+      setActiveButton('[data-base]', 'base', nextBase);
+      updateCoordReadout();
+    }
+
+    function setTreatment(nextTreatment) {
+      baseImage.dataset.treatment = nextTreatment;
+      setActiveButton('[data-treatment]', 'treatment', nextTreatment);
+    }
+
     document.querySelectorAll('[data-base]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const nextBase = btn.dataset.base;
-        const source = baseSources[nextBase];
-        const frame = source.frame;
-        currentBase = nextBase;
-        baseImage.setAttribute('href', source.href);
-        baseImage.setAttribute('x', frame.x);
-        baseImage.setAttribute('y', frame.y);
-        baseImage.setAttribute('width', frame.w);
-        baseImage.setAttribute('height', frame.h);
-        baseImage.setAttribute('preserveAspectRatio', source.preserve);
-        setActiveButton('[data-base]', 'base', nextBase);
-        updateCoordReadout();
+        setBase(btn.dataset.base);
       });
     });
 
     document.querySelectorAll('[data-treatment]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const nextTreatment = btn.dataset.treatment;
-        baseImage.dataset.treatment = nextTreatment;
-        setActiveButton('[data-treatment]', 'treatment', nextTreatment);
+        setTreatment(btn.dataset.treatment);
       });
     });
 
@@ -576,6 +597,9 @@
     drawHexes();
     drawRoads();
     drawCities();
+    const params = new URLSearchParams(location.search);
+    setBase(params.get('base') || currentBase);
+    if (params.has('treatment')) setTreatment(params.get('treatment'));
     updateCoordReadout();
   </script>
 </body>
