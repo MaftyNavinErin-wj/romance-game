@@ -317,7 +317,8 @@
       <div class="controls">
         <p class="meta">底图候选</p>
         <div class="option-grid">
-          <button class="option" data-base="aligned" data-active="true">成品候选 v3 · 坐标对齐</button>
+          <button class="option" data-base="clean" data-active="true">干净底图 v4 · 城郭入图</button>
+          <button class="option" data-base="aligned" data-active="false">成品候选 v3 · 坐标对齐</button>
           <button class="option" data-base="hd" data-active="false">高清 bitmap · 2x</button>
           <button class="option" data-base="legacy" data-active="false">旧 bitmap · 1x</button>
           <button class="option" data-base="anchor" data-active="false">锚点候选 v2 · crop</button>
@@ -345,7 +346,7 @@
       </div>
 
       <div class="controls">
-        <p class="meta">v3 是坐标对齐成品候选；v2 是坐标锚定底版，v1 是风格候选。</p>
+        <p class="meta">v4 是干净底图候选；v3 是坐标对齐旧底候选；v2 是坐标锚定底版，v1 是风格候选。</p>
         <textarea id="coordReadout" class="readout" spellcheck="false" readonly></textarea>
       </div>
     </aside>
@@ -354,7 +355,7 @@
       <section class="stage">
         <svg viewBox="180 135 360 155" aria-label="Luoyang Changan real coordinate crop">
           <g id="baseLayer">
-            <image id="baseImage" class="base-image" data-treatment="normal" href="real_coord_crop_base_aligned_v3.png" x="180" y="135" width="360" height="155" preserveAspectRatio="xMidYMid meet"/>
+            <image id="baseImage" class="base-image" data-treatment="normal" href="real_coord_crop_base_clean_v4.png" x="180" y="135" width="360" height="155" preserveAspectRatio="xMidYMid meet"/>
             <rect class="crop-mask" x="0" y="0" width="960" height="740"/>
             <rect class="crop-frame" x="180" y="135" width="360" height="155"/>
           </g>
@@ -386,6 +387,12 @@
     const HEX_H = Math.sqrt(3) * HEX_SIZE;
     const CROP = { x: 180, y: 135, w: 360, h: 155 };
     const baseSources = {
+      clean: {
+        href: 'real_coord_crop_base_clean_v4.png',
+        frame: CROP,
+        preserve: 'xMidYMid meet',
+        note: 'clean terrain base with coordinate-locked painted city footprints'
+      },
       aligned: {
         href: 'real_coord_crop_base_aligned_v3.png',
         frame: CROP,
@@ -417,7 +424,7 @@
         note: 'generated crop candidate, visual alignment only'
       }
     };
-    let currentBase = 'aligned';
+    let currentBase = 'clean';
 
     const cities = [
       { id: 'anding', name: '安定', q: 23, r: 20, size: 'small', tags: '山地/产马', label: [-11, -17] },

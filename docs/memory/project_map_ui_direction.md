@@ -179,3 +179,25 @@ Current judgment:
 - v3 is the first usable coordinate-aligned art candidate for this crop: bottom bitmap city footprints and overlay city centers now match.
 - v1 should no longer be used for coordinate review; it remains only a style reference.
 - Next improvement, if desired, is purely art polish on v3 richness/texture, not coordinate correction.
+
+## 2026-06-06 Clean Coordinate Candidate v4
+
+Reworked v4 after rejecting the first failed attempt that looked like a line-art / UI-icon / engineered-road mockup.
+
+- Removed the failed uncommitted v4 PNGs and restored the overlay/memory files back to the committed v3 state before starting over.
+- Added `docs/map_design/real_coord_crop_base_clean_v4.png`.
+- Added `docs/map_design/real_coord_crop_base_clean_v4_overlay_preview.png`.
+- Updated `docs/map_design/real_coord_crop_overlay.html` so `clean` / `?base=clean` is the default base, while v3/v2/v1 and the old bitmap sources remain available for comparison.
+- The terrain base is a new clean ink-and-watercolor background rather than a filtered copy of the old dirty bitmap.
+- City and pass artwork is painted after generation by deterministic composition from the workbench anchors, not placed by AI:
+  - crop frame remains `x180 y135 w360 h155`;
+  - visible city centers use the existing `hexToPixel` formula and are transformed by `(gameCoord - cropOrigin) * 5`;
+  - roads derive from the existing workbench road skeleton;
+  - the first two `RIVERS` paths are redrawn as subdued fixed-coordinate water marks.
+- Dynamic labels, ownership, selected state, units, war/development state, hitboxes, and hex grid remain overlay-only.
+
+Current judgment:
+
+- v4 is cleaner than v3 because it does not inherit the dirty bitmap texture.
+- v4 preserves the real-coordinate discipline of v3: overlay preview confirms the city centers land inside the baked city artwork.
+- The city artwork is deliberately subdued so it reads as part of the map base instead of as clickable UI. Further polish, if any, should continue to keep city/pass placement deterministic and should not let AI freely position settlements.
