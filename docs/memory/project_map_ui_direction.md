@@ -104,3 +104,47 @@ Before implementation into the real game, the producer needs to approve:
 - Whether terrain icons become mode-specific/hover-specific instead of always visible.
 - Whether to generate a new lighter relief bitmap or keep modifying the current bitmap through filters.
 - Which terrain facts must be always visible for gameplay, versus hidden until hover/mode.
+
+## 2026-06-04 Vertical Slice Direction
+
+Producer approved pushing the high-resolution terrain-base direction into a small vertical slice before full-map rollout.
+
+New working direction:
+
+- The existing low-resolution bitmap is acceptable at far zoom but too blurry at close zoom, so future map-base work should target a higher-resolution terrain bitmap instead of only filtering the current asset.
+- Static city/geography footprints may be painted into the map base: large walled cities, smaller county towns, mountain-pass fortresses, ports/ferries, etc.
+- Dynamic city state must not be baked into the bitmap. Ownership, selected state, labels, war/development/status, units, and click handling stay in overlay layers.
+- City footprints should be snapped to real game city/hex positions during production. AI-generated placement is only acceptable for visual exploration.
+- Practical layer model: high-resolution terrain base + static city/pass footprint + transparent/low-profile hit target + dynamic overlay.
+
+Prototype artifacts:
+
+- `docs/map_design/luoyang_changan_vertical_slice_v1.png`
+- `docs/map_design/luoyang_changan_vertical_slice.html`
+- `docs/map_design/luoyang_changan_vertical_slice_preview.png`
+
+Current sample judgment:
+
+- The approach is visually promising: a painted city footprint can read as a natural map feature while a transparent hitbox keeps interaction aligned.
+- The sample still needs production discipline: cities should be more orthographic, slightly less detailed, and generated/painted from fixed coordinates rather than freehand AI placement.
+- Suggested next validation: choose a real 1-2 city game crop, derive exact city and hex overlay coordinates, then test whether default terrain/city icons can be hidden without losing gameplay readability.
+
+## 2026-06-05 Real Coordinate Crop Workbench
+
+Continued the approved high-resolution terrain-base vertical slice into a real-coordinate overlay workbench:
+
+- `docs/map_design/real_coord_crop_overlay.html` now defaults to `assets/maps/china-ink-base-v1-hd.png` while keeping the 1x bitmap as an A/B reference.
+- The page keeps all alignment anchors in game coordinates: crop `x180 y135 w360 h155`, city centers from `CITY_BASE` via the existing `hexToPixel` formula, and the first two `RIVERS` paths.
+- Added base-treatment modes for normal, softened overlay readability, and high-contrast alignment audit without changing formal game rendering.
+- Added a coordinate readout with city pixel centers, footprint size hints, river source, and road skeleton so a generated/repainted bitmap can be checked against fixed anchors.
+- Generated `docs/map_design/real_coord_crop_base_candidate_v1.png` as the first clean crop-base candidate: no labels, no UI, no hex, static city footprints painted into terrain.
+- The workbench treats the generated candidate as a crop asset inside `x180 y135 w360 h155`; the old/HD bitmaps remain full-map coordinate images.
+- Regenerated `docs/map_design/real_coord_crop_overlay_preview.png` and `docs/map_design/real_coord_crop_base_candidate_v1_overlay_preview.png` from the updated page.
+- Headless browser verification on 2026-06-05: default HD state uses `../../assets/maps/china-ink-base-v1-hd.png` at image frame `x0 y-12 w1360 h765`, candidate state uses `real_coord_crop_base_candidate_v1.png` at crop frame `x180 y135 w360 h155`, both with 680 hexes, 8 road links, 7 city hitboxes, and 7 footprint guides.
+
+Current judgment:
+
+- This is now a useful production-check page, not just a screenshot.
+- `real_coord_crop_base_candidate_v1.png` is visually promising but not coordinate-authoritative; some baked city footprints are still offset from the real anchors, so use it as a style/crop candidate and verify or repaint against the overlay before production.
+- The next actual art step should produce or repaint a crop that has static city/pass footprints baked into the terrain base, then drop it behind this same overlay to test snap accuracy.
+- Do not bake dynamic city names, ownership, selected state, units, war state, or development/status into the bitmap.

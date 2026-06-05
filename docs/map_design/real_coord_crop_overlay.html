@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Real Coordinate Crop Overlay</title>
+  <style>
+    :root {
+      --ink: #302719;
+      --paper: #e6d6b8;
+      --panel: rgba(248, 241, 224, .95);
+      --line: rgba(70, 54, 32, .2);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+      color: var(--ink);
+      background: #d7c7a8;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 276px minmax(0, 1fr);
+    }
+
+    aside {
+      padding: 16px;
+      background: linear-gradient(180deg, rgba(58, 48, 34, .95), rgba(40, 33, 24, .96));
+      color: rgba(248, 240, 220, .92);
+      border-right: 1px solid rgba(40, 30, 20, .35);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .meta {
+      margin: 0 0 14px;
+      color: rgba(248, 240, 220, .68);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .controls {
+      padding: 10px 0;
+      border-top: 1px solid rgba(248, 240, 220, .13);
+    }
+
+    .toggle {
+      width: 100%;
+      min-height: 34px;
+      margin: 7px 0;
+      padding: 7px 9px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border: 1px solid rgba(248, 240, 220, .14);
+      border-radius: 6px;
+      background: rgba(248, 240, 220, .08);
+      color: rgba(248, 240, 220, .9);
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    .toggle[data-on="true"] {
+      background: rgba(227, 201, 139, .24);
+      border-color: rgba(227, 201, 139, .46);
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: rgba(248, 240, 220, .34);
+    }
+
+    .toggle[data-on="true"] .dot { background: #e5c675; }
+
+    .option-grid {
+      display: grid;
+      gap: 7px;
+    }
+
+    .option {
+      width: 100%;
+      min-height: 31px;
+      padding: 7px 9px;
+      border: 1px solid rgba(248, 240, 220, .14);
+      border-radius: 6px;
+      background: rgba(248, 240, 220, .06);
+      color: rgba(248, 240, 220, .82);
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    .option[data-active="true"] {
+      background: rgba(116, 155, 135, .26);
+      border-color: rgba(151, 190, 160, .5);
+      color: rgba(250, 245, 226, .95);
+    }
+
+    .readout {
+      width: 100%;
+      min-height: 118px;
+      margin-top: 8px;
+      padding: 8px;
+      resize: vertical;
+      border: 1px solid rgba(248, 240, 220, .16);
+      border-radius: 6px;
+      background: rgba(20, 17, 13, .34);
+      color: rgba(248, 240, 220, .84);
+      font: 11px/1.55 Consolas, "Microsoft YaHei", monospace;
+    }
+
+    main {
+      min-width: 0;
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .stage {
+      width: min(100%, 1280px);
+      aspect-ratio: 360 / 155;
+      margin: 0 auto;
+      border: 1px solid rgba(64, 50, 30, .24);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #d1bea0;
+      box-shadow: 0 16px 46px rgba(52, 39, 24, .23);
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #d7c7a8;
+    }
+
+    .base-image {
+      opacity: .9;
+      filter: saturate(.92) contrast(.98);
+    }
+
+    .base-image[data-treatment="soft"] {
+      opacity: .84;
+      filter: saturate(.78) contrast(.86) brightness(1.11);
+    }
+
+    .base-image[data-treatment="audit"] {
+      opacity: .96;
+      filter: saturate(1.02) contrast(1.12);
+    }
+
+    .crop-mask {
+      fill: rgba(247, 239, 218, .18);
+      pointer-events: none;
+    }
+
+    .hex path {
+      fill: none;
+      stroke: rgba(66, 52, 34, .24);
+      stroke-width: .38;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .river {
+      fill: none;
+      stroke: rgba(36, 95, 132, .82);
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .river.secondary {
+      stroke: rgba(62, 120, 150, .72);
+      stroke-width: 1.65;
+    }
+
+    .road {
+      fill: none;
+      stroke: rgba(255, 242, 190, .78);
+      stroke-width: 3.4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .road-line {
+      fill: none;
+      stroke: rgba(108, 78, 36, .72);
+      stroke-width: .8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 3 2.5;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .paint-footprint {
+      fill: rgba(230, 195, 118, .16);
+      stroke: rgba(180, 98, 42, .8);
+      stroke-width: 1.6;
+      stroke-dasharray: 5 3;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .city-center {
+      fill: #fff1bd;
+      stroke: rgba(80, 44, 22, .94);
+      stroke-width: 1.4;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .city-hit {
+      fill: rgba(218, 130, 64, .08);
+      stroke: rgba(196, 88, 46, .62);
+      stroke-width: 1.2;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .city-label {
+      font-size: 6.6px;
+      font-weight: 700;
+      letter-spacing: 0;
+      fill: #2e2517;
+      stroke: rgba(250, 244, 225, .96);
+      stroke-width: 1.7;
+      paint-order: stroke;
+    }
+
+    .coord-label {
+      font-size: 4.4px;
+      font-weight: 600;
+      fill: rgba(46, 37, 23, .72);
+      stroke-width: 1.15;
+    }
+
+    .anchor-line {
+      stroke: rgba(47, 39, 27, .55);
+      stroke-width: .7;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .crop-frame {
+      fill: none;
+      stroke: rgba(42, 35, 24, .72);
+      stroke-width: .75;
+      stroke-dasharray: 6 4;
+      pointer-events: none;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .cards {
+      width: min(100%, 1280px);
+      margin: 12px auto 0;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .card {
+      min-height: 88px;
+      padding: 10px 11px;
+      border: 1px solid rgba(76, 56, 30, .18);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 8px 22px rgba(60, 44, 25, .1);
+    }
+
+    .card b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .card span {
+      display: block;
+      font-size: 11px;
+      line-height: 1.6;
+      color: rgba(60, 47, 28, .68);
+    }
+
+    .note {
+      width: min(100%, 1280px);
+      margin: 10px auto 0;
+      color: rgba(60, 47, 28, .7);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 920px) {
+      .shell { grid-template-columns: 1fr; }
+      main { padding: 12px; }
+      .cards { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <h1>真实坐标样板</h1>
+      <p class="meta">Crop: x180 y135 w360 h155。所有点位来自现有 game SVG 坐标，不使用 AI 自由摆放。</p>
+
+      <div class="controls">
+        <p class="meta">底图候选</p>
+        <div class="option-grid">
+          <button class="option" data-base="hd" data-active="true">高清 bitmap · 2x</button>
+          <button class="option" data-base="legacy" data-active="false">旧 bitmap · 1x</button>
+          <button class="option" data-base="candidate" data-active="false">生成候选 v1 · crop</button>
+        </div>
+      </div>
+
+      <div class="controls">
+        <p class="meta">底图处理</p>
+        <div class="option-grid">
+          <button class="option" data-treatment="normal" data-active="true">标准检查</button>
+          <button class="option" data-treatment="soft" data-active="false">柔化 overlay</button>
+          <button class="option" data-treatment="audit" data-active="false">对齐审查</button>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="toggle" data-layer="base" data-on="true"><span>底图</span><i class="dot"></i></button>
+        <button class="toggle" data-layer="hex" data-on="true"><span>真实 hex grid</span><i class="dot"></i></button>
+        <button class="toggle" data-layer="rivers" data-on="true"><span>RIVERS 路径</span><i class="dot"></i></button>
+        <button class="toggle" data-layer="roads" data-on="true"><span>道路骨架</span><i class="dot"></i></button>
+        <button class="toggle" data-layer="footprints" data-on="true"><span>城郭绘制框</span><i class="dot"></i></button>
+        <button class="toggle" data-layer="cities" data-on="true"><span>city center / hitbox</span><i class="dot"></i></button>
+        <button class="toggle" data-layer="labels" data-on="true"><span>名称/坐标标注</span><i class="dot"></i></button>
+      </div>
+
+      <div class="controls">
+        <p class="meta">下一轮高清底图必须围绕这些 city center、river path 和 crop 边界生成或重绘。</p>
+        <textarea id="coordReadout" class="readout" spellcheck="false" readonly></textarea>
+      </div>
+    </aside>
+
+    <main>
+      <section class="stage">
+        <svg viewBox="180 135 360 155" aria-label="Luoyang Changan real coordinate crop">
+          <g id="baseLayer">
+            <image id="baseImage" class="base-image" data-treatment="normal" href="../../assets/maps/china-ink-base-v1-hd.png" x="0" y="-12" width="1360" height="765" preserveAspectRatio="none"/>
+            <rect class="crop-mask" x="0" y="0" width="960" height="740"/>
+            <rect class="crop-frame" x="180" y="135" width="360" height="155"/>
+          </g>
+          <g id="hexLayer" class="hex"></g>
+          <g id="riversLayer">
+            <path class="river" d="M105,365 Q150,354 205,354 Q255,348 298,327 Q342,297 392,232 Q445,232 492,226 Q532,210 566,198 Q600,170 642,145 Q686,118 724,118 Q745,133 728,162 Q700,202 680,242 Q668,274 688,294 Q728,302 772,286 Q812,268 846,252"/>
+            <path class="river secondary" d="M188,266 Q226,254 266,247 Q298,238 329,225 Q350,215 374,210"/>
+          </g>
+          <g id="roadsLayer"></g>
+          <g id="footprintsLayer"></g>
+          <g id="citiesLayer"></g>
+          <g id="labelsLayer"></g>
+        </svg>
+      </section>
+
+      <section class="cards">
+        <div class="card"><b>坐标真值</b><span>城市 q/r 来自 `CITY_BASE`，像素由现有 `hexToPixel` 公式计算。</span></div>
+        <div class="card"><b>河流真值</b><span>黄河、渭水路径直接取自 `src/data/cities.js` 的 `RIVERS`。</span></div>
+        <div class="card"><b>高清默认</b><span>默认使用 2x bitmap，同一 game 坐标系绘制；生成候选以 crop asset 方式叠入。</span></div>
+        <div class="card"><b>生产约束</b><span>静态城郭只画 footprint；名称、归属、选中态、部队仍由动态层负责。</span></div>
+      </section>
+
+      <p class="note">覆盖城市：安定 q23/r20、长安 q31/r22、河东 q34/r18、洛阳 q40/r20、官渡 q52/r22。此 crop 也保留陈留/南阳方向的道路出口，用来检查通道关系。</p>
+    </main>
+  </div>
+
+  <script>
+    const HEX_SIZE = 6;
+    const HEX_H = Math.sqrt(3) * HEX_SIZE;
+    const CROP = { x: 180, y: 135, w: 360, h: 155 };
+    const baseSources = {
+      hd: {
+        href: '../../assets/maps/china-ink-base-v1-hd.png',
+        frame: { x: 0, y: -12, w: 1360, h: 765 },
+        preserve: 'none',
+        note: 'full-map coordinate image'
+      },
+      legacy: {
+        href: '../../assets/maps/china-ink-base-v1.png',
+        frame: { x: 0, y: -12, w: 1360, h: 765 },
+        preserve: 'none',
+        note: 'full-map coordinate image'
+      },
+      candidate: {
+        href: 'real_coord_crop_base_candidate_v1.png',
+        frame: CROP,
+        preserve: 'xMidYMid slice',
+        note: 'generated crop candidate, visual alignment only'
+      }
+    };
+    let currentBase = 'hd';
+
+    const cities = [
+      { id: 'anding', name: '安定', q: 23, r: 20, size: 'small', tags: '山地/产马', label: [-11, -17] },
+      { id: 'changan', name: '长安', q: 31, r: 22, size: 'large', tags: '都市/平原', label: [-12, 24] },
+      { id: 'hedong', name: '河东', q: 34, r: 18, size: 'medium', tags: '产马/平原', label: [0, -18] },
+      { id: 'luoyang', name: '洛阳', q: 40, r: 20, size: 'large', tags: '都市/平原/产铁', label: [14, -18] },
+      { id: 'guandu', name: '官渡', q: 52, r: 22, size: 'small', tags: '雄关', label: [13, -13] },
+      { id: 'chenliu', name: '陈留', q: 54, r: 20, size: 'medium', tags: '平原', label: [11, 18] },
+      { id: 'nanyang', name: '南阳', q: 44, r: 31, size: 'medium', tags: '平原', label: [0, -14] }
+    ].map(c => ({ ...c, ...hexToPixel(c.q, c.r) }));
+
+    const cityById = Object.fromEntries(cities.map(c => [c.id, c]));
+    const roads = [
+      ['anding', 'changan'],
+      ['anding', 'hedong'],
+      ['changan', 'luoyang'],
+      ['changan', 'hedong'],
+      ['hedong', 'luoyang'],
+      ['luoyang', 'guandu'],
+      ['luoyang', 'chenliu'],
+      ['luoyang', 'nanyang']
+    ];
+
+    const layers = {
+      base: document.getElementById('baseLayer'),
+      hex: document.getElementById('hexLayer'),
+      rivers: document.getElementById('riversLayer'),
+      roads: document.getElementById('roadsLayer'),
+      footprints: document.getElementById('footprintsLayer'),
+      cities: document.getElementById('citiesLayer'),
+      labels: document.getElementById('labelsLayer')
+    };
+    const baseImage = document.getElementById('baseImage');
+    const coordReadout = document.getElementById('coordReadout');
+
+    function hexToPixel(col, row) {
+      return {
+        x: col * HEX_SIZE * 1.5 + HEX_SIZE + 8,
+        y: row * HEX_H + (col % 2 ? HEX_H / 2 : 0) + HEX_H / 2 + 4
+      };
+    }
+
+    function hexPath(cx, cy, r) {
+      const pts = [];
+      for (let i = 0; i < 6; i++) {
+        const a = Math.PI / 180 * (60 * i);
+        pts.push(`${(cx + r * Math.cos(a)).toFixed(2)},${(cy + r * Math.sin(a)).toFixed(2)}`);
+      }
+      return `M${pts.join('L')}Z`;
+    }
+
+    function drawHexes() {
+      let html = '';
+      for (let q = 19; q <= 58; q++) {
+        for (let r = 12; r <= 33; r++) {
+          const p = hexToPixel(q, r);
+          if (p.x < 170 || p.x > 550 || p.y < 125 || p.y > 310) continue;
+          html += `<path d="${hexPath(p.x, p.y, HEX_SIZE)}"/>`;
+        }
+      }
+      layers.hex.innerHTML = html;
+    }
+
+    function drawRoads() {
+      let html = '';
+      for (const [a, b] of roads) {
+        const ca = cityById[a], cb = cityById[b];
+        if (!ca || !cb) continue;
+        html += `<path class="road" d="M${ca.x.toFixed(1)},${ca.y.toFixed(1)} L${cb.x.toFixed(1)},${cb.y.toFixed(1)}"/>`;
+        html += `<path class="road-line" d="M${ca.x.toFixed(1)},${ca.y.toFixed(1)} L${cb.x.toFixed(1)},${cb.y.toFixed(1)}"/>`;
+      }
+      layers.roads.innerHTML = html;
+    }
+
+    function footprintShape(c) {
+      const spec = {
+        large: { w: 30, h: 20, r: 13 },
+        medium: { w: 22, h: 15, r: 10 },
+        small: { w: 17, h: 12, r: 8 }
+      }[c.size] || { w: 20, h: 14, r: 9 };
+
+      if (c.tags.includes('雄关')) {
+        return `<path class="paint-footprint" d="M${(c.x - 13).toFixed(1)},${(c.y + 7).toFixed(1)} L${(c.x - 5).toFixed(1)},${(c.y - 10).toFixed(1)} L${(c.x + 12).toFixed(1)},${(c.y - 5).toFixed(1)} L${(c.x + 8).toFixed(1)},${(c.y + 9).toFixed(1)} Z"/>`;
+      }
+      return `<rect class="paint-footprint" x="${(c.x - spec.w / 2).toFixed(1)}" y="${(c.y - spec.h / 2).toFixed(1)}" width="${spec.w}" height="${spec.h}" rx="2.2"/>`;
+    }
+
+    function drawCities() {
+      layers.footprints.innerHTML = cities.map(footprintShape).join('');
+
+      layers.cities.innerHTML = cities.map(c => {
+        const hitR = c.size === 'large' ? 17 : c.size === 'medium' ? 13 : 11;
+        return `
+          <g>
+            <line class="anchor-line" x1="${(c.x - 4).toFixed(1)}" y1="${c.y.toFixed(1)}" x2="${(c.x + 4).toFixed(1)}" y2="${c.y.toFixed(1)}"/>
+            <line class="anchor-line" x1="${c.x.toFixed(1)}" y1="${(c.y - 4).toFixed(1)}" x2="${c.x.toFixed(1)}" y2="${(c.y + 4).toFixed(1)}"/>
+            <circle class="city-hit" cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${hitR}"/>
+            <circle class="city-center" cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="2.4"/>
+          </g>
+        `;
+      }).join('');
+
+      layers.labels.innerHTML = cities.map(c => {
+        const lx = c.x + c.label[0];
+        const ly = c.y + c.label[1];
+        return `
+          <g>
+            <text class="city-label" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle">${c.name}</text>
+            <text class="city-label coord-label" x="${lx.toFixed(1)}" y="${(ly + 5.4).toFixed(1)}" text-anchor="middle">q${c.q}/r${c.r} · ${c.x.toFixed(1)},${c.y.toFixed(1)}</text>
+          </g>
+        `;
+      }).join('');
+    }
+
+    function updateCoordReadout() {
+      const cityLines = cities.map(c => {
+        const footprint = c.size === 'large' ? '30x20' : c.size === 'medium' ? '22x15' : '17x12';
+        return `${c.name} ${c.id}: q${c.q}/r${c.r}, px ${c.x.toFixed(1)},${c.y.toFixed(1)}, ${c.size}, footprint ${footprint}`;
+      });
+      coordReadout.value = [
+        `crop: x${CROP.x} y${CROP.y} w${CROP.w} h${CROP.h}`,
+        `base: ${currentBase} (${baseSources[currentBase].note})`,
+        `base frame: image x${baseSources[currentBase].frame.x} y${baseSources[currentBase].frame.y} w${baseSources[currentBase].frame.w} h${baseSources[currentBase].frame.h}, preserveAspectRatio ${baseSources[currentBase].preserve}`,
+        'cities:',
+        ...cityLines,
+        'rivers: RIVERS[0] 黄河, RIVERS[1] 渭水',
+        'roads: ' + roads.map(([a, b]) => `${a}-${b}`).join(', ')
+      ].join('\n');
+    }
+
+    function setActiveButton(selector, key, value) {
+      document.querySelectorAll(selector).forEach(btn => {
+        btn.dataset.active = btn.dataset[key] === value ? 'true' : 'false';
+      });
+    }
+
+    document.querySelectorAll('[data-base]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const nextBase = btn.dataset.base;
+        const source = baseSources[nextBase];
+        const frame = source.frame;
+        currentBase = nextBase;
+        baseImage.setAttribute('href', source.href);
+        baseImage.setAttribute('x', frame.x);
+        baseImage.setAttribute('y', frame.y);
+        baseImage.setAttribute('width', frame.w);
+        baseImage.setAttribute('height', frame.h);
+        baseImage.setAttribute('preserveAspectRatio', source.preserve);
+        setActiveButton('[data-base]', 'base', nextBase);
+        updateCoordReadout();
+      });
+    });
+
+    document.querySelectorAll('[data-treatment]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const nextTreatment = btn.dataset.treatment;
+        baseImage.dataset.treatment = nextTreatment;
+        setActiveButton('[data-treatment]', 'treatment', nextTreatment);
+      });
+    });
+
+    document.querySelectorAll('.toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.dataset.on = btn.dataset.on === 'true' ? 'false' : 'true';
+        const layer = layers[btn.dataset.layer];
+        if (layer) layer.style.display = btn.dataset.on === 'true' ? '' : 'none';
+      });
+    });
+
+    drawHexes();
+    drawRoads();
+    drawCities();
+    updateCoordReadout();
+  </script>
+</body>
+</html>

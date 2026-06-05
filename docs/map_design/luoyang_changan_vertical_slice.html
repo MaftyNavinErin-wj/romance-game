@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Map Vertical Slice - Luoyang Changan</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #2f2a20;
+      --paper: #ece1c9;
+      --panel: rgba(248, 242, 226, .94);
+      --line: rgba(77, 62, 42, .22);
+      --blue: #2d6f8f;
+      --red: #9a392b;
+      --green: #2f7550;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+      background: #d8c9ad;
+      color: var(--ink);
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+    }
+
+    aside {
+      padding: 16px;
+      background: linear-gradient(180deg, rgba(60, 50, 35, .92), rgba(42, 35, 25, .94));
+      color: rgba(248, 240, 218, .92);
+      border-right: 1px solid rgba(30, 24, 18, .35);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .meta {
+      margin: 0 0 18px;
+      color: rgba(248, 240, 218, .66);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .control-group {
+      padding: 12px 0;
+      border-top: 1px solid rgba(248, 240, 218, .12);
+    }
+
+    .toggle {
+      width: 100%;
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 7px 0;
+      padding: 7px 9px;
+      color: rgba(248, 240, 218, .9);
+      background: rgba(248, 240, 218, .08);
+      border: 1px solid rgba(248, 240, 218, .12);
+      border-radius: 6px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    .toggle[data-on="true"] {
+      background: rgba(227, 201, 139, .24);
+      border-color: rgba(227, 201, 139, .42);
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: rgba(248, 240, 218, .34);
+    }
+
+    .toggle[data-on="true"] .dot { background: #e5c675; }
+
+    main {
+      min-width: 0;
+      padding: 18px;
+      overflow: auto;
+    }
+
+    .stage {
+      position: relative;
+      width: min(100%, 1280px);
+      aspect-ratio: 3 / 2;
+      margin: 0 auto;
+      overflow: hidden;
+      border: 1px solid rgba(60, 48, 30, .28);
+      border-radius: 8px;
+      background: #d7c7a9;
+      box-shadow: 0 16px 50px rgba(52, 40, 25, .25);
+    }
+
+    .map-base,
+    .overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .map-base {
+      object-fit: cover;
+      filter: saturate(.92) contrast(.96);
+      user-select: none;
+    }
+
+    .overlay { pointer-events: none; }
+
+    .hex path {
+      fill: none;
+      stroke: rgba(62, 51, 34, .2);
+      stroke-width: .55;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .terrain-symbol {
+      fill: rgba(250, 245, 226, .78);
+      stroke: rgba(64, 52, 36, .42);
+      stroke-width: 1.1;
+      paint-order: stroke;
+    }
+
+    .city-hit {
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    .hit-ring {
+      fill: rgba(230, 200, 120, .12);
+      stroke: rgba(204, 126, 55, .62);
+      stroke-width: 2;
+      stroke-dasharray: 7 5;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .city-label text {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: 0;
+      fill: #3d2f1f;
+      stroke: rgba(248, 239, 215, .94);
+      stroke-width: 4;
+      paint-order: stroke;
+    }
+
+    .city-label .type {
+      font-size: 11px;
+      font-weight: 600;
+      fill: rgba(61, 47, 31, .68);
+      stroke-width: 3;
+    }
+
+    .fac-ring {
+      fill: none;
+      stroke-width: 4;
+      vector-effect: non-scaling-stroke;
+      opacity: .78;
+    }
+
+    .sel-ring {
+      fill: none;
+      stroke: rgba(250, 236, 162, .95);
+      stroke-width: 6;
+      vector-effect: non-scaling-stroke;
+      opacity: .72;
+      filter: drop-shadow(0 0 6px rgba(128, 74, 22, .35));
+    }
+
+    .legend {
+      width: min(100%, 1280px);
+      margin: 12px auto 0;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .card {
+      min-height: 72px;
+      padding: 10px 11px;
+      border-radius: 8px;
+      background: var(--panel);
+      border: 1px solid rgba(86, 68, 40, .18);
+      box-shadow: 0 8px 24px rgba(60, 44, 25, .12);
+    }
+
+    .card b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .card span {
+      display: block;
+      font-size: 11px;
+      line-height: 1.6;
+      color: rgba(60, 48, 30, .68);
+    }
+
+    .note {
+      width: min(100%, 1280px);
+      margin: 10px auto 0;
+      color: rgba(64, 50, 31, .66);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      aside { position: static; }
+      main { padding: 12px; }
+      .legend { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <h1>洛阳-长安样板</h1>
+      <p class="meta">静态城郭画进底图，动态状态由上层覆盖。样张不接入正式游戏。</p>
+
+      <div class="control-group">
+        <button class="toggle" data-layer="hex" data-on="true"><span>Hex 对齐层</span><i class="dot"></i></button>
+        <button class="toggle" data-layer="hit" data-on="true"><span>透明点击层</span><i class="dot"></i></button>
+        <button class="toggle" data-layer="label" data-on="true"><span>动态城名</span><i class="dot"></i></button>
+        <button class="toggle" data-layer="fac" data-on="true"><span>归属/选中态</span><i class="dot"></i></button>
+        <button class="toggle" data-layer="terrain" data-on="false"><span>旧地形符号模拟</span><i class="dot"></i></button>
+      </div>
+
+      <div class="control-group">
+        <p class="meta">点击城市 hitbox 会切换选中态。底图中的城郭本身没有归属、战火、发展等动态信息。</p>
+      </div>
+    </aside>
+
+    <main>
+      <section class="stage" id="stage">
+        <img class="map-base" src="luoyang_changan_vertical_slice_v1.png" alt="">
+        <svg class="overlay" viewBox="0 0 1536 1024" aria-hidden="true">
+          <g id="hexLayer" class="hex"></g>
+          <g id="terrainLayer"></g>
+          <g id="facLayer"></g>
+          <g id="hitLayer"></g>
+          <g id="labelLayer"></g>
+        </svg>
+      </section>
+
+      <section class="legend">
+        <div class="card"><b>长安</b><span>large city footprint，底图里是静态城郭，上层只叠状态。</span></div>
+        <div class="card"><b>洛阳</b><span>large city footprint，用动态边圈表达归属和选中。</span></div>
+        <div class="card"><b>函谷/潼关样式</b><span>雄关 footprint 只做样式占位，尚未绑定正式 city id。</span></div>
+        <div class="card"><b>验证重点</b><span>隐藏旧图标后，城是否仍自然可点、可读、可对齐。</span></div>
+      </section>
+
+      <p class="note">真实游戏坐标参考：长安 q31/r22, 洛阳 q40/r20, 河东 q34/r18, 安定 q23/r20。此页把这些语义映射到生成样张中的对应 footprint，用于设计验证；不是最终坐标校准工具。</p>
+    </main>
+  </div>
+
+  <script>
+    const layers = {
+      hex: document.getElementById('hexLayer'),
+      hit: document.getElementById('hitLayer'),
+      label: document.getElementById('labelLayer'),
+      fac: document.getElementById('facLayer'),
+      terrain: document.getElementById('terrainLayer')
+    };
+
+    const cities = [
+      { id: 'changan', name: '长安', type: '大城', x: 388, y: 505, r: 50, fac: '#9a392b', game: 'q31/r22' },
+      { id: 'luoyang', name: '洛阳', type: '大城', x: 1137, y: 568, r: 52, fac: '#2d6f8f', game: 'q40/r20' },
+      { id: 'pass', name: '函谷', type: '雄关样式', x: 680, y: 850, r: 34, fac: '#2f7550', game: 'style sample' }
+    ];
+
+    let selected = 'luoyang';
+
+    function hexPath(cx, cy, r) {
+      const pts = [];
+      for (let i = 0; i < 6; i++) {
+        const a = Math.PI / 180 * (60 * i);
+        pts.push(`${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`);
+      }
+      return `M${pts.join('L')}Z`;
+    }
+
+    function drawHexes() {
+      const r = 23;
+      const h = Math.sqrt(3) * r;
+      let html = '';
+      for (let col = -1; col < 35; col++) {
+        for (let row = -1; row < 27; row++) {
+          const x = 34 + col * r * 1.5;
+          const y = 28 + row * h + (col % 2 ? h / 2 : 0);
+          if (x < -40 || x > 1580 || y < -40 || y > 1060) continue;
+          html += `<path d="${hexPath(x, y, r)}"/>`;
+        }
+      }
+      layers.hex.innerHTML = html;
+    }
+
+    function drawTerrainSymbols() {
+      const marks = [
+        [248, 722, '山'], [1012, 250, '山'], [768, 356, '林'],
+        [520, 598, '田'], [1175, 708, '田'], [918, 690, '水'],
+        [300, 360, '谷'], [660, 810, '关']
+      ];
+      layers.terrain.innerHTML = marks.map(([x, y, t]) =>
+        `<text class="terrain-symbol" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle">${t}</text>`
+      ).join('');
+    }
+
+    function drawCityLayers() {
+      layers.fac.innerHTML = cities.map(c => {
+        const sel = c.id === selected ? `<circle class="sel-ring" cx="${c.x}" cy="${c.y}" r="${c.r + 16}"/>` : '';
+        return `${sel}<circle class="fac-ring" cx="${c.x}" cy="${c.y}" r="${c.r + 9}" stroke="${c.fac}"/>`;
+      }).join('');
+
+      layers.hit.innerHTML = cities.map(c =>
+        `<g class="city-hit" data-id="${c.id}">
+          <circle class="hit-ring" cx="${c.x}" cy="${c.y}" r="${c.r + 12}"/>
+        </g>`
+      ).join('');
+
+      layers.label.innerHTML = cities.map(c =>
+        `<g class="city-label">
+          <text x="${c.x}" y="${c.y - c.r - 24}" text-anchor="middle">${c.name}</text>
+          <text class="type" x="${c.x}" y="${c.y - c.r - 7}" text-anchor="middle">${c.type} · ${c.game}</text>
+        </g>`
+      ).join('');
+
+      document.querySelectorAll('.city-hit').forEach(node => {
+        node.addEventListener('click', () => {
+          selected = node.dataset.id;
+          drawCityLayers();
+        });
+      });
+    }
+
+    function applyLayerVisibility() {
+      document.querySelectorAll('.toggle').forEach(btn => {
+        const layer = layers[btn.dataset.layer];
+        if (layer) layer.style.display = btn.dataset.on === 'true' ? '' : 'none';
+      });
+    }
+
+    document.querySelectorAll('.toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.dataset.on = btn.dataset.on === 'true' ? 'false' : 'true';
+        applyLayerVisibility();
+      });
+    });
+
+    drawHexes();
+    drawTerrainSymbols();
+    drawCityLayers();
+    applyLayerVisibility();
+  </script>
+</body>
+</html>
