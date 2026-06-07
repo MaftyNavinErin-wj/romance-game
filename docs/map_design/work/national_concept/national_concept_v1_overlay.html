@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>National Concept v1 Overlay</title>
+  <style>
+    body {
+      margin: 0;
+      background: #24221d;
+      color: #eee8dc;
+      font: 14px/1.4 Arial, sans-serif;
+    }
+    .wrap {
+      max-width: 1672px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+    .stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1672 / 941;
+      background: #111;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+    }
+    .stage img,
+    .stage svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .stage img {
+      object-fit: contain;
+    }
+    .panel {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+    .note {
+      border: 1px solid rgba(238, 232, 220, 0.22);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 10px 12px;
+      border-radius: 6px;
+    }
+    .note b {
+      color: #fff4cf;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .key {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .swatch {
+      width: 18px;
+      height: 4px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+    .city { fill: rgba(255, 222, 112, 0.92); stroke: #4f3513; stroke-width: 2; }
+    .river { fill: none; stroke: rgba(60, 156, 216, 0.92); stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+    .mountain { fill: none; stroke: rgba(130, 86, 47, 0.95); stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 26 16; }
+    .road { fill: none; stroke: rgba(230, 197, 122, 0.9); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 12 12; }
+    .zone { fill: rgba(255, 240, 170, 0.08); stroke: rgba(255, 240, 170, 0.55); stroke-width: 3; }
+    .label {
+      font: 22px Arial, sans-serif;
+      fill: rgba(255, 250, 224, 0.96);
+      stroke: rgba(0, 0, 0, 0.65);
+      stroke-width: 4;
+      paint-order: stroke;
+    }
+    .small-label {
+      font-size: 17px;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="stage">
+      <img src="national_concept_v1.png" alt="National concept v1">
+      <svg viewBox="0 0 1672 941" aria-label="Tier A and Tier B geography review overlay">
+        <path class="zone" d="M520 320 C620 250 780 245 910 310 C1045 375 1030 505 895 555 C730 620 560 555 500 455 C475 410 485 360 520 320 Z"/>
+        <path class="zone" d="M220 410 C310 305 420 255 520 315 C600 365 550 500 420 585 C300 665 180 625 160 520 C150 475 175 445 220 410 Z"/>
+        <path class="zone" d="M1020 445 C1130 390 1290 425 1395 520 C1500 620 1440 760 1285 775 C1120 790 1015 690 985 570 C970 515 980 470 1020 445 Z"/>
+
+        <path class="mountain" d="M120 220 C240 260 335 330 430 420 C515 500 600 560 720 610"/>
+        <path class="mountain" d="M340 150 C500 125 650 150 770 220 C885 285 955 350 1040 430"/>
+        <path class="mountain" d="M870 180 C1030 160 1185 190 1330 260"/>
+        <path class="mountain" d="M320 710 C450 690 585 720 735 790"/>
+
+        <path class="river" d="M565 165 C610 245 705 295 825 305 C970 320 1085 345 1195 410 C1295 470 1390 485 1505 455"/>
+        <path class="river" d="M350 575 C515 545 670 560 825 610 C1000 665 1120 695 1275 695 C1405 695 1515 730 1620 780"/>
+        <path class="river" d="M835 315 C840 405 875 500 870 610"/>
+
+        <path class="road" d="M450 505 C555 430 665 390 795 405 C920 420 1020 465 1135 525"/>
+        <path class="road" d="M795 405 C760 495 745 570 720 650"/>
+        <path class="road" d="M1135 525 C1240 570 1350 610 1465 675"/>
+
+        <circle class="city" cx="830" cy="404" r="13"/><text class="label small-label" x="850" y="397">Luoyang/Henan anchor zone</text>
+        <circle class="city" cx="575" cy="455" r="12"/><text class="label small-label" x="595" y="450">Guanzhong/Chang'an zone</text>
+        <circle class="city" cx="1078" cy="535" r="11"/><text class="label small-label" x="1098" y="532">Huai-Si corridor</text>
+        <circle class="city" cx="1352" cy="700" r="11"/><text class="label small-label" x="1372" y="704">Jiangdong water network</text>
+        <circle class="city" cx="420" cy="610" r="11"/><text class="label small-label" x="440" y="615">Bashu/Hanzhong basin</text>
+
+        <text class="label" x="650" y="280">Yellow River review corridor</text>
+        <text class="label" x="740" y="690">Yangtze review corridor</text>
+        <text class="label" x="155" y="300">Qinling / western passes</text>
+        <text class="label" x="995" y="230">northern mountain belt</text>
+      </svg>
+    </div>
+
+    <div class="legend">
+      <span class="key"><span class="swatch" style="background:#3c9cd8"></span>major river review corridor</span>
+      <span class="key"><span class="swatch" style="background:#82562f"></span>mountain/pass belt</span>
+      <span class="key"><span class="swatch" style="background:#e6c57a"></span>road/pass review corridor</span>
+      <span class="key"><span class="swatch" style="background:#ffde70"></span>key city anchor zone</span>
+    </div>
+
+    <section class="panel">
+      <div class="note"><b>Purpose:</b> Stage 1 low-resolution review overlay. It checks broad art grammar and Tier A/B geography intent, not final data coordinates.</div>
+      <div class="note"><b>Author pre-review:</b> v1 is visually useful for national art direction, but not geography PASS. Overall coastline/river/city placement still needs producer review and likely tighter control.</div>
+      <div class="note"><b>Runtime:</b> none. This file and image stay in docs/map_design only.</div>
+    </section>
+  </main>
+</body>
+</html>

@@ -363,3 +363,35 @@ Current status:
 
 - Map workflow is now ready for producer review as a controlled Stage 0 document.
 - Next action remains Stage 1 national low-resolution concept only after producer approves this revised workflow.
+
+## 2026-06-07 Stage 1 National Concept Scale Lesson
+
+Producer approved the Stage 0 national-first workflow, then reviewed the first Stage 1 national concepts.
+
+Key feedback:
+
+- v1 has the preferred calmer organic style direction over v2.
+- v2's style is acceptable, but its national-scope scale grammar is wrong.
+- In a national map, city footprints and terrain marks must be much smaller and more delicate. A single city must not visually approach the size of Taiwan, a major island, a basin, or another large regional geography feature.
+- The same scale rule applies to mountains, rivers, forests, fields, roads, and city detail: at national scope these should read as fine map texture/detail systems, not local-crop objects.
+- If the concept remains nationwide, either the canvas/detail density must support much finer information, or the art must avoid over-rendering local objects.
+
+Practical rule for future prompts/reviews:
+
+- Preserve v1-like organic ink/watercolor style when possible.
+- Explicitly constrain cities to tiny national-map marks, with capitals only slightly larger.
+- Treat mountains as ridge systems, rivers as thin hierarchical brush lines, forests/fields as micro-patterns, and roads/pass corridors as hairline geography.
+- Do not approve a national concept only because the style is good; reject/rework if scale grammar is local instead of national.
+
+Follow-up terrain lesson:
+
+- v3 fixed scale better than v1/v2, but overcorrected into a weak terrain skeleton: the middle became too much like one large flat plain and mountains lost structure.
+- Stage 1 national concept review must pass three separate checks: style, national-scale detail size, and rough terrain plausibility.
+- Before generating another candidate, use `docs/map_design/work/national_concept/terrain_plausibility_audit_v1.md` as the control layer for mountain belts, bounded plains/basins, river hierarchy, and pass/corridor logic.
+
+Actual-terrain correction:
+
+- v4 improved the game-level terrain skeleton, but an actual-China terrain audit still marked it `REWORK`.
+- Do not confuse "terrain-rich and game-plausible" with "roughly faithful to real China terrain." They are separate gates.
+- Future national concepts should explicitly control: Qinling as an east-west north/south divide; Taihang as the west edge of the North China Plain; a broad open North China Plain; enclosed Chengdu and Hanzhong basins; Wushan/Three Gorges/Yiling as a river-mountain choke; and non-uniform southern/southeastern hill systems.
+- v5 is the first author-preferred candidate for rough actual-terrain control: North China Plain reads more open, Taihang-like edge is clearer, and basin/corridor relationships are more legible. Remaining caution: v5 is still concept art, not Stage 8 data alignment.

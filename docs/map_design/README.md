@@ -10,9 +10,10 @@ Current direction:
 
 Current state:
 
-- Active stage: Stage 0, producer review of `MAP_MASTER_WORKFLOW_v1.md`.
-- Active candidate: none.
-- Next proposed action: Stage 1 national low-resolution concept in `work/national_concept/`.
+- Active stage: Stage 1, national low-resolution concept.
+- Last producer decision: Stage 0 workflow approved on 2026-06-07.
+- Active candidate: `work/national_concept/national_concept_v5.png` (`PASS` author pre-review for rough actual-terrain control; pending producer decision).
+- Next proposed action: producer review of `national_concept_v5.png`, `national_concept_v5_overlay.html`, `national_concept_manifest_v5.md`, and `actual_terrain_audit_v1.md`.
 - Runtime state: no new map-art candidate from this folder is approved for promotion.
 
 Primary doc:
