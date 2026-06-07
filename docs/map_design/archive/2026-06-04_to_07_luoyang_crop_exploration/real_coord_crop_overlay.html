@@ -317,7 +317,10 @@
       <div class="controls">
         <p class="meta">底图候选</p>
         <div class="option-grid">
-          <button class="option" data-base="cityDetail" data-active="true">城郭细节 v5 · 坐标入图</button>
+          <button class="option" data-base="cityDetailV9" data-active="true">城郭细节 v9 · v6底+水墨城郭</button>
+          <button class="option" data-base="cityDetailV8" data-active="false">城郭细节 v8 · 水墨城郭全重绘</button>
+          <button class="option" data-base="cityDetailV6" data-active="false">城郭细节 v6 · 浅米色坐标入图</button>
+          <button class="option" data-base="cityDetail" data-active="false">城郭细节 v5 · 坐标入图</button>
           <button class="option" data-base="clean" data-active="false">干净底图 v4 · 城郭入图</button>
           <button class="option" data-base="aligned" data-active="false">成品候选 v3 · 坐标对齐</button>
           <button class="option" data-base="hd" data-active="false">高清 bitmap · 2x</button>
@@ -347,7 +350,7 @@
       </div>
 
       <div class="controls">
-        <p class="meta">v5 是城郭细节候选；v4 是干净底图候选；v3 是坐标对齐旧底候选；v2 是坐标锚定底版，v1 是风格候选。</p>
+        <p class="meta">v9 是 v6 干净底 + v8 水墨城郭局部合成候选；v8 是城郭全重绘参考；v6 是当前 runtime 浅米色底；v5/v4/v3/v2/v1 保留用于对比。</p>
         <textarea id="coordReadout" class="readout" spellcheck="false" readonly></textarea>
       </div>
     </aside>
@@ -356,7 +359,7 @@
       <section class="stage">
         <svg viewBox="180 135 360 155" aria-label="Luoyang Changan real coordinate crop">
           <g id="baseLayer">
-            <image id="baseImage" class="base-image" data-treatment="normal" href="real_coord_crop_base_city_detail_v5.png" x="180" y="135" width="360" height="155" preserveAspectRatio="xMidYMid meet"/>
+            <image id="baseImage" class="base-image" data-treatment="normal" href="real_coord_crop_base_city_detail_v9.png" x="180" y="135" width="360" height="155" preserveAspectRatio="xMidYMid meet"/>
             <rect class="crop-mask" x="0" y="0" width="960" height="740"/>
             <rect class="crop-frame" x="180" y="135" width="360" height="155"/>
           </g>
@@ -388,6 +391,24 @@
     const HEX_H = Math.sqrt(3) * HEX_SIZE;
     const CROP = { x: 180, y: 135, w: 360, h: 155 };
     const baseSources = {
+      cityDetailV9: {
+        href: 'real_coord_crop_base_city_detail_v9.png',
+        frame: CROP,
+        preserve: 'xMidYMid meet',
+        note: 'v6 terrain base with higher-detail ink-wash city artwork composited at fixed anchors'
+      },
+      cityDetailV8: {
+        href: 'real_coord_crop_base_city_detail_v8.png',
+        frame: CROP,
+        preserve: 'xMidYMid meet',
+        note: 'higher-detail ink-wash city-wall candidate, generated from v6 direction'
+      },
+      cityDetailV6: {
+        href: 'real_coord_crop_base_city_detail_v6.png',
+        frame: CROP,
+        preserve: 'xMidYMid meet',
+        note: 'lighter beige city-detail terrain base with coordinate-locked settlements'
+      },
       cityDetail: {
         href: 'real_coord_crop_base_city_detail_v5.png',
         frame: CROP,
@@ -431,7 +452,7 @@
         note: 'generated crop candidate, visual alignment only'
       }
     };
-    let currentBase = 'cityDetail';
+    let currentBase = 'cityDetailV9';
 
     const cities = [
       { id: 'anding', name: '安定', q: 23, r: 20, size: 'small', tags: '山地/产马', label: [-11, -17] },

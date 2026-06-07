@@ -231,6 +231,40 @@ Current judgment:
 - There is still a visible compositing/patch-edge risk around some city inserts, especially when inspecting the raw base without overlay. If v5 is approved as a direction, the next polish pass should focus on edge blending and making inserted settlements feel more naturally painted into the local ground.
 - Do not regress to AI-free city placement. Any future city-detail pass should keep city centers deterministic and use generated art only as source material or style reference.
 
+## 2026-06-07 Lighter Candidate v6
+
+Responded to producer comments after v5 was merged into the game:
+
+- v5 was visually close but felt too yellow/deep/dirty in-game.
+- v5 had local defects: Luoyang looked partially cut off, and Guandu did not read as a clear static node.
+- Producer also observed possible map zoom/rendering stutter.
+
+Added:
+
+- `docs/map_design/real_coord_crop_base_city_detail_v6.png`
+- `docs/map_design/real_coord_crop_base_city_detail_v6_overlay_preview.png`
+- `assets/maps/luoyang-changan-detail-v6.png`
+
+Updated:
+
+- `src/render/render_cache.js` now points the Luoyang-Changan detail LOD layer to v6.
+- The runtime SVG blur/mask was removed from the LOD layer because v6 pre-bakes crop-edge alpha feathering into the PNG.
+- `docs/map_design/real_coord_crop_overlay.html` now defaults to v6 while keeping v5/v4/v3/v2/v1 for comparison.
+
+Production method:
+
+- Used v4 as the cleaner coordinate-locked terrain base to avoid inheriting v5's visible patch-edge artifacts.
+- Regraded the base toward lighter beige / lower saturation / lower dirt contrast.
+- Added deterministic low-opacity settlement street/block detail at fixed workbench anchors.
+- Kept dynamic city labels, ownership, selected state, units, war/development state, hitboxes, and hex grid overlay-only.
+
+Current judgment:
+
+- v6 is cleaner and lighter than v5 and is safer for in-game use.
+- It sacrifices some of v5's high-detail richness, but avoids the unacceptable source-patch artifacts around Luoyang and Guandu.
+- Next visual step, if needed, should improve settlement richness without importing rectangular source patches; any richer city artwork must still be placed by deterministic anchors.
+- Larger consistency audit remains later: full bitmap terrain, local bottom map, and hex city/terrain data should be compared before broad rollout.
+
 ## 2026-06-07 In-Game LOD Vertical Slice
 
 Implemented the first in-game vertical slice for the approved zoom-level detail-layer direction:
@@ -260,3 +294,72 @@ Current judgment:
 - This is a proper vertical slice, not a full integration. It validates the experience model: old full-map bitmap at macro zoom, v5 detail crop emerging as the player zooms into the Luoyang-Changan corridor.
 - The v5 art remains behind fog, roads, city icons, labels, units, and selection state. This preserves dynamic gameplay readability but means city-footprint art is naturally subdued in real play.
 - Next design review should be based on in-game screenshots, not raw base-map inspection. Main questions: whether the zoom thresholds feel right, whether city icons should become subtler at high zoom, and whether terrain microdetail interferes with labels/units.
+
+## 2026-06-07 City Detail v8/v9 Candidates
+
+Responded to producer rejection of the first v7 attempt:
+
+- Rejected v7 because the main city outer walls read as straight engineered/UI frames rather than city walls painted into the base map.
+- Kept v6 as the reliable style base: light beige, clean, no obvious patch edges, runtime PNG feathering already baked.
+- Generated `docs/map_design/real_coord_crop_base_city_detail_v8.png` as a full-image city-detail candidate from v6 direction. It improved city wall/detail quality, with broken ink-wall curves, gates, inner blocks, and clearer Guandu/Chenliu area, but the whole terrain became heavier and more fully redrawn than v6.
+- Built `docs/map_design/real_coord_crop_base_city_detail_v9.png` as the current safer candidate: v6 terrain base plus v8 city-detail patches composited only around fixed workbench anchors with feathered local masks.
+- Added overlay previews:
+  - `docs/map_design/real_coord_crop_base_city_detail_v8_overlay_preview.png`
+  - `docs/map_design/real_coord_crop_base_city_detail_v9_overlay_preview.png`
+- Updated `docs/map_design/real_coord_crop_overlay.html` so v9 is the default workbench candidate, while v8/v6/v5/v4/v3/v2/v1 remain selectable.
+
+Current judgment:
+
+- v9 better matches the producer-approved v6 direction than v8: it preserves the clean light terrain and improves city readability without using straight city-frame outlines.
+- v8 remains useful as a high-detail source/reference, not as the safest runtime candidate.
+- v9 still has a mild local-composite risk around city patches. If approved for runtime, the next polish should focus on weakening patch boundaries and matching local paper/ink density, not on letting the model freely repaint the whole crop.
+- Runtime remains on `assets/maps/luoyang-changan-detail-v6.png` until producer approval.
+
+## 2026-06-07 National Map Workflow Pivot
+
+Producer questioned whether continuing to polish the Luoyang crop was the right path, given that v8/v9 still lacked the detail grammar of the original concept image: fields, forests, riverbanks, terrain, city walls, roads, and settlement density all need to improve together.
+
+New working conclusion:
+
+- Stop treating the Luoyang-Changan crop as the next final art target.
+- Move to a national-first map-art workflow.
+- Current city/hex coordinates are review anchors, not immutable pixel truth. If the final bitmap is redrawn nationally, `CITY_BASE`, `HEX_TERRAIN`, roads, and river data can later be aligned toward the approved visual master within explicit tolerances.
+- Keep new map-art exploration isolated under `docs/map_design/` until producer approval; do not promote to runtime `assets/maps/` during exploration.
+
+Added:
+
+- `docs/map_design/MAP_MASTER_WORKFLOW_v1.md` as the master workflow and risk/control document.
+- `docs/map_design/README.md` as the map workspace index.
+- `docs/map_design/work/` subfolders for national concept, art kit, representative tiles, tile plan, stitch, and data alignment.
+- `docs/map_design/archive/2026-06-04_to_07_luoyang_crop_exploration/` containing the old terrain-base, vertical-slice, real-coordinate crop, and v1-v9 experiment files.
+
+Next approved-flow candidate:
+
+- Stage 1 should generate a national low-resolution concept under `docs/map_design/work/national_concept/`, using the producer's concept reference as the detail target.
+- Do not continue by generating another `v10` Luoyang crop unless producer explicitly redirects.
+
+## 2026-06-07 Master Workflow Review
+
+Reviewed `MAP_MASTER_WORKFLOW_v1.md` with a two-layer process: author self-review plus an independent sub-agent review.
+
+Review result:
+
+- Direction approved in principle, but the first draft was not executable enough.
+- Main gaps: representative tiles came before tile planning, elastic coordinates lacked hard boundaries, data alignment was too late, AI generation was not reproducible, review gates were too subjective, art kit roles were ambiguous, seam audit lacked outputs, and README lacked active-state tracking.
+
+Revisions applied:
+
+- Rewrote `MAP_MASTER_WORKFLOW_v1.md` with independent-review fixes.
+- Added `Geography Control Layer` with Tier A/B/C control levels and movement budgets.
+- Moved tile planning before representative high-resolution tiles.
+- Required data/anchor overlays from Stage 1 onward; final data alignment is now a migration proposal, not first discovery.
+- Added explicit `PASS` / `REWORK` / `STOP` or equivalent gates per stage.
+- Clarified art-kit classes: `reference-only`, `texture-patch`, and `compositable-element`.
+- Added reproducibility controls via `CANDIDATE_MANIFEST_TEMPLATE.md`.
+- Added `WORKLOG.md` for cross-session active-state tracking.
+- Added archive `ARCHIVE_INDEX.md`.
+
+Current status:
+
+- Map workflow is now ready for producer review as a controlled Stage 0 document.
+- Next action remains Stage 1 national low-resolution concept only after producer approves this revised workflow.
