@@ -201,3 +201,62 @@ Current judgment:
 - v4 is cleaner than v3 because it does not inherit the dirty bitmap texture.
 - v4 preserves the real-coordinate discipline of v3: overlay preview confirms the city centers land inside the baked city artwork.
 - The city artwork is deliberately subdued so it reads as part of the map base instead of as clickable UI. Further polish, if any, should continue to keep city/pass placement deterministic and should not let AI freely position settlements.
+
+## 2026-06-07 City Detail Candidate v5
+
+Responded to producer comments on v4:
+
+- v4's city artwork read too much like faint footprint markers rather than real fortified settlements painted into the map.
+- v4's terrain style was acceptable, but the detail density was weaker than the earliest concept images in `docs/map_design`.
+
+Added:
+
+- `docs/map_design/real_coord_crop_base_city_detail_v5.png`
+- `docs/map_design/real_coord_crop_base_city_detail_v5_overlay_preview.png`
+
+Updated:
+
+- `docs/map_design/real_coord_crop_overlay.html` now defaults to v5 via `cityDetail` / `?base=cityDetail`, while retaining v4/v3/v2/v1 comparison options.
+
+Production method:
+
+- Generated a high-detail terrain-only base with no cities, labels, hexes, UI, ownership, units, or dynamic state.
+- Generated a separate high-detail city concept source, but did not use its free city placement as authoritative.
+- Composited city artwork onto the terrain-only base using the existing workbench anchors derived from `hexToPixel` and crop frame `x180 y135 w360 h155`.
+- This preserves the coordinate discipline of v3/v4 while restoring stronger fortified-city detail and richer field/road/riverbank texture.
+
+Current judgment:
+
+- v5 is a better response to the two producer comments than v4: city walls and inner blocks are visibly present, and the terrain has more concept-like microdetail.
+- There is still a visible compositing/patch-edge risk around some city inserts, especially when inspecting the raw base without overlay. If v5 is approved as a direction, the next polish pass should focus on edge blending and making inserted settlements feel more naturally painted into the local ground.
+- Do not regress to AI-free city placement. Any future city-detail pass should keep city centers deterministic and use generated art only as source material or style reference.
+
+## 2026-06-07 In-Game LOD Vertical Slice
+
+Implemented the first in-game vertical slice for the approved zoom-level detail-layer direction:
+
+- Copied v5 into the runtime asset path as `assets/maps/luoyang-changan-detail-v5.png`.
+- Added a `mapDetailLodLayer` image inside the existing static map cache, using the same crop frame `x180 y135 w360 h155`.
+- The layer only appears in ink-map mode. Grid mode remains unchanged and does not load the v5 crop.
+- Opacity is driven by current map zoom:
+  - scale `< 1.35`: opacity 0
+  - scale `1.35 -> 2.05`: crossfade 0 -> 1
+  - scale `> 2.05`: opacity 1
+- Zoom transform-only updates now also sync LOD opacity, so wheel zoom changes the crossfade immediately instead of waiting for the debounced full render.
+- Added an SVG feather mask to the crop image so the detail layer blends into the old global bitmap instead of reading as a hard rectangle.
+
+Focused verification:
+
+- `node -c src/render/render_cache.js`, `src/render/map_render.js`, and `src/render/map_interaction.js` PASS.
+- Visual harness `map_lod_v5_feather` on 190 Dong Zhuo start confirmed:
+  - far opacity `0.000`
+  - mid opacity `0.500`
+  - near opacity `1.000`
+  - grid mode has no v5 layer
+  - no browser console/page errors
+
+Current judgment:
+
+- This is a proper vertical slice, not a full integration. It validates the experience model: old full-map bitmap at macro zoom, v5 detail crop emerging as the player zooms into the Luoyang-Changan corridor.
+- The v5 art remains behind fog, roads, city icons, labels, units, and selection state. This preserves dynamic gameplay readability but means city-footprint art is naturally subdued in real play.
+- Next design review should be based on in-game screenshots, not raw base-map inspection. Main questions: whether the zoom thresholds feel right, whether city icons should become subtler at high zoom, and whether terrain microdetail interferes with labels/units.

@@ -26,6 +26,24 @@ let _staticMapCache = '';
 let _mapShowGrid = false;
 const MAP_INK_BASE_ASSET = 'assets/maps/china-ink-base-v1.png';
 const MAP_INK_BASE_VIEW = { x: 0, y: -12, w: 1360, h: 765 };
+const MAP_DETAIL_LOD_ASSET = 'assets/maps/luoyang-changan-detail-v5.png';
+const MAP_DETAIL_LOD_VIEW = { x: 180, y: 135, w: 360, h: 155 };
+const MAP_DETAIL_LOD_FADE = { start: 1.35, end: 2.05 };
+
+function _mapDetailLodOpacity(scale) {
+  if (_mapShowGrid) return 0;
+  const s = typeof scale === 'number'
+    ? scale
+    : (typeof _mapScale === 'number' ? _mapScale : 1);
+  const t = (s - MAP_DETAIL_LOD_FADE.start) / (MAP_DETAIL_LOD_FADE.end - MAP_DETAIL_LOD_FADE.start);
+  return Math.max(0, Math.min(1, t));
+}
+
+function _syncMapDetailLodOpacity() {
+  const el = document.getElementById('mapDetailLodLayer');
+  if (el) el.setAttribute('opacity', _mapDetailLodOpacity().toFixed(3));
+}
+
 function toggleMapStyle() {
   _mapShowGrid = !_mapShowGrid;
   const btn = document.getElementById('ov-btn-mapstyle');
@@ -50,6 +68,19 @@ function _buildStaticMapCache() {
     preserveAspectRatio="xMidYMid slice" opacity="${inkMode ? '0.84' : '0.74'}" pointer-events="none"/>`;
   h += `<rect x="0" y="0" width="960" height="740" fill="${inkMode ? 'rgba(246,249,240,.22)' : 'rgba(245,238,225,.26)'}" pointer-events="none"/>`;
   if(inkMode) h += `<rect x="0" y="0" width="960" height="740" fill="rgba(218,235,230,.08)" pointer-events="none"/>`;
+  if(inkMode) {
+    h += `<defs>
+      <filter id="mapDetailLodFeather" x="150" y="105" width="420" height="215" filterUnits="userSpaceOnUse">
+        <feGaussianBlur stdDeviation="8"/>
+      </filter>
+      <mask id="mapDetailLodMask" maskUnits="userSpaceOnUse" x="0" y="0" width="960" height="740">
+        <rect x="0" y="0" width="960" height="740" fill="black"/>
+        <rect x="${MAP_DETAIL_LOD_VIEW.x + 8}" y="${MAP_DETAIL_LOD_VIEW.y + 8}" width="${MAP_DETAIL_LOD_VIEW.w - 16}" height="${MAP_DETAIL_LOD_VIEW.h - 16}" fill="white" filter="url(#mapDetailLodFeather)"/>
+      </mask>
+    </defs>`;
+    h += `<image id="mapDetailLodLayer" href="${MAP_DETAIL_LOD_ASSET}" x="${MAP_DETAIL_LOD_VIEW.x}" y="${MAP_DETAIL_LOD_VIEW.y}" width="${MAP_DETAIL_LOD_VIEW.w}" height="${MAP_DETAIL_LOD_VIEW.h}"
+      preserveAspectRatio="xMidYMid meet" mask="url(#mapDetailLodMask)" opacity="${_mapDetailLodOpacity().toFixed(3)}" pointer-events="none" style="transition:opacity .28s ease-out"/>`;
+  }
 
   // 底色：plain透明，其他极淡
   const INK_FILL = inkMode ? {

@@ -199,6 +199,7 @@ function renderMap(){
     if (ul) ul.innerHTML = renderUnitsOnMap('icons');
     if (ml) ml.innerHTML = _renderMoveRange();
     existingRoot.setAttribute('transform', `translate(${_mapTx.toFixed(1)},${_mapTy.toFixed(1)}) scale(${_mapScale.toFixed(4)})`);
+    if (typeof _syncMapDetailLodOpacity === 'function') _syncMapDetailLodOpacity();
     svg.style.cursor = G.selUnitId ? 'crosshair' : 'default';
     return;
   }
@@ -278,6 +279,7 @@ function renderMap(){
   if (fogLayer && typeof _getFogRenderKey === 'function') fogLayer.setAttribute('data-render-key', _getFogRenderKey());
   const citiesLayer = document.getElementById('citiesLayer');
   if (citiesLayer && typeof _getCityRenderKey === 'function') citiesLayer.setAttribute('data-render-key', _getCityRenderKey('known'));
+  if (typeof _syncMapDetailLodOpacity === 'function') _syncMapDetailLodOpacity();
 }
 
 /**

@@ -391,6 +391,7 @@ let _zoomRenderTimer = null;
 function _applyMapTransformOnly(){
   const root = document.getElementById('mapRoot');
   if(root) root.setAttribute('transform',`translate(${_mapTx.toFixed(1)},${_mapTy.toFixed(1)}) scale(${_mapScale.toFixed(4)})`);
+  if(typeof _syncMapDetailLodOpacity === 'function') _syncMapDetailLodOpacity();
 }
 function _debouncedMapRender(){
   if(_zoomRenderTimer) clearTimeout(_zoomRenderTimer);
