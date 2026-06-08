@@ -89,3 +89,11 @@
 - Author light review: v2_01 is a stronger defensive checkpoint than v1_03; v2_02/v2_03/v2_04 reduce the prior forest-density issue; no obvious pseudo-city marks found in light review.
 - All v2 images remain `REFERENCE_ONLY`, pending producer image review.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 2 Art Kit v2 Producer Review
+
+- Producer accepted all four Stage 2 v2 images as usable references.
+- `stage2_art_kit_v2_01_pass_fort_reference.png` is now the preferred pass-fort / defensive-checkpoint reference over rejected v1 image 03.
+- `stage2_art_kit_v2_02_foothill_forest_reference.png`, `stage2_art_kit_v2_03_mountain_pass_reference.png`, and `stage2_art_kit_v2_04_road_pass_reference.png` are accepted as lighter forest / mountain-pass / road-pass references.
+- All v2 images remain `REFERENCE_ONLY`; they are not runtime assets and were not promoted to `assets/maps/`.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified by this review pass.

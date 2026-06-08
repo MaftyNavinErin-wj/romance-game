@@ -73,10 +73,10 @@ The mountain-pass prompt initially failed twice through the generator stream. A 
 
 - City/fort clarity: v2_01 has a clearer defensive checkpoint profile than v1_03 and is the current best pass-fort reference candidate.
 - Field/farmland detail: not targeted in v2.
-- Forest/foothill detail: v2_02 is more open than prior dense examples but remains pending producer judgment.
+- Forest/foothill detail: v2_02 is more open than prior dense examples and accepted by producer as usable reference material.
 - Riverbank/water detail: not targeted in v2.
 - Mountain/pass readability: v2_03 and v2_04 have readable mountain/pass and route logic with lower forest density than v1_07/v1_08.
-- Style consistency: broadly compatible with the parchment ink-map direction, pending producer review.
+- Style consistency: producer accepted all four v2 references as usable for the parchment ink-map direction.
 - Patch/seam risk: not reviewed; these are not composited or runtime assets.
 
 ## Pseudo-City Risk Control
@@ -94,7 +94,11 @@ The mountain-pass prompt initially failed twice through the generator stream. A 
 
 ## Producer Decision
 
-- Decision: pending producer image review.
-- Required changes: producer should decide whether v2_01 replaces v1_03 as the fort/pass-defense reference and whether v2_02/v2_03/v2_04 sufficiently reduce forest density.
-- Reject/rework reason: pending.
-
+- Decision: producer accepted all four v2 references on 2026-06-08; status remains `REFERENCE_ONLY`.
+- Image verdicts:
+  - `stage2_art_kit_v2_01_pass_fort_reference.png`: `KEEP_REFERENCE`; use as the preferred pass-fort / defensive-checkpoint reference over v1 image 03.
+  - `stage2_art_kit_v2_02_foothill_forest_reference.png`: `KEEP_REFERENCE`; use as a lighter foothill forest reference.
+  - `stage2_art_kit_v2_03_mountain_pass_reference.png`: `KEEP_REFERENCE`; use as a mountain-pass terrain reference.
+  - `stage2_art_kit_v2_04_road_pass_reference.png`: `KEEP_REFERENCE`; use as a road/pass corridor reference.
+- Required changes: none for Stage 2 v2.
+- Reject/rework reason: not applicable.
