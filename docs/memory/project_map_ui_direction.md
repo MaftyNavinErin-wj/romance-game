@@ -421,3 +421,15 @@ Actual-terrain correction:
 - Stage 2 v2 generated four weak-slot references: pass fort, foothill forest, mountain pass, and road/pass corridor.
 - Author light review: v2 pass fort is stronger than v1 image 03 as a defensive checkpoint; v2 terrain references reduce forest density compared with v1 images 07/08.
 - All v2 images remain reference-only and still need producer image review before they guide later tile production.
+
+## 2026-06-08 Stage 4 Representative Tile Perspective Constraint
+
+- Producer accepted `rep_guanzhong_henan_v3`'s lower oblique perspective as usable, despite it being lower and more 3D-feeling than v1.
+- Hard constraint for later full-map bottom tiles: perspective must remain consistent across tiles.
+- Review gate should compare camera height, horizon treatment, city scale, mountain scale, river width, and field-grid density. Any tile that drifts into a noticeably different view angle should be reworked instead of accepted just because the local art looks good.
+- Additional v3 terrain audit: the large near-vertical river beside the right/eastern city is suspect if that city is Luoyang. Future Guanzhong-Henan attempts should keep v3 perspective but correct Luoyang water grammar: Yellow River farther north/upper side, Luo/Yiluo water near Luoyang reading more west-east/horizontal, and no dominant vertical river hugging the city.
+- `rep_guanzhong_henan_v4` was generated as the first correction attempt: perspective broadly matches v3, the dominant vertical river beside Luoyang is removed, and the main river reads more horizontally in the upper/northern band. Remaining review risk: dense tree/field clusters and strong upper river may still need producer judgment.
+- Producer accepted `rep_guanzhong_henan_v4` as the current first Stage 4 representative reference candidate. Next representative brief is `stage4_rep_bashu_hanzhong_v1_generation_brief.md`; it must preserve v4 perspective while testing Hanzhong/Bashu basin and mountain-corridor grammar.
+- `rep_bashu_hanzhong_v1` was generated. Light review: perspective is broadly consistent with v4, enclosed basin and west-east Han River read well. Review risks: two large city footprints may be too dense, roads may read too clean, and tree/field clusters need pseudo-settlement review at game scale.
+- Producer accepted `rep_bashu_hanzhong_v1`; perspective, city treatment, and terrain material are consistent with the Luoyang-Changan / Guanzhong-Henan representative direction. This is a positive signal for Stage 4 cross-tile visual consistency.
+- Third representative brief `stage4_rep_huaisi_jiangdong_v1_generation_brief.md` targets Huai-Si/Jiangdong lowland water-network differentiation while preserving the v4/Bashu perspective and material language. Built-in imagegen attempts 1-6 failed with `ServerError`; no image candidate yet.

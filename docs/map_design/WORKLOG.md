@@ -5,8 +5,8 @@
 - Current approved runtime map asset: unchanged from the existing game state.
 - Current map-art workflow status: Stage 1 national concept, Stage 2 art-kit references, and Stage 3 provisional tile plan approved.
 - Active stage: Stage 4, representative tiles.
-- Active candidate: pending first representative tile production decision.
-- Next proposed action: choose and generate the first Stage 4 representative tile candidate.
+- Active candidate: `stage4_rep_huaisi_jiangdong_v1_generation_brief.md`, image candidate pending generation.
+- Next proposed action: retry built-in image generation for `rep_huaisi_jiangdong_v1`.
 
 ## Decisions
 
@@ -53,6 +53,16 @@
 - Added `work/national_concept/national_concept_v5.png`.
 - Added `work/national_concept/national_concept_v5_overlay.html`.
 - Added `work/national_concept/national_concept_manifest_v5.md`.
+- Added `work/representative_tiles/rep_guanzhong_henan_v2.png`.
+- Added `work/representative_tiles/rep_guanzhong_henan_v2_manifest.md`.
+- Added `work/representative_tiles/rep_guanzhong_henan_v3.png`.
+- Added `work/representative_tiles/rep_guanzhong_henan_v3_manifest.md`.
+- Added `work/representative_tiles/rep_guanzhong_henan_v4.png`.
+- Added `work/representative_tiles/rep_guanzhong_henan_v4_manifest.md`.
+- Added `work/representative_tiles/stage4_rep_bashu_hanzhong_v1_generation_brief.md`.
+- Added `work/representative_tiles/rep_bashu_hanzhong_v1.png`.
+- Added `work/representative_tiles/rep_bashu_hanzhong_v1_manifest.md`.
+- Added `work/representative_tiles/stage4_rep_huaisi_jiangdong_v1_generation_brief.md`.
 
 ## 2026-06-08 Stage 2 Art Kit v1 Recovery
 
@@ -148,4 +158,101 @@
 - Added `docs/map_design/work/representative_tiles/stage4_rep_guanzhong_henan_v2_generation_brief.md`.
 - v2 target: two cities only (Chang'an and Luoyang) plus an optional historically anchored Hangu Pass west of Luoyang.
 - Built-in image generation was attempted three times and failed with `ServerError`; no v2 image candidate was produced.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Guanzhong-Henan Representative Tile v2 Generation
+
+- Retried built-in image generation for `rep_guanzhong_henan_v2`.
+- One new built-in attempt failed with `ServerError`; a second shorter prompt succeeded.
+- Added `docs/map_design/work/representative_tiles/rep_guanzhong_henan_v2.png`.
+- Added `docs/map_design/work/representative_tiles/rep_guanzhong_henan_v2_manifest.md`.
+- v2 uses the producer-approved fallback path: no pass/checkpoint is drawn, because a misplaced Hangu Pass would be worse than omitting the pass.
+- Author light review: only two city footprints are visible; no random mini-cities, villages, temples, roadside buildings, riverbank hamlets, or extra forts found in light review. Rivers are more restrained than v1 overall, though the right-side main river remains visually strong. Forest and mountain density are more controlled than v1.
+- Format caution: generated output is `1254 x 1254`, not the same aspect ratio as v1; review as a visual candidate, not a final crop-size candidate.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Guanzhong-Henan Representative Tile v2 Producer Feedback
+
+- Producer judged v2 much worse than v1 despite its rule compliance.
+- Main issue: v2 loses the stronger v1 regional-map quality and should not be advanced.
+- Approved next direction: generate v3 with a v1-like wide regional composition, keep only Chang'an and Luoyang, and omit passes/forts entirely rather than risking incorrect Hangu Pass placement.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Guanzhong-Henan Representative Tile v3 Generation
+
+- Retried built-in image generation for `rep_guanzhong_henan_v3`.
+- Two built-in attempts failed with `ServerError`; a third minimal prompt succeeded.
+- Added `docs/map_design/work/representative_tiles/rep_guanzhong_henan_v3.png`.
+- Added `docs/map_design/work/representative_tiles/rep_guanzhong_henan_v3_manifest.md`.
+- v3 follows the approved direction: v1-like wide regional corridor quality, two cities only, and no pass/checkpoint/fort.
+- Author light review: v3 is much stronger than v2 and closer to v1's successful regional composition. Only Chang'an and Luoyang are visible as city footprints; no random mini-cities, villages, temples, roadside buildings, riverbank hamlets, or extra forts found in light review. Eastern/right-side river remains visually significant and should receive producer review.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Guanzhong-Henan Representative Tile v3 Perspective Feedback
+
+- Producer accepted v3's lower oblique perspective as usable.
+- New hard review constraint: later full-map bottom tiles must keep perspective consistent instead of letting each tile drift independently.
+- Practical gate for later tiles: camera height, horizon treatment, city scale, mountain scale, river width, and field-grid density must remain visibly compatible with the approved perspective reference.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Guanzhong-Henan Representative Tile v3 Terrain Audit
+
+- Producer questioned the right/eastern city's river geometry: if the city is Luoyang, the large near-vertical river beside it may be wrong.
+- Audit conclusion: the concern is valid. Luoyang should read in a Luo River / Yiluo corridor context, with the Yellow River farther north/upper side. A dominant vertical river hugging Luoyang should not become the geography reference.
+- Required next candidate correction: keep v3's accepted perspective, but make Luoyang-side water more east-west/horizontal and avoid a large vertical river immediately beside the city.
+- Built-in image generation was attempted three times for a corrected v4 perspective/river test and failed with `ServerError`; no v4 image candidate was produced.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Guanzhong-Henan Representative Tile v4 Generation
+
+- Retried built-in image generation for `rep_guanzhong_henan_v4`; the next short prompt succeeded.
+- Added `docs/map_design/work/representative_tiles/rep_guanzhong_henan_v4.png`.
+- Added `docs/map_design/work/representative_tiles/rep_guanzhong_henan_v4_manifest.md`.
+- v4 target: preserve v3's accepted lower oblique perspective while correcting the Luoyang-side water structure.
+- Author light review: v4 keeps a perspective broadly consistent with v3, restores `1672 x 941` wide tile dimensions, shows only two main city footprints, removes the dominant vertical river beside Luoyang, and places the main river more horizontally on the upper/northern side. Remaining producer-review risks: upper river visual strength, dense plain field/tree marks, and whether small clusters read as pseudo-settlements at game scale.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Guanzhong-Henan v4 Reference Decision
+
+- Producer accepted `rep_guanzhong_henan_v4` as the current Stage 4 first representative reference candidate.
+- Carry-forward constraint: perspective consistency remains a hard gate for later representative and production tiles.
+- Remaining caution for later review: upper river visual strength, dense plain field/tree marks, and pseudo-settlement risk at game scale.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Bashu-Hanzhong v1 Brief
+
+- Added `docs/map_design/work/representative_tiles/stage4_rep_bashu_hanzhong_v1_generation_brief.md`.
+- The brief defines the second representative tile target: Hanzhong-Bashu mountain basin/corridor.
+- Geography controls: Hanzhong should read as a long, narrow Han River basin between northern Qinling and southern Daba/Micang mountain systems; the Han River should read broadly west-east through the basin.
+- Producer constraints carried forward: preserve `rep_guanzhong_henan_v4` perspective, suppress pseudo-settlements, avoid UI-like roads, and do not promote anything to runtime.
+- Image generation not started; waiting for producer approval of the brief.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Bashu-Hanzhong v1 Generation
+
+- Generated `docs/map_design/work/representative_tiles/rep_bashu_hanzhong_v1.png` with the built-in image generation tool.
+- Added `docs/map_design/work/representative_tiles/rep_bashu_hanzhong_v1_manifest.md`.
+- Attempt log: one built-in `ServerError` failure, then one shorter prompt succeeded.
+- Author light review: v1 keeps perspective broadly consistent with `rep_guanzhong_henan_v4`, reads as an enclosed north/south mountain basin, and gives the Han River a subdued west-east course. Producer-review risks: two large city footprints may be too much built density, some roads may be too clean/straight, and field/tree density may create pseudo-settlement risk at game scale.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Bashu-Hanzhong v1 Producer Review
+
+- Producer accepted `rep_bashu_hanzhong_v1` as consistent with the previous Luoyang-Changan / Guanzhong-Henan representative direction.
+- Accepted aspects: perspective, city treatment, and terrain material.
+- This supports the current Stage 4 consistency goal across representative terrain types.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Huai-Si / Jiangdong v1 Brief And Generation Attempt
+
+- Added `docs/map_design/work/representative_tiles/stage4_rep_huaisi_jiangdong_v1_generation_brief.md`.
+- The brief defines the third representative tile target: Huai-Si / Jiangdong lowland water-network geography.
+- Geography controls: preserve the same low oblique perspective and terrain material language as the first two accepted representative directions, but differentiate by using branching waterways, wet fields, levee/ferry road logic, and distant low hills rather than mountain-basin framing.
+- Built-in image generation was attempted three times and failed with `ServerError`; no image candidate was produced.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Huai-Si / Jiangdong v1 Retry
+
+- Retried built-in image generation three more times for `rep_huaisi_jiangdong_v1`.
+- Attempts 4-6 all failed with `ServerError`; no image candidate was produced.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
