@@ -117,3 +117,35 @@
 - Approved: three independent Stage 4 representative crop candidates.
 - Clarified: representative crops are not a stitched set and do not need mutual overlap.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Guanzhong-Henan Representative Tile Brief
+
+- Added `docs/map_design/work/representative_tiles/stage4_rep_guanzhong_henan_v1_generation_brief.md`.
+- The brief defines the first Stage 4 representative tile target: Guanzhong-Henan / Luoyang-Changan.
+- The brief carries forward the Stage 1 caveat: road/river pseudo-settlement marks must be suppressed.
+- Built-in image generation was attempted twice and failed with `ServerError`; no image candidate was produced.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Guanzhong-Henan Representative Tile v1 Generation
+
+- Retried built-in image generation with a shorter prompt.
+- Generated `rep_guanzhong_henan_v1.png`.
+- Added `docs/map_design/work/representative_tiles/rep_guanzhong_henan_v1_manifest.md`.
+- Author light review: pseudo-settlement suppression is improved over v5; two cities and one pass fort are controlled. Main river width and southern forest density need producer review.
+- Candidate remains `REFERENCE_ONLY`, pending producer image review.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Guanzhong-Henan Representative Tile v1 Producer Review
+
+- Producer marked `rep_guanzhong_henan_v1` as `REWORK`.
+- Producer clarified pass policy: the tile should have only the two current game cities unless a pass/fort is historically grounded.
+- Pass landmarks are allowed only when they are plausible named historical passes in correct locations, such as Hulao, Hangu, or Tongguan, so they can support a future pass system.
+- If a pass cannot be placed correctly, it should be removed rather than used as decorative terrain.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Guanzhong-Henan Representative Tile v2 Attempt
+
+- Added `docs/map_design/work/representative_tiles/stage4_rep_guanzhong_henan_v2_generation_brief.md`.
+- v2 target: two cities only (Chang'an and Luoyang) plus an optional historically anchored Hangu Pass west of Luoyang.
+- Built-in image generation was attempted three times and failed with `ServerError`; no v2 image candidate was produced.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.

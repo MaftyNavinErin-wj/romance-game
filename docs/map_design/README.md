@@ -12,8 +12,8 @@ Current state:
 
 - Active stage: Stage 4, representative tiles.
 - Last producer decision: Stage 3 `tile_plan_v1` approved: 4 x 3 grid, 20% production-tile overlap, and three independent representative crop candidates.
-- Active candidate: pending first representative tile production decision.
-- Next proposed action: choose and generate the first Stage 4 representative tile candidate.
+- Active candidate: `work/representative_tiles/stage4_rep_guanzhong_henan_v2_generation_brief.md`; image candidate pending generation.
+- Next proposed action: retry built-in image generation for `rep_guanzhong_henan_v2` or use an explicitly approved fallback generation path.
 - Runtime state: no new map-art candidate from this folder is approved for promotion.
 
 Primary doc:
