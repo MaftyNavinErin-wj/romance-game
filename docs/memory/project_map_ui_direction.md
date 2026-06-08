@@ -395,3 +395,29 @@ Actual-terrain correction:
 - Do not confuse "terrain-rich and game-plausible" with "roughly faithful to real China terrain." They are separate gates.
 - Future national concepts should explicitly control: Qinling as an east-west north/south divide; Taihang as the west edge of the North China Plain; a broad open North China Plain; enclosed Chengdu and Hanzhong basins; Wushan/Three Gorges/Yiling as a river-mountain choke; and non-uniform southern/southeastern hill systems.
 - v5 is the first author-preferred candidate for rough actual-terrain control: North China Plain reads more open, Taihang-like edge is clearer, and basin/corridor relationships are more legible. Remaining caution: v5 is still concept art, not Stage 8 data alignment.
+
+## 2026-06-08 Stage 2 Art Kit Recovery
+
+- Stage 2 art kit v1 was recovered after a CLI stream interruption.
+- Recovered images are reference-only and must not be treated as runtime assets, final map art, or precise data authority.
+- Pseudo-city marks must not propagate into production terrain, riverbank, farmland, forest, mountain, road, or pass tiles.
+- True city and fort assets remain data-controlled for count, identity, and placement.
+
+## 2026-06-08 Stage 2 Art Kit v1 Producer Review
+
+- Producer liked art kit v1 images 01 and 02 as capital/city references.
+- Image 03 should not guide fort production: it feels rough, mismatched with 01/02, courtyard-like, too small, and weak as a defensive node.
+- Image 04 is better classified as pass/fort-terrain, image 05 as farmland/fields, and image 06 as small-river riverbank.
+- Images 07 and 08 have usable mountain/route structure, but future prompts and production should reduce dense hillside forest.
+
+## 2026-06-08 Stage 2 Art Kit v2 Direction
+
+- Next art-kit generation should not redo the full kit; focus only on weak slots.
+- Required weak-slot targets: a real pass fort / defensive checkpoint matching the 01/02 city style, lighter foothill forest, lower-density mountain pass, and lower-density road/pass corridor.
+- v2 generation must keep all outputs reference-only and continue banning pseudo-city marks in terrain/background images.
+
+## 2026-06-08 Stage 2 Art Kit v2 Generated
+
+- Stage 2 v2 generated four weak-slot references: pass fort, foothill forest, mountain pass, and road/pass corridor.
+- Author light review: v2 pass fort is stronger than v1 image 03 as a defensive checkpoint; v2 terrain references reduce forest density compared with v1 images 07/08.
+- All v2 images remain reference-only and still need producer image review before they guide later tile production.

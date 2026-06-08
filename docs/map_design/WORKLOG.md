@@ -52,3 +52,40 @@
 - Added `work/national_concept/national_concept_v5.png`.
 - Added `work/national_concept/national_concept_v5_overlay.html`.
 - Added `work/national_concept/national_concept_manifest_v5.md`.
+
+## 2026-06-08 Stage 2 Art Kit v1 Recovery
+
+- Recovered Stage 2 art kit v1 images from `C:\Users\jie.wang\.codex\generated_images\019ea517-5195-7910-b06b-96aa156a16a3\` after the previous CLI stream interruption.
+- Copied the recovered PNGs into `docs/map_design/work/art_kit/` with stable `stage2_art_kit_v1_*_reference.png` names.
+- Created `docs/map_design/work/art_kit/stage2_art_kit_v1_manifest.md`.
+- Created `docs/map_design/work/art_kit/README.md`.
+- All recovered images are marked `REFERENCE_ONLY`.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified by this recovery pass.
+
+## 2026-06-08 Stage 2 Art Kit v1 Producer Review
+
+- Recorded producer review notes in `docs/map_design/work/art_kit/stage2_art_kit_v1_manifest.md`.
+- Producer accepted 01 and 02 as useful capital/city references.
+- Producer rejected 03 as a fort reference because it mismatches 01/02, feels too rough and courtyard-like, and lacks defensive fort presence.
+- Corrected visible-content categories: 04 is pass/fort-terrain reference, 05 is farmland/field reference, and 06 is small-river riverbank reference.
+- Producer marked 07 mountain structure and 08 route/pass logic as usable with a forest-density caution.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified by this review pass.
+
+## 2026-06-08 Stage 2 Art Kit v2 Brief
+
+- Added `docs/map_design/work/art_kit/stage2_art_kit_v2_generation_brief.md`.
+- The brief narrows the next Stage 2 generation pass to weak slots only: pass fort / defensive checkpoint, lighter foothill forest, lower-density mountain pass, and lower-density road/pass corridor.
+- The brief preserves v1 images 01, 02, 05, and 06 as useful references and explicitly rejects v1 image 03 as fort guidance.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 2 Art Kit v2 Generation
+
+- Generated the approved weak-slot Stage 2 v2 reference set with the built-in image generation tool.
+- Added `stage2_art_kit_v2_01_pass_fort_reference.png`.
+- Added `stage2_art_kit_v2_02_foothill_forest_reference.png`.
+- Added `stage2_art_kit_v2_03_mountain_pass_reference.png`.
+- Added `stage2_art_kit_v2_04_road_pass_reference.png`.
+- Added `docs/map_design/work/art_kit/stage2_art_kit_v2_manifest.md`.
+- Author light review: v2_01 is a stronger defensive checkpoint than v1_03; v2_02/v2_03/v2_04 reduce the prior forest-density issue; no obvious pseudo-city marks found in light review.
+- All v2 images remain `REFERENCE_ONLY`, pending producer image review.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
