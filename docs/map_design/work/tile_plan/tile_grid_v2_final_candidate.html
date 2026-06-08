@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stage 5 Tile Grid v2 Final Candidate</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #1f2326;
+      color: #edf0e8;
+    }
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    p {
+      margin: 0 0 16px;
+      color: #c9d0c7;
+      line-height: 1.45;
+    }
+    .frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1672 / 941;
+      border: 1px solid rgba(255,255,255,0.25);
+      overflow: hidden;
+      background: #d8c8a5;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+    }
+    .frame img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.72;
+      filter: saturate(0.9) contrast(0.95);
+    }
+    .tile {
+      position: absolute;
+      box-sizing: border-box;
+      border: 2px solid rgba(255,255,255,0.85);
+      background: rgba(40, 105, 170, 0.12);
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    .tile:nth-of-type(odd) {
+      background: rgba(160, 110, 55, 0.14);
+    }
+    .tile span {
+      padding: 4px 6px;
+      border-radius: 4px;
+      background: rgba(0,0,0,0.38);
+    }
+    .legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      color: #c9d0c7;
+      font-size: 13px;
+    }
+    .legend b {
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Stage 5 Tile Grid v2 Final Candidate</h1>
+    <p>Planning space: national_concept_v5, 1672 x 941. Candidate output scale: 4x. Overlap bands: 168 px horizontal and 126 px vertical in concept space.</p>
+    <div class="frame" aria-label="Stage 5 tile grid preview">
+      <img src="../national_concept/national_concept_v5.png" alt="">
+      <div class="tile" style="left:0%; top:0%; width:30.0239%; height:40.0638%;"><span>T01_NW<br>0,0,502,377</span></div>
+      <div class="tile" style="left:19.9761%; top:0%; width:35.0478%; height:40.0638%;"><span>T02_NC_W<br>334,0,586,377</span></div>
+      <div class="tile" style="left:44.9761%; top:0%; width:35.0478%; height:40.0638%;"><span>T03_NC_E<br>752,0,586,377</span></div>
+      <div class="tile" style="left:69.9761%; top:0%; width:30.0239%; height:40.0638%;"><span>T04_NE<br>1170,0,502,377</span></div>
+      <div class="tile" style="left:0%; top:26.6738%; width:30.0239%; height:46.6525%;"><span>T05_WC<br>0,251,502,439</span></div>
+      <div class="tile" style="left:19.9761%; top:26.6738%; width:35.0478%; height:46.6525%;"><span>T06_CC_W<br>334,251,586,439</span></div>
+      <div class="tile" style="left:44.9761%; top:26.6738%; width:35.0478%; height:46.6525%;"><span>T07_CC_E<br>752,251,586,439</span></div>
+      <div class="tile" style="left:69.9761%; top:26.6738%; width:30.0239%; height:46.6525%;"><span>T08_EC<br>1170,251,502,439</span></div>
+      <div class="tile" style="left:0%; top:59.9362%; width:30.0239%; height:40.0638%;"><span>T09_SW<br>0,564,502,377</span></div>
+      <div class="tile" style="left:19.9761%; top:59.9362%; width:35.0478%; height:40.0638%;"><span>T10_SC_W<br>334,564,586,377</span></div>
+      <div class="tile" style="left:44.9761%; top:59.9362%; width:35.0478%; height:40.0638%;"><span>T11_SC_E<br>752,564,586,377</span></div>
+      <div class="tile" style="left:69.9761%; top:59.9362%; width:30.0239%; height:40.0638%;"><span>T12_SE<br>1170,564,502,377</span></div>
+    </div>
+    <div class="legend">
+      <div><b>Horizontal overlap:</b> 168 concept px / 672 output px @4x</div>
+      <div><b>Vertical overlap:</b> 126 concept px / 504 output px @4x</div>
+      <div><b>Runtime impact:</b> none</div>
+    </div>
+  </main>
+</body>
+</html>

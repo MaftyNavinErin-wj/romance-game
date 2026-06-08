@@ -256,3 +256,79 @@
 - Retried built-in image generation three more times for `rep_huaisi_jiangdong_v1`.
 - Attempts 4-6 all failed with `ServerError`; no image candidate was produced.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Huai-Si / Jiangdong v1 Generation
+
+- Retried built-in image generation for `rep_huaisi_jiangdong_v1`; attempt 7 succeeded with a short controlled prompt.
+- Added `docs/map_design/work/representative_tiles/rep_huaisi_jiangdong_v1.png`.
+- Added `docs/map_design/work/representative_tiles/rep_huaisi_jiangdong_v1_manifest.md`.
+- Author light review: v1 keeps the accepted low oblique perspective, paper texture, wide crop, and city scale broadly consistent with `rep_guanzhong_henan_v4` and `rep_bashu_hanzhong_v1`. It reads clearly as lowland branching waterways and wet fields rather than a mountain basin. Producer-review risks: water occupies a large part of the tile, some ferry/road strokes may be too clean, and foreground/distant hills should be checked against the lowland target.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 4 Huai-Si / Jiangdong v1 Producer Review
+
+- Producer accepted `rep_huaisi_jiangdong_v1`.
+- Accepted aspect: strong water-town / Jiangdong lower-Yangtze water-network feeling.
+- Geography note: author follow-up check judged the candidate valid for Jiangdong / lower Yangtze lowland water-network grammar. It is stronger as a Jiangdong water-network direction than as a precise Huai-Si northern corridor reference; later production tiles should still control the Huai River / Shouchun-Hefei-Xuzhou-Guangling corridor separately.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 5 Final Tile Plan Candidate
+
+- Advanced from Stage 4 representative references to Stage 5 final national tile plan candidate.
+- Added `docs/map_design/work/tile_plan/tile_index_v2_final_candidate.md`.
+- Added `docs/map_design/work/tile_plan/tile_grid_v2_final_candidate.html`.
+- Candidate keeps the producer-approved Stage 3 structure: 4 x 3 national grid and 20% overlap.
+- Candidate adds Stage 5 missing lock fields: per-tile concept coordinates, output pixel sizes at proposed 4x scale, direct neighbor list, diagonal context list, Stage 6 production order, and required per-tile review outputs.
+- Status: pending producer review; 4x output scale and production order are not locked until producer approval.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 5 Final Tile Plan Producer Review
+
+- Producer approved `tile_index_v2_final_candidate.md`.
+- Approved scope: 4 x 3 grid, 20% overlap, 4x output scale, neighbor list, and Stage 6 production order.
+- Producer condition: every production tile must keep consistent perspective/style, must be able to connect cleanly with neighboring tiles, and must pass terrain/geography review without major problems or out-of-place features.
+- Added `docs/map_design/work/tile_plan/stage6_tile_quality_gate_v1.md` to make those conditions explicit before Stage 6 generation.
+- Updated `docs/map_design/CANDIDATE_MANIFEST_TEMPLATE.md` so Stage 6 manifests record perspective/style, seam/overlap, terrain/geography, pseudo-settlement, and runtime-isolation gates.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 6 T06_CC_W Brief
+
+- Added `docs/map_design/work/tile_plan/stage6_t06_cc_w_generation_brief.md`.
+- This brief defines the first Stage 6 production tile target: `T06_CC_W`, central-west Guanzhong-Henan / Luoyang-Changan corridor.
+- Hard controls: preserve the accepted low oblique perspective/style, keep bounded-plains and Yellow River / Wei-Luo-Yiluo logic, avoid dominant vertical Luoyang-side water, keep all edges overlap-friendly, and apply the Stage 6 tile quality gate before any producer PASS.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 6 T06_CC_W v1/v2 Generation
+
+- Generated `docs/map_design/work/stitch/tile_t06_cc_w_v1.png`.
+- Added `docs/map_design/work/stitch/tile_t06_cc_w_v1_manifest.md`.
+- Author gate result for v1: `REWORK`. Perspective/style and city scale were acceptable, but terrain/geography failed because the broad branching water, islands, and delta-like structure read too close to Jianghuai/Jiangdong water-network grammar for `T06_CC_W`.
+- Two stricter v2 built-in imagegen attempts failed with `ServerError`; a shorter retry prompt succeeded.
+- Generated `docs/map_design/work/stitch/tile_t06_cc_w_v2.png`.
+- Added `docs/map_design/work/stitch/tile_t06_cc_w_v2_manifest.md`.
+- Added `docs/map_design/work/stitch/tile_t06_cc_w_v2_overlay.html`.
+- Author gate result for v2: perspective/style PASS, seam/overlap PENDING_NEIGHBOR, terrain/geography PASS, pseudo-settlement PASS, runtime isolation PASS. Main producer-review note: the right/eastern city still has a noticeable north-south local river; review whether it is acceptable or requires another rework.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-09 Stage 6 T06_CC_W Scope Correction
+
+- Producer asked whether the full T06 scope contains only two cities.
+- Audit result: no. The two-city rule belonged to the Stage 4 Guanzhong-Henan representative crop, not full production tile `T06_CC_W`.
+- Added `docs/map_design/work/tile_plan/t06_city_scope_audit_v1.md`.
+- Approximate data-anchor check against `CITY_BASE` shows many city zones in or near the full `T06_CC_W` concept crop, including Chang'an, Luoyang, Chenliu, Guandu, Xuchang, Nanyang, Xinye, Hanzhong, Shangyong, Xiangyang, Yiling, Jingzhou, Wuchang, and nearby/overlap zones.
+- Updated `docs/map_design/work/tile_plan/stage6_t06_cc_w_generation_brief.md` to mark the two-city prompt as superseded.
+- Updated `docs/map_design/work/stitch/tile_t06_cc_w_v2_manifest.md` from pending producer review to `REWORK` for full production scope. It remains useful as a style/geography reference, but not as a complete T06 production candidate.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-09 Stage 6 T06_CC_W Corrected Generation Attempts
+
+- Retried built-in image generation for corrected full-scope `T06_CC_W`.
+- Attempt 5 used a full corrected prompt with city hierarchy and failed with `ServerError`; no image produced.
+- Attempt 6 used a shorter corrected prompt and failed with `ServerError`; no image produced.
+- Attempt 7 used a minimal corrected prompt and failed with `ServerError`; no image produced.
+- Attempt 8 used a short city-hierarchy prompt and succeeded.
+- Added `docs/map_design/work/stitch/tile_t06_cc_w_v3.png`.
+- Added `docs/map_design/work/stitch/tile_t06_cc_w_v3_manifest.md`.
+- Added `docs/map_design/work/stitch/tile_t06_cc_w_v3_overlay.html`.
+- Author gate result for v3: perspective/style PASS, seam/overlap PENDING_NEIGHBOR, terrain/geography PASS, pseudo-settlement PASS, runtime isolation PASS. Main producer-review note: the right/eastern north-south local river remains prominent and should be judged for geography fit.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.

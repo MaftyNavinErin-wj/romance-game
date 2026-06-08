@@ -1,0 +1,917 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="data:," />
+  <title>Project Romance 2.5D Hex Map Prototype</title>
+  <style>
+    :root {
+      --paper: #ede4d0;
+      --panel: rgba(246, 240, 226, .94);
+      --ink: #2d2417;
+      --muted: rgba(45, 36, 23, .58);
+      --line: rgba(80, 65, 40, .18);
+      --gold: #9b7a32;
+      --blue: #1a5f8a;
+      --green: #1a7a3a;
+      --red: #a82a1a;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #15130f;
+      color: var(--ink);
+      font-family: "Noto Serif SC", "Microsoft YaHei", serif;
+    }
+
+    .shell {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 292px;
+      background: #17140f;
+    }
+
+    #stage {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      background: radial-gradient(circle at 50% 35%, #302818 0%, #17140f 72%);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .topbar {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      top: 12px;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .brand,
+    .segmented,
+    .hint {
+      pointer-events: auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+      backdrop-filter: blur(8px);
+    }
+
+    .brand {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 18px;
+      height: 18px;
+      border: 1px solid rgba(80, 65, 40, .42);
+      background: linear-gradient(135deg, rgba(80, 65, 40, .18), rgba(255, 252, 245, .72));
+      transform: rotate(45deg);
+    }
+
+    .segmented {
+      display: flex;
+      height: 38px;
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .segmented button {
+      min-width: 70px;
+      border: 0;
+      border-radius: 3px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .segmented button.active {
+      background: rgba(80, 65, 40, .12);
+      color: var(--ink);
+      box-shadow: inset 0 0 0 1px rgba(80, 65, 40, .14);
+    }
+
+    .hint {
+      position: absolute;
+      left: 14px;
+      bottom: 14px;
+      z-index: 3;
+      max-width: min(520px, calc(100vw - 340px));
+      padding: 9px 12px;
+      color: rgba(235, 224, 198, .86);
+      background: rgba(28, 24, 16, .78);
+      border-color: rgba(235, 224, 198, .22);
+      font-size: 11px;
+      line-height: 1.7;
+      pointer-events: none;
+    }
+
+    .side {
+      min-width: 0;
+      border-left: 1px solid rgba(245, 238, 225, .18);
+      background: var(--paper);
+      display: flex;
+      flex-direction: column;
+      box-shadow: -18px 0 36px rgba(0, 0, 0, .28);
+      z-index: 2;
+    }
+
+    .side-head {
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .kicker {
+      color: rgba(80, 65, 40, .52);
+      font-size: 10px;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    .side-title {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      line-height: 1.2;
+    }
+
+    .side-subtitle {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .side-body {
+      overflow: auto;
+      padding: 14px 16px 18px;
+    }
+
+    .section {
+      margin-bottom: 16px;
+    }
+
+    .section h2 {
+      margin: 0 0 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(80, 65, 40, .14);
+      color: rgba(45, 36, 23, .72);
+      font-size: 12px;
+      letter-spacing: 2px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(80, 65, 40, .075);
+      font-size: 12px;
+    }
+
+    .row span:last-child {
+      color: var(--muted);
+      font-size: 11px;
+      text-align: right;
+    }
+
+    .meter {
+      height: 5px;
+      margin-top: 6px;
+      overflow: hidden;
+      background: rgba(80, 65, 40, .1);
+    }
+
+    .meter i {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #6b5530, #c6a14a);
+    }
+
+    .taglist {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      border: 1px solid rgba(80, 65, 40, .18);
+      background: rgba(255, 252, 245, .48);
+      color: rgba(45, 36, 23, .68);
+      padding: 3px 7px;
+      font-size: 10px;
+      line-height: 1.2;
+    }
+
+    .legend {
+      display: grid;
+      gap: 7px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .swatch {
+      width: 16px;
+      height: 10px;
+      border: 1px solid rgba(80, 65, 40, .2);
+      background: rgba(80, 65, 40, .1);
+    }
+
+    .swatch.blue { background: rgba(26, 95, 138, .28); }
+    .swatch.green { background: rgba(26, 122, 58, .26); }
+    .swatch.red { background: rgba(168, 42, 26, .24); }
+    .swatch.gold { background: rgba(155, 122, 50, .32); }
+
+    .readout {
+      position: absolute;
+      right: 306px;
+      bottom: 14px;
+      z-index: 3;
+      min-width: 170px;
+      padding: 9px 11px;
+      color: rgba(235, 224, 198, .9);
+      background: rgba(22, 18, 12, .78);
+      border: 1px solid rgba(235, 224, 198, .18);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
+      font-size: 11px;
+      line-height: 1.6;
+      pointer-events: none;
+    }
+
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) 220px; }
+      .side { border-left: 0; border-top: 1px solid rgba(245, 238, 225, .18); }
+      .side-body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding-top: 10px; }
+      .section { margin-bottom: 0; }
+      .readout { top: 58px; right: 14px; bottom: auto; min-width: 132px; }
+      .hint { display: none; }
+      .brand { display: none; }
+      .segmented button { min-width: 56px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main id="stage">
+      <div class="topbar">
+        <div class="brand"><i class="brand-mark"></i><span>Project Romance 2.5D Hex 沙盘</span></div>
+        <div class="segmented" aria-label="地图模式">
+          <button type="button" data-mode="campaign" class="active">战役</button>
+          <button type="button" data-mode="terrain">地形</button>
+          <button type="button" data-mode="strategic">战略</button>
+          <button type="button" data-mode="supply">补给</button>
+        </div>
+      </div>
+      <div class="hint">拖拽平移，滚轮缩放。规则仍是 hex：城市、部队、hover、移动范围全部由 hex 坐标派生；3D 只负责表现，不增加第三套坐标。</div>
+      <div class="readout" id="readout">hex -,-<br>terrain -<br>mode 战役</div>
+    </main>
+    <aside class="side">
+      <div class="side-head">
+        <div class="kicker">PROTOTYPE</div>
+        <div class="side-title" id="panelTitle">洛阳</div>
+        <div class="side-subtitle" id="panelDesc">固定俯视 2.5D。默认画面只保留底图、城市、部队和必要反馈。</div>
+      </div>
+      <div class="side-body">
+        <section class="section">
+          <h2>当前节点</h2>
+          <div class="row"><span>地形</span><span id="terrainText">平原</span></div>
+          <div class="row"><span>战略区</span><span id="regionText">中原</span></div>
+          <div class="row"><span>移动成本</span><span id="costText">1 AP</span></div>
+          <div class="meter"><i id="meterFill" style="width:58%"></i></div>
+        </section>
+        <section class="section">
+          <h2>图层逻辑</h2>
+          <div class="taglist">
+            <span class="tag">bitmap 底图</span>
+            <span class="tag">hex 规则</span>
+            <span class="tag">按需网格</span>
+            <span class="tag">战略模式</span>
+          </div>
+        </section>
+        <section class="section">
+          <h2>图例</h2>
+          <div class="legend">
+            <div class="legend-item"><i class="swatch blue"></i><span>魏势力 / 北方控制</span></div>
+            <div class="legend-item"><i class="swatch green"></i><span>蜀势力 / 山地门户</span></div>
+            <div class="legend-item"><i class="swatch red"></i><span>吴势力 / 水网区域</span></div>
+            <div class="legend-item"><i class="swatch gold"></i><span>关隘 / 渡口 / 通道</span></div>
+          </div>
+        </section>
+        <section class="section">
+          <h2>试验目标</h2>
+          <div class="row"><span>降低脏乱</span><span>默认隐藏网格和图标</span></div>
+          <div class="row"><span>避免校准</span><span>所有位置来自 hex</span></div>
+          <div class="row"><span>保留游戏性</span><span>点击仍选 hex</span></div>
+        </section>
+      </div>
+    </aside>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.165.0/build/three.module.js';
+
+    const stage = document.getElementById('stage');
+    const readout = document.getElementById('readout');
+    const panelTitle = document.getElementById('panelTitle');
+    const panelDesc = document.getElementById('panelDesc');
+    const terrainText = document.getElementById('terrainText');
+    const regionText = document.getElementById('regionText');
+    const costText = document.getElementById('costText');
+    const meterFill = document.getElementById('meterFill');
+
+    const MAP_W = 960;
+    const MAP_H = 740;
+    const HEX_SIZE = 6;
+    const HEX_COLS = 102;
+    const HEX_ROWS = 68;
+    const WORLD_SCALE = 0.112;
+    const SQRT3 = Math.sqrt(3);
+
+    const terrainLabels = {
+      plain: '平原',
+      hill: '丘陵',
+      mountain: '山地',
+      forest: '林地',
+      water: '水域',
+      road: '道路'
+    };
+
+    const terrainCost = {
+      plain: 1,
+      road: 0.8,
+      hill: 1.6,
+      forest: 1.8,
+      mountain: 2.6,
+      water: 2.2
+    };
+
+    const terrainColor = {
+      plain: 0xd2c6a8,
+      road: 0xc5a65c,
+      hill: 0x928a66,
+      forest: 0x596f4b,
+      mountain: 0x5d584d,
+      water: 0x587f8c
+    };
+
+    const factionColor = {
+      wei: 0x1a5f8a,
+      shu: 0x1a7a3a,
+      wu: 0xa82a1a
+    };
+
+    const regions = [
+      { id: 'guanzhong', name: '关中', color: 0x9b7a32, center: [44, 31], radius: 10 },
+      { id: 'hanzhong', name: '汉中', color: 0x6f7d38, center: [39, 38], radius: 7 },
+      { id: 'zhongyuan', name: '中原', color: 0x7e6a48, center: [56, 32], radius: 12 },
+      { id: 'jingxiang', name: '荆襄', color: 0x537458, center: [58, 43], radius: 9 },
+      { id: 'jiangdong', name: '江东', color: 0x8c4f3e, center: [72, 48], radius: 10 }
+    ];
+
+    const cities = [
+      { name: '长安', q: 43, r: 30, fac: 'wei', region: '关中', desc: '西线枢纽，控制关中与陇右。' },
+      { name: '洛阳', q: 54, r: 31, fac: 'wei', region: '中原', desc: '中原核心，东西通道交会。' },
+      { name: '许昌', q: 58, r: 34, fac: 'wei', region: '中原', desc: '平原腹地，适合作为兵站。' },
+      { name: '汉中', q: 39, r: 39, fac: 'shu', region: '汉中', desc: '入蜀门户，山地防线关键节点。' },
+      { name: '成都', q: 33, r: 48, fac: 'shu', region: '巴蜀', desc: '后方核心，补给稳定但外线受限。' },
+      { name: '襄阳', q: 57, r: 42, fac: 'shu', region: '荆襄', desc: '江汉咽喉，北上南下都要看它。' },
+      { name: '建业', q: 75, r: 50, fac: 'wu', region: '江东', desc: '江东中心，水路机动优势明显。' },
+      { name: '寿春', q: 69, r: 41, fac: 'wu', region: '淮南', desc: '淮南前沿，承压但战略价值高。' }
+    ];
+
+    const units = [
+      { name: '曹操军', q: 52, r: 32, fac: 'wei', troops: 42000 },
+      { name: '关羽军', q: 56, r: 41, fac: 'shu', troops: 18000 },
+      { name: '周瑜军', q: 72, r: 48, fac: 'wu', troops: 26000 }
+    ];
+
+    const passes = [
+      { name: '潼关', q: 47, r: 31 },
+      { name: '函谷', q: 50, r: 31 },
+      { name: '阳平关', q: 40, r: 37 },
+      { name: '武关', q: 49, r: 38 },
+      { name: '江陵渡', q: 61, r: 44 }
+    ];
+
+    let mode = 'campaign';
+    let hoverHex = null;
+    let selectedCity = cities[1];
+    let isDragging = false;
+    let lastPointer = { x: 0, y: 0 };
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x17140f);
+
+    const camera = new THREE.OrthographicCamera(-60, 60, 42, -42, 0.1, 1000);
+    camera.position.set(0, 78, 64);
+    camera.lookAt(0, 0, 0);
+    camera.zoom = 1;
+    camera.updateProjectionMatrix();
+
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: false,
+      preserveDrawingBuffer: true,
+      powerPreference: 'high-performance'
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    stage.appendChild(renderer.domElement);
+
+    scene.add(new THREE.HemisphereLight(0xfff4d8, 0x1b1d20, 2.2));
+    const sun = new THREE.DirectionalLight(0xffe8ba, 2.6);
+    sun.position.set(-24, 48, 30);
+    sun.castShadow = true;
+    scene.add(sun);
+
+    const root = new THREE.Group();
+    scene.add(root);
+
+    function hexToPixel(col, row) {
+      return {
+        x: col * HEX_SIZE * 1.5 + HEX_SIZE + 8,
+        y: row * SQRT3 * HEX_SIZE + (col % 2 ? SQRT3 * HEX_SIZE / 2 : 0) + HEX_SIZE + 8
+      };
+    }
+
+    function pixelToWorld(x, y, height = 0) {
+      return {
+        x: (x - MAP_W / 2) * WORLD_SCALE,
+        y: height,
+        z: (y - MAP_H / 2) * WORLD_SCALE
+      };
+    }
+
+    function hexToWorld(col, row, height = 0) {
+      const p = hexToPixel(col, row);
+      return pixelToWorld(p.x, p.y, height);
+    }
+
+    function terrainAt(col, row) {
+      const p = hexToPixel(col, row);
+      if (p.y > 475 && p.x > 580) return 'water';
+      if (p.x > 520 && p.x < 760 && p.y > 390 && p.y < 455) return 'water';
+      if (p.x < 420 && p.y > 355 && p.y < 565) return 'mountain';
+      if (p.x > 380 && p.x < 530 && p.y > 245 && p.y < 360) return 'hill';
+      if (p.x > 520 && p.x < 675 && p.y > 350 && p.y < 470) return 'forest';
+      if (Math.abs(p.y - (0.46 * p.x + 118)) < 10 && p.x > 390 && p.x < 660) return 'road';
+      return 'plain';
+    }
+
+    function heightForTerrain(t) {
+      if (t === 'mountain') return 1.35;
+      if (t === 'hill') return .72;
+      if (t === 'forest') return .38;
+      if (t === 'road') return .08;
+      if (t === 'water') return -.16;
+      return .16;
+    }
+
+    function currentRegion(col, row) {
+      let best = null;
+      let bestDist = Infinity;
+      for (const r of regions) {
+        const d = Math.hypot(col - r.center[0], row - r.center[1]);
+        if (d < r.radius && d < bestDist) {
+          best = r;
+          bestDist = d;
+        }
+      }
+      return best;
+    }
+
+    const textureLoader = new THREE.TextureLoader();
+    const mapTexture = textureLoader.load('../assets/maps/china-ink-base-v1-hd.png', () => render());
+    mapTexture.colorSpace = THREE.SRGBColorSpace;
+    mapTexture.anisotropy = 8;
+
+    const mapMat = new THREE.MeshStandardMaterial({
+      map: mapTexture,
+      color: 0xf2ead8,
+      roughness: .86,
+      metalness: 0,
+      transparent: false
+    });
+    const mapPlane = new THREE.Mesh(new THREE.PlaneGeometry(MAP_W * WORLD_SCALE, MAP_H * WORLD_SCALE, 1, 1), mapMat);
+    mapPlane.rotation.x = -Math.PI / 2;
+    mapPlane.receiveShadow = true;
+    root.add(mapPlane);
+
+    const hexShape = new THREE.Shape();
+    for (let i = 0; i < 6; i++) {
+      const a = Math.PI / 6 + i * Math.PI / 3;
+      const x = Math.cos(a) * HEX_SIZE * WORLD_SCALE * .92;
+      const y = Math.sin(a) * HEX_SIZE * WORLD_SCALE * .92;
+      if (i === 0) hexShape.moveTo(x, y);
+      else hexShape.lineTo(x, y);
+    }
+    hexShape.closePath();
+
+    const hexGeom = new THREE.ShapeGeometry(hexShape);
+    hexGeom.rotateX(-Math.PI / 2);
+    const hoverMat = new THREE.MeshBasicMaterial({ color: 0xf3d786, transparent: true, opacity: .48, depthWrite: false });
+    const hoverMesh = new THREE.Mesh(hexGeom, hoverMat);
+    hoverMesh.position.y = 2.05;
+    hoverMesh.visible = false;
+    root.add(hoverMesh);
+
+    const moveGroup = new THREE.Group();
+    root.add(moveGroup);
+    const terrainGroup = new THREE.Group();
+    root.add(terrainGroup);
+    const strategicGroup = new THREE.Group();
+    root.add(strategicGroup);
+    const supplyGroup = new THREE.Group();
+    root.add(supplyGroup);
+    const cityGroup = new THREE.Group();
+    root.add(cityGroup);
+    const unitGroup = new THREE.Group();
+    root.add(unitGroup);
+
+    const rayPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+
+    function createTextSprite(text, color = '#2d2417', size = 72) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = `900 ${size}px "Microsoft YaHei", serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = 'rgba(246,240,226,.9)';
+      ctx.strokeText(text, 256, 64);
+      ctx.fillStyle = color;
+      ctx.fillText(text, 256, 64);
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false });
+      const sprite = new THREE.Sprite(mat);
+      sprite.scale.set(6.8, 1.7, 1);
+      return sprite;
+    }
+
+    function clearGroup(g) {
+      while (g.children.length) {
+        const child = g.children.pop();
+        child.geometry?.dispose?.();
+        if (Array.isArray(child.material)) child.material.forEach(m => m.dispose?.());
+        else child.material?.dispose?.();
+      }
+    }
+
+    function buildTerrainMarkers() {
+      clearGroup(terrainGroup);
+      for (let col = 0; col < HEX_COLS; col += 2) {
+        for (let row = 0; row < HEX_ROWS; row += 2) {
+          const t = terrainAt(col, row);
+          if (!['mountain', 'hill', 'forest', 'water'].includes(t)) continue;
+          const h = heightForTerrain(t);
+          const pos = hexToWorld(col, row, h);
+          const geom = new THREE.CylinderGeometry(HEX_SIZE * WORLD_SCALE * .75, HEX_SIZE * WORLD_SCALE * .95, Math.max(.08, h + .2), 6);
+          const mat = new THREE.MeshStandardMaterial({
+            color: terrainColor[t],
+            transparent: true,
+            opacity: t === 'water' ? .28 : .38,
+            roughness: .88
+          });
+          const m = new THREE.Mesh(geom, mat);
+          m.position.set(pos.x, Math.max(.04, h / 2), pos.z);
+          m.castShadow = t !== 'water';
+          m.receiveShadow = true;
+          terrainGroup.add(m);
+        }
+      }
+    }
+
+    function buildStrategicLayer() {
+      clearGroup(strategicGroup);
+      for (const r of regions) {
+        const geom = new THREE.RingGeometry(r.radius * .78, r.radius * .88, 64);
+        geom.rotateX(-Math.PI / 2);
+        const mat = new THREE.MeshBasicMaterial({
+          color: r.color,
+          transparent: true,
+          opacity: .25,
+          depthWrite: false
+        });
+        const ring = new THREE.Mesh(geom, mat);
+        const pos = hexToWorld(r.center[0], r.center[1], 1.55);
+        ring.position.set(pos.x, pos.y, pos.z);
+        ring.scale.set(1.18, 1, .72);
+        strategicGroup.add(ring);
+
+        const label = createTextSprite(r.name, '#6b5530', 58);
+        label.position.set(pos.x, 3.0, pos.z);
+        strategicGroup.add(label);
+      }
+
+      for (const pass of passes) {
+        const pos = hexToWorld(pass.q, pass.r, 1.85);
+        const geom = new THREE.OctahedronGeometry(.72, 0);
+        const mat = new THREE.MeshStandardMaterial({ color: 0xc6a14a, roughness: .55, metalness: .08 });
+        const marker = new THREE.Mesh(geom, mat);
+        marker.position.set(pos.x, pos.y, pos.z);
+        marker.castShadow = true;
+        strategicGroup.add(marker);
+      }
+    }
+
+    function buildSupplyLayer() {
+      clearGroup(supplyGroup);
+      for (let col = 0; col < HEX_COLS; col += 3) {
+        for (let row = 0; row < HEX_ROWS; row += 3) {
+          const region = currentRegion(col, row);
+          if (!region) continue;
+          const strength = Math.max(0, 1 - Math.hypot(col - region.center[0], row - region.center[1]) / region.radius);
+          const pos = hexToWorld(col, row, 1.45);
+          const geom = new THREE.CircleGeometry(HEX_SIZE * WORLD_SCALE * 1.1, 6);
+          geom.rotateX(-Math.PI / 2);
+          const mat = new THREE.MeshBasicMaterial({
+            color: region.color,
+            transparent: true,
+            opacity: .08 + strength * .18,
+            depthWrite: false
+          });
+          const patch = new THREE.Mesh(geom, mat);
+          patch.position.set(pos.x, pos.y, pos.z);
+          supplyGroup.add(patch);
+        }
+      }
+    }
+
+    function buildCities() {
+      clearGroup(cityGroup);
+      for (const c of cities) {
+        const pos = hexToWorld(c.q, c.r, 2.2);
+        const base = new THREE.Mesh(
+          new THREE.CylinderGeometry(.72, .92, .42, 18),
+          new THREE.MeshStandardMaterial({ color: factionColor[c.fac], roughness: .62 })
+        );
+        base.position.set(pos.x, 1.05, pos.z);
+        base.castShadow = true;
+        base.userData.city = c;
+        cityGroup.add(base);
+
+        const tower = new THREE.Mesh(
+          new THREE.BoxGeometry(.72, 1.1, .72),
+          new THREE.MeshStandardMaterial({ color: 0xefe4c9, roughness: .72 })
+        );
+        tower.position.set(pos.x, 1.78, pos.z);
+        tower.castShadow = true;
+        tower.userData.city = c;
+        cityGroup.add(tower);
+
+        const label = createTextSprite(c.name, c.fac === 'wei' ? '#1a5f8a' : c.fac === 'shu' ? '#1a7a3a' : '#a82a1a', 64);
+        label.position.set(pos.x, 3.15, pos.z);
+        label.userData.city = c;
+        cityGroup.add(label);
+      }
+    }
+
+    function buildUnits() {
+      clearGroup(unitGroup);
+      for (const u of units) {
+        const pos = hexToWorld(u.q, u.r, 2.55);
+        const body = new THREE.Mesh(
+          new THREE.ConeGeometry(.58, 1.45, 18),
+          new THREE.MeshStandardMaterial({ color: factionColor[u.fac], roughness: .42, metalness: .04 })
+        );
+        body.position.set(pos.x, 1.75, pos.z);
+        body.castShadow = true;
+        body.userData.unit = u;
+        unitGroup.add(body);
+
+        const banner = new THREE.Mesh(
+          new THREE.BoxGeometry(.12, 1.3, .92),
+          new THREE.MeshStandardMaterial({ color: factionColor[u.fac], roughness: .52 })
+        );
+        banner.position.set(pos.x + .62, 2.05, pos.z);
+        banner.castShadow = true;
+        unitGroup.add(banner);
+      }
+    }
+
+    function buildMoveRange() {
+      clearGroup(moveGroup);
+      const origin = units[0];
+      const originKey = `${origin.q},${origin.r}`;
+      for (let col = origin.q - 5; col <= origin.q + 5; col++) {
+        for (let row = origin.r - 5; row <= origin.r + 5; row++) {
+          if (col < 0 || row < 0 || col >= HEX_COLS || row >= HEX_ROWS) continue;
+          const d = Math.abs(col - origin.q) + Math.abs(row - origin.r);
+          if (d > 5 || `${col},${row}` === originKey) continue;
+          const t = terrainAt(col, row);
+          if (t === 'water' || t === 'mountain') continue;
+          const pos = hexToWorld(col, row, 1.28);
+          const mat = new THREE.MeshBasicMaterial({ color: 0xd6b75f, transparent: true, opacity: .18, depthWrite: false });
+          const tile = new THREE.Mesh(hexGeom, mat);
+          tile.position.set(pos.x, pos.y, pos.z);
+          moveGroup.add(tile);
+        }
+      }
+    }
+
+    function setMode(nextMode) {
+      mode = nextMode;
+      document.querySelectorAll('.segmented button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+      terrainGroup.visible = mode === 'terrain';
+      strategicGroup.visible = mode === 'strategic';
+      supplyGroup.visible = mode === 'supply';
+      moveGroup.visible = mode === 'campaign';
+      updatePanel();
+      render();
+    }
+
+    function screenToWorld(clientX, clientY) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      const hit = new THREE.Vector3();
+      const ok = raycaster.ray.intersectPlane(rayPlane, hit);
+      return ok ? hit : null;
+    }
+
+    function worldToHex(world) {
+      const px = world.x / WORLD_SCALE + MAP_W / 2;
+      const py = world.z / WORLD_SCALE + MAP_H / 2;
+      const approxCol = Math.round((px - 8 - HEX_SIZE) / (HEX_SIZE * 1.5));
+      let best = null;
+      let bestD = Infinity;
+      for (let dc = -1; dc <= 1; dc++) {
+        const col = approxCol + dc;
+        if (col < 0 || col >= HEX_COLS) continue;
+        const approxRow = Math.round((py - 8 - HEX_SIZE - (col % 2 ? SQRT3 * HEX_SIZE / 2 : 0)) / (SQRT3 * HEX_SIZE));
+        for (let dr = -1; dr <= 1; dr++) {
+          const row = approxRow + dr;
+          if (row < 0 || row >= HEX_ROWS) continue;
+          const p = hexToPixel(col, row);
+          const d = Math.hypot(px - p.x, py - p.y);
+          if (d < bestD) {
+            bestD = d;
+            best = { col, row };
+          }
+        }
+      }
+      return best;
+    }
+
+    function updateHover(clientX, clientY) {
+      const hit = screenToWorld(clientX, clientY);
+      if (!hit) return;
+      const hex = worldToHex(hit);
+      if (!hex) return;
+      hoverHex = hex;
+      const t = terrainAt(hex.col, hex.row);
+      const pos = hexToWorld(hex.col, hex.row, Math.max(1.65, heightForTerrain(t) + 1.15));
+      hoverMesh.position.set(pos.x, pos.y, pos.z);
+      hoverMesh.visible = true;
+      readout.innerHTML = `hex ${hex.col},${hex.row}<br>terrain ${terrainLabels[t]}<br>mode ${modeLabel()}`;
+      terrainText.textContent = terrainLabels[t];
+      const r = currentRegion(hex.col, hex.row);
+      regionText.textContent = r ? r.name : '边缘地带';
+      costText.textContent = `${terrainCost[t] || 1} AP`;
+      meterFill.style.width = `${Math.min(100, (terrainCost[t] || 1) * 28)}%`;
+      render();
+    }
+
+    function modeLabel() {
+      return ({ campaign: '战役', terrain: '地形', strategic: '战略', supply: '补给' })[mode] || mode;
+    }
+
+    function updatePanel(city = selectedCity) {
+      if (!city) return;
+      panelTitle.textContent = city.name;
+      panelDesc.textContent = city.desc;
+      terrainText.textContent = terrainLabels[terrainAt(city.q, city.r)];
+      regionText.textContent = city.region;
+      costText.textContent = mode === 'strategic' ? '战略节点' : `${terrainCost[terrainAt(city.q, city.r)] || 1} AP`;
+    }
+
+    function pickObject(clientX, clientY) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects([...cityGroup.children, ...unitGroup.children], true);
+      if (hits.length && hits[0].object.userData.city) {
+        selectedCity = hits[0].object.userData.city;
+        updatePanel(selectedCity);
+        render();
+        return true;
+      }
+      return false;
+    }
+
+    function resize() {
+      const w = stage.clientWidth;
+      const h = stage.clientHeight;
+      renderer.setSize(w, h, false);
+      const aspect = w / Math.max(1, h);
+      const viewH = 46;
+      camera.left = -viewH * aspect;
+      camera.right = viewH * aspect;
+      camera.top = viewH;
+      camera.bottom = -viewH;
+      camera.updateProjectionMatrix();
+      render();
+    }
+
+    function render() {
+      renderer.render(scene, camera);
+    }
+
+    renderer.domElement.addEventListener('pointerdown', (e) => {
+      isDragging = true;
+      lastPointer = { x: e.clientX, y: e.clientY };
+      renderer.domElement.setPointerCapture(e.pointerId);
+    });
+
+    renderer.domElement.addEventListener('pointermove', (e) => {
+      if (isDragging) {
+        const dx = e.clientX - lastPointer.x;
+        const dy = e.clientY - lastPointer.y;
+        lastPointer = { x: e.clientX, y: e.clientY };
+        const scale = .055 / camera.zoom;
+        root.position.x += dx * scale;
+        root.position.z += dy * scale;
+        render();
+      } else {
+        updateHover(e.clientX, e.clientY);
+      }
+    });
+
+    renderer.domElement.addEventListener('pointerup', (e) => {
+      const moved = Math.hypot(e.clientX - lastPointer.x, e.clientY - lastPointer.y);
+      isDragging = false;
+      renderer.domElement.releasePointerCapture(e.pointerId);
+      if (moved < 2 && !pickObject(e.clientX, e.clientY)) updateHover(e.clientX, e.clientY);
+    });
+
+    renderer.domElement.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const next = camera.zoom * (e.deltaY > 0 ? .9 : 1.1);
+      camera.zoom = Math.max(.72, Math.min(2.4, next));
+      camera.updateProjectionMatrix();
+      render();
+    }, { passive: false });
+
+    document.querySelectorAll('.segmented button').forEach(btn => {
+      btn.addEventListener('click', () => setMode(btn.dataset.mode));
+    });
+
+    window.addEventListener('resize', resize);
+
+    buildTerrainMarkers();
+    buildStrategicLayer();
+    buildSupplyLayer();
+    buildMoveRange();
+    buildCities();
+    buildUnits();
+    setMode('campaign');
+    resize();
+    updatePanel();
+  </script>
+</body>
+</html>

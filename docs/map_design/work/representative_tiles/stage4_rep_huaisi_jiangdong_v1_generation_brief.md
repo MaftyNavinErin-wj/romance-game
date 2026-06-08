@@ -4,7 +4,7 @@
 
 - Planned candidate id: `rep_huaisi_jiangdong_v1`
 - Stage: Stage 4, representative tile
-- Status: generation brief; image generation attempted but no candidate produced yet
+- Status: candidate produced; producer accepted
 - Date: 2026-06-08
 - Runtime impact: none
 
@@ -97,10 +97,13 @@ Wide oblique Chinese ink-wash map, same low camera and style as previous tiles. 
 - 2026-06-08: built-in imagegen retry attempt 4 failed with `ServerError`; no image produced.
 - 2026-06-08: built-in imagegen retry attempt 5 with shorter prompt failed with `ServerError`; no image produced.
 - 2026-06-08: built-in imagegen retry attempt 6 with minimal prompt failed with `ServerError`; no image produced.
+- 2026-06-08: built-in imagegen retry attempt 7 succeeded with a short controlled prompt.
+- Added `docs/map_design/work/representative_tiles/rep_huaisi_jiangdong_v1.png`.
+- Added `docs/map_design/work/representative_tiles/rep_huaisi_jiangdong_v1_manifest.md`.
 
 ## Next Action
 
-- Retry built-in imagegen later using this brief.
+- Proceed to the next approved map-design step after producer direction.
 
 ## Runtime Impact
 

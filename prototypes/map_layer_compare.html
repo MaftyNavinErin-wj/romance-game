@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="data:," />
+  <title>Project Romance Map Layer Compare</title>
+  <style>
+    :root {
+      --paper: #ede4d0;
+      --panel: rgba(246, 240, 226, .96);
+      --ink: #2d2417;
+      --muted: rgba(45, 36, 23, .58);
+      --line: rgba(80, 65, 40, .18);
+      --gold: #a07a2f;
+      --blue: #1a5f8a;
+      --green: #1a7a3a;
+      --red: #a82a1a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #17140f;
+      color: var(--ink);
+      font-family: "Noto Serif SC", "Microsoft YaHei", serif;
+      overflow: hidden;
+    }
+
+    .app {
+      height: 100vh;
+      display: grid;
+      grid-template-rows: 54px minmax(0, 1fr);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 16px;
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .title {
+      min-width: 0;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      white-space: nowrap;
+    }
+
+    .title b {
+      font-size: 16px;
+      letter-spacing: 2px;
+    }
+
+    .title span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tools {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .tools label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .tools input[type="range"] {
+      width: 92px;
+      accent-color: #7b6338;
+    }
+
+    .tools input[type="text"] {
+      width: 300px;
+      max-width: 34vw;
+      height: 26px;
+      border: 1px solid var(--line);
+      background: rgba(255, 252, 245, .62);
+      color: var(--ink);
+      padding: 0 8px;
+      font: inherit;
+      font-size: 11px;
+    }
+
+    .tools button {
+      height: 26px;
+      border: 1px solid var(--line);
+      background: rgba(80, 65, 40, .08);
+      color: var(--ink);
+      font: inherit;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .grid {
+      min-height: 0;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .pane {
+      min-width: 0;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: 34px minmax(0, 1fr) 44px;
+      background: var(--paper);
+      border: 1px solid rgba(245, 238, 225, .2);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, .22);
+      overflow: hidden;
+    }
+
+    .pane-head,
+    .pane-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 10px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(245, 238, 225, .94);
+      font-size: 12px;
+      min-width: 0;
+    }
+
+    .pane-foot {
+      border-top: 1px solid var(--line);
+      border-bottom: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .pane-name {
+      font-weight: 900;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .score {
+      color: var(--muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .mapbox {
+      position: relative;
+      min-height: 0;
+      overflow: hidden;
+      background: #1a160f;
+    }
+
+    .mapbox img,
+    .mapbox svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .mapbox img {
+      object-fit: contain;
+      background: #1a160f;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .normal img { filter: contrast(1) brightness(1) saturate(.96); }
+    .washed img { filter: contrast(.78) brightness(1.18) saturate(.62); opacity: .86; }
+    .paper img { filter: contrast(.65) brightness(1.26) saturate(.42); opacity: .72; }
+
+    .overlay {
+      pointer-events: none;
+    }
+
+    .dense .terrain-icon { opacity: .78; }
+    .sparse .terrain-icon { display: none; }
+    .terrain-note { display: none; }
+    .sparse .terrain-note { display: block; }
+    .minimal .terrain-icon,
+    .minimal .terrain-note,
+    .minimal .strategic-line { display: none; }
+
+    .hex-hover {
+      fill: rgba(245, 212, 118, .28);
+      stroke: rgba(245, 212, 118, .85);
+      stroke-width: 1.2;
+      opacity: 0;
+      transition: opacity .12s ease;
+    }
+
+    .show-hover .hex-hover {
+      opacity: 1;
+    }
+
+    .city text {
+      paint-order: stroke;
+      stroke: rgba(245, 238, 225, .92);
+      stroke-width: 3px;
+      stroke-linejoin: round;
+      font-weight: 900;
+      font-size: 12px;
+    }
+
+    .unit text {
+      paint-order: stroke;
+      stroke: rgba(20, 16, 10, .82);
+      stroke-width: 2px;
+      fill: rgba(245, 238, 225, .92);
+      font-weight: 700;
+      font-size: 9px;
+    }
+
+    .readout {
+      position: fixed;
+      right: 14px;
+      bottom: 12px;
+      z-index: 10;
+      width: 180px;
+      padding: 9px 11px;
+      background: rgba(22, 18, 12, .82);
+      border: 1px solid rgba(245, 238, 225, .18);
+      color: rgba(245, 238, 225, .9);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, .24);
+      font-size: 11px;
+      line-height: 1.6;
+      pointer-events: none;
+    }
+
+    @media (max-width: 920px) {
+      body { overflow: auto; }
+      .app { height: auto; min-height: 100vh; }
+      header { height: auto; min-height: 54px; align-items: flex-start; padding: 10px 12px; flex-direction: column; }
+      .title { white-space: normal; flex-direction: column; gap: 2px; }
+      .tools { flex-wrap: wrap; width: 100%; }
+      .tools input[type="text"] { width: 100%; max-width: none; }
+      .grid { grid-template-columns: 1fr; grid-template-rows: none; }
+      .pane { height: 360px; }
+      .readout { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="title">
+        <b>地图层对比工具</b>
+        <span>同一张 bitmap，比 dense icon / sparse 注记 / 淡化底图 / 极简默认图</span>
+      </div>
+      <div class="tools">
+        <label>底图 <input id="imageInput" type="text" value="../assets/maps/china-ink-base-v1-hd.png" aria-label="底图路径"></label>
+        <button id="applyImage" type="button">应用</button>
+        <label>图标强度 <input id="iconOpacity" type="range" min="0" max="100" value="78"></label>
+        <label>城市标签 <input id="labelToggle" type="checkbox" checked></label>
+        <label>hover hex <input id="hoverToggle" type="checkbox" checked></label>
+      </div>
+    </header>
+
+    <section class="grid">
+      <article class="pane">
+        <div class="pane-head"><span class="pane-name">A 当前问题模拟</span><span class="score">信息最全 / 最脏</span></div>
+        <div class="mapbox normal dense" data-kind="dense"></div>
+        <div class="pane-foot">bitmap 和逐格 terrain icon 同时表达地形，规则清楚但画面最吵。</div>
+      </article>
+      <article class="pane">
+        <div class="pane-head"><span class="pane-name">B sparse 地理注记</span><span class="score">保留原图 / 降图标</span></div>
+        <div class="mapbox normal sparse" data-kind="sparse"></div>
+        <div class="pane-foot">不逐格贴图标，只标山脉带、水路、关隘和少量地理词。</div>
+      </article>
+      <article class="pane">
+        <div class="pane-head"><span class="pane-name">C 淡化底图 + sparse</span><span class="score">最接近 UI base map</span></div>
+        <div class="mapbox washed sparse" data-kind="washedSparse"></div>
+        <div class="pane-foot">保留水墨，但降低对比和饱和，让城市/部队/注记有空间。</div>
+      </article>
+      <article class="pane">
+        <div class="pane-head"><span class="pane-name">D 默认作战图</span><span class="score">最干净 / 信息按需</span></div>
+        <div class="mapbox paper minimal" data-kind="minimal"></div>
+        <div class="pane-foot">默认只放城市、部队、势力点；地形规则靠 hover / 模式切换显示。</div>
+      </article>
+    </section>
+  </div>
+
+  <div id="readout" class="readout">hex -,-<br>terrain -<br>region -</div>
+
+  <script>
+    const MAP_W = 960;
+    const MAP_H = 740;
+    const HEX_SIZE = 6;
+    const HEX_COLS = 102;
+    const HEX_ROWS = 68;
+    const SQRT3 = Math.sqrt(3);
+    let imageSrc = '../assets/maps/china-ink-base-v1-hd.png';
+
+    const cities = [
+      { name: '长安', q: 43, r: 30, fac: 'wei' },
+      { name: '洛阳', q: 54, r: 31, fac: 'wei' },
+      { name: '许昌', q: 58, r: 34, fac: 'wei' },
+      { name: '汉中', q: 39, r: 39, fac: 'shu' },
+      { name: '成都', q: 33, r: 48, fac: 'shu' },
+      { name: '襄阳', q: 57, r: 42, fac: 'shu' },
+      { name: '建业', q: 75, r: 50, fac: 'wu' },
+      { name: '寿春', q: 69, r: 41, fac: 'wu' }
+    ];
+
+    const units = [
+      { name: '曹操', q: 52, r: 32, fac: 'wei' },
+      { name: '关羽', q: 56, r: 41, fac: 'shu' },
+      { name: '周瑜', q: 72, r: 48, fac: 'wu' }
+    ];
+
+    const strategicNotes = [
+      { name: '关中', q: 43, r: 27, type: 'region' },
+      { name: '汉中', q: 39, r: 37, type: 'region' },
+      { name: '中原', q: 55, r: 29, type: 'region' },
+      { name: '荆襄', q: 58, r: 43, type: 'region' },
+      { name: '淮南', q: 68, r: 40, type: 'region' },
+      { name: '潼关', q: 47, r: 31, type: 'pass' },
+      { name: '阳平关', q: 40, r: 37, type: 'pass' },
+      { name: '江陵渡', q: 61, r: 44, type: 'pass' }
+    ];
+
+    const faction = {
+      wei: '#1a5f8a',
+      shu: '#1a7a3a',
+      wu: '#a82a1a'
+    };
+
+    function hexToPixel(col, row) {
+      return {
+        x: col * HEX_SIZE * 1.5 + HEX_SIZE + 8,
+        y: row * SQRT3 * HEX_SIZE + (col % 2 ? SQRT3 * HEX_SIZE / 2 : 0) + HEX_SIZE + 8
+      };
+    }
+
+    function hexPath(size = HEX_SIZE) {
+      const pts = [];
+      for (let i = 0; i < 6; i++) {
+        const a = Math.PI / 6 + i * Math.PI / 3;
+        pts.push([Math.cos(a) * size, Math.sin(a) * size]);
+      }
+      return 'M' + pts.map(p => p[0].toFixed(2) + ',' + p[1].toFixed(2)).join('L') + 'Z';
+    }
+
+    function pixelToHex(px, py) {
+      const approxCol = Math.round((px - 8 - HEX_SIZE) / (HEX_SIZE * 1.5));
+      let best = null;
+      let bestD = Infinity;
+      for (let dc = -1; dc <= 1; dc++) {
+        const col = approxCol + dc;
+        if (col < 0 || col >= HEX_COLS) continue;
+        const approxRow = Math.round((py - 8 - HEX_SIZE - (col % 2 ? SQRT3 * HEX_SIZE / 2 : 0)) / (SQRT3 * HEX_SIZE));
+        for (let dr = -1; dr <= 1; dr++) {
+          const row = approxRow + dr;
+          if (row < 0 || row >= HEX_ROWS) continue;
+          const p = hexToPixel(col, row);
+          const d = Math.hypot(px - p.x, py - p.y);
+          if (d < bestD) {
+            bestD = d;
+            best = { col, row };
+          }
+        }
+      }
+      return best;
+    }
+
+    function terrainAt(col, row) {
+      const p = hexToPixel(col, row);
+      if (p.y > 475 && p.x > 580) return 'water';
+      if (p.x > 520 && p.x < 760 && p.y > 390 && p.y < 455) return 'water';
+      if (p.x < 420 && p.y > 355 && p.y < 565) return 'mountain';
+      if (p.x > 380 && p.x < 530 && p.y > 245 && p.y < 360) return 'hill';
+      if (p.x > 520 && p.x < 675 && p.y > 350 && p.y < 470) return 'forest';
+      if (Math.abs(p.y - (0.46 * p.x + 118)) < 10 && p.x > 390 && p.x < 660) return 'road';
+      return 'plain';
+    }
+
+    function terrainLabel(t) {
+      return ({ plain: '平原', hill: '丘陵', mountain: '山地', forest: '林地', water: '水域', road: '道路' })[t] || t;
+    }
+
+    function regionAt(col, row) {
+      if (col < 45 && row > 34) return '巴蜀/汉中';
+      if (col < 50 && row <= 34) return '关陇';
+      if (col < 66 && row < 39) return '中原';
+      if (col < 68 && row >= 39) return '荆襄';
+      if (col >= 68) return '江淮/江东';
+      return '边缘地带';
+    }
+
+    function terrainIcon(t, x, y) {
+      if (t === 'mountain') {
+        return `<path class="terrain-icon" d="M${x-5},${y+5} L${x},${y-6} L${x+5},${y+5} Z" fill="rgba(82,76,58,.58)" stroke="rgba(245,238,225,.28)" stroke-width=".7"/>`;
+      }
+      if (t === 'hill') {
+        return `<path class="terrain-icon" d="M${x-6},${y+4} Q${x},${y-5} ${x+6},${y+4}" fill="none" stroke="rgba(104,92,61,.58)" stroke-width="2" stroke-linecap="round"/>`;
+      }
+      if (t === 'forest') {
+        return `<path class="terrain-icon" d="M${x},${y-6} L${x-5},${y+4} L${x+5},${y+4} Z" fill="rgba(60,100,55,.50)"/>`;
+      }
+      if (t === 'water') {
+        return `<path class="terrain-icon" d="M${x-6},${y} Q${x-3},${y-4} ${x},${y} T${x+6},${y}" fill="none" stroke="rgba(70,105,125,.58)" stroke-width="1.8" stroke-linecap="round"/>`;
+      }
+      if (t === 'road') {
+        return `<circle class="terrain-icon" cx="${x}" cy="${y}" r="2.4" fill="rgba(160,122,48,.62)"/>`;
+      }
+      return '';
+    }
+
+    function buildDenseIcons() {
+      const parts = [];
+      for (let col = 0; col < HEX_COLS; col += 2) {
+        for (let row = 0; row < HEX_ROWS; row += 2) {
+          const t = terrainAt(col, row);
+          if (t === 'plain') continue;
+          const p = hexToPixel(col, row);
+          parts.push(terrainIcon(t, p.x, p.y));
+        }
+      }
+      return parts.join('');
+    }
+
+    function buildSparseNotes() {
+      const lines = [
+        '<path class="strategic-line" d="M330 445 C405 390 455 342 510 310 C560 285 615 305 665 348" fill="none" stroke="rgba(155,122,47,.32)" stroke-width="10" stroke-linecap="round"/>',
+        '<path class="strategic-line" d="M520 410 C580 425 640 435 715 430" fill="none" stroke="rgba(70,105,125,.28)" stroke-width="8" stroke-linecap="round"/>',
+        '<path class="strategic-line" d="M295 480 C330 435 365 395 410 365" fill="none" stroke="rgba(82,76,58,.25)" stroke-width="12" stroke-linecap="round"/>'
+      ];
+      const notes = strategicNotes.map(n => {
+        const p = hexToPixel(n.q, n.r);
+        if (n.type === 'pass') {
+          return `<g class="terrain-note"><path d="M${p.x},${p.y-8} L${p.x+7},${p.y} L${p.x},${p.y+8} L${p.x-7},${p.y} Z" fill="rgba(170,126,35,.78)" stroke="rgba(245,238,225,.72)" stroke-width="1"/><text x="${p.x+10}" y="${p.y+4}" fill="rgba(95,68,20,.86)" font-size="10" font-weight="800">${n.name}</text></g>`;
+        }
+        return `<g class="terrain-note"><text x="${p.x}" y="${p.y}" text-anchor="middle" fill="rgba(68,55,32,.50)" font-size="18" font-weight="900" letter-spacing="4">${n.name}</text></g>`;
+      });
+      return lines.join('') + notes.join('');
+    }
+
+    function buildCitiesAndUnits() {
+      const cityHtml = cities.map(c => {
+        const p = hexToPixel(c.q, c.r);
+        const color = faction[c.fac];
+        return `<g class="city">
+          <circle cx="${p.x}" cy="${p.y}" r="7.5" fill="${color}" stroke="rgba(245,238,225,.85)" stroke-width="2"/>
+          <circle cx="${p.x}" cy="${p.y}" r="12" fill="${color}" opacity=".12"/>
+          <text class="city-label" x="${p.x}" y="${p.y-12}" text-anchor="middle" fill="${color}">${c.name}</text>
+        </g>`;
+      }).join('');
+      const unitHtml = units.map(u => {
+        const p = hexToPixel(u.q, u.r);
+        const color = faction[u.fac];
+        return `<g class="unit">
+          <path d="M${p.x},${p.y-13} L${p.x+7},${p.y+2} L${p.x},${p.y+8} L${p.x-7},${p.y+2} Z" fill="${color}" stroke="rgba(245,238,225,.78)" stroke-width="1.4"/>
+          <text x="${p.x}" y="${p.y-16}" text-anchor="middle">${u.name}</text>
+        </g>`;
+      }).join('');
+      return cityHtml + unitHtml;
+    }
+
+    function renderPane(box) {
+      box.innerHTML = `
+        <img src="${imageSrc}" alt="">
+        <svg class="overlay" viewBox="0 0 ${MAP_W} ${MAP_H}" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <defs>
+            <filter id="softGlow"><feGaussianBlur stdDeviation="2.5"/></filter>
+          </defs>
+          ${buildSparseNotes()}
+          ${buildDenseIcons()}
+          ${buildCitiesAndUnits()}
+          <path class="hex-hover" d="${hexPath(HEX_SIZE * .94)}" transform="translate(-999,-999)"/>
+        </svg>`;
+    }
+
+    function updateHover(e) {
+      const box = e.currentTarget;
+      const rect = box.getBoundingClientRect();
+      const imgRatio = MAP_W / MAP_H;
+      const boxRatio = rect.width / rect.height;
+      let drawW = rect.width;
+      let drawH = rect.height;
+      let offX = 0;
+      let offY = 0;
+      if (boxRatio > imgRatio) {
+        drawW = rect.height * imgRatio;
+        offX = (rect.width - drawW) / 2;
+      } else {
+        drawH = rect.width / imgRatio;
+        offY = (rect.height - drawH) / 2;
+      }
+      const x = (e.clientX - rect.left - offX) / drawW * MAP_W;
+      const y = (e.clientY - rect.top - offY) / drawH * MAP_H;
+      const h = pixelToHex(x, y);
+      if (!h) return;
+      const p = hexToPixel(h.col, h.row);
+      document.querySelectorAll('.hex-hover').forEach(el => el.setAttribute('transform', `translate(${p.x.toFixed(1)},${p.y.toFixed(1)})`));
+      const t = terrainAt(h.col, h.row);
+      document.getElementById('readout').innerHTML = `hex ${h.col},${h.row}<br>terrain ${terrainLabel(t)}<br>region ${regionAt(h.col, h.row)}`;
+    }
+
+    document.querySelectorAll('.mapbox').forEach(box => {
+      renderPane(box);
+      box.addEventListener('mousemove', updateHover);
+      box.addEventListener('mouseenter', () => document.body.classList.add('show-hover'));
+      box.addEventListener('mouseleave', () => document.body.classList.remove('show-hover'));
+    });
+
+    document.getElementById('applyImage').addEventListener('click', () => {
+      const next = document.getElementById('imageInput').value.trim();
+      if (!next) return;
+      imageSrc = next;
+      document.querySelectorAll('.mapbox').forEach(renderPane);
+    });
+
+    document.getElementById('iconOpacity').addEventListener('input', e => {
+      document.documentElement.style.setProperty('--iconOpacity', Number(e.target.value) / 100);
+      document.querySelectorAll('.terrain-icon').forEach(el => el.style.opacity = Number(e.target.value) / 100);
+    });
+
+    document.getElementById('labelToggle').addEventListener('change', e => {
+      document.querySelectorAll('.city-label').forEach(el => el.style.display = e.target.checked ? '' : 'none');
+    });
+
+    document.getElementById('hoverToggle').addEventListener('change', e => {
+      document.querySelectorAll('.hex-hover').forEach(el => el.style.display = e.target.checked ? '' : 'none');
+    });
+  </script>
+</body>
+</html>

@@ -10,11 +10,11 @@ Current direction:
 
 Current state:
 
-- Active stage: Stage 4, representative tiles.
-- Last producer decision: Stage 3 `tile_plan_v1` approved: 4 x 3 grid, 20% production-tile overlap, and three independent representative crop candidates.
-- Active candidate: `work/representative_tiles/stage4_rep_huaisi_jiangdong_v1_generation_brief.md`; image candidate pending generation.
-- Last representative decision: `work/representative_tiles/rep_guanzhong_henan_v4.png` accepted as the current Stage 4 first representative reference candidate.
-- Next proposed action: retry built-in image generation for `rep_huaisi_jiangdong_v1`; attempts 1-6 failed with `ServerError`.
+- Active stage: Stage 6, tile production preparation.
+- Last producer decision: Stage 5 `tile_plan_v2_final_candidate` approved: 4 x 3 grid, 20% overlap, 4x output scale, neighbor list, and Stage 6 production order.
+- Active candidate: `work/stitch/tile_t06_cc_w_v3.png`; corrected T06 candidate pending producer review.
+- Last representative decision: `work/representative_tiles/rep_huaisi_jiangdong_v1.png` accepted as the Jiangdong/lower-Yangtze water-network representative direction.
+- Next proposed action: producer review of `tile_t06_cc_w_v3`.
 - Runtime state: no new map-art candidate from this folder is approved for promotion.
 
 Primary doc:

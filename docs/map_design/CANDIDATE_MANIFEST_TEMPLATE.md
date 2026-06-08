@@ -52,6 +52,14 @@ Copy this template next to each generated or composited map candidate.
 - Style consistency:
 - Patch/seam risk:
 
+## Stage 6 Tile Quality Gate
+
+- Perspective/style gate: `PASS` / `REWORK` / not applicable
+- Seam/overlap gate: `PASS` / `PENDING_NEIGHBOR` / `REWORK` / not applicable
+- Terrain/geography gate: `PASS` / `REWORK` / not applicable
+- Pseudo-settlement gate: `PASS` / `REWORK` / not applicable
+- Runtime isolation gate: `PASS` / `FAIL` / not applicable
+
 ## Runtime Impact
 
 - Runtime impact: usually `none`

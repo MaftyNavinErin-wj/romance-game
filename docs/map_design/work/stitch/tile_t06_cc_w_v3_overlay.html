@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>T06_CC_W v3 Overlay Review</title>
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #202326; color: #eef0e8; }
+    main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    h1 { margin: 0 0 8px; font-size: 24px; }
+    p { margin: 0 0 16px; color: #c9d0c7; line-height: 1.45; }
+    .frame { position: relative; width: 100%; aspect-ratio: 1448 / 1086; overflow: hidden; border: 1px solid rgba(255,255,255,0.25); background: #d7c7a3; box-shadow: 0 12px 32px rgba(0,0,0,0.35); }
+    .frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .band { position: absolute; box-sizing: border-box; border: 2px solid rgba(255,255,255,0.72); background: rgba(78,141,185,0.16); color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.85); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; text-align: center; }
+    .north { left: 0; top: 0; width: 100%; height: 28.7%; }
+    .south { left: 0; bottom: 0; width: 100%; height: 28.7%; }
+    .west { left: 0; top: 0; width: 28.7%; height: 100%; }
+    .east { right: 0; top: 0; width: 28.7%; height: 100%; }
+    .center { position: absolute; left: 28.7%; top: 28.7%; width: 42.6%; height: 42.6%; border: 2px solid rgba(255,230,140,0.9); box-sizing: border-box; pointer-events: none; }
+    .note { margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; color: #d7ddd2; font-size: 13px; }
+    .note div { border: 1px solid rgba(255,255,255,0.18); padding: 10px; background: rgba(255,255,255,0.05); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>T06_CC_W v3 Overlay Review</h1>
+    <p>Concept crop: 334,251,586,439. Output source: 1448 x 1086. Blue bands mark neighbor overlap zones: 168/586 horizontal and 126/439 vertical in concept space.</p>
+    <div class="frame">
+      <img src="tile_t06_cc_w_v3.png" alt="">
+      <div class="band north">N overlap<br>T02_NC_W</div>
+      <div class="band south">S overlap<br>T10_SC_W</div>
+      <div class="band west">W overlap<br>T05_WC</div>
+      <div class="band east">E overlap<br>T07_CC_E</div>
+      <div class="center" aria-hidden="true"></div>
+    </div>
+    <div class="note">
+      <div><strong>Scope:</strong> city hierarchy instead of two-city-only representative crop.</div>
+      <div><strong>Terrain:</strong> dry bounded plains, upper main river, southern foothills.</div>
+      <div><strong>Review risk:</strong> right/eastern north-south local river remains prominent.</div>
+      <div><strong>Runtime:</strong> docs-only, no assets/maps promotion.</div>
+    </div>
+  </main>
+</body>
+</html>
