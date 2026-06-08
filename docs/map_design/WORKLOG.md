@@ -3,10 +3,10 @@
 ## Current State
 
 - Current approved runtime map asset: unchanged from the existing game state.
-- Current map-art workflow status: `MAP_MASTER_WORKFLOW_v1.md` approved for Stage 1 exploration.
-- Active stage: Stage 1, national low-resolution concept.
-- Active candidate: `national_concept_v5`, author pre-review `PASS` for rough actual-terrain control, pending producer decision.
-- Next proposed action: producer review of v5 concept image, overlay, manifest, and actual-terrain audit.
+- Current map-art workflow status: Stage 1 national concept, Stage 2 art-kit references, and Stage 3 provisional tile plan approved.
+- Active stage: Stage 4, representative tiles.
+- Active candidate: pending first representative tile production decision.
+- Next proposed action: choose and generate the first Stage 4 representative tile candidate.
 
 ## Decisions
 
@@ -27,6 +27,7 @@
 - Created `national_concept_v4` using the terrain audit. Author pre-review: v4 is the preferred Stage 1 candidate so far because it combines v1-like organic style, v3-like national-scale detail sizing, and a more visible mountain/basin/river skeleton.
 - Actual-terrain audit on v4: v4 remains `REWORK` if judged against real China terrain. It is conceptually stronger but still weak on Qinling as an east-west divide, North China Plain/Taihang relationship, Sichuan/Hanzhong basin logic, and Wushan/Three Gorges/Yiling choke.
 - Created `national_concept_v5` using the actual-terrain audit. Author pre-review: v5 is the preferred Stage 1 candidate so far because it keeps v4's style/scale while making the North China Plain more open, the Taihang-like edge clearer, and the basin/corridor relationships more legible.
+- Producer approved `national_concept_v5` as the Stage 1 national reference direction, with one caveat: some road/river details read as small settlement or mini-city marks, and later stages must remove/suppress these rather than inherit them into production terrain.
 
 ## Latest Files
 
@@ -97,3 +98,22 @@
 - `stage2_art_kit_v2_02_foothill_forest_reference.png`, `stage2_art_kit_v2_03_mountain_pass_reference.png`, and `stage2_art_kit_v2_04_road_pass_reference.png` are accepted as lighter forest / mountain-pass / road-pass references.
 - All v2 images remain `REFERENCE_ONLY`; they are not runtime assets and were not promoted to `assets/maps/`.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified by this review pass.
+
+## 2026-06-08 Stage 3 Tile Plan Draft v1
+
+- Created provisional Stage 3 tile plan draft based on approved `national_concept_v5`.
+- Added `docs/map_design/work/tile_plan/tile_index_v1.md`.
+- Added `docs/map_design/work/tile_plan/tile_grid_v1.html`.
+- Draft uses a 4 x 3 national tile grid with 20% overlap as the first review model.
+- Draft proposes three Stage 4 representative crop candidates: Guanzhong-Henan / Luoyang-Changan, Bashu-Hanzhong, and Huai-Si / Jiangdong.
+- Caveat carried forward: road/river pseudo-settlement marks from v5 are explicitly banned from later tile production prompts and review.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-08 Stage 3 Tile Plan Producer Review
+
+- Producer approved the Stage 3 provisional tile plan.
+- Approved: 4 x 3 national production tile grid.
+- Approved: 20% production-tile overlap for seam control.
+- Approved: three independent Stage 4 representative crop candidates.
+- Clarified: representative crops are not a stitched set and do not need mutual overlap.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stage 3 Tile Grid v1</title>
+  <style>
+    body {
+      margin: 0;
+      background: #24221d;
+      color: #eee8dc;
+      font: 14px/1.4 Arial, sans-serif;
+    }
+    .wrap {
+      max-width: 1672px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+    .stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1672 / 941;
+      background: #111;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+    }
+    .stage img,
+    .stage svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .stage img {
+      object-fit: contain;
+    }
+    .tile {
+      fill: rgba(71, 148, 196, 0.08);
+      stroke: rgba(91, 196, 255, 0.78);
+      stroke-width: 3;
+    }
+    .tile-core {
+      fill: none;
+      stroke: rgba(91, 196, 255, 0.34);
+      stroke-width: 2;
+      stroke-dasharray: 12 10;
+    }
+    .rep {
+      fill: rgba(255, 196, 82, 0.14);
+      stroke: rgba(255, 210, 98, 0.95);
+      stroke-width: 4;
+    }
+    .label {
+      font: 21px Arial, sans-serif;
+      fill: rgba(255, 250, 224, 0.96);
+      stroke: rgba(0, 0, 0, 0.68);
+      stroke-width: 4;
+      paint-order: stroke;
+    }
+    .small {
+      font-size: 17px;
+    }
+    .panel {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .note {
+      border: 1px solid rgba(238, 232, 220, 0.22);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 10px 12px;
+      border-radius: 6px;
+    }
+    .note b {
+      color: #fff4cf;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Stage 3 Tile Grid v1</h1>
+    <div class="stage">
+      <img src="../national_concept/national_concept_v5.png" alt="National concept v5">
+      <svg viewBox="0 0 1672 941" aria-label="Provisional 4 by 3 tile grid and representative crop candidates">
+        <rect class="tile" x="0" y="0" width="502" height="377"/><text class="label small" x="16" y="32">T01</text>
+        <rect class="tile" x="334" y="0" width="586" height="377"/><text class="label small" x="350" y="32">T02</text>
+        <rect class="tile" x="752" y="0" width="586" height="377"/><text class="label small" x="768" y="32">T03</text>
+        <rect class="tile" x="1170" y="0" width="502" height="377"/><text class="label small" x="1186" y="32">T04</text>
+
+        <rect class="tile" x="0" y="251" width="502" height="439"/><text class="label small" x="16" y="283">T05</text>
+        <rect class="tile" x="334" y="251" width="586" height="439"/><text class="label small" x="350" y="283">T06</text>
+        <rect class="tile" x="752" y="251" width="586" height="439"/><text class="label small" x="768" y="283">T07</text>
+        <rect class="tile" x="1170" y="251" width="502" height="439"/><text class="label small" x="1186" y="283">T08</text>
+
+        <rect class="tile" x="0" y="564" width="502" height="377"/><text class="label small" x="16" y="596">T09</text>
+        <rect class="tile" x="334" y="564" width="586" height="377"/><text class="label small" x="350" y="596">T10</text>
+        <rect class="tile" x="752" y="564" width="586" height="377"/><text class="label small" x="768" y="596">T11</text>
+        <rect class="tile" x="1170" y="564" width="502" height="377"/><text class="label small" x="1186" y="596">T12</text>
+
+        <rect class="tile-core" x="0" y="0" width="418" height="314"/>
+        <rect class="tile-core" x="418" y="0" width="418" height="314"/>
+        <rect class="tile-core" x="836" y="0" width="418" height="314"/>
+        <rect class="tile-core" x="1254" y="0" width="418" height="314"/>
+        <rect class="tile-core" x="0" y="314" width="418" height="313"/>
+        <rect class="tile-core" x="418" y="314" width="418" height="313"/>
+        <rect class="tile-core" x="836" y="314" width="418" height="313"/>
+        <rect class="tile-core" x="1254" y="314" width="418" height="313"/>
+        <rect class="tile-core" x="0" y="627" width="418" height="314"/>
+        <rect class="tile-core" x="418" y="627" width="418" height="314"/>
+        <rect class="tile-core" x="836" y="627" width="418" height="314"/>
+        <rect class="tile-core" x="1254" y="627" width="418" height="314"/>
+
+        <rect class="rep" x="445" y="250" width="540" height="280"/>
+        <text class="label" x="462" y="560">rep_guanzhong_henan_v1</text>
+
+        <rect class="rep" x="160" y="540" width="460" height="310"/>
+        <text class="label" x="175" y="882">rep_bashu_hanzhong_v1</text>
+
+        <rect class="rep" x="1030" y="530" width="520" height="310"/>
+        <text class="label" x="1045" y="872">rep_huaisi_jiangdong_v1</text>
+      </svg>
+    </div>
+
+    <section class="panel">
+      <div class="note"><b>Blue boxes:</b> provisional 4 x 3 national tiles with about 20% overlap. Dashed lines show nominal non-overlap cores.</div>
+      <div class="note"><b>Gold boxes:</b> independent Stage 4 representative crop candidates. They are not a stitched set and do not need mutual overlap.</div>
+      <div class="note"><b>Caveat:</b> v5 road/river pseudo-settlement marks must be suppressed in later production. They are not approved settlement data.</div>
+      <div class="note"><b>Runtime:</b> none. This is a docs-only planning overlay.</div>
+    </section>
+  </main>
+</body>
+</html>

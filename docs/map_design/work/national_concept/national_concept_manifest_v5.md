@@ -4,7 +4,7 @@
 
 - Candidate id: `national_concept_v5`
 - Stage: Stage 1, national low-resolution concept
-- Verdict: `PASS` author pre-review for rough actual-terrain control; pending producer decision
+- Verdict: `PASS` producer-approved Stage 1 national reference with caveat
 - Date: 2026-06-08
 - Author/session: Codex imagegen built-in mode
 
@@ -90,6 +90,7 @@ Avoid: fantasy geography, oversized cities, oversized terrain icons, local-crop 
 - Riverbank/water detail: good. River hierarchy is restrained and readable.
 - Mountain/pass readability: improved over v4. Taihang-like north-south edge, western highlands, southern belts, and basin/corridor relationships are clearer.
 - Style consistency: good. Keeps v4's organic light ink/watercolor direction.
+- Caveat: some road/river details read as small settlement or mini-city marks. These are not approved as production terrain detail and must be removed or suppressed in later tile prompts, repaints, and compositing.
 - Patch/seam risk: low inside this single image; tile seam risk not evaluated.
 
 ## Actual Terrain Pre-Review
@@ -108,6 +109,7 @@ Avoid: fantasy geography, oversized cities, oversized terrain icons, local-crop 
 
 ## Producer Decision
 
-- Decision: pending
-- Required changes: pending producer review
-- Reject/rework reason: none from author pre-review. Remaining risk: v5 is only a rough actual-terrain concept, not a precise geography or data-alignment pass.
+- Decision: producer approved v5 style and national reference direction on 2026-06-08.
+- Caveat: road and river texture contains some small settlement / mini-city-like marks. Later stages must not inherit those marks into production terrain; true cities, forts, and settlements must remain data-controlled.
+- Required changes: no Stage 1 regeneration required. Carry pseudo-settlement suppression into Stage 3+ planning, Stage 4 representative tile prompts, and later repaint/compositing review.
+- Reject/rework reason: not applicable. Remaining risk: v5 is only a rough actual-terrain concept, not a precise geography or data-alignment pass.
