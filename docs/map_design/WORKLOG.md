@@ -3,10 +3,10 @@
 ## Current State
 
 - Current approved runtime map asset: unchanged from the existing game state.
-- Current map-art workflow status: Stage 1 national concept, Stage 2 art-kit references, and Stage 3 provisional tile plan approved.
-- Active stage: Stage 4, representative tiles.
-- Active candidate: `stage4_rep_huaisi_jiangdong_v1_generation_brief.md`, image candidate pending generation.
-- Next proposed action: retry built-in image generation for `rep_huaisi_jiangdong_v1`.
+- Current map-art workflow status: Stage 1-5 approved; Stage 6 execution model corrected to controlled production pipeline.
+- Active stage: Stage 6, production pipeline pilot.
+- Active candidate: `stage6_production_pipeline_v1.md`, pending producer approval before implementation.
+- Next proposed action: build `control_master_v1` and `T06_control_overlay_v1` before any further T06 image generation.
 
 ## Decisions
 
@@ -331,4 +331,14 @@
 - Added `docs/map_design/work/stitch/tile_t06_cc_w_v3_manifest.md`.
 - Added `docs/map_design/work/stitch/tile_t06_cc_w_v3_overlay.html`.
 - Author gate result for v3: perspective/style PASS, seam/overlap PENDING_NEIGHBOR, terrain/geography PASS, pseudo-settlement PASS, runtime isolation PASS. Main producer-review note: the right/eastern north-south local river remains prominent and should be judged for geography fit.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-09 Stage 6 Production Pipeline Correction
+
+- Producer flagged that `tile_t06_cc_w_v5` still behaves like a pretty reference image rather than a final zoom-in production tile: secondary cities are too small and random, and city/road/terrain alignment cannot be trusted if imagegen owns all layers.
+- Workflow conclusion: Stage 1-5 decisions remain valid, but Stage 6 execution must change from all-in-one image-generated production tiles to a controlled pipeline.
+- Added `docs/map_design/work/tile_plan/stage6_production_pipeline_v1.md`.
+- Updated `docs/map_design/MAP_MASTER_WORKFLOW_v1.md` Stage 6 to reference the new pipeline.
+- New Stage 6 rule: imagegen may produce no-city terrain bases and local blend passes, but city count, city positions, city size hierarchy, primary road graph, and duplicate/missing-city QA must be deterministic data/control layers.
+- Next action: build `control_master_v1` and `T06_control_overlay_v1` before any further T06 image generation.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.

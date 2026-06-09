@@ -440,3 +440,23 @@ Actual-terrain correction:
 - 2026-06-09 T06 scope correction: producer caught the key issue that full `T06_CC_W` is not a two-city-only scope. Added `docs/map_design/work/tile_plan/t06_city_scope_audit_v1.md`. Approximate CITY_BASE anchor check shows many city zones in/near the crop; the two-city rule belonged to Stage 4 representative Guanzhong-Henan, not Stage 6 production. `tile_t06_cc_w_v2` changed from pending review to `REWORK` for full production scope. Next T06 generation must use city hierarchy: primary Chang'an/Luoyang, secondary/subdued controlled corridor anchors, seam-aware edge city zones, and no random non-data settlements.
 - Corrected full-scope T06 built-in imagegen attempts 5-7 failed with `ServerError`; no new corrected image candidate produced. Do not resurrect v2 as PASS; retry later or use explicit CLI/API fallback only if producer asks for that path.
 - Corrected full-scope T06 attempt 8 succeeded: `docs/map_design/work/stitch/tile_t06_cc_w_v3.png`. v3 fixes the v2 city-scope error with two major cities plus several smaller subdued controlled city marks. Author gate: perspective/style PASS, seam PENDING_NEIGHBOR, terrain PASS, pseudo-settlement PASS, runtime PASS. Main review risk remains the right/eastern north-south local river; producer should judge whether it fits as local Luo/Yiluo-style water/corridor or needs rework.
+
+## 2026-06-09 Stage 6 Production Pipeline Correction
+
+Producer review of `tile_t06_cc_w_v5` exposed that Stage 6 production cannot rely on all-in-one imagegen outputs. The style is aligned, but city placement, city size, roads, terrain, and overlap seams are too precise for free AI generation.
+
+Settled working rule:
+
+- Stage 1-5 remain valid: national-first, 4 x 3 grid, 20% overlap, 4x scale, representative style references, and T06-first production order.
+- Stage 6 execution changes to a controlled pipeline.
+- Build `control_master_v1` first as the national control artifact: all 55 CITY_BASE anchors, tile grid, overlap bands, city classes, road graph, and major river/mountain zones.
+- Build `T06_control_overlay_v1` from `control_master_v1` before any further T06 image generation.
+- Imagegen may generate no-city terrain bases and local blend/paint-over, but it must not decide city count, city position, city hierarchy, primary roads, pass/ferry placement, or duplicate/missing-city QA.
+- City and primary road layers must be deterministic; city stamps can be generated as art sources but placed by rules.
+- If T06 proves the pipeline, automate the next batch `T01_NW` through `T05_WC` for control overlays, city scope tables, road graph clipping, manifest skeletons, and QA, while keeping producer review for terrain composition and visual pass/fail.
+
+Docs updated:
+
+- `docs/map_design/work/tile_plan/stage6_production_pipeline_v1.md`
+- `docs/map_design/MAP_MASTER_WORKFLOW_v1.md`
+- `docs/map_design/WORKLOG.md`

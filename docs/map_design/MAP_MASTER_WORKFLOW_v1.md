@@ -205,7 +205,8 @@ Avoid:
 
 Desired:
 
-- Field grids, irrigation traces, villages, low roads, and settlement clusters.
+- Field grids, irrigation traces, and low terrain texture.
+- In Stage 6 terrain-base prompts, villages, settlement clusters, forts, and clear roads are banned unless they are later added through approved deterministic layers.
 - Density should vary: capital plains can be dense; frontier plains should be lighter.
 
 Avoid:
@@ -376,17 +377,19 @@ Gate:
 
 Goal:
 
-- Produce the national map tiles with consistent style.
+- Produce the national map through controlled terrain tiles plus deterministic cartographic layers.
 
 Method:
 
-- Generate/repaint each tile using the national concept, art kit, tile plan, and neighbor context.
-- Do not independently invent city layout, river hierarchy, or strategic roads.
-- Store source candidates and selected outputs separately.
+- Follow `work/tile_plan/stage6_production_pipeline_v1.md`.
+- Use image generation for no-city terrain bases and localized blend/paint-over, not for final city count, city positions, city size hierarchy, or primary road layout.
+- Build control overlays before further production candidates. The first pilot artifacts are `control_master_v1` and `T06_control_overlay_v1`.
+- Render city and primary road layers from data/control rules, then blend them into the terrain art.
+- Store source candidates, control overlays, selected outputs, and QA notes separately.
 
 Gate:
 
-- `PASS`: tile passes raw art review, overlay review, manifest completeness, and neighbor seam review.
+- `PASS`: the tile/pipeline candidate passes control overlay review, raw terrain review, deterministic city/road review, manifest completeness, QA checks, and neighbor seam review.
 - `REWORK`: tile requires localized repaint or regeneration.
 - `REJECT`: tile is archived with reason and replaced.
 
