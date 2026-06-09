@@ -356,3 +356,13 @@
 - Edge headless screenshot sanity check generated preview PNGs under `%TEMP%\romance-map-overlay-check\`; screenshots were not added to the repo.
 - Producer review remains required before generating a new T06 terrain base.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-09 Stage 6 T06 Geography And Collision Audit
+
+- Added `docs/map_design/work/tile_plan/T06_terrain_geography_collision_audit_v1.md`.
+- Audit result: `T06_control_overlay_v1` remains useful as a source overlay, but its city circles are control footprints, not final city-stamp bounds.
+- City collision check found final-stamp collision risk for 成都/雒城, 南阳/襄阳, 南阳/新野, and the 陈留/官渡/许昌 overlap cluster.
+- Recommended ownership/weight direction before no-city terrain generation: keep 长安/洛阳 as primary overlap/global anchors; keep 南阳/襄阳/上庸/夷陵 as T06 center anchors; downgrade or delegate 新野/汉中; delegate 陈留/官渡/许昌 to T07 or global city layer; keep Bashu/Jingzhou/Yangtze groups as context.
+- Geography audit requires the next T06 brief to separate Yellow River/Wei, Luo/Yi/Yiluo, Han River, and Yangtze/Jianghan edge controls, and to split Qinling/Funiu/Daba zones instead of using one broad southern terrain band.
+- Road audit recommends a sparse route hierarchy rather than directly rendering all clipped `ROADS` edges.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.

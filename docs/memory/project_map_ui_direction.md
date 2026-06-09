@@ -470,3 +470,12 @@ First control artifacts:
 - `docs/map_design/work/tile_plan/T06_control_overlay_v1_manifest.md`
 
 Verification: static data check reports 55 cities, 111 roads, 11 river paths; T06 has 21 in-crop city anchors and 31 anchors with 80 px context margin. Edge headless screenshots rendered nonblank previews; do not proceed to T06 terrain generation until producer reviews the control overlays.
+
+## 2026-06-09 T06 Collision And Geography Gate
+
+Producer review of the control overlay raised two necessary Stage 6 gates before no-city terrain generation:
+
+- City circles in `T06_control_overlay_v1` are only control footprints, not final city-stamp bounds. Final stamps need walls, gates, shadows, road tie-ins, and paper/ink blending, so close city clusters can collide even when control circles barely fit.
+- `ROADS` and especially `RIVERS` are source review layers, not final geography truth. T06 terrain prompts must be checked against actual geography: Yellow River/Wei River in the north/Guanzhong-Henan control, Luo/Yi/Yiluo around Luoyang, Han River south of Qinling, Yangtze/Jianghan only as bottom/southeast context, and separate Qinling/Funiu/Daba controls.
+
+Added `docs/map_design/work/tile_plan/T06_terrain_geography_collision_audit_v1.md`. Main decisions pending producer review: whether 长安/洛阳 are T06-owned or global primary stamps; whether 新野 is downgraded to avoid 南阳/襄阳 crowding; whether 陈留/官渡/许昌 belong to T07/global ownership; and whether 汉中 is full T06 stamp or west-corridor context.
