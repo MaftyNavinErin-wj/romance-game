@@ -453,10 +453,20 @@ Settled working rule:
 - Build `T06_control_overlay_v1` from `control_master_v1` before any further T06 image generation.
 - Imagegen may generate no-city terrain bases and local blend/paint-over, but it must not decide city count, city position, city hierarchy, primary roads, pass/ferry placement, or duplicate/missing-city QA.
 - City and primary road layers must be deterministic; city stamps can be generated as art sources but placed by rules.
-- If T06 proves the pipeline, automate the next batch `T01_NW` through `T05_WC` for control overlays, city scope tables, road graph clipping, manifest skeletons, and QA, while keeping producer review for terrain composition and visual pass/fail.
+- Road graph provenance matters: derive initial links from existing game adjacency/road data plus approved geography notes, and mark missing/rerouted strategic links `PENDING_PRODUCER_APPROVAL`.
+- If T06 proves the pipeline, automate the next batch `T01_NW` through `T05_WC` for control overlays, city scope tables, road graph clipping, manifest skeletons, and QA, while keeping producer review for terrain composition and visual pass/fail. This is a next batch only; the full approved 4 x 3 plan still includes T07-T12.
 
 Docs updated:
 
 - `docs/map_design/work/tile_plan/stage6_production_pipeline_v1.md`
 - `docs/map_design/MAP_MASTER_WORKFLOW_v1.md`
 - `docs/map_design/WORKLOG.md`
+
+First control artifacts:
+
+- `docs/map_design/work/tile_plan/control_master_v1.html`
+- `docs/map_design/work/tile_plan/T06_control_overlay_v1.html`
+- `docs/map_design/work/tile_plan/control_master_v1_manifest.md`
+- `docs/map_design/work/tile_plan/T06_control_overlay_v1_manifest.md`
+
+Verification: static data check reports 55 cities, 111 roads, 11 river paths; T06 has 21 in-crop city anchors and 31 anchors with 80 px context margin. Edge headless screenshots rendered nonblank previews; do not proceed to T06 terrain generation until producer reviews the control overlays.

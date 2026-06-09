@@ -59,6 +59,8 @@ Required first artifact:
 
 `control_master_v1` must be created before, or in the same change set as, `T06_control_overlay_v1`. The T06 overlay must derive from this global artifact rather than restating city and road rules by hand.
 
+`control_master_v1` must have a manifest/worklog trail like other Stage 6 candidates. At minimum, record its data sources, generated outputs, review verdict, and producer decision before using it as an approved source for terrain prompts.
+
 ### 2. Terrain Tile Layer
 
 Each Stage 6 tile produces a terrain base, not a finished city map.
@@ -82,6 +84,7 @@ Rules:
 
 - city positions come from projected `CITY_BASE` anchors unless a producer-approved data-alignment note changes them;
 - primary roads connect data-controlled city links, not AI-invented landmarks;
+- the initial road graph must be derived from existing game adjacency/road data plus previously approved geography notes; any missing link, reroute, pass, ferry, or strategic crossing must be marked `PENDING_PRODUCER_APPROVAL` instead of silently accepted;
 - roads should connect to city gates and avoid major river/mountain control zones unless the link is a pass/ferry/crossing;
 - pass/ferry/crossing links must come from existing game adjacency, prior approved geography notes, or explicit producer approval; automation must not invent named passes or strategic crossings;
 - roads should be reviewed nationally, then clipped or previewed per tile.
@@ -127,6 +130,8 @@ Initial review scale should follow the producer size direction:
 - overlap/edge cities: may be subdued or clipped by final composition, but must not be shrunk into random texture.
 
 The exact pixel sizes should be set by the first `T06_control_overlay_v1` and reused for later tiles unless producer review changes the scale.
+
+The pizza wording is only a producer-facing scale metaphor. `T06_control_overlay_v1` must convert it into pixel dimensions and percentage-of-tile measurements before any production art step.
 
 ## Tile Scope Versus Final Ownership
 
@@ -183,6 +188,8 @@ Only after this overlay is approved should T06 proceed to:
 
 If T06 passes as a pilot, the same pipeline should be scripted for the next production batch: `T01_NW`, `T02_NC_W`, `T03_NC_E`, `T04_NE`, and `T05_WC`.
 
+This is only the next automation batch, not the full remaining map. After the T01-T05 batch, the same automation should continue across the full approved 4 x 3 tile plan in `tile_index_v2_final_candidate.md`, including `T07_CC_E`, `T08_EC`, `T09_SW`, `T10_SC_W`, `T11_SC_E`, and `T12_SE`.
+
 For each tile, automation should generate:
 
 - city scope table,
@@ -218,6 +225,7 @@ A Stage 6 production candidate cannot pass unless these checks are satisfied:
 - terrain bases contain no uncontrolled city/village/fort marks;
 - city stamps share the accepted map perspective and ink/paper style;
 - blend passes do not move data-controlled anchors;
+- if Stage 8 later approves city, road, river, or terrain data alignment changes, deterministic city/road layers must be regenerated from the approved data rather than manually patched;
 - runtime impact remains none until explicit promotion approval.
 
 ## Runtime Impact

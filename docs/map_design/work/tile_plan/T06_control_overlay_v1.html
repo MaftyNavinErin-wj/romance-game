@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>T06 Control Overlay v1</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #202326;
+      --panel: #2a2e31;
+      --text: #eef0e8;
+      --muted: #c3cabf;
+      --line: rgba(255,255,255,0.24);
+      --primary: #ffcc66;
+      --standard: #74b3ce;
+      --edge: #b99bdf;
+      --near: #ff6b6b;
+      --road: rgba(44, 32, 22, 0.78);
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    main {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+    p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      align-items: center;
+      padding: 10px 12px;
+      margin: 0 0 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      font-size: 13px;
+    }
+    label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      color: #dce2d7;
+    }
+    input {
+      accent-color: #d2a64c;
+    }
+    .frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 586 / 439;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.28);
+      background: #d8c8a5;
+      box-shadow: 0 14px 34px rgba(0,0,0,0.35);
+    }
+    svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .base {
+      opacity: 0.67;
+      filter: saturate(0.92) contrast(0.95);
+    }
+    .overlap {
+      fill: rgba(78,141,185,0.18);
+      stroke: rgba(78,141,185,0.64);
+      stroke-width: 1.5;
+      vector-effect: non-scaling-stroke;
+    }
+    .center-box {
+      fill: none;
+      stroke: rgba(255,230,140,0.9);
+      stroke-width: 2;
+      vector-effect: non-scaling-stroke;
+    }
+    .river {
+      fill: none;
+      stroke: rgba(42, 95, 145, 0.62);
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+    .terrain-zone {
+      fill: rgba(68, 60, 46, 0.18);
+      stroke: rgba(52, 42, 28, 0.5);
+      stroke-width: 2;
+      stroke-dasharray: 7 6;
+      vector-effect: non-scaling-stroke;
+    }
+    .terrain-label {
+      fill: rgba(50, 42, 30, 0.86);
+      font-size: 10px;
+      font-weight: 700;
+      paint-order: stroke;
+      stroke: rgba(235,222,185,0.75);
+      stroke-width: 3px;
+      text-anchor: middle;
+    }
+    .road {
+      fill: none;
+      stroke: var(--road);
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+    .city circle.footprint {
+      fill: rgba(255,244,202,0.3);
+      stroke-width: 2.2;
+      vector-effect: non-scaling-stroke;
+    }
+    .city.primary circle.footprint { stroke: var(--primary); }
+    .city.standard circle.footprint { stroke: var(--standard); }
+    .city.edge circle.footprint { stroke: var(--edge); stroke-dasharray: 5 4; }
+    .city.near-boundary circle.footprint { stroke: var(--near); stroke-dasharray: 3 4; fill: rgba(255,107,107,0.08); }
+    .city-dot {
+      fill: rgba(40,30,20,0.86);
+      stroke: rgba(255,255,255,0.72);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+    }
+    .city text {
+      fill: #fff8dd;
+      font-size: 8.8px;
+      font-weight: 800;
+      paint-order: stroke;
+      stroke: rgba(0,0,0,0.82);
+      stroke-width: 2.5px;
+      pointer-events: none;
+    }
+    .size-key circle {
+      fill: none;
+      stroke-width: 1.6;
+      vector-effect: non-scaling-stroke;
+    }
+    .size-key text {
+      fill: #fff;
+      font-size: 8.5px;
+      font-weight: 700;
+      paint-order: stroke;
+      stroke: rgba(0,0,0,0.75);
+      stroke-width: 2px;
+    }
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+      font-size: 13px;
+      color: #d6ddd1;
+    }
+    .legend > div {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.045);
+      padding: 10px;
+    }
+    .city-list {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.045);
+      padding: 10px;
+      font-size: 12px;
+      color: #dfe5da;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 8px 14px;
+    }
+    .city-list b {
+      color: #fff;
+    }
+    .hide-cities .city,
+    .hide-roads .road,
+    .hide-rivers .river,
+    .hide-overlap .overlap,
+    .hide-terrain .terrain-zone,
+    .hide-terrain .terrain-label,
+    .hide-size .size-key {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>T06_CC_W Control Overlay v1</h1>
+    <p>Derived from <code>control_master_v1</code>. Crop: <code>334,251,586,439</code>. Output target @4x: <code>2344 x 1756</code>. This overlay is for producer review before any further T06 terrain generation.</p>
+    <div class="toolbar" aria-label="Layer controls">
+      <label><input type="checkbox" data-layer="overlap" checked>overlap bands</label>
+      <label><input type="checkbox" data-layer="cities" checked>scope cities</label>
+      <label><input type="checkbox" data-layer="roads" checked>T06 roads from ROADS</label>
+      <label><input type="checkbox" data-layer="rivers" checked>source rivers</label>
+      <label><input type="checkbox" data-layer="terrain" checked>terrain zones</label>
+      <label><input type="checkbox" data-layer="size" checked>size key</label>
+    </div>
+    <div id="frame" class="frame">
+      <svg id="map" viewBox="334 251 586 439" role="img" aria-label="T06 control overlay">
+        <image class="base" href="../national_concept/national_concept_v5.png" x="0" y="0" width="1672" height="941"></image>
+        <g id="overlaps"></g>
+        <rect class="center-box" x="502" y="377" width="250" height="187" aria-label="non-overlap center"></rect>
+        <g id="terrain"></g>
+        <g id="rivers"></g>
+        <g id="roads"></g>
+        <g id="cities"></g>
+        <g id="size-key" class="size-key"></g>
+      </svg>
+    </div>
+    <div class="legend">
+      <div><b>City scale proposal:</b> primary radius 28 concept px / 112 output px; standard radius 16 / 64 output px; edge radius 14 / 56 output px. This converts the 9-inch / 5-inch scale metaphor into reviewable dimensions.</div>
+      <div><b>Scope rule:</b> inside-crop cities are shown as primary/standard/edge. Near-boundary cities within 80 concept px are red dashed context anchors, not approved final T06 ownership.</div>
+      <div><b>Road provenance:</b> roads are clipped from existing `ROADS`. Missing route changes or pass/ferry reroutes remain `PENDING_PRODUCER_APPROVAL`.</div>
+    </div>
+    <div id="city-list" class="city-list"></div>
+  </main>
+
+  <script src="../../../../src/data/city_base.js"></script>
+  <script src="../../../../src/data/cities.js"></script>
+  <script>
+    const CONCEPT_W = 1672;
+    const CONCEPT_H = 941;
+    const SVG_W = 960;
+    const SVG_H = 740;
+    const SX = CONCEPT_W / SVG_W;
+    const SY = CONCEPT_H / SVG_H;
+    const HEX_SIZE = 6;
+    const HEX_H = Math.sqrt(3) * HEX_SIZE;
+    const crop = { x:334, y:251, w:586, h:439 };
+    const margin = 80;
+    const primary = new Set(['changan', 'luoyang']);
+    const standard = new Set(['chenliu', 'guandu', 'xuchang', 'nanyang', 'xinye', 'hanzhong', 'shangyong', 'xiangyang', 'yiling', 'jingzhou', 'wuchang']);
+    const edge = new Set(['chengdu', 'yizhou_n', 'bazhong', 'yongan', 'luocheng', 'wuling', 'changsha', 'anding']);
+    const terrainZones = [
+      { label:'Yellow River / northern water control', pts:'334,265 430,250 560,255 710,260 860,255 920,285 860,315 720,305 590,305 450,315 334,300' },
+      { label:'Guanzhong-Henan bounded plain', pts:'370,315 520,300 700,310 860,330 900,440 800,520 620,520 470,500 380,450' },
+      { label:'Qinling-Funiu foothill edge', pts:'334,520 470,485 610,500 740,535 900,585 920,690 334,690' }
+    ];
+
+    function el(name, attrs = {}, text = '') {
+      const node = document.createElementNS('http://www.w3.org/2000/svg', name);
+      for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+      if (text) node.textContent = text;
+      return node;
+    }
+
+    function hexToPixel(col, row) {
+      const x = col * HEX_SIZE * 1.5 + HEX_SIZE + 8;
+      const y = row * HEX_H + (col % 2 ? HEX_H / 2 : 0) + HEX_H / 2 + 4;
+      return { x: x * SX, y: y * SY };
+    }
+
+    function inCrop(p) {
+      return p.x >= crop.x && p.x <= crop.x + crop.w && p.y >= crop.y && p.y <= crop.y + crop.h;
+    }
+
+    function inMargin(p) {
+      return p.x >= crop.x - margin && p.x <= crop.x + crop.w + margin && p.y >= crop.y - margin && p.y <= crop.y + crop.h + margin;
+    }
+
+    function cityClass(id, p) {
+      if (!inCrop(p)) return 'near-boundary';
+      if (primary.has(id)) return 'primary';
+      if (standard.has(id)) return 'standard';
+      if (edge.has(id)) return 'edge';
+      return 'edge';
+    }
+
+    function cityRadius(cls) {
+      if (cls === 'primary') return 28;
+      if (cls === 'standard') return 16;
+      return 14;
+    }
+
+    function scaledPath(d) {
+      return d.replace(/-?\d+(?:\.\d+)?/g, (num, idx, str) => {
+        const prefix = str.slice(0, idx);
+        const numsBefore = (prefix.match(/-?\d+(?:\.\d+)?/g) || []).length;
+        const scale = numsBefore % 2 === 0 ? SX : SY;
+        return (parseFloat(num) * scale).toFixed(1);
+      });
+    }
+
+    function roadPoints(aid, bid) {
+      const a = CITY_BASE[aid];
+      const b = CITY_BASE[bid];
+      if (!a || !b) return null;
+      const key = [aid, bid].sort().join('-');
+      const pts = [hexToPixel(a.q, a.r)];
+      const waypoints = (typeof ROAD_WAYPOINTS !== 'undefined' && ROAD_WAYPOINTS[key]) ? ROAD_WAYPOINTS[key] : [];
+      for (const [q, r] of waypoints) pts.push(hexToPixel(q, r));
+      pts.push(hexToPixel(b.q, b.r));
+      return pts;
+    }
+
+    function pathFromPoints(points) {
+      return points.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+    }
+
+    function roadTouchesT06(points) {
+      return points.some(inMargin);
+    }
+
+    function drawOverlaps() {
+      const g = document.getElementById('overlaps');
+      g.appendChild(el('rect', { class:'overlap', x:crop.x, y:crop.y, width:168, height:crop.h }));
+      g.appendChild(el('rect', { class:'overlap', x:crop.x + crop.w - 168, y:crop.y, width:168, height:crop.h }));
+      g.appendChild(el('rect', { class:'overlap', x:crop.x, y:crop.y, width:crop.w, height:126 }));
+      g.appendChild(el('rect', { class:'overlap', x:crop.x, y:crop.y + crop.h - 126, width:crop.w, height:126 }));
+    }
+
+    function drawTerrain() {
+      const g = document.getElementById('terrain');
+      terrainZones.forEach(z => {
+        g.appendChild(el('polygon', { class:'terrain-zone', points:z.pts }));
+        const pts = z.pts.split(/\s+/).map(pair => pair.split(',').map(Number));
+        const cx = pts.reduce((sum, p) => sum + p[0], 0) / pts.length;
+        const cy = pts.reduce((sum, p) => sum + p[1], 0) / pts.length;
+        g.appendChild(el('text', { class:'terrain-label', x:cx.toFixed(1), y:cy.toFixed(1) }, z.label));
+      });
+    }
+
+    function drawRivers() {
+      const g = document.getElementById('rivers');
+      if (typeof RIVERS === 'undefined') return;
+      RIVERS.forEach(d => g.appendChild(el('path', { class:'river', d:scaledPath(d) })));
+    }
+
+    function drawRoads() {
+      const g = document.getElementById('roads');
+      ROADS.forEach(([aid, bid]) => {
+        const pts = roadPoints(aid, bid);
+        if (!pts || !roadTouchesT06(pts)) return;
+        g.appendChild(el('path', { class:'road', d:pathFromPoints(pts) }));
+      });
+    }
+
+    function drawCities() {
+      const g = document.getElementById('cities');
+      const list = [];
+      Object.entries(CITY_BASE).forEach(([id, city]) => {
+        const p = hexToPixel(city.q, city.r);
+        if (!inMargin(p)) return;
+        const cls = cityClass(id, p);
+        const group = el('g', { class:`city ${cls}` });
+        group.appendChild(el('circle', { class:'footprint', cx:p.x.toFixed(1), cy:p.y.toFixed(1), r:cityRadius(cls) }));
+        group.appendChild(el('circle', { class:'city-dot', cx:p.x.toFixed(1), cy:p.y.toFixed(1), r:3.2 }));
+        group.appendChild(el('text', { x:(p.x + 5).toFixed(1), y:(p.y - 6).toFixed(1) }, city.name));
+        group.appendChild(el('title', {}, `${city.name} / ${id} / ${cls} / concept ${p.x.toFixed(0)},${p.y.toFixed(0)}`));
+        g.appendChild(group);
+        list.push({ id, name: city.name, cls, x: Math.round(p.x), y: Math.round(p.y), inside: inCrop(p) });
+      });
+      list.sort((a, b) => (a.inside === b.inside ? 0 : a.inside ? -1 : 1) || a.y - b.y || a.x - b.x);
+      const html = list.map(c => `<div><b>${c.name}</b> <code>${c.id}</code><br>${c.cls}${c.inside ? '' : ' context'} · ${c.x},${c.y}</div>`).join('');
+      document.getElementById('city-list').innerHTML = html;
+    }
+
+    function drawSizeKey() {
+      const g = document.getElementById('size-key');
+      const x = crop.x + 24;
+      const y = crop.y + crop.h - 34;
+      [
+        { label:'primary r28', r:28, color:'var(--primary)', dx:0 },
+        { label:'standard r16', r:16, color:'var(--standard)', dx:76 },
+        { label:'edge r14', r:14, color:'var(--edge)', dx:145 }
+      ].forEach(item => {
+        g.appendChild(el('circle', { cx:x + item.dx, cy:y, r:item.r, stroke:item.color }));
+        g.appendChild(el('text', { x:x + item.dx - item.r, y:y + item.r + 14 }, item.label));
+      });
+    }
+
+    function bindToggles() {
+      const frame = document.getElementById('frame');
+      document.querySelectorAll('input[data-layer]').forEach(input => {
+        input.addEventListener('change', () => {
+          frame.classList.toggle(`hide-${input.dataset.layer}`, !input.checked);
+        });
+      });
+    }
+
+    drawOverlaps();
+    drawTerrain();
+    drawRivers();
+    drawRoads();
+    drawCities();
+    drawSizeKey();
+    bindToggles();
+  </script>
+</body>
+</html>

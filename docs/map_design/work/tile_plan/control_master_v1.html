@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stage 6 Control Master v1</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #202326;
+      --panel: #2a2e31;
+      --text: #eef0e8;
+      --muted: #b9c0b6;
+      --line: rgba(255,255,255,0.22);
+      --primary: #ffcc66;
+      --large: #f08a5d;
+      --standard: #74b3ce;
+      --small: #99c26e;
+      --edge: #b99bdf;
+      --road: rgba(52, 38, 24, 0.68);
+      --pending: #ff6b6b;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    main {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      letter-spacing: 0;
+    }
+    p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      align-items: center;
+      padding: 10px 12px;
+      margin: 0 0 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      font-size: 13px;
+    }
+    label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      color: #dce2d7;
+    }
+    input {
+      accent-color: #d2a64c;
+    }
+    .frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1672 / 941;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.28);
+      background: #d8c8a5;
+      box-shadow: 0 14px 34px rgba(0,0,0,0.35);
+    }
+    svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .base {
+      opacity: 0.66;
+      filter: saturate(0.92) contrast(0.95);
+    }
+    .tile {
+      fill: rgba(55,120,185,0.08);
+      stroke: rgba(255,255,255,0.78);
+      stroke-width: 2;
+      vector-effect: non-scaling-stroke;
+    }
+    .tile-label {
+      fill: #fff;
+      font-size: 20px;
+      font-weight: 700;
+      paint-order: stroke;
+      stroke: rgba(0,0,0,0.72);
+      stroke-width: 4px;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+    .overlap {
+      fill: rgba(78,141,185,0.12);
+      stroke: rgba(78,141,185,0.55);
+      stroke-width: 1.5;
+      vector-effect: non-scaling-stroke;
+    }
+    .river {
+      fill: none;
+      stroke: rgba(42, 95, 145, 0.58);
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+    .terrain-zone {
+      fill: rgba(68, 60, 46, 0.16);
+      stroke: rgba(52, 42, 28, 0.42);
+      stroke-width: 2;
+      stroke-dasharray: 8 8;
+      vector-effect: non-scaling-stroke;
+    }
+    .terrain-label {
+      fill: rgba(50, 42, 30, 0.82);
+      font-size: 17px;
+      font-weight: 700;
+      paint-order: stroke;
+      stroke: rgba(235,222,185,0.72);
+      stroke-width: 4px;
+      text-anchor: middle;
+    }
+    .road {
+      fill: none;
+      stroke: var(--road);
+      stroke-width: 2.4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+    .road-waypoint {
+      stroke-dasharray: 7 5;
+      stroke-width: 2.8;
+    }
+    .city circle.footprint {
+      fill: rgba(255,244,202,0.28);
+      stroke-width: 2.2;
+      vector-effect: non-scaling-stroke;
+    }
+    .city.primary circle.footprint { stroke: var(--primary); }
+    .city.large circle.footprint { stroke: var(--large); }
+    .city.standard circle.footprint { stroke: var(--standard); }
+    .city.small circle.footprint { stroke: var(--small); }
+    .city.edge circle.footprint { stroke: var(--edge); stroke-dasharray: 5 4; }
+    .city-dot {
+      fill: rgba(40,30,20,0.82);
+      stroke: rgba(255,255,255,0.65);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+    }
+    .city text {
+      fill: #fff8dd;
+      font-size: 13px;
+      font-weight: 700;
+      paint-order: stroke;
+      stroke: rgba(0,0,0,0.78);
+      stroke-width: 3px;
+      pointer-events: none;
+    }
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+      font-size: 13px;
+      color: #d6ddd1;
+    }
+    .legend > div {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.045);
+      padding: 10px;
+    }
+    .swatch {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: -1px;
+    }
+    .hide-cities .city,
+    .hide-roads .road,
+    .hide-rivers .river,
+    .hide-tiles .tile,
+    .hide-tiles .tile-label,
+    .hide-overlap .overlap,
+    .hide-terrain .terrain-zone,
+    .hide-terrain .terrain-label {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Stage 6 Control Master v1</h1>
+    <p>Planning space: 1672 x 941 concept pixels. City anchors load directly from <code>CITY_BASE</code>; roads load from <code>ROADS</code>/<code>ROAD_WAYPOINTS</code>. This is a review/control artifact, not runtime code.</p>
+    <div class="toolbar" aria-label="Layer controls">
+      <label><input type="checkbox" data-layer="tiles" checked>tile grid</label>
+      <label><input type="checkbox" data-layer="overlap" checked>overlap bands</label>
+      <label><input type="checkbox" data-layer="cities" checked>55 city anchors</label>
+      <label><input type="checkbox" data-layer="roads" checked>ROADS graph</label>
+      <label><input type="checkbox" data-layer="rivers" checked>source river paths</label>
+      <label><input type="checkbox" data-layer="terrain" checked>terrain control zones</label>
+    </div>
+    <div id="frame" class="frame">
+      <svg id="map" viewBox="0 0 1672 941" role="img" aria-label="Stage 6 control master overlay">
+        <image class="base" href="../national_concept/national_concept_v5.png" x="0" y="0" width="1672" height="941"></image>
+        <g id="overlaps"></g>
+        <g id="terrain"></g>
+        <g id="rivers"></g>
+        <g id="roads"></g>
+        <g id="tiles"></g>
+        <g id="cities"></g>
+      </svg>
+    </div>
+    <div class="legend">
+      <div><span class="swatch" style="background:var(--primary)"></span><b>Primary anchors:</b> T06 pilot uses Chang'an and Luoyang as primary scale references. Other large cities remain review anchors until per-tile ownership is approved.</div>
+      <div><span class="swatch" style="background:var(--large)"></span><b>Large CITY_BASE size:</b> rendered as deterministic review footprints, not baked city art.</div>
+      <div><span class="swatch" style="background:var(--standard)"></span><b>Standard/small anchors:</b> visible at review scale so no city becomes random map texture.</div>
+      <div><b>Road provenance:</b> source is existing `ROADS`; any later reroute/pass/ferry gap must be marked `PENDING_PRODUCER_APPROVAL`.</div>
+    </div>
+  </main>
+
+  <script src="../../../../src/data/city_base.js"></script>
+  <script src="../../../../src/data/cities.js"></script>
+  <script>
+    const CONCEPT_W = 1672;
+    const CONCEPT_H = 941;
+    const SVG_W = 960;
+    const SVG_H = 740;
+    const SX = CONCEPT_W / SVG_W;
+    const SY = CONCEPT_H / SVG_H;
+    const HEX_SIZE = 6;
+    const HEX_H = Math.sqrt(3) * HEX_SIZE;
+    const primaryAnchors = new Set(['changan', 'luoyang']);
+
+    const tiles = [
+      { id:'T01_NW', x:0, y:0, w:502, h:377 },
+      { id:'T02_NC_W', x:334, y:0, w:586, h:377 },
+      { id:'T03_NC_E', x:752, y:0, w:586, h:377 },
+      { id:'T04_NE', x:1170, y:0, w:502, h:377 },
+      { id:'T05_WC', x:0, y:251, w:502, h:439 },
+      { id:'T06_CC_W', x:334, y:251, w:586, h:439 },
+      { id:'T07_CC_E', x:752, y:251, w:586, h:439 },
+      { id:'T08_EC', x:1170, y:251, w:502, h:439 },
+      { id:'T09_SW', x:0, y:564, w:502, h:377 },
+      { id:'T10_SC_W', x:334, y:564, w:586, h:377 },
+      { id:'T11_SC_E', x:752, y:564, w:586, h:377 },
+      { id:'T12_SE', x:1170, y:564, w:502, h:377 }
+    ];
+
+    const terrainZones = [
+      { label:'NW / western highlands control', pts:'0,0 502,0 502,180 400,240 250,230 120,180 0,210' },
+      { label:'Taihang / northern belt control', pts:'520,55 1180,15 1540,80 1600,180 1260,205 850,175 560,210' },
+      { label:'Qinling-Funiu / central divide control', pts:'190,455 380,420 570,430 790,470 990,515 1110,570 1010,640 700,610 430,565 220,525' },
+      { label:'Jiangnan / southern hill control', pts:'330,680 650,650 1040,660 1350,710 1672,760 1672,941 260,941 0,820' }
+    ];
+
+    function el(name, attrs = {}, text = '') {
+      const node = document.createElementNS('http://www.w3.org/2000/svg', name);
+      for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+      if (text) node.textContent = text;
+      return node;
+    }
+
+    function hexToPixel(col, row) {
+      const x = col * HEX_SIZE * 1.5 + HEX_SIZE + 8;
+      const y = row * HEX_H + (col % 2 ? HEX_H / 2 : 0) + HEX_H / 2 + 4;
+      return { x: x * SX, y: y * SY };
+    }
+
+    function roadPoints(aid, bid) {
+      const a = CITY_BASE[aid];
+      const b = CITY_BASE[bid];
+      if (!a || !b) return null;
+      const key = [aid, bid].sort().join('-');
+      const pts = [hexToPixel(a.q, a.r)];
+      const waypoints = (typeof ROAD_WAYPOINTS !== 'undefined' && ROAD_WAYPOINTS[key]) ? ROAD_WAYPOINTS[key] : [];
+      for (const [q, r] of waypoints) pts.push(hexToPixel(q, r));
+      pts.push(hexToPixel(b.q, b.r));
+      return { pts, waypoint: waypoints.length > 0 };
+    }
+
+    function pathFromPoints(points) {
+      return points.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+    }
+
+    function scaledPath(d) {
+      return d.replace(/-?\d+(?:\.\d+)?/g, (num, idx, str) => {
+        const prefix = str.slice(0, idx);
+        const numsBefore = (prefix.match(/-?\d+(?:\.\d+)?/g) || []).length;
+        const scale = numsBefore % 2 === 0 ? SX : SY;
+        return (parseFloat(num) * scale).toFixed(1);
+      });
+    }
+
+    function cityClass(id, city) {
+      if (primaryAnchors.has(id)) return 'primary';
+      if (city.size === 'large') return 'large';
+      if (city.size === 'small') return 'small';
+      return 'standard';
+    }
+
+    function cityRadius(cls) {
+      if (cls === 'primary') return 28;
+      if (cls === 'large') return 22;
+      if (cls === 'standard') return 16;
+      return 14;
+    }
+
+    function drawOverlaps() {
+      const g = document.getElementById('overlaps');
+      const xs = [334, 752, 1170];
+      const ys = [251, 564];
+      xs.forEach(x => g.appendChild(el('rect', { class:'overlap', x:x-84, y:0, width:168, height:CONCEPT_H })));
+      ys.forEach(y => g.appendChild(el('rect', { class:'overlap', x:0, y:y-63, width:CONCEPT_W, height:126 })));
+    }
+
+    function drawTerrain() {
+      const g = document.getElementById('terrain');
+      terrainZones.forEach(z => {
+        g.appendChild(el('polygon', { class:'terrain-zone', points:z.pts }));
+        const pts = z.pts.split(/\s+/).map(pair => pair.split(',').map(Number));
+        const cx = pts.reduce((sum, p) => sum + p[0], 0) / pts.length;
+        const cy = pts.reduce((sum, p) => sum + p[1], 0) / pts.length;
+        g.appendChild(el('text', { class:'terrain-label', x:cx.toFixed(1), y:cy.toFixed(1) }, z.label));
+      });
+    }
+
+    function drawRivers() {
+      const g = document.getElementById('rivers');
+      if (typeof RIVERS === 'undefined') return;
+      RIVERS.forEach(d => g.appendChild(el('path', { class:'river', d:scaledPath(d) })));
+    }
+
+    function drawRoads() {
+      const g = document.getElementById('roads');
+      ROADS.forEach(([aid, bid]) => {
+        const data = roadPoints(aid, bid);
+        if (!data) return;
+        g.appendChild(el('path', { class:`road${data.waypoint ? ' road-waypoint' : ''}`, d:pathFromPoints(data.pts) }));
+      });
+    }
+
+    function drawTiles() {
+      const g = document.getElementById('tiles');
+      tiles.forEach(t => {
+        g.appendChild(el('rect', { class:'tile', x:t.x, y:t.y, width:t.w, height:t.h }));
+        g.appendChild(el('text', { class:'tile-label', x:t.x + t.w / 2, y:t.y + t.h / 2 }, t.id));
+      });
+    }
+
+    function drawCities() {
+      const g = document.getElementById('cities');
+      Object.entries(CITY_BASE).forEach(([id, city]) => {
+        const p = hexToPixel(city.q, city.r);
+        const cls = cityClass(id, city);
+        const group = el('g', { class:`city ${cls}` });
+        group.appendChild(el('circle', { class:'footprint', cx:p.x.toFixed(1), cy:p.y.toFixed(1), r:cityRadius(cls) }));
+        group.appendChild(el('circle', { class:'city-dot', cx:p.x.toFixed(1), cy:p.y.toFixed(1), r:3.4 }));
+        group.appendChild(el('text', { x:(p.x + 6).toFixed(1), y:(p.y - 7).toFixed(1) }, city.name));
+        group.appendChild(el('title', {}, `${city.name} / ${id} / ${city.size} / q${city.q},r${city.r}`));
+        g.appendChild(group);
+      });
+    }
+
+    function bindToggles() {
+      const frame = document.getElementById('frame');
+      document.querySelectorAll('input[data-layer]').forEach(input => {
+        input.addEventListener('change', () => {
+          frame.classList.toggle(`hide-${input.dataset.layer}`, !input.checked);
+        });
+      });
+    }
+
+    drawOverlaps();
+    drawTerrain();
+    drawRivers();
+    drawRoads();
+    drawTiles();
+    drawCities();
+    bindToggles();
+  </script>
+</body>
+</html>

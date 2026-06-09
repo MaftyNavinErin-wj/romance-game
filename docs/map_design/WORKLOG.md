@@ -3,10 +3,10 @@
 ## Current State
 
 - Current approved runtime map asset: unchanged from the existing game state.
-- Current map-art workflow status: Stage 1-5 approved; Stage 6 execution model corrected to controlled production pipeline.
-- Active stage: Stage 6, production pipeline pilot.
-- Active candidate: `stage6_production_pipeline_v1.md`, pending producer approval before implementation.
-- Next proposed action: build `control_master_v1` and `T06_control_overlay_v1` before any further T06 image generation.
+- Current map-art workflow status: Stage 1-5 approved; Stage 6 controlled production pipeline pilot in progress.
+- Active stage: Stage 6, control master / T06 overlay review.
+- Active candidate: `control_master_v1.html` and `T06_control_overlay_v1.html`, pending producer review.
+- Next proposed action: producer review of control master and T06 overlay before any further T06 image generation.
 
 ## Decisions
 
@@ -340,5 +340,19 @@
 - Added `docs/map_design/work/tile_plan/stage6_production_pipeline_v1.md`.
 - Updated `docs/map_design/MAP_MASTER_WORKFLOW_v1.md` Stage 6 to reference the new pipeline.
 - New Stage 6 rule: imagegen may produce no-city terrain bases and local blend passes, but city count, city positions, city size hierarchy, primary road graph, and duplicate/missing-city QA must be deterministic data/control layers.
+- Claude Code Opus 4.8 read-only validation found two material doc issues, now patched: T01-T05 is explicitly the next automation batch rather than the full remaining map, and the road graph must derive from existing game adjacency/road data plus approved geography notes with gaps marked `PENDING_PRODUCER_APPROVAL`.
 - Next action: build `control_master_v1` and `T06_control_overlay_v1` before any further T06 image generation.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-09 Stage 6 Control Master And T06 Overlay v1
+
+- Added `docs/map_design/work/tile_plan/control_master_v1.html`.
+- Added `docs/map_design/work/tile_plan/control_master_v1_manifest.md`.
+- Added `docs/map_design/work/tile_plan/T06_control_overlay_v1.html`.
+- Added `docs/map_design/work/tile_plan/T06_control_overlay_v1_manifest.md`.
+- `control_master_v1` loads all 55 `CITY_BASE` city anchors and the existing `ROADS` / `ROAD_WAYPOINTS` graph directly from repo data, then projects them into the 1672 x 941 concept planning space with the current `hexToPixel` formula.
+- `T06_control_overlay_v1` derives from the same control model and shows T06 crop city classes, proposed pixel-size footprints, source roads/rivers, overlap bands, and rough terrain control zones before any further image generation.
+- Static verification: repo data resolves to 55 cities, 111 roads, 11 river paths; T06 crop contains 21 city anchors and 31 anchors with the 80 px context margin.
+- Edge headless screenshot sanity check generated preview PNGs under `%TEMP%\romance-map-overlay-check\`; screenshots were not added to the repo.
+- Producer review remains required before generating a new T06 terrain base.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
