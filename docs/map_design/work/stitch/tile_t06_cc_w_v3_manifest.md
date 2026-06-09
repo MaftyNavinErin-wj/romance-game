@@ -5,7 +5,7 @@
 - Candidate id: `tile_t06_cc_w_v3`
 - Tile id: `T06_CC_W`
 - Stage: Stage 6, tile production
-- Verdict: `PENDING_PRODUCER_REVIEW`
+- Verdict: `REWORK`
 - Date: 2026-06-09
 - Author/session: Codex built-in imagegen retry session
 
@@ -82,6 +82,6 @@
 
 ## Producer Decision
 
-- Decision: pending producer review.
-- Required changes: pending producer review.
-- Reject/rework reason: none yet.
+- Decision: author-marked `REWORK` after producer concern and visual review.
+- Required changes: reduce Chang'an to compact primary-city scale; keep Chang'an and Luoyang near same tier; preserve subdued secondary city hierarchy.
+- Reject/rework reason: Chang'an footprint is oversized and dominates the tile, especially near the west overlap zone.

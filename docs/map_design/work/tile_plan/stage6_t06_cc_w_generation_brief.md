@@ -152,6 +152,12 @@ The next prompt must preserve the accepted representative perspective/style whil
 - Added `docs/map_design/work/stitch/tile_t06_cc_w_v3.png`.
 - Added `docs/map_design/work/stitch/tile_t06_cc_w_v3_manifest.md`.
 - Added `docs/map_design/work/stitch/tile_t06_cc_w_v3_overlay.html`.
+- 2026-06-09: producer review flagged `tile_t06_cc_w_v3` Chang'an as enormously oversized. Author marked v3 `REWORK`.
+- 2026-06-09: rework attempt 9 (`v4`) fixed Chang'an scale but produced a busier river/road network; discarded as an intermediate generated image, not saved to workspace.
+- 2026-06-09: rework attempt 10 succeeded with stricter city-scale and sparse-water prompt.
+- Added `docs/map_design/work/stitch/tile_t06_cc_w_v5.png`.
+- Added `docs/map_design/work/stitch/tile_t06_cc_w_v5_manifest.md`.
+- Added `docs/map_design/work/stitch/tile_t06_cc_w_v5_overlay.html`.
 
 ## Runtime Impact
 
