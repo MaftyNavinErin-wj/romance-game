@@ -5,7 +5,7 @@
 - Proposal id: `terrain_t06_cc_w_no_city_v2_city_nudge_proposal`
 - Base candidate: `terrain_t06_cc_w_no_city_v2_normalized`
 - Stage: Stage 6 controlled production pipeline
-- Verdict: `PENDING_PRODUCER_REVIEW`
+- Verdict: `PRODUCER_APPROVED_FOR_CITY_LAYER_PREVIEW`
 - Date: 2026-06-10
 - Runtime impact: none
 
@@ -53,9 +53,22 @@ The proposal is visually reasonable as a first city-layer adjustment pass:
 - 陈留 / 官渡 / 许昌 remain east-context marks and should not become T06-owned.
 - The proposal does not solve field/path texture density; that remains a terrain-base review question.
 
-Main producer decision:
+## Producer Decision 2026-06-10
 
-- Approve this nudge policy and approximate directions, or request v3 terrain with less need for city adjustment.
+Producer approved this city-layer nudge proposal.
+
+Approved scope:
+
+- keep `terrain_t06_cc_w_no_city_v2_normalized.png` as the current T06 no-city terrain base;
+- use the documented nudge directions and approximate distances for the next deterministic city-layer preview;
+- keep all nudges as art-layer placement only, with no runtime city-coordinate change;
+- keep 陈留 / 官渡 / 许昌 as T07/global delegated east-context marks, not T06-owned standard stamps.
+
+Carry-forward cautions:
+
+- later 洛阳 city-stamp/blend work must imply Luo/Yiluo context, not Yellow River bank placement;
+- later 襄阳 city-stamp/blend work should preserve the Han River / Jingxiang corridor read;
+- field/path texture density remains a terrain-base caution for later road-layer composition.
 
 ## Runtime Impact
 

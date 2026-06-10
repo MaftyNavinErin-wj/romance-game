@@ -4,9 +4,9 @@
 
 - Current approved runtime map asset: unchanged from the existing game state.
 - Current map-art workflow status: Stage 1-5 approved; Stage 6 controlled production pipeline pilot in progress.
-- Active stage: Stage 6, controlled T06 no-city terrain base.
-- Active candidate: `terrain_t06_cc_w_no_city_v2_city_nudge_proposal.png`, pending producer review.
-- Next proposed action: producer review of the deterministic city-layer nudge proposal before any city-stamp art/blend test.
+- Active stage: Stage 6, controlled T06 deterministic city-layer preview preparation.
+- Active candidate: `terrain_t06_cc_w_no_city_v2_city_nudge_proposal.png`, producer approved.
+- Next proposed action: build a deterministic city-layer preview on the approved v2 terrain/nudge proposal before any city-stamp art/blend test.
 
 ## Decisions
 
@@ -482,6 +482,7 @@
   - 武昌: `-16,+18`;
   - 江陵: `0,+22`.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+- Producer approved the nudge proposal. Next step is a deterministic city-layer preview using the approved v2 terrain base and documented art-layer nudges, still with no runtime city-coordinate changes.
 
 ## 2026-06-10 Stage 6 Controlled Tile Lessons
 

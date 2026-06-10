@@ -518,6 +518,8 @@ Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_geography_city_au
 
 Producer selected Option A. Added concrete nudge proposal `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_nudge_proposal.png` and manifest. Proposed normalized-frame nudges: 洛阳 `+36,+64`, 襄阳 `+46,+78`, 陈留 `0,+54`, 官渡 `-8,+54`, 许昌 `0,+46`, 夷陵 `-20,+20`, 武昌 `-16,+18`, 江陵 `0,+22`. This remains an art-layer proposal only; runtime city data is unchanged.
 
+Producer approved the T06 v2 city nudge proposal. Next step is a deterministic city-layer preview on top of `terrain_t06_cc_w_no_city_v2_normalized.png` using the approved art-layer nudges. Carry-forward cautions: 洛阳 must read as Luo/Yiluo context rather than Yellow River bank placement; 襄阳 must read as Han River / Jingxiang corridor; 陈留/官渡/许昌 remain T07/global east-context rather than T06-owned standard stamps.
+
 ## 2026-06-10 Stage 6 Controlled Tile Lessons
 
 Added reusable lesson doc:
