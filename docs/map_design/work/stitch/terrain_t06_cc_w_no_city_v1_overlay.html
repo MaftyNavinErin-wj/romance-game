@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>T06 No-City Terrain v1 Overlay Audit</title>
+  <style>
+    :root {
+      --bg: #202426;
+      --line: rgba(255,255,255,0.22);
+      --primary: #ffc857;
+      --standard: #7bdff2;
+      --subdued: #c8a2ff;
+      --east: #ff8a65;
+      --context: #b7c2c8;
+      --river: rgba(50,115,170,0.72);
+      --terrain: rgba(255,218,120,0.14);
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: #f5f0e6;
+      font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+    p {
+      margin: 0 0 14px;
+      color: #d8d1c4;
+    }
+    code {
+      color: #fff3b0;
+    }
+    .frame {
+      border: 1px solid var(--line);
+      background: #111;
+    }
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #111;
+    }
+    .base {
+      opacity: 1;
+    }
+    .terrain-zone {
+      fill: var(--terrain);
+      stroke: rgba(255,218,120,0.72);
+      stroke-width: 1.1;
+      stroke-dasharray: 7 5;
+    }
+    .terrain-label {
+      fill: rgba(255,243,176,0.9);
+      font-size: 13px;
+      font-weight: 700;
+      paint-order: stroke;
+      stroke: rgba(20,20,16,0.8);
+      stroke-width: 4px;
+    }
+    .river {
+      fill: none;
+      stroke: var(--river);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .stamp {
+      fill: rgba(255,255,255,0.04);
+      stroke-width: 2.2;
+    }
+    .global-primary .stamp { stroke: var(--primary); }
+    .t06-standard .stamp { stroke: var(--standard); }
+    .subdued .stamp { stroke: var(--subdued); stroke-dasharray: 5 4; }
+    .east-context .stamp { stroke: var(--east); stroke-dasharray: 5 4; }
+    .context .stamp { stroke: var(--context); stroke-dasharray: 3 5; }
+    .dot {
+      fill: #1c1711;
+      stroke: rgba(255,255,255,0.78);
+      stroke-width: 1;
+    }
+    .city text {
+      fill: #fffaf0;
+      font-size: 9px;
+      font-weight: 800;
+      paint-order: stroke;
+      stroke: rgba(15,13,10,0.9);
+      stroke-width: 3px;
+    }
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .legend div {
+      border: 1px solid var(--line);
+      padding: 10px;
+      background: rgba(255,255,255,0.04);
+    }
+    .swatch {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: -1px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>T06 No-City Terrain v1 Overlay Audit</h1>
+    <p>Candidate base: <code>terrain_t06_cc_w_no_city_v1.png</code>. Image is scaled into T06 crop <code>334,251,586,439</code> for geography/city-reserve audit only. This candidate already fails the exact output-frame gate.</p>
+    <div class="frame">
+      <svg id="map" viewBox="334 251 586 439" role="img" aria-label="T06 terrain v1 overlay audit">
+        <image class="base" href="terrain_t06_cc_w_no_city_v1.png" x="334" y="251" width="586" height="439"></image>
+        <g id="terrain"></g>
+        <g id="rivers"></g>
+        <g id="cities"></g>
+      </svg>
+    </div>
+    <div class="legend">
+      <div><span class="swatch" style="background:var(--primary)"></span><b>Global primary:</b> 长安 / 洛阳, final-stamp planning r38.</div>
+      <div><span class="swatch" style="background:var(--standard)"></span><b>T06 standard:</b> 南阳 / 襄阳 / 上庸 / 夷陵, r24.</div>
+      <div><span class="swatch" style="background:var(--subdued)"></span><b>Subdued:</b> 新野 / 汉中, r18.</div>
+      <div><span class="swatch" style="background:var(--east)"></span><b>T07/global context:</b> 陈留 / 官渡 / 许昌, r18.</div>
+      <div><span class="swatch" style="background:var(--context)"></span><b>Other context:</b> edge / neighbor-owned anchors, r18.</div>
+    </div>
+  </main>
+
+  <script src="../../../../src/data/city_base.js"></script>
+  <script src="../../../../src/data/cities.js"></script>
+  <script>
+    const CONCEPT_W = 1672;
+    const CONCEPT_H = 941;
+    const SVG_W = 960;
+    const SVG_H = 740;
+    const SX = CONCEPT_W / SVG_W;
+    const SY = CONCEPT_H / SVG_H;
+    const HEX_SIZE = 6;
+    const HEX_H = Math.sqrt(3) * HEX_SIZE;
+    const crop = { x:334, y:251, w:586, h:439 };
+    const margin = 80;
+
+    const globalPrimary = new Set(['changan', 'luoyang']);
+    const t06Standard = new Set(['nanyang', 'xiangyang', 'shangyong', 'yiling']);
+    const subdued = new Set(['xinye', 'hanzhong']);
+    const eastContext = new Set(['chenliu', 'guandu', 'xuchang']);
+
+    const terrainZones = [
+      { label:'Yellow River / Wei upper control', pts:'334,265 430,250 560,255 710,260 860,255 920,285 860,315 720,305 590,305 450,315 334,300' },
+      { label:'Guanzhong-Henan bounded plain', pts:'370,315 520,300 700,310 860,330 900,440 800,520 620,520 470,500 380,450' },
+      { label:'Qinling / Funiu structural edge', pts:'334,520 470,485 610,500 740,535 900,585 920,690 334,690' }
+    ];
+
+    function el(name, attrs = {}, text = '') {
+      const node = document.createElementNS('http://www.w3.org/2000/svg', name);
+      for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+      if (text) node.textContent = text;
+      return node;
+    }
+
+    function hexToPixel(col, row) {
+      const x = col * HEX_SIZE * 1.5 + HEX_SIZE + 8;
+      const y = row * HEX_H + (col % 2 ? HEX_H / 2 : 0) + HEX_H / 2 + 4;
+      return { x: x * SX, y: y * SY };
+    }
+
+    function inMargin(p) {
+      return p.x >= crop.x - margin && p.x <= crop.x + crop.w + margin && p.y >= crop.y - margin && p.y <= crop.y + crop.h + margin;
+    }
+
+    function cityClass(id) {
+      if (globalPrimary.has(id)) return 'global-primary';
+      if (t06Standard.has(id)) return 't06-standard';
+      if (subdued.has(id)) return 'subdued';
+      if (eastContext.has(id)) return 'east-context';
+      return 'context';
+    }
+
+    function cityRadius(cls) {
+      if (cls === 'global-primary') return 38;
+      if (cls === 't06-standard') return 24;
+      return 18;
+    }
+
+    function scaledPath(d) {
+      return d.replace(/-?\d+(?:\.\d+)?/g, (num, idx, str) => {
+        const prefix = str.slice(0, idx);
+        const numsBefore = (prefix.match(/-?\d+(?:\.\d+)?/g) || []).length;
+        const scale = numsBefore % 2 === 0 ? SX : SY;
+        return (parseFloat(num) * scale).toFixed(1);
+      });
+    }
+
+    function drawTerrain() {
+      const g = document.getElementById('terrain');
+      terrainZones.forEach(z => {
+        g.appendChild(el('polygon', { class:'terrain-zone', points:z.pts }));
+        const pts = z.pts.split(/\s+/).map(pair => pair.split(',').map(Number));
+        const cx = pts.reduce((sum, p) => sum + p[0], 0) / pts.length;
+        const cy = pts.reduce((sum, p) => sum + p[1], 0) / pts.length;
+        g.appendChild(el('text', { class:'terrain-label', x:cx.toFixed(1), y:cy.toFixed(1) }, z.label));
+      });
+    }
+
+    function drawRivers() {
+      const g = document.getElementById('rivers');
+      if (typeof RIVERS === 'undefined') return;
+      RIVERS.forEach(d => g.appendChild(el('path', { class:'river', d:scaledPath(d) })));
+    }
+
+    function drawCities() {
+      const g = document.getElementById('cities');
+      Object.entries(CITY_BASE).forEach(([id, city]) => {
+        const p = hexToPixel(city.q, city.r);
+        if (!inMargin(p)) return;
+        const cls = cityClass(id);
+        const group = el('g', { class:`city ${cls}` });
+        group.appendChild(el('circle', { class:'stamp', cx:p.x.toFixed(1), cy:p.y.toFixed(1), r:cityRadius(cls) }));
+        group.appendChild(el('circle', { class:'dot', cx:p.x.toFixed(1), cy:p.y.toFixed(1), r:3.2 }));
+        group.appendChild(el('text', { x:(p.x + 6).toFixed(1), y:(p.y - 7).toFixed(1) }, city.name));
+        group.appendChild(el('title', {}, `${city.name} / ${id} / ${cls} / concept ${p.x.toFixed(0)},${p.y.toFixed(0)}`));
+        g.appendChild(group);
+      });
+    }
+
+    drawTerrain();
+    drawRivers();
+    drawCities();
+  </script>
+</body>
+</html>

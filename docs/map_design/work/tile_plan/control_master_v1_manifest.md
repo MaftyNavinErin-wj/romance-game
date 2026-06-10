@@ -4,7 +4,7 @@
 
 - Candidate id: `control_master_v1`
 - Stage: Stage 6, production control layer
-- Verdict: `PENDING_PRODUCER_REVIEW`
+- Verdict: `REVIEWED_USE_AS_SOURCE`
 - Date: 2026-06-09
 - Author/session: Codex Stage 6 pipeline session
 
@@ -58,7 +58,7 @@
 
 - Perspective/style gate: not applicable
 - Seam/overlap gate: not applicable
-- Terrain/geography gate: `PENDING_PRODUCER_REVIEW`
+- Terrain/geography gate: `REVIEWED_FOR_TERRAIN_BRIEF`
 - Pseudo-settlement gate: not applicable
 - Runtime isolation gate: `PASS`
 
@@ -68,8 +68,8 @@
 - If promoted, target runtime asset path: not applicable
 - Rollback asset path: not applicable
 
-## Producer Decision
+## Producer-Confirmed Decision 2026-06-10
 
-- Decision: pending producer review.
-- Required changes: pending producer review.
+- Decision: use `control_master_v1` as the current national control source for Stage 6 terrain-brief work.
+- Required changes: none before T06 no-city terrain brief generation.
 - Reject/rework reason: none yet.

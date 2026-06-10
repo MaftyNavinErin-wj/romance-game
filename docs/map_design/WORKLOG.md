@@ -4,9 +4,9 @@
 
 - Current approved runtime map asset: unchanged from the existing game state.
 - Current map-art workflow status: Stage 1-5 approved; Stage 6 controlled production pipeline pilot in progress.
-- Active stage: Stage 6, control master / T06 overlay review.
-- Active candidate: `control_master_v1.html` and `T06_control_overlay_v1.html`, pending producer review.
-- Next proposed action: producer review of control master and T06 overlay before any further T06 image generation.
+- Active stage: Stage 6, controlled T06 no-city terrain base.
+- Active candidate: `terrain_t06_cc_w_no_city_v2_city_nudge_proposal.png`, pending producer review.
+- Next proposed action: producer review of the deterministic city-layer nudge proposal before any city-stamp art/blend test.
 
 ## Decisions
 
@@ -365,4 +365,120 @@
 - Recommended ownership/weight direction before no-city terrain generation: keep 长安/洛阳 as primary overlap/global anchors; keep 南阳/襄阳/上庸/夷陵 as T06 center anchors; downgrade or delegate 新野/汉中; delegate 陈留/官渡/许昌 to T07 or global city layer; keep Bashu/Jingzhou/Yangtze groups as context.
 - Geography audit requires the next T06 brief to separate Yellow River/Wei, Luo/Yi/Yiluo, Han River, and Yangtze/Jianghan edge controls, and to split Qinling/Funiu/Daba zones instead of using one broad southern terrain band.
 - Road audit recommends a sparse route hierarchy rather than directly rendering all clipped `ROADS` edges.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-10 Stage 6 T06 No-City Terrain Brief Approval
+
+- Producer approved continuing the controlled Stage 6 pipeline for T06 rather than returning to all-in-one image-generated production tiles.
+- Producer confirmed the next T06 art step should be a no-city terrain base only.
+- City scale control remains deterministic later, using the producer-facing "9 inch pizza" / "5 inch pizza" metaphor:
+  - large/primary city: roughly 9-inch-pizza visual weight;
+  - standard/small city: roughly 5-inch-pizza visual weight;
+  - edge/context cities can be subdued or clipped, but must not become sesame-dot texture.
+- City ownership direction for the terrain brief:
+  - 长安/洛阳 are global city-layer primary stamps appearing in T06 overlap;
+  - 新野 is downgraded or delegated to avoid crowding 南阳/襄阳;
+  - 陈留/官渡/许昌 are delegated to `T07_CC_E` or global city layer;
+  - 汉中 is west-corridor context, not a full T06-owned stamp.
+- Added `docs/map_design/work/tile_plan/stage6_t06_no_city_terrain_brief_v1.md`.
+- Updated `stage6_t06_cc_w_generation_brief.md` to point away from all-in-one city-bearing generation and toward the no-city terrain brief.
+- Updated `T06_terrain_geography_collision_audit_v1.md` with producer decisions.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-10 Opus Review Fixes For T06 Brief
+
+- Ran a read-only Opus review of the T06 no-city terrain brief and related status docs.
+- Factored in the material findings before generation:
+  - added an exact output-frame gate: `2344 x 1756`, correct aspect, wrong size/aspect is `REWORK`;
+  - carried forward the control-anchor caveat: current anchors are production-control references, not final Stage 8 aligned map truth;
+  - limited `rep_huaisi_jiangdong_v1` to material/paper/water reference only, not T06 geography/composition lead;
+  - added conservative final-stamp planning radii: primary 38 concept px, standard 24, edge/context 18;
+  - clarified pass/ferry/crossing markers are also deferred to deterministic layers;
+  - restored diagonal context checks for `T01_NW`, `T03_NC_E`, `T09_SW`, and `T11_SC_E`;
+  - renamed manifest decision headings to `Producer-Confirmed Decision 2026-06-10` for traceability.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-10 T06 No-City Terrain v1 Generation
+
+- Generated `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v1.png` from the approved no-city terrain brief.
+- Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v1_manifest.md`.
+- Verdict: `REWORK`.
+- Reject reasons:
+  - output frame gate failed: generated image is `1448 x 1086`, not required `2344 x 1756`;
+  - the image contains too many thin path-like lines and small clustered marks, creating random road-network / pseudo-settlement risk for a no-city terrain base.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-10 T06 No-City Terrain v1 Overlay Audit And Normalize
+
+- Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v1_overlay.html`.
+- Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v1_overlay_preview.png`.
+- Overlay audit result: the terrain/city-reserve distribution is workable enough to preserve for producer review.
+- Created deterministic normalized derivative: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v1_normalized.png`.
+- Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v1_normalized_manifest.md`.
+- Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v1_normalized_city_overlay.html`.
+- Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v1_normalized_city_overlay.png`.
+- City overlay renders 31 T06/context anchors on the normalized terrain frame for producer review.
+- Normalized size: exact `2344 x 1756`.
+- Crop: none.
+- AI repaint/edit: none.
+- Current verdict: `PENDING_PRODUCER_REVIEW`.
+- Producer review focus:
+  - whether local city-layer nudging/blend padding is acceptable, especially because 襄阳 lands awkwardly against the strong mountain belt;
+  - whether path/field-line density is acceptable terrain texture;
+  - whether the Qinling/Funiu belt is too strong or too far north;
+  - whether lower-right water remains acceptable Yangtze/Jianghan edge context.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-10 T06 No-City Terrain v1 Producer Geography Rejection
+
+- Producer rejected `terrain_t06_cc_w_no_city_v1_normalized.png`.
+- Main reason: the large river between 洛阳 and 长安 is too visually dominant and in the wrong relationship to the corridor.
+- This is not fixable by city-position nudging; the terrain base itself needs rework.
+- v2 correction requirements:
+  - do not draw a main river running between 长安 and 洛阳;
+  - Yellow River / Wei River control should sit farther north/upper;
+  - Wei River may support the Guanzhong approach but must not become a central divider;
+  - Luoyang Luo/Yi/Yiluo water should be smaller, local, and subordinate;
+  - 长安-洛阳 should read as a Guanzhong-Henan corridor / pass route / bounded plain transition.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-10 T06 No-City Terrain v2 Rework
+
+- Generated `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2.png`.
+- Created deterministic normalized derivative `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_normalized.png`.
+- Added city overlay `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_normalized_city_overlay.html`.
+- Added city overlay preview `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_normalized_city_overlay.png`.
+- Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_normalized_manifest.md`.
+- Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_geography_city_audit.md`.
+- Raw output size: `1449 x 1085`.
+- Normalized size: exact `2344 x 1756`.
+- Verdict: `PENDING_PRODUCER_REVIEW`.
+- Author review:
+  - v2 fixes the blocking v1 issue: no dominant main river between 长安 and 洛阳;
+  - upper river now reads as northern Yellow River / Wei control;
+  - 洛阳 is still river-adjacent and should remain global overlap/corridor, not exact river truth;
+  - 襄阳 remains close to the mountain belt but may be manageable with local city-layer blend/nudge;
+  - field/path strokes remain dense and need producer review.
+- City adjustment recommendation:
+  - allow small deterministic city-layer nudges/blend pads if accepting v2;
+  - 洛阳 may need slight south/south-southeast blend/nudge so it does not read as directly on the upper main river;
+  - 襄阳 likely needs a south/southeast blend/nudge toward a Han River / corridor pocket;
+  - 官渡/陈留/许昌 should stay T07/global and visually south of the northern main river if included.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-10 T06 v2 City Nudge Proposal
+
+- Producer selected Option A: continue with v2 and allow local deterministic city-layer nudges/blend pads.
+- Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_nudge_proposal.html`.
+- Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_nudge_proposal.png`.
+- Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_nudge_proposal_manifest.md`.
+- Proposal moves 8 context/anchor positions in the normalized review frame:
+  - 洛阳: `+36,+64`;
+  - 襄阳: `+46,+78`;
+  - 陈留: `0,+54`;
+  - 官渡: `-8,+54`;
+  - 许昌: `0,+46`;
+  - 夷陵: `-20,+20`;
+  - 武昌: `-16,+18`;
+  - 江陵: `0,+22`.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.

@@ -5,7 +5,7 @@
 - Planned candidate id: `tile_t06_cc_w_v1`
 - Tile id: `T06_CC_W`
 - Stage: Stage 6, tile production
-- Status: scope correction required before next generation
+- Status: superseded by controlled no-city terrain pipeline
 - Date: 2026-06-08
 - Runtime impact: none
 
@@ -113,10 +113,18 @@ This prompt is superseded because "two or three controlled walled city footprint
 
 ## Corrected Prompt Direction
 
-The next prompt must preserve the accepted representative perspective/style while using a city hierarchy:
+This direction is superseded by `stage6_t06_no_city_terrain_brief_v1.md`.
 
-- Primary large footprints: Chang'an and Luoyang/Henan anchor.
-- Secondary/subdued controlled city marks where needed for corridor logic: Chenliu/Guandu/Xuchang/Nanyang/Hanzhong/Xiangyang class anchors.
+Do not generate another all-in-one T06 tile with city hierarchy in the terrain image.
+
+The next image-generation prompt must request a no-city terrain base only. City stamps and roads will be deterministic later.
+
+The later deterministic city layer should preserve this ownership / weight direction:
+
+- Global primary overlap footprints: Chang'an and Luoyang/Henan anchor.
+- T06 center standard anchors: Nanyang, Xiangyang, Shangyong, and Yiling.
+- Small/subdued or delegated anchors: Xinye and Hanzhong.
+- T07/global context anchors: Chenliu, Guandu, and Xuchang.
 - Edge/overlap city zones should remain seam-aware and not become hard-edge landmarks.
 - No random non-data settlements.
 
@@ -134,7 +142,9 @@ The next prompt must preserve the accepted representative perspective/style whil
 
 ## Next Action
 
-- Draft and generate a corrected T06 candidate that reflects full production-tile city hierarchy.
+- Use `docs/map_design/work/tile_plan/stage6_t06_no_city_terrain_brief_v1.md` for the next docs-only terrain-base candidate.
+- Do not generate cities, villages, forts, pass buildings, or a random road network in the terrain base.
+- Do not promote anything to `assets/maps/` or modify `src/`.
 
 ## Generation Attempts
 

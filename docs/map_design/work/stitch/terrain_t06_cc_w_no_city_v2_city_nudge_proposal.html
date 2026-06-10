@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>T06 v2 City Nudge Proposal</title>
+  <style>
+    :root {
+      --bg:#202426;
+      --line:rgba(255,255,255,0.22);
+      --global:#ffc857;
+      --standard:#7bdff2;
+      --subdued:#c8a2ff;
+      --east:#ff8a65;
+      --context:#b7c2c8;
+      --orig:rgba(255,255,255,0.5);
+    }
+    body {
+      margin:0;
+      background:var(--bg);
+      color:#f5f0e6;
+      font:14px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+    main {
+      max-width:1440px;
+      margin:0 auto;
+      padding:22px;
+    }
+    h1 { margin:0 0 8px; font-size:24px; }
+    p { margin:0 0 14px; color:#d8d1c4; }
+    code { color:#fff3b0; }
+    .frame { border:1px solid var(--line); background:#111; }
+    svg { display:block; width:100%; height:auto; background:#111; }
+    .orig-ring {
+      fill:none;
+      stroke:var(--orig);
+      stroke-width:5;
+      stroke-dasharray:12 12;
+    }
+    .nudge-line {
+      stroke:rgba(255,255,255,0.75);
+      stroke-width:3;
+      stroke-dasharray:7 7;
+      marker-end:url(#arrow);
+    }
+    .stamp {
+      fill:rgba(20,18,14,0.1);
+      stroke-width:7;
+    }
+    .global-primary .stamp { stroke:var(--global); }
+    .t06-standard .stamp { stroke:var(--standard); }
+    .subdued .stamp { stroke:var(--subdued); stroke-dasharray:18 12; }
+    .east-context .stamp { stroke:var(--east); stroke-dasharray:18 12; }
+    .context .stamp { stroke:var(--context); stroke-dasharray:10 16; }
+    .dot {
+      fill:#16110c;
+      stroke:rgba(255,255,255,0.9);
+      stroke-width:3;
+    }
+    .city text {
+      fill:#fffaf0;
+      font-size:31px;
+      font-weight:850;
+      paint-order:stroke;
+      stroke:rgba(16,12,8,0.95);
+      stroke-width:10px;
+      stroke-linejoin:round;
+    }
+    .legend {
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+    .legend div {
+      border:1px solid var(--line);
+      padding:10px;
+      background:rgba(255,255,255,0.04);
+    }
+    .swatch {
+      display:inline-block;
+      width:11px;
+      height:11px;
+      border-radius:50%;
+      margin-right:6px;
+      vertical-align:-1px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>T06 v2 City Nudge Proposal</h1>
+    <p>Base: <code>terrain_t06_cc_w_no_city_v2_normalized.png</code>. Gray dashed circles show original projected anchors; colored circles show proposed deterministic city-layer positions. This is a review overlay only.</p>
+    <div class="frame">
+      <svg id="map" viewBox="0 0 2344 1756" role="img" aria-label="T06 v2 city nudge proposal">
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="rgba(255,255,255,0.75)"></path>
+          </marker>
+        </defs>
+        <image href="terrain_t06_cc_w_no_city_v2_normalized.png" x="0" y="0" width="2344" height="1756"></image>
+        <g id="originals"></g>
+        <g id="moves"></g>
+        <g id="cities"></g>
+      </svg>
+    </div>
+    <div class="legend">
+      <div><span class="swatch" style="background:var(--global)"></span><b>Global primary:</b> 洛阳 slight south/southeast if needed; 长安 unchanged.</div>
+      <div><span class="swatch" style="background:var(--standard)"></span><b>T06 standard:</b> 襄阳 nudged south/southeast toward corridor; others mostly unchanged.</div>
+      <div><span class="swatch" style="background:var(--east)"></span><b>East context:</b> 陈留/官渡/许昌 nudged south only as context, still delegated to T07/global.</div>
+    </div>
+  </main>
+
+  <script src="../../../../src/data/city_base.js"></script>
+  <script>
+    const CONCEPT_W = 1672;
+    const SVG_W = 960;
+    const SVG_H = 740;
+    const SX = CONCEPT_W / SVG_W;
+    const SY = 941 / SVG_H;
+    const HEX_SIZE = 6;
+    const HEX_H = Math.sqrt(3) * HEX_SIZE;
+    const crop = { x:334, y:251, w:586, h:439 };
+    const out = { w:2344, h:1756 };
+    const margin = 80;
+
+    const globalPrimary = new Set(['changan','luoyang']);
+    const t06Standard = new Set(['nanyang','xiangyang','shangyong','yiling']);
+    const subdued = new Set(['xinye','hanzhong']);
+    const eastContext = new Set(['chenliu','guandu','xuchang']);
+
+    const nudges = {
+      luoyang: { dx: 36, dy: 64, note: 'south/southeast off upper main river' },
+      xiangyang: { dx: 46, dy: 78, note: 'south/southeast toward Han/Jingxiang corridor pocket' },
+      chenliu: { dx: 0, dy: 54, note: 'south of northern river context' },
+      guandu: { dx: -8, dy: 54, note: 'south/southwest of ferry river context' },
+      xuchang: { dx: 0, dy: 46, note: 'clear of northern river band' },
+      yiling: { dx: -20, dy: 20, note: 'bank/terrace fit only' },
+      wuchang: { dx: -16, dy: 18, note: 'edge bank/terrace context only' },
+      jingzhou: { dx: 0, dy: 22, note: 'southern context bank fit only' }
+    };
+
+    function el(name, attrs = {}, text = '') {
+      const node = document.createElementNS('http://www.w3.org/2000/svg', name);
+      for (const [k,v] of Object.entries(attrs)) node.setAttribute(k,v);
+      if (text) node.textContent = text;
+      return node;
+    }
+
+    function hexToPixel(col,row) {
+      const x = col * HEX_SIZE * 1.5 + HEX_SIZE + 8;
+      const y = row * HEX_H + (col % 2 ? HEX_H / 2 : 0) + HEX_H / 2 + 4;
+      return { x:x * SX, y:y * SY };
+    }
+
+    function inMargin(p) {
+      return p.x >= crop.x - margin && p.x <= crop.x + crop.w + margin && p.y >= crop.y - margin && p.y <= crop.y + crop.h + margin;
+    }
+
+    function toOutput(p) {
+      return {
+        x:(p.x - crop.x) / crop.w * out.w,
+        y:(p.y - crop.y) / crop.h * out.h
+      };
+    }
+
+    function cityClass(id) {
+      if (globalPrimary.has(id)) return 'global-primary';
+      if (t06Standard.has(id)) return 't06-standard';
+      if (subdued.has(id)) return 'subdued';
+      if (eastContext.has(id)) return 'east-context';
+      return 'context';
+    }
+
+    function cityRadius(cls) {
+      if (cls === 'global-primary') return 152;
+      if (cls === 't06-standard') return 96;
+      return 72;
+    }
+
+    function adjusted(id,p) {
+      const n = nudges[id] || { dx:0, dy:0 };
+      return { x:p.x + n.dx, y:p.y + n.dy, moved:!!nudges[id], note:n.note || '' };
+    }
+
+    function draw() {
+      const originals = document.getElementById('originals');
+      const moves = document.getElementById('moves');
+      const cities = document.getElementById('cities');
+      Object.entries(CITY_BASE).forEach(([id,city]) => {
+        const concept = hexToPixel(city.q, city.r);
+        if (!inMargin(concept)) return;
+        const base = toOutput(concept);
+        const cls = cityClass(id);
+        const r = cityRadius(cls);
+        const p = adjusted(id,base);
+        if (p.moved) {
+          originals.appendChild(el('circle',{ class:'orig-ring', cx:base.x.toFixed(1), cy:base.y.toFixed(1), r }));
+          moves.appendChild(el('line',{ class:'nudge-line', x1:base.x.toFixed(1), y1:base.y.toFixed(1), x2:p.x.toFixed(1), y2:p.y.toFixed(1) }));
+        }
+        const group = el('g',{ class:`city ${cls}` });
+        group.appendChild(el('circle',{ class:'stamp', cx:p.x.toFixed(1), cy:p.y.toFixed(1), r }));
+        group.appendChild(el('circle',{ class:'dot', cx:p.x.toFixed(1), cy:p.y.toFixed(1), r:11 }));
+        group.appendChild(el('text',{ x:(p.x + 21).toFixed(1), y:(p.y - 18).toFixed(1) }, city.name));
+        group.appendChild(el('title',{},`${city.name} / ${id} / ${cls} / nudge ${Math.round(p.x-base.x)},${Math.round(p.y-base.y)} / ${p.note}`));
+        cities.appendChild(group);
+      });
+    }
+
+    draw();
+  </script>
+</body>
+</html>

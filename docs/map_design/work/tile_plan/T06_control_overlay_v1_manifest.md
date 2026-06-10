@@ -4,7 +4,7 @@
 
 - Candidate id: `T06_control_overlay_v1`
 - Stage: Stage 6, T06 production control overlay
-- Verdict: `PENDING_PRODUCER_REVIEW`
+- Verdict: `REVIEWED_USE_AS_SOURCE_WITH_CORRECTIONS`
 - Date: 2026-06-09
 - Author/session: Codex Stage 6 pipeline session
 
@@ -25,7 +25,7 @@
 
 - Tool/path: manual deterministic HTML/SVG control overlay.
 - Prompt: not applicable.
-- Negative constraints: no further T06 image generation before producer review; no random secondary cities; no AI-invented road graph.
+- Negative constraints: no city-bearing T06 image generation; no random secondary cities; no AI-invented road graph.
 - Intended size: T06 crop `334,251,586,439`, output target `2344 x 1756` @4x.
 - Actual size: HTML/SVG responsive review page.
 - Reference roles: `control_master_v1` is the source control artifact; `t06_city_scope_audit_v1.md` defines the full T06 city-scope correction.
@@ -59,7 +59,7 @@
 
 - Perspective/style gate: not applicable
 - Seam/overlap gate: not applicable
-- Terrain/geography gate: `PENDING_PRODUCER_REVIEW`
+- Terrain/geography gate: `REVIEWED_FOR_TERRAIN_BRIEF_WITH_CORRECTIONS`
 - Pseudo-settlement gate: not applicable
 - Runtime isolation gate: `PASS`
 
@@ -69,8 +69,8 @@
 - If promoted, target runtime asset path: not applicable
 - Rollback asset path: not applicable
 
-## Producer Decision
+## Producer-Confirmed Decision 2026-06-10
 
-- Decision: pending producer review.
-- Required changes: pending producer review.
-- Reject/rework reason: none yet.
+- Decision: use `T06_control_overlay_v1` as a T06 source overlay, but not as final city-stamp scale or ownership approval.
+- Required changes: carry `T06_terrain_geography_collision_audit_v1.md` corrections into the next no-city terrain brief.
+- Reject/rework reason: current city circles are control footprints only; final stamp ownership/weight is handled by `stage6_t06_no_city_terrain_brief_v1.md` and later deterministic city layers.

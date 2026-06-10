@@ -1,6 +1,6 @@
 ---
 name: Map UI direction and terrain-base research
-description: 2026-06-03 map UI exploration notes: bitmap/hex/icon tension, 3D prototype result, 2D comparison tool, and external map-data candidates
+description: 2026-06-03/10 map UI and map-art production notes: terrain-base direction, national-first workflow, Stage 6 controlled pipeline, and T06 no-city terrain brief
 type: project
 originSessionId: 2026-06-03-map-ui
 ---
@@ -479,3 +479,41 @@ Producer review of the control overlay raised two necessary Stage 6 gates before
 - `ROADS` and especially `RIVERS` are source review layers, not final geography truth. T06 terrain prompts must be checked against actual geography: Yellow River/Wei River in the north/Guanzhong-Henan control, Luo/Yi/Yiluo around Luoyang, Han River south of Qinling, Yangtze/Jianghan only as bottom/southeast context, and separate Qinling/Funiu/Daba controls.
 
 Added `docs/map_design/work/tile_plan/T06_terrain_geography_collision_audit_v1.md`. Main decisions pending producer review: whether 长安/洛阳 are T06-owned or global primary stamps; whether 新野 is downgraded to avoid 南阳/襄阳 crowding; whether 陈留/官渡/许昌 belong to T07/global ownership; and whether 汉中 is full T06 stamp or west-corridor context.
+
+## 2026-06-10 T06 No-City Terrain Brief Approval
+
+Producer approved continuing the Stage 6 controlled pipeline for T06. Next art step is a no-city terrain base only, not an all-in-one city-bearing tile. City count, city position, city hierarchy, primary roads, pass/ferry placement, and duplicate/missing-city QA remain deterministic later.
+
+T06 ownership/weight decisions:
+
+- 长安 / 洛阳 are global city-layer primary stamps that appear in T06 overlap, not T06-owned final stamps.
+- 新野 should be downgraded to small/subdued or delegated to avoid crowding 南阳 / 襄阳.
+- 陈留 / 官渡 / 许昌 should be controlled by `T07_CC_E` or the global city layer, with T06 keeping them only as east-overlap context.
+- 汉中 is west-corridor context, not a full T06-owned stamp.
+
+City scale metaphor:
+
+- large/primary city: roughly "9 inch pizza" visual weight;
+- standard/small city: roughly "5 inch pizza" visual weight;
+- edge/context cities may be subdued or clipped, but must not become unreadable sesame-dot texture.
+
+Added `docs/map_design/work/tile_plan/stage6_t06_no_city_terrain_brief_v1.md`. It explicitly requires no cities, no villages, no forts, no passes/gatehouses, no labels, no UI, no hex grid, and no random road network; terrain controls are Yellow River/Wei, Luo/Yi/Yiluo, Han River, Qinling, Funiu, Daba/Bashu context, and Yangtze/Jianghan edge context.
+
+## 2026-06-10 T06 No-City Terrain v1 Rework
+
+Generated `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v1.png` from the approved no-city terrain brief. Verdict: `REWORK`.
+
+Reject reasons:
+
+- output frame gate failed: built-in imagegen returned `1448 x 1086`, not required `2344 x 1756`;
+- the image still has too many thin path-like lines and small clustered marks, creating random road-network / pseudo-settlement risk.
+
+Overlay audit found the terrain/city-reserve distribution only partly workable if later deterministic city placement may use local nudges/blend pads. Created `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v1_normalized.png` by deterministic resize only, exact `2344 x 1756`, no crop and no AI repaint/edit. Producer then rejected the candidate because the large river between 洛阳 and 长安 is too visually dominant and geographically wrong; this is not fixable by city-position nudging. v2 must avoid a main river between 长安 and 洛阳, keep Yellow River/Wei farther north/upper, keep Luoyang Luo/Yi/Yiluo water smaller/subordinate, and make 长安-洛阳 read as Guanzhong-Henan corridor / pass route / bounded plain transition.
+
+## 2026-06-10 T06 No-City Terrain v2
+
+Generated `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2.png` and deterministic normalized derivative `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_normalized.png` (exact `2344 x 1756`). Added city overlay `terrain_t06_cc_w_no_city_v2_normalized_city_overlay.png` and manifest. Author review: v2 fixes the blocking v1 river problem; the main river no longer divides 长安 and 洛阳 and now reads as upper/northern control. Current verdict is `PENDING_PRODUCER_REVIEW`. Remaining review questions: whether 洛阳 is still too river-adjacent, whether 襄阳 is acceptable with local city-layer blend/nudge, and whether field/path texture is too dense.
+
+Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_geography_city_audit.md`. Recommendation: v2 is viable only if small deterministic city-layer nudges/blend pads are allowed. Priority nudges: 洛阳 slightly south/south-southeast if needed to avoid direct upper-river contact; 襄阳 south/southeast toward a Han River / corridor pocket; 官渡/陈留/许昌 remain T07/global context and visually south of the northern main river if shown.
+
+Producer selected Option A. Added concrete nudge proposal `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_nudge_proposal.png` and manifest. Proposed normalized-frame nudges: 洛阳 `+36,+64`, 襄阳 `+46,+78`, 陈留 `0,+54`, 官渡 `-8,+54`, 许昌 `0,+46`, 夷陵 `-20,+20`, 武昌 `-16,+18`, 江陵 `0,+22`. This remains an art-layer proposal only; runtime city data is unchanged.

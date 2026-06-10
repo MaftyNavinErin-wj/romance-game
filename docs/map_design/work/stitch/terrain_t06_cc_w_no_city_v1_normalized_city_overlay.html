@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>T06 Normalized Terrain v1 City Overlay</title>
+  <style>
+    :root {
+      --bg: #202426;
+      --line: rgba(255,255,255,0.22);
+      --global: #ffc857;
+      --standard: #7bdff2;
+      --subdued: #c8a2ff;
+      --east: #ff8a65;
+      --context: #b7c2c8;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: #f5f0e6;
+      font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+    p {
+      margin: 0 0 14px;
+      color: #d8d1c4;
+    }
+    code { color: #fff3b0; }
+    .frame {
+      border: 1px solid var(--line);
+      background: #111;
+    }
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #111;
+    }
+    .stamp {
+      fill: rgba(20,18,14,0.1);
+      stroke-width: 7;
+    }
+    .global-primary .stamp { stroke: var(--global); }
+    .t06-standard .stamp { stroke: var(--standard); }
+    .subdued .stamp { stroke: var(--subdued); stroke-dasharray: 18 12; }
+    .east-context .stamp { stroke: var(--east); stroke-dasharray: 18 12; }
+    .context .stamp { stroke: var(--context); stroke-dasharray: 10 16; }
+    .dot {
+      fill: #16110c;
+      stroke: rgba(255,255,255,0.9);
+      stroke-width: 3;
+    }
+    .city text {
+      fill: #fffaf0;
+      font-size: 31px;
+      font-weight: 850;
+      paint-order: stroke;
+      stroke: rgba(16,12,8,0.95);
+      stroke-width: 10px;
+      stroke-linejoin: round;
+    }
+    .city code { color: inherit; }
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .legend div {
+      border: 1px solid var(--line);
+      padding: 10px;
+      background: rgba(255,255,255,0.04);
+    }
+    .swatch {
+      display: inline-block;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: -1px;
+    }
+    .note {
+      margin-top: 10px;
+      color: #d8d1c4;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>T06 Normalized Terrain v1 City Overlay</h1>
+    <p>Base: <code>terrain_t06_cc_w_no_city_v1_normalized.png</code>. Cities are projected from <code>CITY_BASE</code> into T06 crop <code>334,251,586,439</code>. Circles show final-stamp planning space, not final art.</p>
+    <div class="frame">
+      <svg id="map" viewBox="0 0 2344 1756" role="img" aria-label="T06 normalized terrain city overlay">
+        <image href="terrain_t06_cc_w_no_city_v1_normalized.png" x="0" y="0" width="2344" height="1756"></image>
+        <g id="cities"></g>
+      </svg>
+    </div>
+    <div class="legend">
+      <div><span class="swatch" style="background:var(--global)"></span><b>Global primary:</b> 长安 / 洛阳, r152 output px.</div>
+      <div><span class="swatch" style="background:var(--standard)"></span><b>T06 standard:</b> 南阳 / 襄阳 / 上庸 / 夷陵, r96.</div>
+      <div><span class="swatch" style="background:var(--subdued)"></span><b>Subdued:</b> 新野 / 汉中, r72.</div>
+      <div><span class="swatch" style="background:var(--east)"></span><b>T07/global context:</b> 陈留 / 官渡 / 许昌, r72.</div>
+      <div><span class="swatch" style="background:var(--context)"></span><b>Other context:</b> neighbor-owned/context anchors, r72.</div>
+    </div>
+    <p class="note">This is a review overlay only. It does not promote assets or change runtime data.</p>
+  </main>
+
+  <script src="../../../../src/data/city_base.js"></script>
+  <script>
+    const CONCEPT_W = 1672;
+    const CONCEPT_H = 941;
+    const SVG_W = 960;
+    const SVG_H = 740;
+    const SX = CONCEPT_W / SVG_W;
+    const SY = CONCEPT_H / SVG_H;
+    const HEX_SIZE = 6;
+    const HEX_H = Math.sqrt(3) * HEX_SIZE;
+    const crop = { x:334, y:251, w:586, h:439 };
+    const out = { w:2344, h:1756 };
+    const margin = 80;
+
+    const globalPrimary = new Set(['changan', 'luoyang']);
+    const t06Standard = new Set(['nanyang', 'xiangyang', 'shangyong', 'yiling']);
+    const subdued = new Set(['xinye', 'hanzhong']);
+    const eastContext = new Set(['chenliu', 'guandu', 'xuchang']);
+
+    function el(name, attrs = {}, text = '') {
+      const node = document.createElementNS('http://www.w3.org/2000/svg', name);
+      for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+      if (text) node.textContent = text;
+      return node;
+    }
+
+    function hexToPixel(col, row) {
+      const x = col * HEX_SIZE * 1.5 + HEX_SIZE + 8;
+      const y = row * HEX_H + (col % 2 ? HEX_H / 2 : 0) + HEX_H / 2 + 4;
+      return { x: x * SX, y: y * SY };
+    }
+
+    function inMargin(p) {
+      return p.x >= crop.x - margin && p.x <= crop.x + crop.w + margin && p.y >= crop.y - margin && p.y <= crop.y + crop.h + margin;
+    }
+
+    function toOutput(p) {
+      return {
+        x: (p.x - crop.x) / crop.w * out.w,
+        y: (p.y - crop.y) / crop.h * out.h
+      };
+    }
+
+    function cityClass(id) {
+      if (globalPrimary.has(id)) return 'global-primary';
+      if (t06Standard.has(id)) return 't06-standard';
+      if (subdued.has(id)) return 'subdued';
+      if (eastContext.has(id)) return 'east-context';
+      return 'context';
+    }
+
+    function cityRadius(cls) {
+      if (cls === 'global-primary') return 152;
+      if (cls === 't06-standard') return 96;
+      return 72;
+    }
+
+    function drawCities() {
+      const g = document.getElementById('cities');
+      Object.entries(CITY_BASE).forEach(([id, city]) => {
+        const concept = hexToPixel(city.q, city.r);
+        if (!inMargin(concept)) return;
+        const p = toOutput(concept);
+        const cls = cityClass(id);
+        const group = el('g', { class:`city ${cls}` });
+        group.appendChild(el('circle', { class:'stamp', cx:p.x.toFixed(1), cy:p.y.toFixed(1), r:cityRadius(cls) }));
+        group.appendChild(el('circle', { class:'dot', cx:p.x.toFixed(1), cy:p.y.toFixed(1), r:11 }));
+        group.appendChild(el('text', { x:(p.x + 21).toFixed(1), y:(p.y - 18).toFixed(1) }, city.name));
+        group.appendChild(el('title', {}, `${city.name} / ${id} / ${cls} / output ${p.x.toFixed(0)},${p.y.toFixed(0)}`));
+        g.appendChild(group);
+      });
+    }
+
+    drawCities();
+  </script>
+</body>
+</html>

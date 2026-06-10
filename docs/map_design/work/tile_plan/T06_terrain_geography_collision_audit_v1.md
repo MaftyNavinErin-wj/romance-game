@@ -5,7 +5,7 @@
 - Tile id: `T06_CC_W`
 - Stage: Stage 6 control-overlay review support
 - Date: 2026-06-09
-- Status: `PENDING_PRODUCER_REVIEW`
+- Status: `PRODUCER_REVIEWED_FOR_NEXT_TERRAIN_BRIEF`
 - Runtime impact: none
 
 ## Purpose
@@ -161,6 +161,25 @@ Before no-city T06 terrain generation, producer should decide:
 4. Should 汉中 be a full visible stamp in T06, or only a west-corridor context anchor?
 5. Are the proposed primary corridors sufficient for the no-city terrain base, with full road art deferred until city/road layer composition?
 
+## Producer Decisions 2026-06-10
+
+Producer approved continuing the controlled pipeline for T06:
+
+- next image step is a no-city terrain base, not another all-in-one city-bearing production tile;
+- city/road layers remain deterministic later;
+- city scale should follow the producer-facing size metaphor:
+  - large/primary city roughly equals "9 inch pizza" visual weight;
+  - standard/small city roughly equals "5 inch pizza" visual weight;
+  - edge/context cities may be subdued or clipped, but must not become unreadable sesame-dot texture.
+
+Working decisions for the next terrain brief:
+
+1. 长安 / 洛阳 are global city-layer primary stamps that appear in T06 overlap, not T06-owned final stamps.
+2. 新野 should be downgraded to small/subdued or delegated to avoid crowding 南阳 / 襄阳.
+3. 陈留 / 官渡 / 许昌 should be controlled by `T07_CC_E` or the global city layer; T06 keeps them only as east-overlap context.
+4. 汉中 is west-corridor context, not a full T06-owned stamp.
+5. No-city terrain generation may proceed from this audit, with full road art deferred until deterministic city/road composition.
+
 ## Verdict
 
 `T06_control_overlay_v1` remains useful and directionally correct, but it should not be treated as final scale approval.
@@ -169,7 +188,7 @@ Recommended status:
 
 - `control_master_v1`: keep as national control source, pending producer review.
 - `T06_control_overlay_v1`: keep as T06 source overlay, but mark city ownership / collision / geography corrections before terrain prompting.
-- Next step: update the T06 terrain-generation brief to request a no-city terrain base that follows this audit, not a city-bearing production tile.
+- Next step: use `stage6_t06_no_city_terrain_brief_v1.md` to request a no-city terrain base that follows this audit, not a city-bearing production tile.
 
 ## Runtime Impact
 
