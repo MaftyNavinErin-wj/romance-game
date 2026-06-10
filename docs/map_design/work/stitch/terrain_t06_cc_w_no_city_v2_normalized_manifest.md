@@ -20,6 +20,9 @@
 - City nudge proposal path: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_nudge_proposal.html`
 - City nudge proposal preview path: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_nudge_proposal.png`
 - City nudge proposal manifest: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_nudge_proposal_manifest.md`
+- Deterministic city-layer preview path: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_layer_preview.html`
+- Deterministic city-layer preview PNG: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_layer_preview.png`
+- Deterministic city-layer preview manifest: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_layer_preview_manifest.md`
 - Brief: `docs/map_design/work/tile_plan/stage6_t06_no_city_terrain_brief_v1.md`
 
 ## Generation
