@@ -4,9 +4,9 @@
 
 - Current approved runtime map asset: unchanged from the existing game state.
 - Current map-art workflow status: Stage 1-5 approved; Stage 6 controlled production pipeline pilot in progress.
-- Active stage: Stage 6, controlled T06 deterministic city-layer preview.
-- Active candidate: `terrain_t06_cc_w_no_city_v2_city_layer_preview.png`, pending producer review.
-- Next proposed action: producer review of the deterministic city-layer preview before any city-stamp art/blend test.
+- Active stage: Stage 6, controlled T06 city-stamp / blend test preparation.
+- Active candidate: `terrain_t06_cc_w_no_city_v2_city_layer_preview.png`, producer approved with 官渡 water caveat.
+- Next proposed action: limited city-stamp art / blend test using the approved city-layer preview, with 官渡 kept off water.
 
 ## Decisions
 
@@ -508,4 +508,5 @@
 - Placeholder city art is deterministic SVG only; no AI image generation, no final stamp art, and no blend pass.
 - Render verification: headless Chrome output `1500 x 1341`, SVG viewBox `2344 x 1756`, 31 city/context groups, 8 nudge arrows, no browser console/page errors.
 - Author verdict: `PASS_WITH_NOTES`, ready for producer review. 洛阳 still needs later Luo/Yiluo-context blend discipline; 襄阳 still needs Han River / Jingxiang corridor discipline; 陈留/官渡/许昌 remain T07/global delegated context.
+- Producer approved the preview with one caveat: 官渡 must not sit on water in the next city-stamp / blend pass. All other preview placement is acceptable.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.

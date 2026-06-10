@@ -520,7 +520,7 @@ Producer selected Option A. Added concrete nudge proposal `docs/map_design/work/
 
 Producer approved the T06 v2 city nudge proposal. Next step is a deterministic city-layer preview on top of `terrain_t06_cc_w_no_city_v2_normalized.png` using the approved art-layer nudges. Carry-forward cautions: 洛阳 must read as Luo/Yiluo context rather than Yellow River bank placement; 襄阳 must read as Han River / Jingxiang corridor; 陈留/官渡/许昌 remain T07/global east-context rather than T06-owned standard stamps.
 
-Created `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_layer_preview.html`, PNG, and manifest. It is a deterministic placeholder preview only: no AI generation, no final city-stamp art, no blend pass, no runtime asset promotion. Render check: 31 city/context groups, 8 approved nudge arrows, SVG frame `2344 x 1756`, PNG `1500 x 1341`, no browser errors. Author verdict `PASS_WITH_NOTES`, pending producer review before city-stamp art / blend test.
+Created `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_layer_preview.html`, PNG, and manifest. It is a deterministic placeholder preview only: no AI generation, no final city-stamp art, no blend pass, no runtime asset promotion. Render check: 31 city/context groups, 8 approved nudge arrows, SVG frame `2344 x 1756`, PNG `1500 x 1341`, no browser errors. Producer approved the preview with one caveat: 官渡 must not sit on water in the next city-stamp / blend pass. All other placement is acceptable.
 
 ## 2026-06-10 Stage 6 Controlled Tile Lessons
 

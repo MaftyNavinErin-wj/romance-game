@@ -5,7 +5,7 @@
 - Preview id: `terrain_t06_cc_w_no_city_v2_city_layer_preview`
 - Base candidate: `terrain_t06_cc_w_no_city_v2_normalized`
 - Stage: Stage 6 controlled production pipeline
-- Verdict: `AUTHOR_REVIEW_READY_FOR_PRODUCER`
+- Verdict: `PRODUCER_APPROVED_WITH_GUANDU_WATER_CAVEAT`
 - Date: 2026-06-10
 - Runtime impact: none
 
@@ -81,11 +81,23 @@ Cautions:
 - Field/path texture density in the terrain base remains a later road-layer composition caution.
 - This preview does not test final city art style, gates, shadows, roads, or local blend masks.
 
+## Producer Decision 2026-06-10
+
+Producer approved the deterministic city-layer preview with one carry-forward caveat:
+
+- 官渡 needs special placement care in the next city-stamp / blend pass; it must not sit on water.
+
+All other preview placement is acceptable.
+
+Implementation implication:
+
+- keep 官渡 as delegated T07/global east-context, not T06-owned standard;
+- in the next stamp/blend test, place 官渡 on a south/southwest bank, terrace, or ferry-context landing area rather than inside the river shape;
+- if the current terrain water shape makes that impossible without a large move, stop and treat it as a terrain/placement issue instead of forcing the city stamp onto water.
+
 ## Next Proposed Step
 
-Producer review of this deterministic city-layer preview.
-
-If accepted, the next controlled step is a limited city-stamp art / blend test using these same positions and classes. If rejected, revise the deterministic placement or return to terrain v3 only if the problem is terrain, not city-layer fit.
+Limited city-stamp art / blend test using these same positions and classes, with the 官渡 water caveat above as a hard review note.
 
 ## Runtime Impact
 
