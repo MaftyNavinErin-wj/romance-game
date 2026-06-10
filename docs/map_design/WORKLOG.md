@@ -532,3 +532,18 @@
 - It does not generate art and does not grant imagegen/runtime promotion approval.
 - Next producer decision: choose `Option A` controlled city-stamp art source images, `Option B` manual deterministic compositing from existing/reference visuals, or `Option C` revise placeholder geometry first.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-10 T06 City Stamp Source v1
+
+- Producer selected `Option A`: controlled city-stamp art source images first, not direct T06 final compositing.
+- Added `docs/map_design/work/stitch/city_stamp_sources/t06_city_stamp_source_manifest_v1.md`.
+- Generated and copied three built-in imagegen outputs into `docs/map_design/work/stitch/city_stamp_sources/`:
+  - `t06_city_stamp_source_v1_primary_large.png`;
+  - `t06_city_stamp_source_v1_standard_city.png`;
+  - `t06_city_stamp_source_v1_subdued_context.png`.
+- Author review:
+  - primary large source: `REFERENCE_CAUTION` because city walls/blocks are readable but landmark-like inner mass and short gate bridge/ramp marks must be masked or overpainted before use;
+  - standard source: `REFERENCE_CAUTION` because the wall/block source is useful but several gate bridge/ramp marks could imply unapproved local roads if pasted directly;
+  - subdued/context source: `PASS_WITH_NOTES`; cleanest output, suitable as context source after non-rectangular mask/cutout.
+- Carry-forward constraint: 官渡 still requires documented stamp-local bank/terrace fit and must not sit on water; these sources do not change runtime city coordinates or final city placement.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.

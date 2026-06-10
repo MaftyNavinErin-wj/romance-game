@@ -540,3 +540,22 @@ Durable lessons for later tiles:
 - Tile scope is not final ownership. Classify city anchors as primary-owned, global-overlap, context, delegate, or omit-from-stamp-pass before stamp work.
 - Imagegen prompt bans are not sufficient. Roads, village-like clusters, pseudo-forts, and wrong water grammar still need post-generation audit.
 - Future tiles should reuse the T06 file pattern: terrain manifest, city overlay, geography/city audit, and optional nudge proposal manifest.
+
+## 2026-06-10 T06 City Stamp Source v1
+
+Producer chose Option A after the accepted T06 v2 stamp/blend placeholder test: generate controlled city-stamp art source images first, not a full T06 composite.
+
+Added:
+
+- `docs/map_design/work/stitch/city_stamp_sources/t06_city_stamp_source_manifest_v1.md`
+- `docs/map_design/work/stitch/city_stamp_sources/t06_city_stamp_source_v1_primary_large.png`
+- `docs/map_design/work/stitch/city_stamp_sources/t06_city_stamp_source_v1_standard_city.png`
+- `docs/map_design/work/stitch/city_stamp_sources/t06_city_stamp_source_v1_subdued_context.png`
+
+Author review:
+
+- `primary_large`: `REFERENCE_CAUTION`; useful wall/block density for 长安/洛阳, but prominent inner mass/towers and short gate bridge/ramp marks need masking or overpaint before use.
+- `standard_city`: `REFERENCE_CAUTION`; useful for 南阳/襄阳/上庸/夷陵 source style, but gate bridge/ramp marks could accidentally imply unapproved roads.
+- `subdued_context`: `PASS_WITH_NOTES`; cleanest source for 新野/汉中/陈留/官渡/许昌 context use after mask/cutout.
+
+Reusable lesson: city-stamp source images are not final stamps. They must be cut out with non-rectangular masks, stripped of any road-like gate extensions unless approved as local tie-ins, and placed only by deterministic city-layer rules. 官渡 off-water handling remains a later stamp-local bank/terrace fit constraint, not a runtime coordinate change.
