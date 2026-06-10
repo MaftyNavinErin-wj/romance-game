@@ -524,6 +524,8 @@ Created `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_layer_prev
 
 Created `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_blend_test.html`, PNG, and manifest as the first limited deterministic city-stamp / blend test. It uses SVG local blend pads, placeholder walls/gates, and short local tie-ins only; no AI image generation, no final road graph, no runtime promotion. 官渡 gets a stamp-local bank/terrace fit offset `-26,+34` and a visible `官渡岸上` callout so it does not sit on water. Render check: 31 city/context groups, 1 官渡 fit callout, SVG frame `2344 x 1756`, PNG `1500 x 1360`, no browser errors. Pending producer review.
 
+Producer said to continue forward from the stamp/blend test. Added `docs/map_design/work/tile_plan/stage6_t06_city_stamp_blend_brief_v1.md` as the next controlled brief, not as generation approval. It preserves the approved nudge set, 官渡 off-water hard caveat, 洛阳 Luo/Yiluo caveat, 襄阳 Han/Jingxiang caveat, and gives producer three next-path options: controlled stamp art source generation, manual deterministic compositing from existing/reference visuals, or geometry revision.
+
 ## 2026-06-10 Stage 6 Controlled Tile Lessons
 
 Added reusable lesson doc:

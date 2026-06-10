@@ -4,9 +4,9 @@
 
 - Current approved runtime map asset: unchanged from the existing game state.
 - Current map-art workflow status: Stage 1-5 approved; Stage 6 controlled production pipeline pilot in progress.
-- Active stage: Stage 6, controlled T06 city-stamp / blend test.
-- Active candidate: `terrain_t06_cc_w_no_city_v2_city_stamp_blend_test.png`, pending producer review.
-- Next proposed action: producer review of the limited city-stamp / blend test before any final city-stamp art source or AI/manual blend pass.
+- Active stage: Stage 6, controlled T06 city-stamp / blend brief.
+- Active candidate: `stage6_t06_city_stamp_blend_brief_v1.md`, pending producer review before generation/compositing.
+- Next proposed action: producer chooses controlled city-stamp art source generation, manual deterministic compositing, or geometry revision.
 
 ## Decisions
 
@@ -521,4 +521,14 @@
 - 官渡 applies a stamp-local bank/terrace fit offset of `-26,+34` after the approved city-layer nudge, and the PNG labels the adjustment as `官渡岸上`.
 - Render verification: headless Chrome output `1500 x 1360`, SVG viewBox `2344 x 1756`, 31 city/context groups, 1 官渡 fit callout, no browser console/page errors.
 - Author verdict: `PASS_WITH_NOTES`, ready for producer review. This still uses placeholder stamp art; final stamp source and real blend treatment remain future approved steps.
+- Producer accepted continuing forward from this stamp/blend test into next-brief planning. This does not authorize AI image generation or runtime promotion.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-10 T06 City Stamp / Blend Brief v1
+
+- Added `docs/map_design/work/tile_plan/stage6_t06_city_stamp_blend_brief_v1.md`.
+- Purpose: define the next controlled step after the approved v2 terrain, nudge proposal, city-layer preview, and accepted limited stamp/blend placeholder test.
+- The brief records city classes, approved nudge deltas, 官渡 hard caveat, 洛阳/襄阳 caveats, stamp source requirements, blend pass requirements, and review gates.
+- It does not generate art and does not grant imagegen/runtime promotion approval.
+- Next producer decision: choose `Option A` controlled city-stamp art source images, `Option B` manual deterministic compositing from existing/reference visuals, or `Option C` revise placeholder geometry first.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.

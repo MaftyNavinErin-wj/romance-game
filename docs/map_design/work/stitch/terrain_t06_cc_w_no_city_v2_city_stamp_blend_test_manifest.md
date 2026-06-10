@@ -5,7 +5,7 @@
 - Test id: `terrain_t06_cc_w_no_city_v2_city_stamp_blend_test`
 - Base candidate: `terrain_t06_cc_w_no_city_v2_normalized`
 - Stage: Stage 6 controlled production pipeline
-- Verdict: `AUTHOR_REVIEW_READY_FOR_PRODUCER`
+- Verdict: `PRODUCER_ACCEPTED_FOR_NEXT_BRIEF_PLANNING`
 - Date: 2026-06-10
 - Runtime impact: none
 
@@ -74,9 +74,11 @@ Cautions:
 
 ## Next Proposed Step
 
-Producer review of this limited city-stamp / blend test.
+Producer accepted continuing forward from this limited city-stamp / blend test on 2026-06-10.
 
-If accepted, the next step should be a controlled city-stamp art source test or manual deterministic compositing test using the same city classes, nudge records, and 官渡 water caveat.
+Next step: create a controlled city-stamp / blend brief using the same city classes, nudge records, and 官渡 water caveat.
+
+This acceptance does not by itself authorize AI image generation or runtime promotion.
 
 ## Runtime Impact
 
