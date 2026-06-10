@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>T06 v2 City Stamp / Blend Test</title>
+  <style>
+    :root {
+      --bg:#202426;
+      --line:rgba(255,255,255,0.22);
+      --text:#f5f0e6;
+      --muted:#d8d1c4;
+      --global:#ffc857;
+      --standard:#7bdff2;
+      --subdued:#c8a2ff;
+      --east:#ff8a65;
+      --ghost:#b7c2c8;
+      --paper:#ddc992;
+      --ink:#2d261b;
+      --soil:#a88755;
+    }
+    body {
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font:14px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+    main {
+      max-width:1440px;
+      margin:0 auto;
+      padding:22px;
+    }
+    h1 { margin:0 0 8px; font-size:24px; }
+    p { margin:0 0 14px; color:var(--muted); }
+    code { color:#fff3b0; }
+    .frame { border:1px solid var(--line); background:#111; }
+    svg { display:block; width:100%; height:auto; background:#111; }
+    .blend-pad {
+      fill:rgba(222,201,146,0.38);
+      stroke:rgba(92,70,40,0.3);
+      stroke-width:3;
+    }
+    .bank-pad {
+      fill:rgba(208,187,130,0.5);
+      stroke:rgba(88,64,35,0.55);
+      stroke-width:4;
+    }
+    .reserve {
+      fill:none;
+      stroke-width:4;
+      stroke-dasharray:14 14;
+      opacity:0.82;
+    }
+    .approved-point {
+      fill:rgba(20,16,10,0.82);
+      stroke:rgba(255,255,255,0.92);
+      stroke-width:3;
+    }
+    .stamp-fit-line {
+      stroke:rgba(255,255,255,0.72);
+      stroke-width:3;
+      stroke-dasharray:7 7;
+      marker-end:url(#arrow);
+    }
+    .tie {
+      fill:none;
+      stroke:rgba(92,66,32,0.72);
+      stroke-width:6;
+      stroke-linecap:round;
+      stroke-dasharray:16 10;
+    }
+    .city-stamp .shadow {
+      fill:rgba(20,16,10,0.22);
+    }
+    .city-stamp .wall {
+      fill:rgba(223,204,151,0.84);
+      stroke:var(--ink);
+      stroke-width:5;
+      stroke-linejoin:round;
+    }
+    .city-stamp .inner {
+      fill:none;
+      stroke:rgba(45,38,27,0.74);
+      stroke-width:3;
+      stroke-linecap:round;
+    }
+    .city-stamp .gate {
+      fill:rgba(45,38,27,0.86);
+    }
+    .global-primary .reserve { stroke:var(--global); }
+    .t06-standard .reserve { stroke:var(--standard); }
+    .subdued .reserve { stroke:var(--subdued); }
+    .east-context .reserve { stroke:var(--east); }
+    .ghost-context .reserve { stroke:var(--ghost); opacity:0.35; }
+    .global-primary .city-stamp .wall { stroke:#68430c; }
+    .t06-standard .city-stamp .wall { stroke:#145767; }
+    .subdued .city-stamp { opacity:0.78; }
+    .east-context .city-stamp { opacity:0.74; }
+    .ghost-context .city-stamp { opacity:0.28; }
+    .ghost-context .blend-pad { opacity:0.25; }
+    .city text {
+      fill:#fffaf0;
+      font-size:31px;
+      font-weight:850;
+      paint-order:stroke;
+      stroke:rgba(16,12,8,0.95);
+      stroke-width:10px;
+      stroke-linejoin:round;
+    }
+    .ghost-context text {
+      fill:#e5e1d6;
+      opacity:0.55;
+    }
+    .callout {
+      fill:#fffaf0;
+      font-size:25px;
+      font-weight:850;
+      paint-order:stroke;
+      stroke:rgba(16,12,8,0.95);
+      stroke-width:8px;
+      stroke-linejoin:round;
+    }
+    .legend {
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+    .legend div {
+      border:1px solid var(--line);
+      padding:10px;
+      background:rgba(255,255,255,0.04);
+    }
+    .swatch {
+      display:inline-block;
+      width:11px;
+      height:11px;
+      border-radius:50%;
+      margin-right:6px;
+      vertical-align:-1px;
+    }
+    .note {
+      margin-top:10px;
+      color:var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>T06 v2 City Stamp / Blend Test</h1>
+    <p>Base: <code>terrain_t06_cc_w_no_city_v2_normalized.png</code>. Deterministic local blend pads and city-stamp placeholders test whether the approved city layer can move toward final art. 官渡 has a specific bank/terrace fit so the stamp does not sit on water.</p>
+    <div class="frame">
+      <svg id="map" viewBox="0 0 2344 1756" role="img" aria-label="T06 v2 city stamp and blend test">
+        <defs>
+          <filter id="softBlend" x="-25%" y="-25%" width="150%" height="150%">
+            <feGaussianBlur stdDeviation="10"></feGaussianBlur>
+          </filter>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L9,3 z" fill="rgba(255,255,255,0.72)"></path>
+          </marker>
+        </defs>
+        <image href="terrain_t06_cc_w_no_city_v2_normalized.png" x="0" y="0" width="2344" height="1756"></image>
+        <g id="pads"></g>
+        <g id="ties"></g>
+        <g id="cities"></g>
+        <g id="fitNotes"></g>
+      </svg>
+    </div>
+    <div class="legend">
+      <div><span class="swatch" style="background:var(--global)"></span><b>Global primary:</b> 长安 / 洛阳 use large stamp placeholders and larger local paper blend.</div>
+      <div><span class="swatch" style="background:var(--standard)"></span><b>T06 standard:</b> 南阳 / 襄阳 / 上庸 / 夷陵 test normal stamp scale.</div>
+      <div><span class="swatch" style="background:var(--subdued)"></span><b>Subdued/context:</b> 新野 / 汉中 and ghost anchors stay visually secondary.</div>
+      <div><span class="swatch" style="background:var(--east)"></span><b>Delegated context:</b> 陈留 / 官渡 / 许昌 stay T07/global; 官渡 uses bank-fit adjustment.</div>
+    </div>
+    <p class="note">This is a docs-only visual test. It does not generate AI art, promote assets, or change runtime city coordinates.</p>
+  </main>
+
+  <script src="../../../../src/data/city_base.js"></script>
+  <script>
+    const CONCEPT_W = 1672;
+    const CONCEPT_H = 941;
+    const SVG_W = 960;
+    const SVG_H = 740;
+    const SX = CONCEPT_W / SVG_W;
+    const SY = CONCEPT_H / SVG_H;
+    const HEX_SIZE = 6;
+    const HEX_H = Math.sqrt(3) * HEX_SIZE;
+    const crop = { x:334, y:251, w:586, h:439 };
+    const out = { w:2344, h:1756 };
+    const margin = 80;
+
+    const globalPrimary = new Set(['changan','luoyang']);
+    const t06Standard = new Set(['nanyang','xiangyang','shangyong','yiling']);
+    const subdued = new Set(['xinye','hanzhong']);
+    const eastContext = new Set(['chenliu','guandu','xuchang']);
+    const visibleSouthEastContext = new Set(['jingzhou','wuchang']);
+
+    const nudges = {
+      luoyang: { dx:36, dy:64, note:'south/southeast off upper main river' },
+      xiangyang: { dx:46, dy:78, note:'south/southeast toward Han/Jingxiang corridor pocket' },
+      chenliu: { dx:0, dy:54, note:'south of northern river context' },
+      guandu: { dx:-8, dy:54, note:'south/southwest of ferry river context' },
+      xuchang: { dx:0, dy:46, note:'clear of northern river band' },
+      yiling: { dx:-20, dy:20, note:'bank/terrace fit only' },
+      wuchang: { dx:-16, dy:18, note:'edge bank/terrace context only' },
+      jingzhou: { dx:0, dy:22, note:'southern context bank fit only' }
+    };
+
+    const stampFit = {
+      guandu: { dx:-26, dy:34, note:'stamp-local bank/terrace fit; do not sit on water' }
+    };
+
+    function el(name, attrs = {}, text = '') {
+      const node = document.createElementNS('http://www.w3.org/2000/svg', name);
+      for (const [k,v] of Object.entries(attrs)) node.setAttribute(k,v);
+      if (text) node.textContent = text;
+      return node;
+    }
+
+    function hexToPixel(col,row) {
+      const x = col * HEX_SIZE * 1.5 + HEX_SIZE + 8;
+      const y = row * HEX_H + (col % 2 ? HEX_H / 2 : 0) + HEX_H / 2 + 4;
+      return { x:x * SX, y:y * SY };
+    }
+
+    function inMargin(p) {
+      return p.x >= crop.x - margin && p.x <= crop.x + crop.w + margin && p.y >= crop.y - margin && p.y <= crop.y + crop.h + margin;
+    }
+
+    function toOutput(p) {
+      return {
+        x:(p.x - crop.x) / crop.w * out.w,
+        y:(p.y - crop.y) / crop.h * out.h
+      };
+    }
+
+    function cityClass(id) {
+      if (globalPrimary.has(id)) return 'global-primary';
+      if (t06Standard.has(id)) return 't06-standard';
+      if (subdued.has(id)) return 'subdued';
+      if (eastContext.has(id) || visibleSouthEastContext.has(id)) return 'east-context';
+      return 'ghost-context';
+    }
+
+    function reserveRadius(cls) {
+      if (cls === 'global-primary') return 152;
+      if (cls === 't06-standard') return 96;
+      return 72;
+    }
+
+    function stampSize(cls) {
+      if (cls === 'global-primary') return { w:160, h:96, blocks:5 };
+      if (cls === 't06-standard') return { w:112, h:68, blocks:3 };
+      if (cls === 'subdued') return { w:78, h:48, blocks:2 };
+      if (cls === 'east-context') return { w:76, h:46, blocks:2 };
+      return { w:52, h:31, blocks:1 };
+    }
+
+    function adjusted(id,p) {
+      const n = nudges[id] || { dx:0, dy:0 };
+      return { x:p.x + n.dx, y:p.y + n.dy, moved:!!nudges[id], note:n.note || '' };
+    }
+
+    function fitted(id,p) {
+      const f = stampFit[id] || { dx:0, dy:0 };
+      return { x:p.x + f.dx, y:p.y + f.dy, fitted:!!stampFit[id], note:f.note || '' };
+    }
+
+    function blendSize(cls) {
+      if (cls === 'global-primary') return { rx:124, ry:74 };
+      if (cls === 't06-standard') return { rx:90, ry:54 };
+      if (cls === 'subdued') return { rx:64, ry:39 };
+      if (cls === 'east-context') return { rx:62, ry:38 };
+      return { rx:45, ry:28 };
+    }
+
+    function drawPad(p,cls,id) {
+      const s = blendSize(cls);
+      const pad = el('ellipse',{
+        class:id === 'guandu' ? 'bank-pad' : 'blend-pad',
+        cx:p.x.toFixed(1),
+        cy:(p.y + 8).toFixed(1),
+        rx:s.rx,
+        ry:s.ry,
+        filter:'url(#softBlend)'
+      });
+      return pad;
+    }
+
+    function drawTie(p,cls,id) {
+      if (cls === 'ghost-context') return null;
+      const len = cls === 'global-primary' ? 74 : cls === 't06-standard' ? 56 : 38;
+      const dy = id === 'guandu' ? 18 : 22;
+      return el('path',{ class:'tie', d:`M ${p.x.toFixed(1)} ${(p.y + 24).toFixed(1)} C ${(p.x - len * 0.3).toFixed(1)} ${(p.y + dy).toFixed(1)}, ${(p.x - len * 0.75).toFixed(1)} ${(p.y + dy * 1.2).toFixed(1)}, ${(p.x - len).toFixed(1)} ${(p.y + dy * 1.35).toFixed(1)}` });
+    }
+
+    function drawStamp(group,p,cls) {
+      const s = stampSize(cls);
+      const x = p.x - s.w / 2;
+      const y = p.y - s.h / 2;
+      const stamp = el('g',{ class:'city-stamp' });
+      stamp.appendChild(el('ellipse',{ class:'shadow', cx:p.x + 7, cy:p.y + 10, rx:(s.w * 0.58).toFixed(1), ry:(s.h * 0.43).toFixed(1) }));
+      const points = [
+        [x + 7, y + 9],
+        [x + s.w * 0.46, y],
+        [x + s.w - 8, y + 8],
+        [x + s.w, y + s.h * 0.56],
+        [x + s.w * 0.56, y + s.h],
+        [x + 8, y + s.h - 7],
+        [x, y + s.h * 0.42]
+      ].map(([px,py]) => `${px.toFixed(1)},${py.toFixed(1)}`).join(' ');
+      stamp.appendChild(el('polygon',{ class:'wall', points }));
+      for (let i = 1; i <= s.blocks; i++) {
+        const bx = x + (s.w / (s.blocks + 1)) * i;
+        stamp.appendChild(el('line',{ class:'inner', x1:bx.toFixed(1), y1:(y + 14).toFixed(1), x2:bx.toFixed(1), y2:(y + s.h - 14).toFixed(1) }));
+      }
+      stamp.appendChild(el('line',{ class:'inner', x1:(x + 16).toFixed(1), y1:p.y.toFixed(1), x2:(x + s.w - 16).toFixed(1), y2:p.y.toFixed(1) }));
+      stamp.appendChild(el('rect',{ class:'gate', x:(p.x - 10).toFixed(1), y:(y + s.h - 6).toFixed(1), width:20, height:11, rx:2 }));
+      group.appendChild(stamp);
+    }
+
+    function labelPosition(p,r) {
+      return {
+        x:Math.max(26, Math.min(p.x + 22, out.w - 120)),
+        y:Math.max(42, Math.min(p.y - r - 13, out.h - 34))
+      };
+    }
+
+    function draw() {
+      const pads = document.getElementById('pads');
+      const ties = document.getElementById('ties');
+      const cities = document.getElementById('cities');
+      const fitNotes = document.getElementById('fitNotes');
+      Object.entries(CITY_BASE).forEach(([id,city]) => {
+        const concept = hexToPixel(city.q, city.r);
+        if (!inMargin(concept)) return;
+        const base = toOutput(concept);
+        const approved = adjusted(id,base);
+        const p = fitted(id,approved);
+        const cls = cityClass(id);
+        const r = reserveRadius(cls);
+        pads.appendChild(drawPad(p,cls,id));
+        const tie = drawTie(p,cls,id);
+        if (tie) ties.appendChild(tie);
+        const group = el('g',{ class:`city ${cls}` });
+        group.appendChild(el('circle',{ class:'reserve', cx:p.x.toFixed(1), cy:p.y.toFixed(1), r }));
+        drawStamp(group,p,cls);
+        if (p.fitted) {
+          group.appendChild(el('circle',{ class:'approved-point', cx:approved.x.toFixed(1), cy:approved.y.toFixed(1), r:8 }));
+          fitNotes.appendChild(el('line',{ class:'stamp-fit-line', x1:approved.x.toFixed(1), y1:approved.y.toFixed(1), x2:p.x.toFixed(1), y2:p.y.toFixed(1) }));
+          fitNotes.appendChild(el('text',{ class:'callout', x:(p.x - 8).toFixed(1), y:(p.y + r + 34).toFixed(1) }, '官渡岸上'));
+        }
+        const label = labelPosition(p,r);
+        group.appendChild(el('text',{ x:label.x.toFixed(1), y:label.y.toFixed(1) }, city.name));
+        group.appendChild(el('title',{},`${city.name} / ${id} / ${cls} / city-layer ${approved.x.toFixed(0)},${approved.y.toFixed(0)} / stamp ${p.x.toFixed(0)},${p.y.toFixed(0)} / nudge ${Math.round(approved.x-base.x)},${Math.round(approved.y-base.y)} / fit ${Math.round(p.x-approved.x)},${Math.round(p.y-approved.y)} / ${p.note || approved.note}`));
+        cities.appendChild(group);
+      });
+    }
+
+    draw();
+  </script>
+</body>
+</html>

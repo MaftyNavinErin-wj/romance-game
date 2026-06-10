@@ -4,9 +4,9 @@
 
 - Current approved runtime map asset: unchanged from the existing game state.
 - Current map-art workflow status: Stage 1-5 approved; Stage 6 controlled production pipeline pilot in progress.
-- Active stage: Stage 6, controlled T06 city-stamp / blend test preparation.
-- Active candidate: `terrain_t06_cc_w_no_city_v2_city_layer_preview.png`, producer approved with 官渡 water caveat.
-- Next proposed action: limited city-stamp art / blend test using the approved city-layer preview, with 官渡 kept off water.
+- Active stage: Stage 6, controlled T06 city-stamp / blend test.
+- Active candidate: `terrain_t06_cc_w_no_city_v2_city_stamp_blend_test.png`, pending producer review.
+- Next proposed action: producer review of the limited city-stamp / blend test before any final city-stamp art source or AI/manual blend pass.
 
 ## Decisions
 
@@ -509,4 +509,16 @@
 - Render verification: headless Chrome output `1500 x 1341`, SVG viewBox `2344 x 1756`, 31 city/context groups, 8 nudge arrows, no browser console/page errors.
 - Author verdict: `PASS_WITH_NOTES`, ready for producer review. 洛阳 still needs later Luo/Yiluo-context blend discipline; 襄阳 still needs Han River / Jingxiang corridor discipline; 陈留/官渡/许昌 remain T07/global delegated context.
 - Producer approved the preview with one caveat: 官渡 must not sit on water in the next city-stamp / blend pass. All other preview placement is acceptable.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-10 T06 v2 City Stamp / Blend Test
+
+- Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_blend_test.html`.
+- Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_blend_test.png`.
+- Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_blend_test_manifest.md`.
+- Updated `terrain_t06_cc_w_no_city_v2_normalized_manifest.md` to reference the stamp/blend test artifacts.
+- The test uses deterministic SVG only: local paper/ink blend pads, city-stamp placeholders, gate hints, and short local tie-ins. It does not use AI image generation and does not define the final road graph.
+- 官渡 applies a stamp-local bank/terrace fit offset of `-26,+34` after the approved city-layer nudge, and the PNG labels the adjustment as `官渡岸上`.
+- Render verification: headless Chrome output `1500 x 1360`, SVG viewBox `2344 x 1756`, 31 city/context groups, 1 官渡 fit callout, no browser console/page errors.
+- Author verdict: `PASS_WITH_NOTES`, ready for producer review. This still uses placeholder stamp art; final stamp source and real blend treatment remain future approved steps.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.

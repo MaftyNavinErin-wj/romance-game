@@ -522,6 +522,8 @@ Producer approved the T06 v2 city nudge proposal. Next step is a deterministic c
 
 Created `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_layer_preview.html`, PNG, and manifest. It is a deterministic placeholder preview only: no AI generation, no final city-stamp art, no blend pass, no runtime asset promotion. Render check: 31 city/context groups, 8 approved nudge arrows, SVG frame `2344 x 1756`, PNG `1500 x 1341`, no browser errors. Producer approved the preview with one caveat: 官渡 must not sit on water in the next city-stamp / blend pass. All other placement is acceptable.
 
+Created `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_blend_test.html`, PNG, and manifest as the first limited deterministic city-stamp / blend test. It uses SVG local blend pads, placeholder walls/gates, and short local tie-ins only; no AI image generation, no final road graph, no runtime promotion. 官渡 gets a stamp-local bank/terrace fit offset `-26,+34` and a visible `官渡岸上` callout so it does not sit on water. Render check: 31 city/context groups, 1 官渡 fit callout, SVG frame `2344 x 1756`, PNG `1500 x 1360`, no browser errors. Pending producer review.
+
 ## 2026-06-10 Stage 6 Controlled Tile Lessons
 
 Added reusable lesson doc:

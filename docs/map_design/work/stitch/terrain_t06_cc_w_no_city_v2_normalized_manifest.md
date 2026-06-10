@@ -23,6 +23,9 @@
 - Deterministic city-layer preview path: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_layer_preview.html`
 - Deterministic city-layer preview PNG: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_layer_preview.png`
 - Deterministic city-layer preview manifest: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_layer_preview_manifest.md`
+- City stamp / blend test path: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_blend_test.html`
+- City stamp / blend test PNG: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_blend_test.png`
+- City stamp / blend test manifest: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_blend_test_manifest.md`
 - Brief: `docs/map_design/work/tile_plan/stage6_t06_no_city_terrain_brief_v1.md`
 
 ## Generation
