@@ -482,3 +482,17 @@
   - 武昌: `-16,+18`;
   - 江陵: `0,+22`.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-10 Stage 6 Controlled Tile Lessons
+
+- Added `docs/map_design/work/tile_plan/stage6_controlled_tile_lessons_v1.md`.
+- Purpose: preserve the reusable production lessons from the T06 no-city terrain / overlay-audit / city-nudge loop before continuing to later tiles.
+- Key rules captured:
+  - imagegen may own terrain material and texture, but not city count, city positions, primary roads, ownership, or seam logic;
+  - every tile needs the fixed loop: control overlay -> no-city brief -> terrain generation -> frame gate -> city overlay -> geography/city audit -> producer verdict;
+  - major geography errors must be reworked rather than hidden by city nudges;
+  - city nudges are art-layer proposals only and must be recorded with explicit pixel deltas;
+  - tile scope is not final ownership, so primary/global/context/delegate classes must be decided before stamp work;
+  - road-like texture and pseudo-settlement marks require post-generation audit even when the prompt says no roads/no villages;
+  - future tiles should reuse the manifest/audit/nudge file set from T06.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.

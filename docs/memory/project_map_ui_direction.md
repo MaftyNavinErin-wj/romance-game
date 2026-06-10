@@ -517,3 +517,18 @@ Generated `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2.png` and dete
 Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_geography_city_audit.md`. Recommendation: v2 is viable only if small deterministic city-layer nudges/blend pads are allowed. Priority nudges: 洛阳 slightly south/south-southeast if needed to avoid direct upper-river contact; 襄阳 south/southeast toward a Han River / corridor pocket; 官渡/陈留/许昌 remain T07/global context and visually south of the northern main river if shown.
 
 Producer selected Option A. Added concrete nudge proposal `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_nudge_proposal.png` and manifest. Proposed normalized-frame nudges: 洛阳 `+36,+64`, 襄阳 `+46,+78`, 陈留 `0,+54`, 官渡 `-8,+54`, 许昌 `0,+46`, 夷陵 `-20,+20`, 武昌 `-16,+18`, 江陵 `0,+22`. This remains an art-layer proposal only; runtime city data is unchanged.
+
+## 2026-06-10 Stage 6 Controlled Tile Lessons
+
+Added reusable lesson doc:
+
+- `docs/map_design/work/tile_plan/stage6_controlled_tile_lessons_v1.md`
+
+Durable lessons for later tiles:
+
+- A good-looking tile can still fail if major geography is wrong. Do not move cities to rescue a bad river or mountain layout; rework terrain.
+- Every tile needs the same audit loop: control overlay, no-city terrain brief, frame gate, normalized terrain, city overlay, geography/city audit, then producer verdict.
+- City nudges are allowed only as documented art-layer proposals. They do not change runtime city data or `CITY_BASE`.
+- Tile scope is not final ownership. Classify city anchors as primary-owned, global-overlap, context, delegate, or omit-from-stamp-pass before stamp work.
+- Imagegen prompt bans are not sufficient. Roads, village-like clusters, pseudo-forts, and wrong water grammar still need post-generation audit.
+- Future tiles should reuse the T06 file pattern: terrain manifest, city overlay, geography/city audit, and optional nudge proposal manifest.
