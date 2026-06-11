@@ -4,9 +4,9 @@
 
 - Current approved runtime map asset: unchanged from the existing game state.
 - Current map-art workflow status: Stage 1-5 approved; Stage 6 controlled production pipeline pilot in progress.
-- Active stage: Stage 6, controlled T06 city-stamp / blend brief.
-- Active candidate: `stage6_t06_city_stamp_blend_brief_v1.md`, pending producer review before generation/compositing.
-- Next proposed action: producer chooses controlled city-stamp art source generation, manual deterministic compositing, or geometry revision.
+- Active stage: Stage 6, controlled T06 city-stamp source cutout review.
+- Active candidate: `t06_city_stamp_source_cutout_masked_manifest_v1.md`, object cutout proof set `v9` created for primary, standard, and subdued sources.
+- Next proposed action: producer reviews the three `*_cutout_rembg_u2netp_v9_preview.png` files before any deterministic T06 compositing prototype.
 
 ## Decisions
 
@@ -547,3 +547,47 @@
   - subdued/context source: `PASS_WITH_NOTES`; cleanest output, suitable as context source after non-rectangular mask/cutout.
 - Carry-forward constraint: 官渡 still requires documented stamp-local bank/terrace fit and must not sit on water; these sources do not change runtime city coordinates or final city placement.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-11 T06 City Stamp Cutout / Compositing Brief v1
+
+- Reviewed the current T06 v2 terrain base, deterministic city-layer preview, accepted stamp/blend test, and the three `t06_city_stamp_source_v1` source images.
+- Added `docs/map_design/work/tile_plan/stage6_t06_city_stamp_cutout_compositing_brief_v1.md`.
+- Purpose: define the next Option A step before any real prototype: source cutout/mask rules, deterministic placement constraints, source-specific cautions, and stop conditions.
+- The brief keeps `primary_large` and `standard_city` as `REFERENCE_CAUTION` sources. Their gate bridge/ramp extensions must be removed or hidden before use because they can imply unapproved roads.
+- `subdued_context` remains the cleanest context source, but still needs non-rectangular masking and must not solve 官渡 placement by itself.
+- 官渡 carries forward the accepted stamp-local bank/terrace fit discipline: current tested offset `-26,+34`, visible city must read as `官渡岸上`, and runtime coordinates remain unchanged.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-11 T06 City Stamp Source Cutout Masked v1
+
+- Created source-only masked cutout prototypes under `docs/map_design/work/stitch/city_stamp_sources/`.
+- Added `docs/map_design/work/stitch/city_stamp_sources/t06_city_stamp_source_cutout_masked_manifest_v1.md`.
+- Current review set:
+  - `t06_city_stamp_source_v1_primary_large_cutout_papercut_v4.png`;
+  - `t06_city_stamp_source_v1_standard_city_cutout_papercut_v4.png`;
+  - `t06_city_stamp_source_v1_subdued_context_cutout_papercut_v4.png`;
+  - `t06_city_stamp_source_v1_cutout_papercut_v4_preview.png`.
+- Rejected intermediate attempts are retained and explicitly marked:
+  - `v1` rejected because alpha exclusion left obvious transparent rectangular holes;
+  - `v2` rejected because deterministic overpaint left visible patched blocks.
+- `v3` is retained as `REFERENCE_ONLY`: it avoided rectangular holes/patch blocks but the irregular polygon shape was too strong and cut away too much useful generated-city context.
+- Producer rejected the `v4` direction as still effectively an oval/soft screenshot rather than a true city cutout.
+- Additional local attempts `v5` flood-fill and `v6` structure-mask were generated for comparison, but both still retained too much wash/ellipse around the city.
+- Current verdict: `REWORK_OBJECT_CUTOUT_NEEDED`. The three generated city source images remain good, but none of the local automated masks is acceptable as a source cutout for deterministic T06 compositing.
+- Next method should be a proper object cutout / background-removal workflow or manually guided mask that preserves the whole city while removing the rectangular/oval paper background.
+- Installed and tested `rembg[cpu]` with the small `u2netp` model for the city-stamp sources.
+- Added `docs/map_design/work/stitch/city_stamp_sources/create_primary_rembg_cutout_v9.py`.
+- Added `docs/map_design/work/stitch/city_stamp_sources/create_city_stamp_rembg_cutouts_v9.py`.
+- Generated current proof set:
+  - `t06_city_stamp_source_v1_primary_large_cutout_rembg_u2netp_v9.png`;
+  - `t06_city_stamp_source_v1_primary_large_cutout_rembg_u2netp_v9_preview.png`.
+  - `t06_city_stamp_source_v1_standard_city_cutout_rembg_u2netp_v9.png`;
+  - `t06_city_stamp_source_v1_standard_city_cutout_rembg_u2netp_v9_preview.png`;
+  - `t06_city_stamp_source_v1_subdued_context_cutout_rembg_u2netp_v9.png`;
+  - `t06_city_stamp_source_v1_subdued_context_cutout_rembg_u2netp_v9_preview.png`.
+- Author verdict for `v9`: `PROOF_PASS_WITH_NOTES`. This is the first cutout set that reads like object-level background removal rather than ellipse/polygon screenshots. It still carries gate/ramp extension and local shadow caution, and it is not final stamp art.
+- Organized `docs/map_design/work/stitch/city_stamp_sources/`:
+  - top level now keeps original source images, current `*_cutout_rembg_u2netp_v9.png` proof outputs, current previews, the cutout manifest, and `create_city_stamp_rembg_cutouts_v9.py`;
+  - rejected v1-v8 cutout attempts moved to `archive/failed_cutouts_v1_to_v8/`;
+  - one-off/superseded scripts moved to `archive/superseded_scripts/`.
+- No T06 finished tile was generated. No road graph, AI blend pass, runtime coordinate change, `src/` edit, or `assets/maps/` promotion occurred.
