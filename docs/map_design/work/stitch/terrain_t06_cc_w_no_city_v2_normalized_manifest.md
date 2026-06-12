@@ -26,6 +26,9 @@
 - City stamp / blend test path: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_blend_test.html`
 - City stamp / blend test PNG: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_blend_test.png`
 - City stamp / blend test manifest: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_blend_test_manifest.md`
+- City stamp cutout composite PNG: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v1.png`
+- City stamp cutout composite preview: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v1_preview.png`
+- City stamp cutout composite manifest: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v1_manifest.md`
 - Brief: `docs/map_design/work/tile_plan/stage6_t06_no_city_terrain_brief_v1.md`
 
 ## Generation

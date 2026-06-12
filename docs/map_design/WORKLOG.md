@@ -89,6 +89,20 @@
 - The brief preserves v1 images 01, 02, 05, and 06 as useful references and explicitly rejects v1 image 03 as fort guidance.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
 
+## 2026-06-12 T06 City Stamp Cutout Composite v1 Review
+
+- Reviewed existing composite proof from the prior pushed commit:
+  - `docs/map_design/work/stitch/create_t06_city_stamp_composite_v1.py`;
+  - `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v1.png`;
+  - `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v1_preview.png`;
+  - `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v1_placements.json`.
+- Added `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v1_manifest.md`.
+- Visual verdict: `PROOF_PASS_WITH_REVIEW_NOTES`.
+- Positive: the `v9` object cutouts work at T06 scale, the 11 rendered stamps preserve the approved city hierarchy, 洛阳 no longer reads as a direct northern main-river bank city, and standard stamps for 南阳 / 襄阳 / 上庸 / 夷陵 are broadly acceptable.
+- Main caution: 官渡 is technically off water after the current `-26,+34` visible-stamp fit, but still sits visually tight to the riverbank and the source-local gate/approach mark can imply an unapproved crossing or road decision.
+- Recorded a pending producer proposal for a conservative `v2` visual-fit pass: keep terrain, source cutouts, city set, classes, and approved nudges unchanged; modestly improve stamp blending/opacity; and move/mask 官渡 slightly farther south/southwest away from the water. No `v2` script or image was generated in this session.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
 ## 2026-06-08 Stage 2 Art Kit v2 Generation
 
 - Generated the approved weak-slot Stage 2 v2 reference set with the built-in image generation tool.
