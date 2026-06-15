@@ -6,7 +6,7 @@
 - Base candidate: `terrain_t06_cc_w_no_city_v2_normalized`
 - Tile id: `T06_CC_W`
 - Stage: Stage 6 controlled production pipeline
-- Verdict: `PROOF_READY_FOR_PRODUCER_REVIEW`
+- Verdict: `PRODUCER_ACCEPTED_FOR_NEXT_CONTROLLED_STEP`
 - Date: 2026-06-15
 - Runtime impact: none
 
@@ -77,3 +77,7 @@ Cautions:
 - Runtime impact: none.
 - No file is promoted to `assets/maps/`.
 - No `src/` file is modified.
+
+## Producer Review
+
+Producer accepted v3 on 2026-06-15: large/primary and medium/standard city scale now look acceptable. This accepts the v3 proof as the current controlled city-stamp composite reference for the next map-production step, not as a runtime asset promotion.

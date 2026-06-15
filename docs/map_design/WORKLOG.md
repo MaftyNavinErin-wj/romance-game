@@ -648,4 +648,5 @@
   - 官渡 visible-fit remains `-42,+62`.
 - Verification: script exit code `0`; composite and preview are exact `2344 x 1756`; placement JSON is valid with 11 entries; primary bbox is `158 x 91`; standard bbox is `126 x 75`.
 - Author review: `PROOF_READY_FOR_PRODUCER_REVIEW`. Primary and standard stamps are more restrained while retaining v2's accepted off-water/placement corrections.
+- Producer accepted v3 on 2026-06-15: large/primary and medium/standard city scale now look acceptable. v3 is accepted as the current controlled city-stamp composite reference for the next map-production step, not as a runtime asset promotion.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
