@@ -1,0 +1,39 @@
+{
+  "candidate_id": "terrain_t06_cc_w_no_city_v2_final_blend_tile_proof_v1",
+  "base": "docs\\map_design\\work\\stitch\\terrain_t06_cc_w_no_city_v2_normalized.png",
+  "locked_reference": "docs\\map_design\\work\\stitch\\terrain_t06_cc_w_no_city_v2_city_stamp_composite_v3.png",
+  "locked_placements": "docs\\map_design\\work\\stitch\\terrain_t06_cc_w_no_city_v2_city_stamp_composite_v3_placements.json",
+  "output": "docs\\map_design\\work\\stitch\\terrain_t06_cc_w_no_city_v2_final_blend_tile_proof_v1.png",
+  "preview": "docs\\map_design\\work\\stitch\\terrain_t06_cc_w_no_city_v2_final_blend_tile_proof_v1_preview.png",
+  "output_size": [
+    2344,
+    1756
+  ],
+  "placement_count": 11,
+  "placement_ids": [
+    "changan",
+    "luoyang",
+    "nanyang",
+    "xiangyang",
+    "shangyong",
+    "yiling",
+    "xinye",
+    "hanzhong",
+    "chenliu",
+    "guandu",
+    "xuchang"
+  ],
+  "locked_invariants": {
+    "city_count_unchanged": true,
+    "placement_json_unmodified": true,
+    "scale_unmodified": true,
+    "runtime_files_touched": false
+  },
+  "operations": [
+    "diff-mask city/pad detection from v3 composite versus no-city terrain",
+    "local contact shadows under existing v3 stamp bboxes",
+    "localized edge blend toward terrain around detected city-layer mask",
+    "localized paper-tone harmonization inside detected city-layer mask",
+    "subtle whole-tile paper wash"
+  ]
+}

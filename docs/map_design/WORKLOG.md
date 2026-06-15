@@ -660,3 +660,16 @@
 - Locked constraints: no city count changes, no coordinate changes, no scale changes, no runtime promotion, no `src/` edits, no `assets/maps/` promotion.
 - Road-graph guard carries forward: stamp gate/ramp marks must not imply approved roads, ferries, crossings, or passes.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-15 T06 Final Blend Tile Proof v1
+
+- Added deterministic script `docs/map_design/work/stitch/create_t06_final_blend_tile_proof_v1.py`.
+- Generated:
+  - `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_final_blend_tile_proof_v1.png`;
+  - `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_final_blend_tile_proof_v1_preview.png`;
+  - `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_final_blend_tile_proof_v1_report.json`;
+  - `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_final_blend_tile_proof_v1_manifest.md`.
+- Method: start from accepted v3 composite, detect city/pad layer by diffing against no-city terrain, then apply local contact shadows, edge blend, paper-tone harmonization, and subtle whole-tile wash.
+- Locked invariants: 11 city placements, v3 placement JSON unchanged, scale unchanged, output and preview exact `2344 x 1756`, no runtime files touched.
+- Author review: `PROOF_READY_FOR_PRODUCER_REVIEW`. The proof is intentionally subtle: it reduces pasted-object edges and unifies tone without reopening placement/scale.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.

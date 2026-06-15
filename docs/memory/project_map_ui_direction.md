@@ -571,3 +571,7 @@ Producer accepted the v2 placement/off-water direction but asked large and mediu
 ## 2026-06-15 T06 Final Blend Gate
 
 Producer closed the T06 stamp-size/placement stage. `terrain_t06_cc_w_no_city_v2_city_stamp_composite_v3` is now the controlled city-stamp composite reference. Next work is final blend / tile proof only: terrain-city integration, edge cleanup, paper tone, local shadows, and pasted-object reduction. Do not adjust city count, coordinates, art-layer nudges, stamp-local fit offsets, or scale. Keep runtime untouched. Gate/ramp marks from stamp sources remain non-road artifacts unless separately approved.
+
+## 2026-06-15 T06 Final Blend Proof v1
+
+Created deterministic final blend proof v1 from locked v3 reference. Method: diff v3 composite against no-city terrain to identify city/pad layer, then apply local contact shadow, edge blend, paper-tone harmonization, and subtle whole-tile wash. Invariants: 11 city placements, v3 placement JSON unchanged, scale unchanged, `2344 x 1756`, runtime untouched. Author verdict: `PROOF_READY_FOR_PRODUCER_REVIEW`; proof is intentionally subtle and should be reviewed for whether stronger local edge treatment is needed.
