@@ -629,3 +629,23 @@
 - Verification: script exit code `0`; composite and preview are exact `2344 x 1756`; placement JSON is valid with 11 entries.
 - Author review: `PROOF_READY_FOR_PRODUCER_REVIEW`. 洛阳 no longer visually sits in the water band in the v2 proof; primary stamps are less dominant; small/context stamps read more clearly. 官渡 still requires careful producer review because river/crossing grammar remains sensitive.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-15 T06 City Stamp Composite v3
+
+- Producer review of v2 accepted the overall direction and said large/primary cities and medium/standard cities can each be one step smaller; other placement/scale choices look acceptable.
+- Added `docs/map_design/work/stitch/create_t06_city_stamp_composite_v3.py`.
+- Generated:
+  - `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v3.png`;
+  - `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v3_preview.png`;
+  - `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v3_placements.json`;
+  - `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v3_manifest.md`.
+- Deterministic parameter changes from v2:
+  - primary width `170 -> 158`;
+  - standard width `136 -> 126`;
+  - subdued width remains `98`;
+  - east-context width remains `94`;
+  - 洛阳 visible-fit remains `-24,+84`;
+  - 官渡 visible-fit remains `-42,+62`.
+- Verification: script exit code `0`; composite and preview are exact `2344 x 1756`; placement JSON is valid with 11 entries; primary bbox is `158 x 91`; standard bbox is `126 x 75`.
+- Author review: `PROOF_READY_FOR_PRODUCER_REVIEW`. Primary and standard stamps are more restrained while retaining v2's accepted off-water/placement corrections.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.

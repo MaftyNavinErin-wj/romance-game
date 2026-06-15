@@ -563,3 +563,7 @@ Reusable lesson: city-stamp source images are not final stamps. They must be cut
 ## 2026-06-15 T06 Composite v2 Producer Feedback
 
 Producer review of the first deterministic city-stamp composite found that primary stamps were still too large, small/context stamps were too small, and Luoyang clearly sat in water. Composite v2 keeps the same T06 v2 terrain and deterministic placement model, but changes only art-layer parameters: primary width `188 -> 170`, standard `122 -> 136`, subdued `86 -> 98`, east-context `78 -> 94`; Luoyang gets visible-fit `-24,+84`; Guandu gets visible-fit `-42,+62` plus local source-approach softening. Runtime city data, `src/`, and `assets/maps/` remain untouched. Lesson: city-size balance and waterbank placement must be reviewed on the actual composite, not inferred from the earlier placeholder overlay.
+
+## 2026-06-15 T06 Composite v3 Scale Tuning
+
+Producer accepted the v2 placement/off-water direction but asked large and medium cities to go one step smaller, with other choices acceptable. Composite v3 changes only city sizes: primary width `170 -> 158`, standard `136 -> 126`; subdued/context sizes and Luoyang/Guandu fit offsets remain from v2. Lesson: keep scale tuning incremental and preserve approved placement fixes unless producer explicitly reopens them.

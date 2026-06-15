@@ -32,6 +32,9 @@
 - City stamp cutout composite v2 PNG: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v2.png`
 - City stamp cutout composite v2 preview: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v2_preview.png`
 - City stamp cutout composite v2 manifest: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v2_manifest.md`
+- City stamp cutout composite v3 PNG: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v3.png`
+- City stamp cutout composite v3 preview: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v3_preview.png`
+- City stamp cutout composite v3 manifest: `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v3_manifest.md`
 - Brief: `docs/map_design/work/tile_plan/stage6_t06_no_city_terrain_brief_v1.md`
 
 ## Generation
