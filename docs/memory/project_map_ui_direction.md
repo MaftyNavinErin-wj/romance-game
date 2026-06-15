@@ -567,3 +567,7 @@ Producer review of the first deterministic city-stamp composite found that prima
 ## 2026-06-15 T06 Composite v3 Scale Tuning
 
 Producer accepted the v2 placement/off-water direction but asked large and medium cities to go one step smaller, with other choices acceptable. Composite v3 changes only city sizes: primary width `170 -> 158`, standard `136 -> 126`; subdued/context sizes and Luoyang/Guandu fit offsets remain from v2. Lesson: keep scale tuning incremental and preserve approved placement fixes unless producer explicitly reopens them.
+
+## 2026-06-15 T06 Final Blend Gate
+
+Producer closed the T06 stamp-size/placement stage. `terrain_t06_cc_w_no_city_v2_city_stamp_composite_v3` is now the controlled city-stamp composite reference. Next work is final blend / tile proof only: terrain-city integration, edge cleanup, paper tone, local shadows, and pasted-object reduction. Do not adjust city count, coordinates, art-layer nudges, stamp-local fit offsets, or scale. Keep runtime untouched. Gate/ramp marks from stamp sources remain non-road artifacts unless separately approved.

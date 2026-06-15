@@ -650,3 +650,13 @@
 - Author review: `PROOF_READY_FOR_PRODUCER_REVIEW`. Primary and standard stamps are more restrained while retaining v2's accepted off-water/placement corrections.
 - Producer accepted v3 on 2026-06-15: large/primary and medium/standard city scale now look acceptable. v3 is accepted as the current controlled city-stamp composite reference for the next map-production step, not as a runtime asset promotion.
 - Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
+
+## 2026-06-15 T06 Final Blend / Tile Proof Brief v1
+
+- Producer closed the T06 city-stamp scale/placement pass. Do not continue tuning stamp dimensions.
+- Added `docs/map_design/work/tile_plan/stage6_t06_final_blend_tile_proof_brief_v1.md`.
+- The brief locks `terrain_t06_cc_w_no_city_v2_city_stamp_composite_v3` as the controlled city-stamp composite reference.
+- Next stage is final blend / tile proof: overall terrain-city integration, edge cleanup, paper tone, local shadow, and pasted-object reduction.
+- Locked constraints: no city count changes, no coordinate changes, no scale changes, no runtime promotion, no `src/` edits, no `assets/maps/` promotion.
+- Road-graph guard carries forward: stamp gate/ramp marks must not imply approved roads, ferries, crossings, or passes.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
