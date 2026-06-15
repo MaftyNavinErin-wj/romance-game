@@ -559,3 +559,7 @@ Author review:
 - `subdued_context`: `PASS_WITH_NOTES`; cleanest source for 新野/汉中/陈留/官渡/许昌 context use after mask/cutout.
 
 Reusable lesson: city-stamp source images are not final stamps. They must be cut out with non-rectangular masks, stripped of any road-like gate extensions unless approved as local tie-ins, and placed only by deterministic city-layer rules. 官渡 off-water handling remains a later stamp-local bank/terrace fit constraint, not a runtime coordinate change.
+
+## 2026-06-15 T06 Composite v2 Producer Feedback
+
+Producer review of the first deterministic city-stamp composite found that primary stamps were still too large, small/context stamps were too small, and Luoyang clearly sat in water. Composite v2 keeps the same T06 v2 terrain and deterministic placement model, but changes only art-layer parameters: primary width `188 -> 170`, standard `122 -> 136`, subdued `86 -> 98`, east-context `78 -> 94`; Luoyang gets visible-fit `-24,+84`; Guandu gets visible-fit `-42,+62` plus local source-approach softening. Runtime city data, `src/`, and `assets/maps/` remain untouched. Lesson: city-size balance and waterbank placement must be reviewed on the actual composite, not inferred from the earlier placeholder overlay.

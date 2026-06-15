@@ -605,3 +605,27 @@
   - rejected v1-v8 cutout attempts moved to `archive/failed_cutouts_v1_to_v8/`;
   - one-off/superseded scripts moved to `archive/superseded_scripts/`.
 - No T06 finished tile was generated. No road graph, AI blend pass, runtime coordinate change, `src/` edit, or `assets/maps/` promotion occurred.
+
+## 2026-06-15 T06 City Stamp Composite v2
+
+- Producer review of `terrain_t06_cc_w_no_city_v2_city_stamp_composite_v1_preview.png` found three problems:
+  - primary city stamps were still slightly too large;
+  - smaller city/context stamps were too small;
+  - 洛阳 had a clear placement problem and visually sat in water.
+- Added `docs/map_design/work/stitch/create_t06_city_stamp_composite_v2.py`.
+- Generated:
+  - `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v2.png`;
+  - `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v2_preview.png`;
+  - `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v2_placements.json`;
+  - `docs/map_design/work/stitch/terrain_t06_cc_w_no_city_v2_city_stamp_composite_v2_manifest.md`.
+- Deterministic parameter changes:
+  - primary width `188 -> 170`;
+  - standard width `122 -> 136`;
+  - subdued width `86 -> 98`;
+  - east-context width `78 -> 94`;
+  - 洛阳 visible-fit offset `0,+0 -> -24,+84`;
+  - 官渡 visible-fit offset `-26,+34 -> -42,+62`;
+  - 官渡 gets a local deterministic softener over the source-local approach mark to reduce road/crossing implication.
+- Verification: script exit code `0`; composite and preview are exact `2344 x 1756`; placement JSON is valid with 11 entries.
+- Author review: `PROOF_READY_FOR_PRODUCER_REVIEW`. 洛阳 no longer visually sits in the water band in the v2 proof; primary stamps are less dominant; small/context stamps read more clearly. 官渡 still requires careful producer review because river/crossing grammar remains sensitive.
+- Runtime unchanged: no files in `src/` or `assets/maps/` were modified.
